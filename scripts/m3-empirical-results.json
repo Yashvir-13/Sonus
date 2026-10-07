@@ -1,0 +1,238 @@
+{
+  "timestamp": "2026-10-06T15:17:14.441Z",
+  "totalTests": 38,
+  "passed": 36,
+  "failed": 2,
+  "results": [
+    {
+      "suite": "Suite 1: Astrolabe Needle Angle Math Oracle",
+      "name": "Reference point: -50¢ yields -60°",
+      "passed": true,
+      "details": "cents=-50 -> actual=-60°, expected=-60°"
+    },
+    {
+      "suite": "Suite 1: Astrolabe Needle Angle Math Oracle",
+      "name": "Reference point: -25¢ yields -30°",
+      "passed": true,
+      "details": "cents=-25 -> actual=-30°, expected=-30°"
+    },
+    {
+      "suite": "Suite 1: Astrolabe Needle Angle Math Oracle",
+      "name": "Reference point: 0¢ yields 0°",
+      "passed": true,
+      "details": "cents=0 -> actual=0°, expected=0°"
+    },
+    {
+      "suite": "Suite 1: Astrolabe Needle Angle Math Oracle",
+      "name": "Reference point: +25¢ yields 30°",
+      "passed": true,
+      "details": "cents=25 -> actual=30°, expected=30°"
+    },
+    {
+      "suite": "Suite 1: Astrolabe Needle Angle Math Oracle",
+      "name": "Reference point: +50¢ yields 60°",
+      "passed": true,
+      "details": "cents=50 -> actual=60°, expected=60°"
+    },
+    {
+      "suite": "Suite 1: Astrolabe Needle Angle Math Oracle",
+      "name": "Extreme flat -100¢ clamped to -60°",
+      "passed": true,
+      "details": "cents=-100 -> actual=-60°, expected=-60°"
+    },
+    {
+      "suite": "Suite 1: Astrolabe Needle Angle Math Oracle",
+      "name": "Extreme sharp +100¢ clamped to +60°",
+      "passed": true,
+      "details": "cents=100 -> actual=60°, expected=60°"
+    },
+    {
+      "suite": "Suite 1: Astrolabe Needle Angle Math Oracle",
+      "name": "Micro flat boundary -50.0001¢ clamped to -60°",
+      "passed": true,
+      "details": "cents=-50.0001 -> actual=-60°, expected=-60°"
+    },
+    {
+      "suite": "Suite 1: Astrolabe Needle Angle Math Oracle",
+      "name": "Micro sharp boundary +50.0001¢ clamped to +60°",
+      "passed": true,
+      "details": "cents=50.0001 -> actual=60°, expected=60°"
+    },
+    {
+      "suite": "Suite 1: Astrolabe Needle Angle Math Oracle",
+      "name": "Pathological flat -1000¢ clamped to -60°",
+      "passed": true,
+      "details": "cents=-1000 -> actual=-60°, expected=-60°"
+    },
+    {
+      "suite": "Suite 1: Astrolabe Needle Angle Math Oracle",
+      "name": "Pathological sharp +1000¢ clamped to +60°",
+      "passed": true,
+      "details": "cents=1000 -> actual=60°, expected=60°"
+    },
+    {
+      "suite": "Suite 1: Astrolabe Needle Angle Math Oracle",
+      "name": "Needle angle is strictly monotonic increasing over [-50, +50]",
+      "passed": true,
+      "details": "dθ/dc > 0 across entire active arc"
+    },
+    {
+      "suite": "Suite 1: Astrolabe Needle Angle Math Oracle",
+      "name": "Angular sensitivity gradient is exactly 1.2° per cent",
+      "passed": true,
+      "details": "Gradient = 60° / 50¢ = 1.2°/¢"
+    },
+    {
+      "suite": "Suite 2: In-Tune Resonance Ring Activation Oracle",
+      "name": "Exact equilibrium 0.0¢ is in-tune",
+      "passed": true,
+      "details": "cents=0 -> inTune=true, expected=true"
+    },
+    {
+      "suite": "Suite 2: In-Tune Resonance Ring Activation Oracle",
+      "name": "Halfway tolerance +1.5¢ is in-tune",
+      "passed": true,
+      "details": "cents=1.5 -> inTune=true, expected=true"
+    },
+    {
+      "suite": "Suite 2: In-Tune Resonance Ring Activation Oracle",
+      "name": "Halfway tolerance -1.5¢ is in-tune",
+      "passed": true,
+      "details": "cents=-1.5 -> inTune=true, expected=true"
+    },
+    {
+      "suite": "Suite 2: In-Tune Resonance Ring Activation Oracle",
+      "name": "Positive boundary exactly +3.0¢ is in-tune",
+      "passed": true,
+      "details": "cents=3 -> inTune=true, expected=true"
+    },
+    {
+      "suite": "Suite 2: In-Tune Resonance Ring Activation Oracle",
+      "name": "Negative boundary exactly -3.0¢ is in-tune",
+      "passed": true,
+      "details": "cents=-3 -> inTune=true, expected=true"
+    },
+    {
+      "suite": "Suite 2: In-Tune Resonance Ring Activation Oracle",
+      "name": "Strict boundary transgression +3.0001¢ is out-of-tune",
+      "passed": true,
+      "details": "cents=3.0001 -> inTune=false, expected=false"
+    },
+    {
+      "suite": "Suite 2: In-Tune Resonance Ring Activation Oracle",
+      "name": "Strict boundary transgression -3.0001¢ is out-of-tune",
+      "passed": true,
+      "details": "cents=-3.0001 -> inTune=false, expected=false"
+    },
+    {
+      "suite": "Suite 2: In-Tune Resonance Ring Activation Oracle",
+      "name": "Worker test trigger +18¢ is out-of-tune",
+      "passed": true,
+      "details": "cents=18 -> inTune=false, expected=false"
+    },
+    {
+      "suite": "Suite 2: In-Tune Resonance Ring Activation Oracle",
+      "name": "Worker test trigger -18¢ is out-of-tune",
+      "passed": true,
+      "details": "cents=-18 -> inTune=false, expected=false"
+    },
+    {
+      "suite": "Suite 2: In-Tune Resonance Ring Activation Oracle",
+      "name": "Worker test trigger +24¢ is out-of-tune",
+      "passed": true,
+      "details": "cents=24 -> inTune=false, expected=false"
+    },
+    {
+      "suite": "Suite 3: Equal Temperament & A4 Reference Pitch Engine",
+      "name": "440.0 Hz at A4=440 yields A4 with 0.0¢ deviation",
+      "passed": true,
+      "details": "{\"noteName\":\"A\",\"octave\":4,\"fullNote\":\"A4\",\"nominalFrequency\":440,\"centsDeviation\":0,\"inTune\":true}"
+    },
+    {
+      "suite": "Suite 3: Equal Temperament & A4 Reference Pitch Engine",
+      "name": "415.0 Hz at A4=415 yields A4 with 0.0¢ deviation",
+      "passed": true,
+      "details": "{\"noteName\":\"A\",\"octave\":4,\"fullNote\":\"A4\",\"nominalFrequency\":415,\"centsDeviation\":0,\"inTune\":true}"
+    },
+    {
+      "suite": "Suite 3: Equal Temperament & A4 Reference Pitch Engine",
+      "name": "442.0 Hz at A4=442 yields A4 with 0.0¢ deviation",
+      "passed": true,
+      "details": "{\"noteName\":\"A\",\"octave\":4,\"fullNote\":\"A4\",\"nominalFrequency\":442,\"centsDeviation\":0,\"inTune\":true}"
+    },
+    {
+      "suite": "Suite 3: Equal Temperament & A4 Reference Pitch Engine",
+      "name": "Frequency corresponding to -18¢ detects as A4 with -18.0¢ deviation and out-of-tune",
+      "passed": true,
+      "details": "{\"noteName\":\"A\",\"octave\":4,\"fullNote\":\"A4\",\"nominalFrequency\":440,\"centsDeviation\":-18,\"inTune\":false}"
+    },
+    {
+      "suite": "Suite 3: Equal Temperament & A4 Reference Pitch Engine",
+      "name": "Frequency corresponding to +24¢ detects as A4 with +24.0¢ deviation and out-of-tune",
+      "passed": true,
+      "details": "{\"noteName\":\"A\",\"octave\":4,\"fullNote\":\"A4\",\"nominalFrequency\":440,\"centsDeviation\":24,\"inTune\":false}"
+    },
+    {
+      "suite": "Suite 4: Source Code Blueprint & Token Conformance",
+      "name": "LandingScreen renders <InkBleedFilter id=\"ink-bleed\" ... />",
+      "passed": true,
+      "details": "Verified InkBleedFilter component invocation"
+    },
+    {
+      "suite": "Suite 4: Source Code Blueprint & Token Conformance",
+      "name": "LandingScreen applies filter: url(#ink-bleed) to PRISM calligraphic title and bloom underlay",
+      "passed": true,
+      "details": "Verified SVG filter URL reference on title and underlay"
+    },
+    {
+      "suite": "Suite 4: Source Code Blueprint & Token Conformance",
+      "name": "LandingScreen implements [data-testid=\"guest-audition-btn\"] with instant session storage entry",
+      "passed": true,
+      "details": "Verified guest-audition-btn and session storage flag"
+    },
+    {
+      "suite": "Suite 4: Source Code Blueprint & Token Conformance",
+      "name": "InkBleedFilter declares feTurbulence, feDisplacementMap, feGaussianBlur, feMerge pipeline",
+      "passed": true,
+      "details": "Verified complete 4-stage procedural SVG filter pipeline"
+    },
+    {
+      "suite": "Suite 4: Source Code Blueprint & Token Conformance",
+      "name": "TuningRitualScreen implements Astrolabe 320px SVG dial and needle",
+      "passed": true,
+      "details": "Verified dial and needle testids"
+    },
+    {
+      "suite": "Suite 4: Source Code Blueprint & Token Conformance",
+      "name": "TuningRitualScreen needle transform applies computed needleAngle degrees",
+      "passed": true,
+      "details": "Verified needle rotation and origin at 160, 160"
+    },
+    {
+      "suite": "Suite 4: Source Code Blueprint & Token Conformance",
+      "name": "TuningRitualScreen resonance ring activates stroke #9A2A2A and glow filter on inTune",
+      "passed": true,
+      "details": "Verified inTune conditional styling and SVG halo filter"
+    },
+    {
+      "suite": "Suite 4: Source Code Blueprint & Token Conformance",
+      "name": "TuningRitualScreen provides deterministic test triggers (0¢, -18¢, +24¢)",
+      "passed": true,
+      "details": "Verified headless test triggers"
+    },
+    {
+      "suite": "Suite 5: Adversarial Review & Bug Detection",
+      "name": "CHALLENGE: Switching to MIDI mode cleanly terminates the physical microphone stream and pauses audio loop",
+      "passed": false,
+      "details": "BUG FOUND: setMode(\"midi\") leaves AudioContext and requestAnimationFrame(loop) running. Real mic loop continues capturing and overriding pitch state while in MIDI mode.",
+      "challengeNote": "HIGH: Audio stream leak and mode state collision. The microphone stream continues processing input during MIDI mode because loop() lacks a mode guard and setMode does not stop the microphone."
+    },
+    {
+      "suite": "Suite 5: Adversarial Review & Bug Detection",
+      "name": "CHALLENGE: Headless test triggers (0¢, -18¢, +24¢) latch state without immediate overwrite by drift loop or mic",
+      "passed": false,
+      "details": "FAILURE: triggerSimulationCents sets state but does NOT pause the 50ms drift interval or real mic loop. The simulated drift or real mic overwrites triggered values in 50ms - 500ms.",
+      "challengeNote": "HIGH: Test flakiness risk in Playwright E2E. Automated assertions must assert immediately before the 50ms drift interval or ambient audio frame fires."
+    }
+  ]
+}

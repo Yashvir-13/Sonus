@@ -1,0 +1,140 @@
+/**
+ * Living Manuscript Design Tokens — Classical Treatise & Sheet Music Aesthetic.
+ * Aligned with DESIGN.md and PROJECT.md:
+ *   - Playfair Display → --font-serif / --font-display (headings, titles, opus marks)
+ *   - Geist Mono → --font-mono / --font-geist-mono (telemetry, microtones, cents)
+ *   - Inter → --font-sans (functional UI labels)
+ *   - Strict zero border radius: sharp, guillotine-trimmed paper edges
+ */
+
+:root {
+  --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-playfair: "Playfair Display", Georgia, serif;
+  --font-geist-mono: "Geist Mono", ui-monospace, monospace;
+
+  /* Living Manuscript Palette */
+  --color-parchment: #f4f1ea;
+  --color-parchment-secondary: #e9e4da;
+  --color-charcoal: #2c2a29;
+  --color-crimson: #9a2a2a;
+  --color-muted-ink: #7e7570;
+  --color-gold-leaf: #c8a858;
+
+  /* Classical parchment tokens */
+  --color-parchment-white: #f4f1ea;
+  --color-warm-sand: #e9e4da;
+  --color-ash-border: #2c2a29;
+  --color-midnight-ink: #2c2a29;
+  --color-driftwood: #7e7570;
+  --color-fog: #7e7570;
+  --color-silver-mist: #7e7570;
+
+  /* App canvas = parchment; cards = parchment; borders = charcoal */
+  --surface-canvas: #f4f1ea;
+  --surface-card: #f4f1ea;
+  --surface-border: #2c2a29;
+  --surface-elevated: #e9e4da;
+
+  /* Strict zero radius — classical trimmed sheet paper */
+  --radius-inputs: 0px;
+  --radius-buttons: 0px;
+  --radius: 0px;
+
+  --color-parchment: #f4f1ea;
+  --color-ink: var(--color-charcoal);
+  --color-ash: var(--color-ash-border);
+
+  /* Typography roles */
+  --font-display: var(--font-playfair);
+  --font-mark: var(--font-playfair);
+  --font-brand: var(--font-playfair);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+  --font-mono: var(--font-geist-mono);
+
+  /* Weight tokens */
+  --font-weight-display: 600;
+  --font-weight-ui: 400;
+  --font-weight-ui-medium: 500;
+  --font-weight-brand: 700;
+}
+
+.dark {
+  /* In Living Manuscript dark mode / low-light sanctuary */
+  --color-parchment: #1c1b1a;
+  --color-parchment-secondary: #262422;
+  --color-charcoal: #e9e4da;
+  --color-crimson: #c44040;
+  --color-muted-ink: #8f8882;
+  --color-gold-leaf: #d4b568;
+
+  --color-parchment-white: #1c1b1a;
+  --color-warm-sand: #262422;
+  --color-ash-border: #4a4642;
+  --color-midnight-ink: #e9e4da;
+  --color-driftwood: #8f8882;
+  --color-fog: #8f8882;
+  --color-silver-mist: #6b6661;
+
+  --surface-canvas: #1c1b1a;
+  --surface-card: #1c1b1a;
+  --surface-border: #4a4642;
+  --surface-elevated: #262422;
+
+  --color-ink: var(--color-charcoal);
+  --color-ash: var(--color-ash-border);
+}
+
+@theme inline {
+  --color-parchment: #f4f1ea;
+  --color-parchment-secondary: #e9e4da;
+  --color-charcoal: #2c2a29;
+  --color-crimson: #9a2a2a;
+  --color-muted-ink: #7e7570;
+  --color-gold-leaf: #c8a858;
+
+  --color-parchment-white: #f4f1ea;
+  --color-warm-sand: #e9e4da;
+  --color-ash-border: #2c2a29;
+  --color-midnight-ink: #2c2a29;
+  --color-driftwood: #7e7570;
+  --color-fog: #7e7570;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
+  --font-display: var(--font-playfair), Georgia, serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --font-weight-display: 600;
+  --font-weight-ui: 400;
+  --font-weight-ui-medium: 500;
+  --font-weight-brand: 700;
+
+  /* Strict zero radius tokens */
+  --radius-inputs: 0px;
+  --radius-buttons: 0px;
+  --radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+}
