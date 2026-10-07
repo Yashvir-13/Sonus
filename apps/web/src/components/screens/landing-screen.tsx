@@ -2,7 +2,7 @@ import { SignInButton } from '@clerk/react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useState, useRef } from 'react'
 import App from '@/app'
-import { LivingManuscript } from '@/components/ui/living-manuscript'
+import { InteractiveInkShader } from '@/components/ui/interactive-ink-shader'
 import { InkBleedFilter } from '@/components/ui/ink-bleed-filter'
 
 export interface LandingScreenProps {
@@ -55,9 +55,9 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
     >
       <InkBleedFilter id="sonus-ink-bleed" baseFrequency={0.02} scale={15} stdDeviation={2} />
       
-      {/* Living Manuscript Background with true ink bleed effect */}
+      {/* Interactive Ink Shader Background */}
       <div className="absolute inset-0 w-full h-full z-0 overflow-hidden" style={{ filter: 'url(#sonus-ink-bleed)' }}>
-        <LivingManuscript />
+        <InteractiveInkShader />
       </div>
 
       {/* Main Content */}
