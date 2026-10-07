@@ -1,6 +1,0 @@
-Installed 1 package in 37ms
-usage: search_arxiv.py [-h] [--query QUERY] [--id_list ID_LIST]
-                       [--start START] [--max_results MAX_RESULTS]
-                       [--sort_by {relevance,lastUpdatedDate,submittedDate}]
-                       [--sort_order {ascending,descending}]
-search_arxiv.py: error: unrecognized arguments: pitch detection\ AND all:\monophonic\ AND all:\real-time\
