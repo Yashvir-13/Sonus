@@ -1,75 +1,12 @@
-import { LivePracticeView } from '@/components/live-practice-view'
-import {
-  SpatialProvider,
-  SpatialContainer,
-  FolioNavAnchors,
-  CelestialCompass,
-} from '@/components/spatial'
-import {
-  ComposerProfileScreen,
-  PracticeHistoryScreen,
-  DeviceSetupScreen,
-} from '@/components/screens'
+import React from 'react'
 
-export interface AppProps {
-  isGuest?: boolean
-  onExitGuest?: () => void
-}
-
-function PracticeStandView({ isGuest, onExitGuest }: AppProps) {
+export default function App() {
   return (
-    <div className="w-full h-full flex flex-col justify-between p-8 select-none">
-      <header className="w-full flex justify-between items-baseline z-10 px-6">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-serif text-[#2C2A29] tracking-tight">
-            Sonus
-          </h1>
-          <p className="font-mono text-xs text-[#7E7570] tracking-widest uppercase mt-1">
-            Adaptive Practice System • Stand (0, 0)
-          </p>
-        </div>
-        {isGuest && (
-          <button
-            onClick={onExitGuest}
-            className="font-mono text-xs border border-[#2C2A29] px-3 py-1.5 hover:border-[#9A2A2A] hover:bg-[#E9E4DA] hover:text-[#9A2A2A] transition-colors shadow-none cursor-pointer"
-            aria-label="Exit Guest Mode"
-          >
-            Exit Guest Mode
-          </button>
-        )}
-      </header>
-
-      <div className="flex-1 w-full flex items-center justify-center">
-        <LivePracticeView />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900">
+      <div className="text-center space-y-4 p-8 bg-white rounded-lg shadow-sm border border-gray-200">
+        <h1 className="text-2xl font-bold">Frontend Reset</h1>
+        <p className="text-gray-500">The frontend has been completely cleared.</p>
       </div>
     </div>
-  )
-}
-
-function AppCanvas({ isGuest, onExitGuest }: AppProps) {
-  return (
-    <div className="w-screen h-screen overflow-hidden relative bg-[#F4F1EA] text-[#2C2A29] select-none">
-      <SpatialContainer
-        practiceScreen={
-          <PracticeStandView isGuest={isGuest} onExitGuest={onExitGuest} />
-        }
-        profileScreen={
-          <ComposerProfileScreen isGuest={isGuest} onExitGuest={onExitGuest} />
-        }
-        historyScreen={<PracticeHistoryScreen />}
-        tuningScreen={<DeviceSetupScreen />}
-      />
-
-      <FolioNavAnchors />
-      <CelestialCompass />
-    </div>
-  )
-}
-
-export default function App(props: AppProps) {
-  return (
-    <SpatialProvider>
-      <AppCanvas {...props} />
-    </SpatialProvider>
   )
 }
