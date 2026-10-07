@@ -9,7 +9,7 @@ Design System: d:\Projects\adaptive-music-practice\apps\web\src\design-system\
 Objectives:
 1. Review `LANDING_PAGE_SPEC` in `apps/web/src/design-system/screens.ts` and `apps/web/src/components/ui/ink-bleed-filter.tsx`.
 2. Formulate implementation architecture for `apps/web/src/components/screens/landing-screen.tsx`:
-   - Hero section featuring calligraphic ink title "PRISM" with reactive ink-bleed bloom using `<InkBleedFilter />` and SVG filter `#ink-bleed`
+   - Hero section featuring calligraphic ink title "Sonus" with reactive ink-bleed bloom using `<InkBleedFilter />` and SVG filter `#ink-bleed`
    - Historical Latin marginalia (*Audire · Discere · Exercere*)
    - Three illuminated parchment feature scrolls (Adaptive Intonation, Temporal DTW Alignment, Celestial Constellation History)
    - Embedded Clerk `<SignIn />` within an illuminated manuscript border with Living Manuscript theme variables
@@ -23,5 +23,5 @@ You are Explorer M3-1 (Landing Page & Ink Bleed Architecture).
 Your working directory is d:\Projects\adaptive-music-practice\.agents\teamwork\explorer_m3_1\
 Read d:\Projects\adaptive-music-practice\.agents\teamwork\explorer_m3_1\DISPATCH.md, d:\Projects\adaptive-music-practice\PROJECT.md, and examine d:\Projects\adaptive-music-practice\apps\web\src\design-system\.
 
-Formulate the architecture and concrete implementation blueprint for apps/web/src/components/screens/landing-screen.tsx (ink bleed effect with InkBleedFilter, calligraphic PRISM title, Latin marginalia, Clerk auth integration, and Guest Audition instant access).
+Formulate the architecture and concrete implementation blueprint for apps/web/src/components/screens/landing-screen.tsx (ink bleed effect with InkBleedFilter, calligraphic Sonus title, Latin marginalia, Clerk auth integration, and Guest Audition instant access).
 Write report.md and handoff.md. Communicate back via send_message when complete.

@@ -87,7 +87,7 @@ While the work is APPROVED, the following technical advisories must be accounted
 ### Minor Finding 2: SVG Ink Bleed Filter Performance During Spatial Transitions
 - **Location**: `apps/web/src/components/ui/ink-bleed-filter.tsx`.
 - **Issue**: Applying SVG filters (`feTurbulence` with 4 octaves and `feDisplacementMap`) to large animated DOM containers can cause GPU rasterization bottlenecks and frame drops during Framer Motion camera panning.
-- **Advisory for M3**: Apply `filter: url(#ink-bleed)` strictly to static hero typography (such as `<h1>PRISM</h1>`) and isolated calligraphic elements, avoiding full-screen containers or actively panning views.
+- **Advisory for M3**: Apply `filter: url(#ink-bleed)` strictly to static hero typography (such as `<h1>Sonus</h1>`) and isolated calligraphic elements, avoiding full-screen containers or actively panning views.
 
 ### Minor Finding 3: Tailwind `rounded-full` Leakage Prevention
 - **Location**: `apps/web/src/styles/theme.css`.

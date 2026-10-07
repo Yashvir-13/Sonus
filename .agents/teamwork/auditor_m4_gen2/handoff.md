@@ -61,7 +61,7 @@
 - Verbatim Output:
   ```text
   ================================================================
-  PRISM E2E & VISUAL VERIFICATION TEST HARNESS (MILESTONE 4)
+  Sonus E2E & VISUAL VERIFICATION TEST HARNESS (MILESTONE 4)
   ================================================================
 
   [Server] Launching Vite dev server on port 5173...
@@ -74,8 +74,8 @@
   [✅ PASS] [4a.Landing] feDisplacementMap primitive exists with scale (scale=5)
   [✅ PASS] [4a.Landing] feGaussianBlur primitive exists in filter 
   [✅ PASS] [4a.Landing] feMerge primitive exists in filter 
-  [✅ PASS] [4a.Landing] PRISM master calligraphic title present 
-  [✅ PASS] [4a.Landing] PRISM title references filter: url(#ink-bleed) (filter: url("#ink-bleed"); text-shadow: rgba(44, 42, 41, 0.35) 0px 0px 1px;)
+  [✅ PASS] [4a.Landing] Sonus master calligraphic title present 
+  [✅ PASS] [4a.Landing] Sonus title references filter: url(#ink-bleed) (filter: url("#ink-bleed"); text-shadow: rgba(44, 42, 41, 0.35) 0px 0px 1px;)
   [✅ PASS] [4a.Landing] Latin motto "AUDIRE · DISCERE · EXERCERE" present 
   [✅ PASS] [4a.Landing] Three illuminated feature scrolls present 
   [✅ PASS] [4a.Landing] Guest Audition CTA button present 
@@ -171,7 +171,7 @@
   07_tuning_astrolabe_sharp.png   130902 07-10-2026 12:59:18
   ```
 - Image Inspection Findings:
-  1. `01_landing_page.png`: Renders parchment `#F4F1EA` paper texture, dynamic SVG ink bleed bloom filter (`#ink-bleed`), calligraphic "PRISM" header, Latin motto "AUDIRE · DISCERE · EXERCERE", 3 feature scrolls, and live Clerk Auth widget with zero border radius.
+  1. `01_landing_page.png`: Renders parchment `#F4F1EA` paper texture, dynamic SVG ink bleed bloom filter (`#ink-bleed`), calligraphic "Sonus" header, Latin motto "AUDIRE · DISCERE · EXERCERE", 3 feature scrolls, and live Clerk Auth widget with zero border radius.
   2. `02_practice_stand.png`: Renders 2D Spatial Stand `(0, 0)` with stave lines, edge folio anchors (`↑ 𝄞 Persona`, `← 𝄌 Historia`, `Harmonia ♮ →`), and Celestial Compass minimap with `PRAXIS · (0, 0)` highlighted.
   3. `03_constellation_history.png`: Renders celestial scatter plot at coordinate `(-1, 0)` with `HORIZON CRITICUS (86 BPM)` threshold line, 27 star nodes, constellation filaments, and Take Inspector folio marginalia.
   4. `04_composer_profile.png`: Renders 17th-century treatise frontispiece at coordinate `(0, -1)` with woodcut monogram crest, practice telemetry matrix (intonation purity 91.4%, timing precision ±14ms), microtonal habit diagnoses (`♯ +5¢`, `♭ -4¢`), and repertoire ledger.

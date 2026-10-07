@@ -2,14 +2,14 @@
 
 **Explorer 2 — Frontend Codebase Explorer Report**  
 **Date:** 2026-10-06  
-**Target Project:** PRISM — Adaptive Musical Practice System (`apps/web`)  
+**Target Project:** Sonus — Adaptive Musical Practice System (`apps/web`)  
 **Working Directory:** `.agents/teamwork/explorer_survey_2/`  
 
 ---
 
 ## 1. Executive Summary
 
-This investigation surveys the `apps/web` frontend codebase, dependencies, build infrastructure, authentication integration, and technical feasibility for the PRISM Adaptive Musical Practice System. 
+This investigation surveys the `apps/web` frontend codebase, dependencies, build infrastructure, authentication integration, and technical feasibility for the Sonus Adaptive Musical Practice System. 
 
 ### Key Findings:
 1. **Modern, High-Performance Stack:** The frontend is configured with Vite 8.3, React 19.2, TypeScript 6.0, Tailwind CSS v4, `@clerk/react` 6.1, and `framer-motion` 14.0. The build pipeline (`tsc -b && vite build`) executes cleanly in ~3.5 seconds with zero errors. Linting via `oxlint` reports 0 errors and 0 warnings.
@@ -206,7 +206,7 @@ The user must be able to pan the stand effortlessly without relying on standard 
   - **Reactive Ink Bleed Effect:** An animated SVG filter combining `<feTurbulence>`, `<feDisplacementMap>`, and `<feColorMatrix>` that pulses dynamically, simulating wet iron gall ink soaking into rough paper fibers.
   - **Editorial Hero Typography:**
     - High-contrast `Playfair Display` serif: *"Opus Manuscriptum"*
-    - Subtitle in `Geist Mono`: *"PRISM // AN ADAPTIVE MUSICAL PRACTICE SYSTEM"*
+    - Subtitle in `Geist Mono`: *"Sonus // AN ADAPTIVE MUSICAL PRACTICE SYSTEM"*
   - **Historical Illumination:** A decorative illuminated drop-cap ("O") and classical engraving border.
   - **Clerk Auth Integration:** Embedded `<SignIn />` component styled with custom Living Manuscript theme (see Section 6).
   - **"Audition as Guest" CTA:** Enables direct entry to the spatial stand for instant practice or headless Playwright evaluation.

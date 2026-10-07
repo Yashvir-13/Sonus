@@ -57,9 +57,9 @@
 
 5. **SessionStorage Guest Mode Persistence**:
    In `apps/web/src/components/auth/sign-in-page.tsx` (lines 7–13, 30–41):
-   - Clicking "Audition as Guest" sets `sessionStorage.setItem('prism_guest_mode', 'true')` and renders `<App isGuest={true} />`.
-   - Browser navigation and page refresh at `http://localhost:5173/` (without `#guest` hash) verified persistence: `prism_guest_mode` remained `'true'` and `<App isGuest={true} />` mounted immediately.
-   - Clicking "Depart Sanctuary (Guest)" removed the session item (`sessionStorage.removeItem('prism_guest_mode')`) and returned the browser to `<SignInPage />`.
+   - Clicking "Audition as Guest" sets `sessionStorage.setItem('Sonus_guest_mode', 'true')` and renders `<App isGuest={true} />`.
+   - Browser navigation and page refresh at `http://localhost:5173/` (without `#guest` hash) verified persistence: `Sonus_guest_mode` remained `'true'` and `<App isGuest={true} />` mounted immediately.
+   - Clicking "Depart Sanctuary (Guest)" removed the session item (`sessionStorage.removeItem('Sonus_guest_mode')`) and returned the browser to `<SignInPage />`.
 
 6. **Automated Stress Test Suite Execution**:
    Running `pnpm dlx tsx scripts/verify-m2-isolation-downstream.ts`:

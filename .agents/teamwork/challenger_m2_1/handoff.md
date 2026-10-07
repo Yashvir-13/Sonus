@@ -103,7 +103,7 @@
 
 ## 3. Caveats
 
-1. **Initial Guest Mode Hash URL Persistence**: In `apps/web/src/components/auth/sign-in-page.tsx`, entering via `#guest` URL activates guest mode in React state, but `sessionStorage.setItem('prism_guest_mode', 'true')` is only committed when clicking "Audition as Guest" or on subsequent `hashchange` events. If a user deep-links `#guest`, immediately navigates to `#profile`, and refreshes before `sessionStorage` is set, they could be returned to `SignInPage`. (Mitigation: Clicking "Audition as Guest" CTA writes to `sessionStorage` immediately and persists across reloads).
+1. **Initial Guest Mode Hash URL Persistence**: In `apps/web/src/components/auth/sign-in-page.tsx`, entering via `#guest` URL activates guest mode in React state, but `sessionStorage.setItem('Sonus_guest_mode', 'true')` is only committed when clicking "Audition as Guest" or on subsequent `hashchange` events. If a user deep-links `#guest`, immediately navigates to `#profile`, and refreshes before `sessionStorage` is set, they could be returned to `SignInPage`. (Mitigation: Clicking "Audition as Guest" CTA writes to `sessionStorage` immediately and persists across reloads).
 2. **Spring Settling Duration vs. Context Timer**: A diagonal 2-axis or 200vw spring transition takes ~1100–1500ms to settle under `stiffness: 70, damping: 18`, while `spatial-context.tsx` has a fallback timer of 800ms for `isPanning`. However, `spatial-container.tsx` binds `onAnimationComplete` directly to Framer Motion, ensuring that `isPanning` reflects the actual physical settling of the canvas.
 
 ---

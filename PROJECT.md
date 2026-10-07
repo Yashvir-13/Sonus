@@ -1,4 +1,4 @@
-# Project: PRISM Adaptive Musical Practice System
+# Project: Sonus Adaptive Musical Practice System
 
 ## Architecture
 - **2D Spatial Single-Page Architecture**: Replaces traditional routing with a continuous 2D plane powered by Framer Motion (`stiffness: 70, damping: 18`).

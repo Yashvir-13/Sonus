@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-This report establishes the complete architecture, geometric coordinate mathematics, visual design system compliance, and drop-in code blueprints for the two primary analytical viewports in the PRISM Adaptive Musical Practice System:
+This report establishes the complete architecture, geometric coordinate mathematics, visual design system compliance, and drop-in code blueprints for the two primary analytical viewports in the Sonus Adaptive Musical Practice System:
 
 1. **`ConstellationHistoryScreen`** (`apps/web/src/components/screens/constellation-history-screen.tsx`):
    - **Spatial Location**: Left Viewport `(-100vw, 0)` / Spatial target `'history'`

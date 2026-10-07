@@ -84,7 +84,7 @@
 
 ### E. Physical Proof Screenshots Inspection
 Direct visual examination of all 7 files in `.agents/teamwork/verification_screenshots/` verified that they are non-empty, high-fidelity PNG captures (PNG magic bytes `89 50 4E 47 0D 0A 1A 0A`):
-1. `01_landing_page.png` (221,362 bytes) — Ink bleed `#ink-bleed` filter active, calligraphic PRISM title, Latin motto "AUDIRE · DISCERE · EXERCERE", feature scrolls, bespoke Clerk sign-in form.
+1. `01_landing_page.png` (221,362 bytes) — Ink bleed `#ink-bleed` filter active, calligraphic Sonus title, Latin motto "AUDIRE · DISCERE · EXERCERE", feature scrolls, bespoke Clerk sign-in form.
 2. `02_practice_stand.png` (51,438 bytes) — Practice Stand at `(0, 0)`, Opus Manuscriptum header, pitch ribbon, live feedback strip, 2D compass minimap.
 3. `03_constellation_history.png` (228,276 bytes) — Panned left to `(-1, 0)`, celestial scatter plot with Keplerian orbits, 86 BPM Horizon Criticus, interactive star nodes, constellation filaments, active take inspector folio with rubricated Nota Editoris.
 4. `04_composer_profile.png` (159,689 bytes) — Panned up to `(0, -1)`, 17th-century treatise frontispiece, circular woodcut monogram crest with concentric rules, telemetry grid (Intonation Purity 91.4%, ±14ms precision), microtonal habit diagnoses (`♯ +5¢`, `♭ -4¢`, `𝄩 +4%`), repertoire ledger.

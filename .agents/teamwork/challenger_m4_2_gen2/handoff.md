@@ -35,10 +35,10 @@
    [Warm-up] Initial navigation to compile Vite bundles...
 
    --- 1. Testing Unauthenticated Cold Direct Hash Navigation ---
-   [✅ PASS] [1.UnauthDirectHash] Navigating cold to #practice renders without crash (URL: http://localhost:5176/#practice, PRISM title count: 1)
-   [✅ PASS] [1.UnauthDirectHash] Navigating cold to #profile renders without crash (URL: http://localhost:5176/#profile, PRISM title count: 1)
-   [✅ PASS] [1.UnauthDirectHash] Navigating cold to #history renders without crash (URL: http://localhost:5176/#history, PRISM title count: 1)
-   [✅ PASS] [1.UnauthDirectHash] Navigating cold to #tuning renders without crash (URL: http://localhost:5176/#tuning, PRISM title count: 1)
+   [✅ PASS] [1.UnauthDirectHash] Navigating cold to #practice renders without crash (URL: http://localhost:5176/#practice, Sonus title count: 1)
+   [✅ PASS] [1.UnauthDirectHash] Navigating cold to #profile renders without crash (URL: http://localhost:5176/#profile, Sonus title count: 1)
+   [✅ PASS] [1.UnauthDirectHash] Navigating cold to #history renders without crash (URL: http://localhost:5176/#history, Sonus title count: 1)
+   [✅ PASS] [1.UnauthDirectHash] Navigating cold to #tuning renders without crash (URL: http://localhost:5176/#tuning, Sonus title count: 1)
 
    --- 2. Testing Direct URL Hash Navigation with Guest Mode Active ---
    [✅ PASS] [2.DirectHash.Practice] Direct load #practice activates Stand (0, 0) (target=practice, aria-hidden=false, inert=null)
@@ -107,8 +107,8 @@
 1. **Direct URL Hash Navigation Stress-Testing**:
    - *Observation*: Tests in Section 1 and Section 2 evaluated all 4 primary URL hashes: `#practice`, `#profile`, `#history`, `#tuning`.
    - *Deduction*:
-     - In cold unauthenticated state, navigating directly to any of the 4 hashes renders the Living Manuscript Landing Page cleanly without throw, unhandled error, or white screen of death (`PRISM` title count: 1).
-     - In guest-authenticated state (with `sessionStorage.getItem('prism_guest_mode') === 'true'`), cold loading each hash correctly initializes `currentTarget` in `SpatialProvider` (`parseHashTarget()` in `spatial-context.tsx:22-26`).
+     - In cold unauthenticated state, navigating directly to any of the 4 hashes renders the Living Manuscript Landing Page cleanly without throw, unhandled error, or white screen of death (`Sonus` title count: 1).
+     - In guest-authenticated state (with `sessionStorage.getItem('Sonus_guest_mode') === 'true'`), cold loading each hash correctly initializes `currentTarget` in `SpatialProvider` (`parseHashTarget()` in `spatial-context.tsx:22-26`).
      - The corresponding spatial viewport element (`#viewport-practice`, `#viewport-profile`, `#viewport-history`, `#viewport-tuning`) unsets `aria-hidden` and removes `inert`, while non-active screens are correctly marked `aria-hidden="true"` and `inert=true` (`spatial-container.tsx:201-248`).
      - Dynamic mutations via `window.location.hash = '#history'` (and subsequent targets) trigger the `hashchange` listener in `spatial-context.tsx:89-121`, smoothly panning the Framer Motion world canvas and updating `data-current-target`.
      - Browser history traversal via `page.goBack()` cleanly restores the prior target without state divergence.

@@ -1,4 +1,4 @@
-# Sentinel Completion Handoff Report: PRISM Adaptive Musical Practice System
+# Sentinel Completion Handoff Report: Sonus Adaptive Musical Practice System
 
 **Role**: Project Sentinel  
 **Target Recipient**: Parent Agent / User  

@@ -1,7 +1,7 @@
 # BRIEFING — 2026-10-06T14:48:00Z
 
 ## Mission
-Formulate implementation architecture and concrete blueprint for Landing Page (`apps/web/src/components/screens/landing-screen.tsx`) featuring InkBleedFilter, calligraphic PRISM title, Latin marginalia, 3 illuminated parchment feature scrolls, Clerk auth integration, and Guest Audition instant access.
+Formulate implementation architecture and concrete blueprint for Landing Page (`apps/web/src/components/screens/landing-screen.tsx`) featuring InkBleedFilter, calligraphic Sonus title, Latin marginalia, 3 illuminated parchment feature scrolls, Clerk auth integration, and Guest Audition instant access.
 
 ## 🔒 My Identity
 - Archetype: explorer
@@ -36,7 +36,7 @@ Formulate implementation architecture and concrete blueprint for Landing Page (`
   - Design system tokens match Living Manuscript: parchment `#F4F1EA`, charcoal `#2C2A29`, crimson `#9A2A2A`, vellum `#E9E4DA`, zero border radius.
   - `<InkBleedFilter />` exists in `apps/web/src/components/ui/ink-bleed-filter.tsx` with id `#ink-bleed` using `feTurbulence` and `feDisplacementMap`.
   - Reactive bloom is achieved by coupling hover state to filter `scale` (5 -> 8) and `stdDeviation` (0.6 -> 1.1) alongside an expanding radial ink wash underlay.
-  - Guest audition pathway is critical for instant unauthenticated testing and Playwright E2E automation (`sessionStorage.setItem('prism_guest_mode', 'true')` + `#guest`).
+  - Guest audition pathway is critical for instant unauthenticated testing and Playwright E2E automation (`sessionStorage.setItem('Sonus_guest_mode', 'true')` + `#guest`).
   - `sign-in-page.tsx` currently houses a rudimentary placeholder that can cleanly delegate to `LandingScreen`.
   - Vite build (`tsc -b && vite build`) and linter (`oxlint`) are both passing with 0 errors and 0 warnings.
 - **Unexplored areas**:

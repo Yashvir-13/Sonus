@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-Milestone 2 establishes the **2D Spatial Single-Page Architecture** for the PRISM Adaptive Musical Practice System, replacing conventional URL route switching with an infinite 2D manuscript plane powered by Framer Motion.
+Milestone 2 establishes the **2D Spatial Single-Page Architecture** for the Sonus Adaptive Musical Practice System, replacing conventional URL route switching with an infinite 2D manuscript plane powered by Framer Motion.
 
 This investigation resolves three fundamental architectural questions:
 1. **Viewport Placement & Positioning**: How the 4 primary viewports—Center `(0, 0)` Practice Stand, Up `(0, -1)` Composer's Bio Profile, Left `(-1, 0)` Constellation History, and Right `(1, 0)` Tuning Ritual—are mounted within the DOM and transformed across the 2D plane.
@@ -129,7 +129,7 @@ By managing guest mode inside `components/auth/sign-in-page.tsx`, we satisfy **b
 1. In `main.tsx`:
    - Structure remains 100% compliant with `AGENTS.md`. No modifications required that violate root rules.
 2. In `components/auth/sign-in-page.tsx`:
-   - Checks `sessionStorage.getItem('prism_guest_mode') === 'true'` or URL hash `#guest`.
+   - Checks `sessionStorage.getItem('Sonus_guest_mode') === 'true'` or URL hash `#guest`.
    - If `isGuest === false`: Renders `LandingScreen` with:
      - Ink bleed filter `#ink-bleed`
      - Clerk `<SignIn />` styled via `clerkThemeConfig`
@@ -292,14 +292,14 @@ export function SignInPage() {
     if (typeof window === 'undefined') return false
     return (
       window.location.hash.includes('guest') ||
-      sessionStorage.getItem('prism_guest_mode') === 'true'
+      sessionStorage.getItem('Sonus_guest_mode') === 'true'
     )
   })
 
   useEffect(() => {
     const handleHash = () => {
       if (window.location.hash.includes('guest')) {
-        sessionStorage.setItem('prism_guest_mode', 'true')
+        sessionStorage.setItem('Sonus_guest_mode', 'true')
         setIsGuest(true)
       }
     }
@@ -308,12 +308,12 @@ export function SignInPage() {
   }, [])
 
   const handleAuditionAsGuest = () => {
-    sessionStorage.setItem('prism_guest_mode', 'true')
+    sessionStorage.setItem('Sonus_guest_mode', 'true')
     setIsGuest(true)
   }
 
   const handleExitGuest = () => {
-    sessionStorage.removeItem('prism_guest_mode')
+    sessionStorage.removeItem('Sonus_guest_mode')
     setIsGuest(false)
     window.location.hash = ''
   }

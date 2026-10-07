@@ -44,7 +44,7 @@
      ```
 
 3. **Clerk and Guest State Handling**:
-   - `apps/web/src/components/auth/sign-in-page.tsx` supports guest mode via `sessionStorage.getItem('prism_guest_mode')` and passes `isGuest={true}` to `App`.
+   - `apps/web/src/components/auth/sign-in-page.tsx` supports guest mode via `sessionStorage.getItem('Sonus_guest_mode')` and passes `isGuest={true}` to `App`.
    - `@clerk/react` exports `useUser` and `useClerk`. In guest mode, `useUser().isSignedIn` returns `false`, which requires safe fallbacks to prevent runtime exceptions.
 
 4. **Build & Linter Baseline**:

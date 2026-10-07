@@ -34,7 +34,7 @@ Direct binary inspection of the 7 screenshots in `d:\Projects\adaptive-music-pra
    - PNG Magic Header: `89 50 4E 47 0D 0A 1A 0A` (verified)
    - IHDR Chunk: 1440 × 1377, 8-bit truecolor (type 2)
    - Decompressed IDAT: 5,950,017 bytes; 106 unique byte values in mid-body scanlines
-   - Visual inspection confirms: Living Manuscript layout with iron-gall ink bleed on "PRISM", Latin motto "AUDIRE · DISCERE · EXERCERE", 3 illuminated feature scrolls, and Clerk Conservatory Guild Ledger with zero border-radius styling.
+   - Visual inspection confirms: Living Manuscript layout with iron-gall ink bleed on "Sonus", Latin motto "AUDIRE · DISCERE · EXERCERE", 3 illuminated feature scrolls, and Clerk Conservatory Guild Ledger with zero border-radius styling.
 2. `02_practice_stand.png`:
    - Size: 51,438 bytes
    - PNG Magic Header: `89 50 4E 47 0D 0A 1A 0A` (verified)

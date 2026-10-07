@@ -76,7 +76,7 @@
    - Fallback placeholders with Living Manuscript aesthetics ensure navigating to `#profile`, `#history`, or `#tuning` renders an authentic manuscript treatise view even prior to Milestone 3 screen completion.
 
 4. **Guest Audition Pathway**:
-   - From Observation 2, `sign-in-page.tsx` checks `sessionStorage.getItem('prism_guest_mode')` and the `#guest` hash.
+   - From Observation 2, `sign-in-page.tsx` checks `sessionStorage.getItem('Sonus_guest_mode')` and the `#guest` hash.
    - Unauthenticated musicians and Playwright can click "Audition as Guest (Instant Access)" or append `#guest` to immediately enter `<App isGuest={true} />`, fully reconciling Clerk rules in `AGENTS.md` with visual verification requirements in `PROJECT.md`.
 
 ---

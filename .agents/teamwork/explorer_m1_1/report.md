@@ -10,7 +10,7 @@
 
 ## 1. Executive Summary & Synthesis Scope
 
-The **PRISM Adaptive Musical Practice System** departs fundamentally from generic modern SaaS applications. Rather than presenting sterile dashboards, blue pill buttons, and floating glassmorphism cards, PRISM is conceived as **an interactive musical instrument masquerading as sheet music**. Its visual and experiential core is the **"Living Manuscript"**: an illuminated digital music stand combining Renaissance printing, astronomical treatises, dynamic reactive ink, and high-precision acoustic telemetry.
+The **Sonus Adaptive Musical Practice System** departs fundamentally from generic modern SaaS applications. Rather than presenting sterile dashboards, blue pill buttons, and floating glassmorphism cards, Sonus is conceived as **an interactive musical instrument masquerading as sheet music**. Its visual and experiential core is the **"Living Manuscript"**: an illuminated digital music stand combining Renaissance printing, astronomical treatises, dynamic reactive ink, and high-precision acoustic telemetry.
 
 This report provides the definitive synthesis for **Milestone 1 (Stitch MCP UI Design Generation)**, consolidating insights from `PROJECT.md`, `DESIGN.md`, `ORIGINAL_REQUEST.md`, `explorer_survey_1` (Visual Specifications), and `explorer_survey_3` (Stitch MCP Tools & Permissions).
 
@@ -103,7 +103,7 @@ Each prompt is crafted specifically for `StitchMCP/generate_screen_from_text` wi
   - Right: System telemetry in Geist Mono: `REV. MMXXVI // ACOUSTIC INTELLIGENCE ENGINE // STANDBY`.
 - **Hero Centerpiece**:
   - Dramatic calligraphic ink bleed ring bloom (simulating watercolor ink absorbing into wet parchment).
-  - Master Title: **`PRISM`** in 80px Playfair Display, `#2C2A29`.
+  - Master Title: **`Sonus`** in 80px Playfair Display, `#2C2A29`.
   - Subtitle: *"Opus Manuscriptum"* (28px, Playfair Display Italic, `#7E7570`).
   - Proposition: *"A living musical score that listens to your monophonic playing, detects recurring pitch and timing habits across time, and turns weaknesses into focused mastery."*
 - **Authentication Folio Ledger**:
@@ -120,14 +120,14 @@ Each prompt is crafted specifically for `StitchMCP/generate_screen_from_text` wi
 
 #### Production Prompt for Stitch MCP:
 ```text
-Screen: PRISM Living Manuscript Landing Page and Gateway
+Screen: Sonus Living Manuscript Landing Page and Gateway
 Device: Desktop (1440x900)
 Aesthetic: 'The Living Manuscript' historical sheet music and illuminated treatise aesthetic.
 Colors: Parchment paper background #F4F1EA, deep charcoal ink #2C2A29 for lines and typography, rich crimson ink #9A2A2A for accents, recessed vellum #E9E4DA.
 Typography: Playfair Display serif for headings, Playfair Display Italic for musical annotations, Geist Mono/JetBrains Mono for technical telemetry. Sharp zero-radius borders everywhere; absolutely no generic SaaS pill buttons, modern glassmorphism, or drop shadows.
 Layout & Structure:
 1. Outer Frame: Elegant double-ruled charcoal hairline border (2px outer, 1px inner) with classical corner flourishes and Latin marginalia: 'AUDIRE · DISCERE · EXERCERE' on top left, and monospace system status 'REV. MMXXVI // ACOUSTIC ENGINE // STANDBY' on top right.
-2. Center Hero: A dramatic calligraphic ink bleed bloom spreading outward. Prominent master title 'PRISM' in 80px Playfair Display, subtitle 'Opus Manuscriptum: Adaptive Musical Practice System' in 24px Playfair Display Italic, and an editorial proposition describing a living musical score that listens to acoustic playing and turns weaknesses into mastery.
+2. Center Hero: A dramatic calligraphic ink bleed bloom spreading outward. Prominent master title 'Sonus' in 80px Playfair Display, subtitle 'Opus Manuscriptum: Adaptive Musical Practice System' in 24px Playfair Display Italic, and an editorial proposition describing a living musical score that listens to acoustic playing and turns weaknesses into mastery.
 3. Authentication Folio Ledger: An illuminated parchment card framed in 1px solid charcoal. Inside, bespoke Clerk authentication fields with sharp zero-radius inputs on #E9E4DA background. A primary action button in solid #2C2A29 with #F4F1EA text reading 'Enter the Sanctuary'. Immediately below, an authentic secondary hairline button reading 'Audition as Guest (Instant Entry)' flanked by a fermata glyph (𝄐).
 4. Bottom Features Footer: Aligned to a subtle 5-line musical staff watermark across the base, three vintage manuscript columns: 'I. The Attentive Ear' (pitch ribbon analysis), 'II. The Spatial Canvas' (2D continuous movement), and 'III. The Constellation Memory' (celestial habit diagnosis).
 ```
@@ -156,7 +156,7 @@ Layout & Structure:
 
 #### Production Prompt for Stitch MCP:
 ```text
-Screen: PRISM Setup & Sacred Tuning Ritual
+Screen: Sonus Setup & Sacred Tuning Ritual
 Device: Desktop (1440x900)
 Aesthetic: 'The Living Manuscript' Renaissance harmonic astrolabe and musical calibration stand.
 Colors: Parchment background #F4F1EA, deep charcoal ink #2C2A29, crimson ink accents #9A2A2A, recessed paper #E9E4DA.
@@ -180,7 +180,7 @@ Layout & Structure:
   - Illuminated woodcut crest / monogram seal (diameter 88px) in charcoal and crimson ink featuring a treble clef (`𝄞`).
   - Performer Name: **`Maestro Yash`** (or Clerk user's full name) in 42px Playfair Display.
   - Title: *"Soloist in Residence · Violin & Voice"*.
-  - User Registry Telemetry: Clerk User ID & verification stamp in Geist Mono (`ID: usr_2026_prism // STATUS: AUTHENTICATED`).
+  - User Registry Telemetry: Clerk User ID & verification stamp in Geist Mono (`ID: usr_2026_Sonus // STATUS: AUTHENTICATED`).
 - **Left Column: "The Physiognomy of Practice" (Analytics & Habit Diagnosis)**:
   - Monospace telemetry tables with hairline dividers:
     - *Discipline Ledger*: Total Practice Time (`48h 20m`), Notes Articulated (`32,490`), Consecutive Streak (`14 Days`).
@@ -199,13 +199,13 @@ Layout & Structure:
 
 #### Production Prompt for Stitch MCP:
 ```text
-Screen: PRISM Composer's Bio Profile Folio
+Screen: Sonus Composer's Bio Profile Folio
 Device: Desktop (1440x900)
 Aesthetic: 'The Living Manuscript' 17th-century printed treatise frontispiece and illuminated folio.
 Colors: Parchment background #F4F1EA, deep charcoal ink #2C2A29, rubricated crimson ink accents #9A2A2A.
 Typography: Playfair Display for headings and opus titles, Geist Mono for technical telemetry and ledger tables. Sharp zero-radius borders with double hairline framing.
 Layout & Structure:
-1. Frontispiece Header: Double-ruled charcoal border framing the top. An illuminated circular woodcut crest with a treble clef (𝄞), performer name 'Maestro Yash' in 40px Playfair Display, title 'Soloist in Residence · Violin & Voice', and Clerk authentication seal 'ID: usr_2026_prism // STATUS: VERIFIED' in crisp monospace.
+1. Frontispiece Header: Double-ruled charcoal border framing the top. An illuminated circular woodcut crest with a treble clef (𝄞), performer name 'Maestro Yash' in 40px Playfair Display, title 'Soloist in Residence · Violin & Voice', and Clerk authentication seal 'ID: usr_2026_Sonus // STATUS: VERIFIED' in crisp monospace.
 2. Left Column - 'The Physiognomy of Practice': Structured telemetry ledger displaying practice analytics in clean monospace tables: Discipline (48h 20m total, 32,490 notes articulated, 14-day streak), Intonation Purity (91.4%), Timing Precision (±14ms variance), and written analytical diagnoses of player habits ('Tends sharp (+5 cents) on leading tones; rushes tempo by 4% after rests').
 3. Right Column - 'The Repertoire Ledger': Classical catalog of studied masterworks (Bach Partita No. 2, Telemann Fantasia No. 1, Paganini Caprice No. 24) featuring difficulty ratings in Roman numerals, hand-drawn ink mastery progress bars, current tempo milestones, and crimson wax status stamps ('Conquered', 'In Active Discipline').
 4. Footer & Navigation: Actions for 'Export Folio Ledger', 'Audio Settings', and 'Depart Sanctuary' (Sign Out). At the bottom center, a subtle manuscript margin navigation anchor reading '↓ Return to Practice Stand' with a fermata glyph (𝄐).
@@ -243,7 +243,7 @@ Layout & Structure:
 
 #### Production Prompt for Stitch MCP:
 ```text
-Screen: PRISM Constellation History Scatter Plot
+Screen: Sonus Constellation History Scatter Plot
 Device: Desktop (1440x900)
 Aesthetic: 'The Living Manuscript' celestial star chart and Renaissance astronomical map on parchment.
 Colors: Parchment background #F4F1EA, charcoal ink #2C2A29 for grid lines and pristine stars, crimson ink #9A2A2A for error stars and editor marks.
@@ -312,7 +312,7 @@ When executing Track A, the Worker must follow this exact tool invocation sequen
   "ServerName": "StitchMCP",
   "ToolName": "create_project",
   "Arguments": {
-    "title": "PRISM Adaptive Musical Practice - Living Manuscript"
+    "title": "Sonus Adaptive Musical Practice - Living Manuscript"
   }
 }
 ```

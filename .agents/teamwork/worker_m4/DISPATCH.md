@@ -1,7 +1,7 @@
 # DISPATCH: Worker M4 (Playwright E2E & Visual Verification)
 
 ## Mission
-Execute Milestone 4 of the PRISM Adaptive Musical Practice System frontend:
+Execute Milestone 4 of the Sonus Adaptive Musical Practice System frontend:
 1. Start the Vite development server cleanly for `apps/web`.
 2. Author and run an end-to-end Playwright verification script that comprehensively tests all user acceptance criteria:
    - Landing Page parchment/ink aesthetic, `#ink-bleed` SVG filter, and Clerk Auth card.
@@ -46,7 +46,7 @@ Execute Milestone 4:
 4. Author and execute an automated Playwright verification script (e.g. using @playwright/test or playwright package via pnpm or node script) that tests:
    a. Landing Page:
       - Validates presence of `filter#ink-bleed` with genuine SVG turbulence/displacement primitives.
-      - Validates "PRISM" calligraphic title with `filter: url(#ink-bleed)`.
+      - Validates "Sonus" calligraphic title with `filter: url(#ink-bleed)`.
       - Validates Latin motto "AUDIRE · DISCERE · EXERCERE" and feature scrolls.
       - Validates Clerk Auth form and zero border radius styling.
       - Takes screenshot: `d:\Projects\adaptive-music-practice\.agents\teamwork\verification_screenshots\01_landing_page.png`.

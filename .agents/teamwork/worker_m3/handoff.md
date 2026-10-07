@@ -109,7 +109,7 @@ Milestone 3 is complete and meets all functional, architectural, and design syst
    *Expected*: Starts Vite dev server (typically on `http://localhost:5173/`).
 
 4. **Verify DOM & Navigation**:
-   - Open root URL: Landing page renders with `#ink-bleed` filter, "PRISM" title, and Clerk form.
+   - Open root URL: Landing page renders with `#ink-bleed` filter, "Sonus" title, and Clerk form.
    - Click `[data-testid="guest-audition-btn"]`: Enters Practice Stand at `(0, 0)`.
    - Press `A` or click `← Historia`: Pans camera to Constellation History scatter plot at `(-1, 0)`.
    - Press `W` or click `↑ Persona`: Pans camera to Composer Profile folio at `(0, -1)`.

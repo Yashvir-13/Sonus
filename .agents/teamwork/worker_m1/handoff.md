@@ -12,10 +12,10 @@
 ## 1. Observation
 
 1. **Tool Invocation `StitchMCP/create_project`**:
-   - Executed tool: `call_mcp_tool` with `ServerName: "StitchMCP"`, `ToolName: "create_project"`, `Arguments: {"title": "PRISM Adaptive Musical Practice - Living Manuscript"}`.
+   - Executed tool: `call_mcp_tool` with `ServerName: "StitchMCP"`, `ToolName: "create_project"`, `Arguments: {"title": "Sonus Adaptive Musical Practice - Living Manuscript"}`.
    - Verbatim result:
      ```json
-     {"name":"projects/9549558010017871216","title":"PRISM Adaptive Musical Practice - Living Manuscript","visibility":"PRIVATE","projectType":"PROJECT_DESIGN","origin":"STITCH"}
+     {"name":"projects/9549558010017871216","title":"Sonus Adaptive Musical Practice - Living Manuscript","visibility":"PRIVATE","projectType":"PROJECT_DESIGN","origin":"STITCH"}
      ```
    - Cloud project successfully provisioned with project ID `projects/9549558010017871216`.
 

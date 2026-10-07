@@ -1,4 +1,4 @@
-# Adaptive Musical Practice System (PRISM)
+# Adaptive Musical Practice System (Sonus)
 
 A web app that listens, learns, and turns recurring pitch and timing problems into focused practice for monophonic instruments.
 

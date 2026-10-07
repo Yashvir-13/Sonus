@@ -12,7 +12,7 @@
 
 ## 1. Executive Summary & Design System Conformance
 
-The **Setup & Sacred Tuning Ritual** (`Harmonia`, spatial coordinate `(1, 0)`) serves as the acoustic sanctum and calibration chamber of the PRISM Adaptive Musical Practice System. It bridges the physical instrument (acoustic microphone or WebMIDI controller) with the digital manuscript canvas.
+The **Setup & Sacred Tuning Ritual** (`Harmonia`, spatial coordinate `(1, 0)`) serves as the acoustic sanctum and calibration chamber of the Sonus Adaptive Musical Practice System. It bridges the physical instrument (acoustic microphone or WebMIDI controller) with the digital manuscript canvas.
 
 ### Design System ("Living Manuscript") Compliance
 - **Canvas Palette**: Parchment `#F4F1EA`, Aged Vellum `#E9E4DA`, Iron Gall Charcoal `#2C2A29`, Rubricated Crimson `#9A2A2A`, Muted Graphite `#7E7570`, Beaten Gold Leaf `#C8A858`.

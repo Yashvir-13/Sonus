@@ -26,7 +26,7 @@ Implement Milestone 3 Core Screens for Adaptive Musical Practice System: Landing
 
 ## Task Summary
 - **What to build**:
-  - `apps/web/src/components/screens/landing-screen.tsx`: Hero title "PRISM" with `<InkBleedFilter />` bloom, Latin marginalia (*Audire · Discere · Exercere*), 3 feature scrolls, styled Clerk `<SignIn />`, instant "Audition as Guest" button.
+  - `apps/web/src/components/screens/landing-screen.tsx`: Hero title "Sonus" with `<InkBleedFilter />` bloom, Latin marginalia (*Audire · Discere · Exercere*), 3 feature scrolls, styled Clerk `<SignIn />`, instant "Audition as Guest" button.
   - `apps/web/src/components/screens/tuning-ritual-screen.tsx`: Sacred Astrolabe dial (320px diameter, needle angle $\theta = \frac{\text{clamp}(\text{cents}, -50, 50)}{50} \times 60^\circ$, ±3 cents crimson glow), Web Audio Mic + WebMIDI detection with headless test simulation fallback triggers, pitch standards 415/440/442Hz, return to stand trigger.
   - `apps/web/src/components/screens/constellation-history-screen.tsx`: Celestial scatter plot (tempo vs accuracy), star duration nodes, constellation filaments, interactive marginalia tooltips with crimson editor marks, return trigger.
   - `apps/web/src/components/screens/composer-profile-screen.tsx`: 17th-century treatise frontispiece layout, illuminated woodcut crest, practice telemetry, repertoire ledger, return trigger.

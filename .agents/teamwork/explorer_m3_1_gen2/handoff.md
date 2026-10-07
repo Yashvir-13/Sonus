@@ -10,7 +10,7 @@
 ## 1. Observation
 
 1. **Design System Specification**:
-   - `apps/web/src/design-system/screens.ts` (lines 17–80) defines `LANDING_SCREEN_SPEC` with Latin motto `'AUDIRE · DISCERE · EXERCERE'`, telemetry status `'REV. MMXXVI // ACOUSTIC INTELLIGENCE ENGINE // STANDBY'`, master title `'PRISM'`, subtitle `'Opus Manuscriptum: Adaptive Musical Practice System'`, three features (The Attentive Ear, The Spatial Canvas, The Constellation Memory), and `inkBleedFilter` parameters (`baseFrequency: 0.04`, `numOctaves: 4`, `scale: 5`, `stdDeviation: 0.6`).
+   - `apps/web/src/design-system/screens.ts` (lines 17–80) defines `LANDING_SCREEN_SPEC` with Latin motto `'AUDIRE · DISCERE · EXERCERE'`, telemetry status `'REV. MMXXVI // ACOUSTIC INTELLIGENCE ENGINE // STANDBY'`, master title `'Sonus'`, subtitle `'Opus Manuscriptum: Adaptive Musical Practice System'`, three features (The Attentive Ear, The Spatial Canvas, The Constellation Memory), and `inkBleedFilter` parameters (`baseFrequency: 0.04`, `numOctaves: 4`, `scale: 5`, `stdDeviation: 0.6`).
    - `apps/web/src/design-system/tokens.ts` (lines 9–22, 38–53) defines colors (`parchment: #F4F1EA`, `charcoal: #2C2A29`, `crimson: #9A2A2A`, `parchmentSecondary: #E9E4DA`, `mutedInk: #7E7570`), geometry (`radius: '0px'`, zero drop shadows, hairline borders), and SMuFL musical glyphs (`MUSICAL_GLYPHS.fermata: '𝄐'`, `gClef: '𝄞'`, `caesura: '𝄩'`, `starNode: '✦'`).
 
 2. **Existing Ink Bleed Component**:
@@ -18,7 +18,7 @@
 
 3. **Current Authentication & Stand Routing**:
    - `apps/web/src/main.tsx` (lines 26–34) wraps `<App />` and renders `<SignInPage />` when signed-out via `@clerk/react`'s `<Show when="signed-out">`.
-   - `apps/web/src/components/auth/sign-in-page.tsx` (lines 7–45) manages `sessionStorage.getItem('prism_guest_mode')` and `window.location.hash.includes('guest')` to conditionally return `<App isGuest={true} onExitGuest={...} />`.
+   - `apps/web/src/components/auth/sign-in-page.tsx` (lines 7–45) manages `sessionStorage.getItem('Sonus_guest_mode')` and `window.location.hash.includes('guest')` to conditionally return `<App isGuest={true} onExitGuest={...} />`.
    - `apps/web/src/components/screens/` directory does not yet exist.
 
 4. **Build & Tool Verification**:
@@ -43,7 +43,7 @@
 
 4. **Step 4 (Clerk Auth & Instant Guest Audition)**:
    - Observation 3 shows how Clerk is used in the Vite shell. Clerk `<SignIn />` must be framed in an illuminated manuscript card with custom appearance tokens (zero border radius, `#E9E4DA` inputs, `#2C2A29` primary button with crimson `#9A2A2A` hover).
-   - The "Audition as Guest (Instant Access)" button must write `sessionStorage.setItem('prism_guest_mode', 'true')` and render `<App isGuest={true} onExitGuest={handleExitGuest} />`, ensuring zero friction for user evaluation and Playwright automation.
+   - The "Audition as Guest (Instant Access)" button must write `sessionStorage.setItem('Sonus_guest_mode', 'true')` and render `<App isGuest={true} onExitGuest={handleExitGuest} />`, ensuring zero friction for user evaluation and Playwright automation.
 
 5. **Step 5 (Backward Compatibility & Integration)**:
    - By creating `apps/web/src/components/screens/landing-screen.tsx` and updating `apps/web/src/components/auth/sign-in-page.tsx` to delegate to `LandingScreen`, the application maintains 100% compatibility with `main.tsx` while achieving clean modular layering.
@@ -69,7 +69,7 @@ The architectural blueprint for `apps/web/src/components/screens/landing-screen.
 1. **Codebase Inspection**:
    - Verify `apps/web/src/components/screens/landing-screen.tsx` exists and exports `LandingScreen`.
    - Verify `apps/web/src/components/auth/sign-in-page.tsx` imports and renders `<LandingScreen />`.
-   - Check that `h1` contains "PRISM" with `style={{ filter: 'url(#ink-bleed)' }}`.
+   - Check that `h1` contains "Sonus" with `style={{ filter: 'url(#ink-bleed)' }}`.
    - Check that `data-testid="guest-audition-btn"` exists and triggers guest mode.
 
 2. **TypeScript & Build Verification**:

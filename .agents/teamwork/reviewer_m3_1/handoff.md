@@ -12,7 +12,7 @@
 
 1. **Assigned Objectives**:
    - `DISPATCH.md` lines 9–16:
-     - Review Worker M3's implementation of `landing-screen.tsx` (hero section with calligraphic PRISM title, dynamic `<InkBleedFilter />` bloom, Latin marginalia *Audire · Discere · Exercere*, 3 feature scrolls over 5-line staff watermark, Clerk `<SignIn />` within illuminated manuscript card, "Audition as Guest (Instant Access)" button).
+     - Review Worker M3's implementation of `landing-screen.tsx` (hero section with calligraphic Sonus title, dynamic `<InkBleedFilter />` bloom, Latin marginalia *Audire · Discere · Exercere*, 3 feature scrolls over 5-line staff watermark, Clerk `<SignIn />` within illuminated manuscript card, "Audition as Guest (Instant Access)" button).
      - Review Worker M3's implementation of `tuning-ritual-screen.tsx` (Sacred Astrolabe dial 320px diameter, needle angle $\theta = \frac{\text{clamp}(\text{cents}, -50, 50)}{50} \times 60^\circ$, $\pm 3$ cents crimson glow, Web Audio Mic + WebMIDI auto-detection with headless simulation fallback, pitch standards 415/440/442Hz).
      - Check conformance to `DESIGN.md`: zero border radius (`0px`), zero modern drop shadows, hairline borders (`1px solid #2C2A29`), parchment/charcoal/crimson palette, SMuFL musical glyphs.
      - Execute `pnpm --dir apps/web run build` and `pnpm --dir apps/web run lint`.
@@ -21,11 +21,11 @@
 2. **Source Code Implementation Inspection**:
    - `apps/web/src/components/screens/landing-screen.tsx` (398 lines):
      - Dynamic Ink Bleed Bloom: Line 94 mounts `<InkBleedFilter id="ink-bleed" baseFrequency={0.04} numOctaves={4} scale={currentScale} stdDeviation={currentStdDev} />` where `scale` expands from 5 to 8 and `stdDeviation` from 0.6 to 1.1 on hover.
-     - Calligraphic PRISM Title: Line 165 renders `<motion.h1 style={{ filter: 'url(#ink-bleed)' }}>` bound to `LANDING_SCREEN_SPEC.masterTitle`.
+     - Calligraphic Sonus Title: Line 165 renders `<motion.h1 style={{ filter: 'url(#ink-bleed)' }}>` bound to `LANDING_SCREEN_SPEC.masterTitle`.
      - Marginalia & Staff: Line 115 displays `LANDING_SCREEN_SPEC.latinMotto` (`AUDIRE · DISCERE · EXERCERE`), line 122 displays a pulsating medieval punctus status indicator, and line 292 renders the 5-line musical staff watermark (`staff-bg opacity-15`).
      - Feature Scrolls: Lines 295–381 render the three feature scrolls ("The Attentive Ear", "The Spatial Canvas", "The Constellation Memory") with Roman numerals (`I.`, `II.`, `III.`), SMuFL musical glyphs (`𝄐`, `𝄩`, `✦`), and corner flourishes.
      - Clerk Authentication Ledger: Lines 258–284 frame Clerk `<SignIn />` with custom tokens: `borderRadius: '0px'`, `fontFamily: "'Geist Mono', monospace"`, `formFieldInput: "bg-[#E9E4DA] border-[#2C2A29]"`, `formButtonPrimary: "bg-[#2C2A29] rounded-none hover:bg-[#9A2A2A]"`.
-     - Instant Guest Pathway: Line 229 renders `data-testid="guest-audition-btn"`. Clicking it sets `sessionStorage.setItem('prism_guest_mode', 'true')` and renders `<App isGuest={true} />` at line 84.
+     - Instant Guest Pathway: Line 229 renders `data-testid="guest-audition-btn"`. Clicking it sets `sessionStorage.setItem('Sonus_guest_mode', 'true')` and renders `<App isGuest={true} />` at line 84.
    - `apps/web/src/components/screens/tuning-ritual-screen.tsx` (1,025 lines):
      - Dial Geometry: Lines 660–666 render SVG dial with diameter `320px`, viewBox `"0 0 320 320"`, center $(160, 160)$.
      - Needle Formula: Lines 34–37 compute $\theta = \frac{\text{clamp}(\text{cents}, -50, 50)}{50} \times 60^\circ$. Lines 810–816 apply `transform: rotate(${needleAngle}deg)` with `transformOrigin: '160px 160px'`.
@@ -123,7 +123,7 @@ To independently verify the approved implementation:
 
 3. **Interactive Visual & Math Check**:
    - Start dev server: `pnpm --dir apps/web run dev`
-   - Open root URL: Landing page renders calligraphic "PRISM" with `#ink-bleed` filter bloom on hover.
+   - Open root URL: Landing page renders calligraphic "Sonus" with `#ink-bleed` filter bloom on hover.
    - Click `[data-testid="guest-audition-btn"]`: Enters Practice Stand at `(0, 0)`.
    - Pan to Harmonia / Tuning Ritual: Press `D` or click `→ Harmonia`.
    - Click `[data-testid="test-in-tune"]`: Astrolabe needle points vertical ($0^\circ$), crimson aura activates.

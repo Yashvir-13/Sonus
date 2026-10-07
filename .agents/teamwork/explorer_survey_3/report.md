@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-This report delivers a comprehensive investigation of Google Stitch MCP tools located at `C:\Users\yashv\.gemini\antigravity\mcp\StitchMCP\`, analyzing how to generate the four required UI screens for the PRISM Adaptive Musical Practice System:
+This report delivers a comprehensive investigation of Google Stitch MCP tools located at `C:\Users\yashv\.gemini\antigravity\mcp\StitchMCP\`, analyzing how to generate the four required UI screens for the Sonus Adaptive Musical Practice System:
 1. **Landing Page** (with Ink Bleed effect & Clerk Auth)
 2. **Setup / Tuning Ritual** (Microphone vs MIDI auto-detection & pitch dial)
 3. **Profile / Composer's Folio** (Repertoire catalog & telemetry ledger; spatial position: UP)
@@ -29,7 +29,7 @@ This report delivers a comprehensive investigation of Google Stitch MCP tools lo
 
 The Stitch MCP server exposes 15 tools in `C:\Users\yashv\.gemini\antigravity\mcp\StitchMCP\`:
 
-| Tool | Schema File | Role in PRISM Workflow |
+| Tool | Schema File | Role in Sonus Workflow |
 |---|---|---|
 | `create_project` | `create_project.json` | Creates the root project container (`projects/{id}`). |
 | `list_projects` | `list_projects.json` | Lists available projects (`view=owned` or `view=shared`). |
@@ -51,7 +51,7 @@ The Stitch MCP server exposes 15 tools in `C:\Users\yashv\.gemini\antigravity\mc
 
 #### 1. `create_project`
 - **Request Parameters**:
-  - `title` (optional `string`): e.g. `"PRISM Adaptive Musical Practice - Living Manuscript"`
+  - `title` (optional `string`): e.g. `"Sonus Adaptive Musical Practice - Living Manuscript"`
 - **Response**: Project resource identifier formatted as `projects/{project_id}`.
 
 #### 2. `create_design_system`
@@ -145,7 +145,7 @@ Below are the 4 comprehensive screen specifications and exact prompts to provide
   - Three editorial feature columns: *"I. Acoustic Pitch Ribbon"*, *"II. 2D Spatial Canvas"*, *"III. Constellation Retrospectives"*.
 - **Exact Stitch Prompt**:
 ```text
-Create a desktop landing page for 'PRISM: Opus Manuscriptum', an adaptive musical practice system built with the 'Living Manuscript' aesthetic. The background is warm off-white parchment paper (#F4F1EA) with faint horizontal 5-line musical staff watermark lines. The layout features stark charcoal structural borders (#2C2A29) and rich crimson ink accents (#9A2A2A). At the top center, display a prominent editorial serif title 'Opus Manuscriptum' with an ink-bleed effect aesthetic, accompanied by the subtitle 'An experimental adaptive instrument masquerading as sheet music'. In the center, provide an authentic, classical parchment-styled authentication card containing Clerk sign-in controls (email/password and SSO options) with sharp 0-radius charcoal buttons and serif typography, completely avoiding generic blue SaaS pill buttons. Decorate with musical glyphs: treble clef (𝄞), fermata (𝄐), and coda (𝄌). Include three minimalist feature columns aligned to horizontal staff lines: 'I. Acoustic Intonation Flow', 'II. Spatial Canvas Architecture', and 'III. Constellation Retrospectives'.
+Create a desktop landing page for 'Sonus: Opus Manuscriptum', an adaptive musical practice system built with the 'Living Manuscript' aesthetic. The background is warm off-white parchment paper (#F4F1EA) with faint horizontal 5-line musical staff watermark lines. The layout features stark charcoal structural borders (#2C2A29) and rich crimson ink accents (#9A2A2A). At the top center, display a prominent editorial serif title 'Opus Manuscriptum' with an ink-bleed effect aesthetic, accompanied by the subtitle 'An experimental adaptive instrument masquerading as sheet music'. In the center, provide an authentic, classical parchment-styled authentication card containing Clerk sign-in controls (email/password and SSO options) with sharp 0-radius charcoal buttons and serif typography, completely avoiding generic blue SaaS pill buttons. Decorate with musical glyphs: treble clef (𝄞), fermata (𝄐), and coda (𝄌). Include three minimalist feature columns aligned to horizontal staff lines: 'I. Acoustic Intonation Flow', 'II. Spatial Canvas Architecture', and 'III. Constellation Retrospectives'.
 ```
 
 ### Screen 2: Setup / Tuning Ritual (Auto-detect Mic vs MIDI)
@@ -160,7 +160,7 @@ Create a desktop landing page for 'PRISM: Opus Manuscriptum', an adaptive musica
   - Commencing Button: Sharp charcoal button with a fermata glyph (`𝄐`) reading *"Enter the Sanctuary"*.
 - **Exact Stitch Prompt**:
 ```text
-Create a desktop device calibration screen titled 'The Tuning Ritual' for PRISM, adhering to the Living Manuscript design system. The background is parchment (#F4F1EA) with 5-line structural staff grids in charcoal (#2C2A29). The screen is a pre-practice sanctuary for audio calibration. In the upper region, show a device auto-detection status bar with crisp monospace telemetry: 'INPUT: Built-in Array Microphone [48.0 kHz]' and 'MIDI: USB MIDI Interface [Connected, Ch 1-16]'. In the center, display a high-precision pitch tuning dial: a prominent pitch reference label 'A4 = 440 Hz' in elegant Playfair Display serif, flanked by an intonation cents deviation ribbon (-50 to +50 cents) with a crimson ink needle indicator (#9A2A2A) and musical staccato dot guide marks. Below the tuner, display a live waveform pitch oscilloscope rendered as a charcoal ink wave. At the bottom, a prominent charcoal button with a fermata glyph reads 'Enter the Sanctuary (Begin Practice)'. No generic shadows, cards, or rounded pill buttons.
+Create a desktop device calibration screen titled 'The Tuning Ritual' for Sonus, adhering to the Living Manuscript design system. The background is parchment (#F4F1EA) with 5-line structural staff grids in charcoal (#2C2A29). The screen is a pre-practice sanctuary for audio calibration. In the upper region, show a device auto-detection status bar with crisp monospace telemetry: 'INPUT: Built-in Array Microphone [48.0 kHz]' and 'MIDI: USB MIDI Interface [Connected, Ch 1-16]'. In the center, display a high-precision pitch tuning dial: a prominent pitch reference label 'A4 = 440 Hz' in elegant Playfair Display serif, flanked by an intonation cents deviation ribbon (-50 to +50 cents) with a crimson ink needle indicator (#9A2A2A) and musical staccato dot guide marks. Below the tuner, display a live waveform pitch oscilloscope rendered as a charcoal ink wave. At the bottom, a prominent charcoal button with a fermata glyph reads 'Enter the Sanctuary (Begin Practice)'. No generic shadows, cards, or rounded pill buttons.
 ```
 
 ### Screen 3: Profile / Composer's Folio
@@ -174,7 +174,7 @@ Create a desktop device calibration screen titled 'The Tuning Ritual' for PRISM,
   - Downward navigation indicator: Subtle down-arrow / staccato icon returning to Practice Canvas.
 - **Exact Stitch Prompt**:
 ```text
-Create a desktop user profile and repertoire folio screen titled 'Composer's Folio' for the PRISM musical practice platform, following the Living Manuscript design system. The canvas is off-white parchment (#F4F1EA) with charcoal hairline rules (#2C2A29). At the top, show the musician's profile card with an ink-sketch avatar silhouette, musician name 'Maestro Julian Vance', primary instrument 'Cello', and practice discipline badge 'XIV Days Consecutively'. The main body is split into two parchment ledger panels: The left panel is 'Repertoire & Opus Catalog' listing musical pieces (e.g., J.S. Bach Cello Suite No. 1 in G Major, Elgar Cello Concerto Op. 85) with difficulty ratings in Roman numerals, mastery percentage indicators rendered as ink bar gauges, and tempo targets. The right panel is 'Technical Telemetry' showing historical practice statistics in crisp monospace typography (Total Practice Time: 124.5 Hours, Intonation Precision: 96.2%, Rhythm Deviation: ±7ms). All styling uses sharp corners, Playfair Display headers, and crimson ink accents (#9A2A2A).
+Create a desktop user profile and repertoire folio screen titled 'Composer's Folio' for the Sonus musical practice platform, following the Living Manuscript design system. The canvas is off-white parchment (#F4F1EA) with charcoal hairline rules (#2C2A29). At the top, show the musician's profile card with an ink-sketch avatar silhouette, musician name 'Maestro Julian Vance', primary instrument 'Cello', and practice discipline badge 'XIV Days Consecutively'. The main body is split into two parchment ledger panels: The left panel is 'Repertoire & Opus Catalog' listing musical pieces (e.g., J.S. Bach Cello Suite No. 1 in G Major, Elgar Cello Concerto Op. 85) with difficulty ratings in Roman numerals, mastery percentage indicators rendered as ink bar gauges, and tempo targets. The right panel is 'Technical Telemetry' showing historical practice statistics in crisp monospace typography (Total Practice Time: 124.5 Hours, Intonation Precision: 96.2%, Rhythm Deviation: ±7ms). All styling uses sharp corners, Playfair Display headers, and crimson ink accents (#9A2A2A).
 ```
 
 ### Screen 4: History / Constellation Scatter Plot
@@ -189,7 +189,7 @@ Create a desktop user profile and repertoire folio screen titled 'Composer's Fol
   - Rightward navigation indicator: Subtle glyph returning to Practice Canvas.
 - **Exact Stitch Prompt**:
 ```text
-Create a desktop practice history and session archive screen titled 'Chronicle of Sessions: The Constellation' for PRISM, using the Living Manuscript parchment aesthetic (#F4F1EA). The central visual element is a full-width astronomical-style constellation scatter plot where every past practice session is plotted as an ink node on parchment. The horizontal axis represents session date/timeline and the vertical axis represents Intonation Accuracy (80% to 100%). Nodes are rendered as delicate charcoal stars, with node diameter proportional to session duration, connected by faint golden-charcoal constellation lines grouped by musical opus. Highly accurate sessions shine with charcoal density, while sessions with notable intonation errors feature crimson ink halos (#9A2A2A). Selecting a node opens a side ledger showing the session's 'Architectural Blueprint': a zoomed-out score timeline with crimson editor's marks (circled sharp/flat notes, measure slashes) and session telemetry in monospace font.
+Create a desktop practice history and session archive screen titled 'Chronicle of Sessions: The Constellation' for Sonus, using the Living Manuscript parchment aesthetic (#F4F1EA). The central visual element is a full-width astronomical-style constellation scatter plot where every past practice session is plotted as an ink node on parchment. The horizontal axis represents session date/timeline and the vertical axis represents Intonation Accuracy (80% to 100%). Nodes are rendered as delicate charcoal stars, with node diameter proportional to session duration, connected by faint golden-charcoal constellation lines grouped by musical opus. Highly accurate sessions shine with charcoal density, while sessions with notable intonation errors feature crimson ink halos (#9A2A2A). Selecting a node opens a side ledger showing the session's 'Architectural Blueprint': a zoomed-out score timeline with crimson editor's marks (circled sharp/flat notes, measure slashes) and session telemetry in monospace font.
 ```
 
 ---
@@ -219,7 +219,7 @@ graph TD
   "ServerName": "StitchMCP",
   "ToolName": "create_project",
   "Arguments": {
-    "title": "PRISM Adaptive Musical Practice - Living Manuscript"
+    "title": "Sonus Adaptive Musical Practice - Living Manuscript"
   }
 }
 ```

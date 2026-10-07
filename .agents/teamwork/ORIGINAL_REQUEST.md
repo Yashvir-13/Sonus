@@ -2,7 +2,7 @@
 
 ## 2026-10-06T09:26:58Z
 
-Implement the end-to-end frontend for the PRISM Adaptive Musical Practice System. The agent team must first use Google Stitch MCP to generate the UI designs for the remaining screens (Landing Page, Profile, History, Device Setup) using the "Living Manuscript" design system, and then implement them in the Vite+React codebase using Framer Motion for spatial navigation.
+Implement the end-to-end frontend for the Sonus Adaptive Musical Practice System. The agent team must first use Google Stitch MCP to generate the UI designs for the remaining screens (Landing Page, Profile, History, Device Setup) using the "Living Manuscript" design system, and then implement them in the Vite+React codebase using Framer Motion for spatial navigation.
 
 Working directory: d:\Projects\adaptive-music-practice
 Integrity mode: development

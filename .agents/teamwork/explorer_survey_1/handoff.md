@@ -17,7 +17,7 @@
    - Iconography: "Use musical glyphs (SMuFL standard where possible) like fermatas, codas, and staccato dots instead of standard UI icons (hamburgers, cogs)."
 
 2. **Project Specification (`Project_proposal.pdf` & `ORIGINAL_REQUEST.md` lines 12–27):**
-   - The application is PRISM, an adaptive musical practice system for monophonic instruments that listens via browser microphone, aligns performances using DTW, calculates pitch deviation (cents) and timing error (ms), and tracks habits across sessions.
+   - The application is Sonus, an adaptive musical practice system for monophonic instruments that listens via browser microphone, aligns performances using DTW, calculates pitch deviation (cents) and timing error (ms), and tracks habits across sessions.
    - 4 required screens:
      - **Landing Page:** Ink bleed effect, manuscript atmosphere, integrated Clerk auth.
      - **Setup / Tuning Ritual:** Auto-detect Mic vs MIDI, ritualistic/calming tuning, sacred circle / dial feedback.

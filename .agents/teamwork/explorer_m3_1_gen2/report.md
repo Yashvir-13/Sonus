@@ -9,11 +9,11 @@
 
 ## 1. Executive Summary & Problem Boundary
 
-The Living Manuscript Landing Page serves as the frontispiece and ceremonial gateway of the **PRISM Adaptive Musical Practice System**. It establishes the aesthetic standard defined in `DESIGN.md` and `PROJECT.md`—a 17th-century printed treatise and illuminated sheet music canvas fused with high-precision acoustic telemetry.
+The Living Manuscript Landing Page serves as the frontispiece and ceremonial gateway of the **Sonus Adaptive Musical Practice System**. It establishes the aesthetic standard defined in `DESIGN.md` and `PROJECT.md`—a 17th-century printed treatise and illuminated sheet music canvas fused with high-precision acoustic telemetry.
 
 ### Core Objectives Formulated:
 1. **Hero Section with Reactive Ink Bleed Bloom**:
-   - Master calligraphic title **"PRISM"** set in 80px+ Playfair Display with the SVG turbulence & displacement filter `#ink-bleed` provided by `<InkBleedFilter />`.
+   - Master calligraphic title **"Sonus"** set in 80px+ Playfair Display with the SVG turbulence & displacement filter `#ink-bleed` provided by `<InkBleedFilter />`.
    - Dynamic, reactive bloom interaction: on pointer hover / focus, the ink diffusion underlay expands and intensifies (`scale` increases from 5 to 8, `stdDeviation` from 0.6 to 1.1), simulating iron gall ink absorbing into unbleached manuscript parchment fibers.
    - Editorial subtitle (*Opus Manuscriptum: Adaptive Musical Practice System*) and treatise proposition.
 2. **Historical Latin Marginalia & Technical Telemetry**:
@@ -32,7 +32,7 @@ The Living Manuscript Landing Page serves as the frontispiece and ceremonial gat
    - Tailored Clerk `appearance` configuration using Living Manuscript tokens: sharp zero-radius inputs (`rounded-none`), `#E9E4DA` input fills, `#2C2A29` charcoal borders, `#2C2A29` solid action buttons with crimson `#9A2A2A` hover transitions.
 5. **Direct "Audition as Guest (Instant Access)" Pathway**:
    - Ceremonial button flanked by a fermata glyph `𝄐`.
-   - Manages `sessionStorage.setItem('prism_guest_mode', 'true')` and hash `#guest`.
+   - Manages `sessionStorage.setItem('Sonus_guest_mode', 'true')` and hash `#guest`.
    - Direct instantaneous transition into `<App isGuest={true} onExitGuest={...} />` for musicians and automated Playwright test verification without authentication hurdles.
 
 ---
@@ -72,7 +72,7 @@ The Living Manuscript Landing Page serves as the frontispiece and ceremonial gat
 │   │   ├── Center Content Grid / Columns:
 │   │   │   ├── Hero Section:
 │   │   │   │   ├── Reactive Bloom Underlay (Framer Motion pulsating radial ink wash)
-│   │   │   │   ├── Calligraphic "PRISM" Heading (style={{ filter: 'url(#ink-bleed)' }})
+│   │   │   │   ├── Calligraphic "Sonus" Heading (style={{ filter: 'url(#ink-bleed)' }})
 │   │   │   │   ├── Opus Subtitle ("Opus Manuscriptum: Adaptive Musical Practice System")
 │   │   │   │   └── Editorial Proposition Treatise Paragraph
 │   │   │   │
@@ -88,7 +88,7 @@ The Living Manuscript Landing Page serves as the frontispiece and ceremonial gat
 │   │   │   └── Scroll III: The Constellation Memory (Celestial Scatter Plot History)
 │   │   │
 │   │   └── Footer Colophon:
-│   │       ├── "PRISM // ADAPTIVE ACOUSTIC INTELLIGENCE // STANDBY"
+│   │       ├── "Sonus // ADAPTIVE ACOUSTIC INTELLIGENCE // STANDBY"
 │   │       ├── "Audire · Discere · Exercere"
 │   │       └── "Ex officina scriptoria MMXXVI // Coordinates: (0, 0)"
 │
@@ -148,7 +148,7 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
     if (typeof window === 'undefined') return false
     return (
       window.location.hash.toLowerCase().includes('guest') ||
-      sessionStorage.getItem('prism_guest_mode') === 'true'
+      sessionStorage.getItem('Sonus_guest_mode') === 'true'
     )
   })
 
@@ -156,7 +156,7 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
   useEffect(() => {
     const handleHash = () => {
       if (window.location.hash.toLowerCase().includes('guest')) {
-        sessionStorage.setItem('prism_guest_mode', 'true')
+        sessionStorage.setItem('Sonus_guest_mode', 'true')
         setIsGuest(true)
       }
     }
@@ -169,7 +169,7 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
   }, [])
 
   const handleAuditionAsGuest = () => {
-    sessionStorage.setItem('prism_guest_mode', 'true')
+    sessionStorage.setItem('Sonus_guest_mode', 'true')
     setIsGuest(true)
     if (onAuditionGuest) {
       onAuditionGuest()
@@ -177,7 +177,7 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
   }
 
   const handleExitGuest = () => {
-    sessionStorage.removeItem('prism_guest_mode')
+    sessionStorage.removeItem('Sonus_guest_mode')
     setIsGuest(false)
     if (window.location.hash.toLowerCase().includes('guest')) {
       window.location.hash = ''
@@ -266,7 +266,7 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
               <span>Opus Manuscriptum · Frontispiece MMXXVI</span>
             </div>
 
-            {/* Calligraphic PRISM Title with Reactive Ink-Bleed Bloom */}
+            {/* Calligraphic Sonus Title with Reactive Ink-Bleed Bloom */}
             <motion.h1
               className="text-7xl sm:text-8xl md:text-9xl font-serif font-black tracking-wider text-[#2C2A29] select-none cursor-pointer relative z-10 my-1"
               style={{
@@ -491,7 +491,7 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
 
         {/* 6. Footer Colophon */}
         <footer className="w-full flex flex-col sm:flex-row justify-between items-center border-t border-[#2C2A29] pt-4 mt-6 font-mono text-[10px] text-[#7E7570] gap-2">
-          <div>PRISM // ADAPTIVE ACOUSTIC INTELLIGENCE ENGINE</div>
+          <div>Sonus // ADAPTIVE ACOUSTIC INTELLIGENCE ENGINE</div>
           <div className="italic font-serif text-xs text-[#2C2A29]">
             Audire · Discere · Exercere
           </div>
@@ -537,7 +537,7 @@ export function SignInPage() {
 ### 6.1 DOM & Selector Contract for Playwright (Milestone 4)
 | Target Element | Recommended Selector | Verification Assertion |
 |---|---|---|
-| Master Title | `h1:has-text("PRISM")` | Visible, computed style `filter` contains `url("#ink-bleed")` |
+| Master Title | `h1:has-text("Sonus")` | Visible, computed style `filter` contains `url("#ink-bleed")` |
 | Ink Bleed SVG Filter | `svg filter#ink-bleed` | Exists in DOM with `feTurbulence` and `feDisplacementMap` |
 | Latin Motto | `text="AUDIRE · DISCERE · EXERCERE"` | Visible in top marginalia header |
 | Telemetry Status | `text="REV. MMXXVI"` | Visible in top-right monospace header |
@@ -552,4 +552,4 @@ export function SignInPage() {
 2. Structural lines and borders match `#2C2A29` (charcoal).
 3. Zero border radius (`border-radius: 0px`) across inputs, buttons, and frames.
 4. Classical double-ruled framing with ornamental corner brackets.
-5. Reactive hover expands ink bloom halo behind the calligraphic PRISM title.
+5. Reactive hover expands ink bloom halo behind the calligraphic Sonus title.

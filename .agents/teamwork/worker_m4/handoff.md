@@ -50,7 +50,7 @@ All 7 required PNG screenshots are physically present in `d:\Projects\adaptive-m
 2. **Server Lifecycle Management**:
    - `scripts/verify-m4-playwright-e2e.mjs` checks whether port 5173 is already open; if not, it invokes Vite's Node API `createServer` to bind to port 5173. Upon test completion, `await viteServer.close()` and `await browser.close()` run in a `finally` block, ensuring no leaked background processes or zombie ports.
 3. **Landing Page Verification**:
-   - Inspection of DOM queries confirms `filter#ink-bleed` contains SVG primitives (`feTurbulence`, `feDisplacementMap`, `feGaussianBlur`, `feMerge`). The "PRISM" heading explicitly has `filter: url(#ink-bleed)`. The Latin motto "AUDIRE · DISCERE · EXERCERE" and the 3 feature scrolls are present. The Clerk Auth container is rendered with zero border radius styling.
+   - Inspection of DOM queries confirms `filter#ink-bleed` contains SVG primitives (`feTurbulence`, `feDisplacementMap`, `feGaussianBlur`, `feMerge`). The "Sonus" heading explicitly has `filter: url(#ink-bleed)`. The Latin motto "AUDIRE · DISCERE · EXERCERE" and the 3 feature scrolls are present. The Clerk Auth container is rendered with zero border radius styling.
 4. **Guest Mode & 2D Spatial Stand**:
    - Clicking `[data-testid="guest-audition-btn"]` toggles `isGuest=true`, immediately rendering the 2D Spatial Stand at coordinate `(0, 0)` with `data-current-target="practice"`.
 5. **Spatial Camera Navigation**:
@@ -76,7 +76,7 @@ All 7 required PNG screenshots are physically present in `d:\Projects\adaptive-m
 
 ## 4. Conclusion
 
-Milestone 4 (Playwright E2E & Visual Verification) is 100% complete and fully verified. All acceptance criteria from `PROJECT.md`, `DESIGN.md`, and `DISPATCH.md` have been met. All 7 visual proof screenshots have been generated and validated. The PRISM 2D Spatial Practice System frontend is fully functional and ready for final review and merge.
+Milestone 4 (Playwright E2E & Visual Verification) is 100% complete and fully verified. All acceptance criteria from `PROJECT.md`, `DESIGN.md`, and `DISPATCH.md` have been met. All 7 visual proof screenshots have been generated and validated. The Sonus 2D Spatial Practice System frontend is fully functional and ready for final review and merge.
 
 ---
 

@@ -55,7 +55,7 @@
 
 1. The Stitch MCP server and its 15 tool schemas are fully mapped, documented, and ready for Milestone 1.
 2. The exact workflow consists of:
-   - `create_project` ("PRISM Adaptive Musical Practice - Living Manuscript")
+   - `create_project` ("Sonus Adaptive Musical Practice - Living Manuscript")
    - `create_design_system` (Living Manuscript tokens: `#F4F1EA`, `#2C2A29`, `#9A2A2A`, `PLAYFAIR_DISPLAY`, `JETBRAINS_MONO`)
    - `generate_screen_from_text` (4 screens: Landing, Tuning Ritual, Composer Profile, Constellation History) using Gemini 3.8 Flash on Desktop mode.
 3. Complete prompts and JSON payloads for all 4 screens have been formulated and recorded in `d:\Projects\adaptive-music-practice\.agents\teamwork\explorer_survey_3\report.md`.

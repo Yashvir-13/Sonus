@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary
 
-Milestone 4 has been executed to verify the end-to-end functionality, design fidelity, and 2D spatial canvas navigation of the PRISM Adaptive Musical Practice System frontend (`apps/web`).
+Milestone 4 has been executed to verify the end-to-end functionality, design fidelity, and 2D spatial canvas navigation of the Sonus Adaptive Musical Practice System frontend (`apps/web`).
 
 All objectives from `DISPATCH.md`, `PROJECT.md`, and `ORIGINAL_REQUEST.md` were fulfilled:
 1. `apps/web` builds cleanly with zero TypeScript errors and zero Vite bundle errors (`tsc -b && vite build` exited with code 0).
@@ -24,7 +24,7 @@ All objectives from `DISPATCH.md`, `PROJECT.md`, and `ORIGINAL_REQUEST.md` were 
 
 | Suite / Journey | Key Assertions Verified | Result |
 |---|---|---|
-| **4a. Living Manuscript Landing Page** | • Presence of `filter#ink-bleed` with genuine `feTurbulence` (fractalNoise, baseFrequency 0.04), `feDisplacementMap` (scale 5), `feGaussianBlur`, and `feMerge`.<br>• Master calligraphic title "PRISM" referencing `filter: url(#ink-bleed)`.<br>• Classical Latin motto "AUDIRE · DISCERE · EXERCERE".<br>• Three illuminated feature scrolls (Attentive Ear, Spatial Canvas, Constellation Memory).<br>• Clerk Auth form inside Conservatory Guild Ledger with zero border radius styling.<br>• Verified screenshot `01_landing_page.png` (219,821 bytes). | **PASS** (12/12) |
+| **4a. Living Manuscript Landing Page** | • Presence of `filter#ink-bleed` with genuine `feTurbulence` (fractalNoise, baseFrequency 0.04), `feDisplacementMap` (scale 5), `feGaussianBlur`, and `feMerge`.<br>• Master calligraphic title "Sonus" referencing `filter: url(#ink-bleed)`.<br>• Classical Latin motto "AUDIRE · DISCERE · EXERCERE".<br>• Three illuminated feature scrolls (Attentive Ear, Spatial Canvas, Constellation Memory).<br>• Clerk Auth form inside Conservatory Guild Ledger with zero border radius styling.<br>• Verified screenshot `01_landing_page.png` (219,821 bytes). | **PASS** (12/12) |
 | **4b. Instant Guest Mode Audition** | • Clicked `[data-testid="guest-audition-btn"]`.<br>• Confirmed instant navigation into 2D Spatial Stand `(0, 0)`.<br>• Verified stand header `Opus Manuscriptum · Stand (0, 0)`.<br>• Verified spatial viewport attribute `data-current-target="practice"`.<br>• Verified screenshot `02_practice_stand.png` (51,438 bytes). | **PASS** (4/4) |
 | **4c. Spatial Panning to Constellation History** | • Clicked `[data-testid="nav-history"]`.<br>• Confirmed 2D camera panned to `(-1, 0)` with `data-current-target="history"`.<br>• Validated celestial scatter plot SVG with 27 rendered star nodes.<br>• Validated critical breakdown horizon at 86 BPM (`HORIZON CRITICUS (86 BPM)`).<br>• Validated constellation filaments connecting practice take nodes.<br>• Validated illuminated marginalia tooltip & critical diagnosis editor note (`Nota Editoris`).<br>• Verified screenshot `03_constellation_history.png` (227,717 bytes). | **PASS** (9/9) |
 | **4d. Spatial Panning to Composer Profile** | • Clicked `[data-testid="nav-profile"]`.<br>• Confirmed 2D camera panned to `(0, -1)` with `data-current-target="profile"`.<br>• Validated 17th-century treatise frontispiece (`Folio II · Persona et Physiognomia`).<br>• Validated circular woodcut monogram crest with engraved concentric rings, astrolabe hatching, and treble clef.<br>• Validated practice telemetry matrix (Total Discipline, Daily Constancy, Intonation Purity, Timing Precision).<br>• Validated diagnosed habitus & kinetic biases (`♯ +5¢`, `♭ -4¢`).<br>• Validated Repertoire Ledger table (`II. The Repertoire Ledger`).<br>• Verified screenshot `04_composer_profile.png` (159,686 bytes). | **PASS** (9/9) |
@@ -39,7 +39,7 @@ All objectives from `DISPATCH.md`, `PROJECT.md`, and `ORIGINAL_REQUEST.md` were 
 All screenshots are stored in `d:\Projects\adaptive-music-practice\.agents\teamwork\verification_screenshots\`:
 
 1. **`01_landing_page.png`** (219,821 bytes)
-   - Visualizes the full Living Manuscript landing page, SVG `#ink-bleed` filter bloom on the "PRISM" title, Classical Latin motto, 3 illuminated feature scrolls, and the Conservatory Guild Clerk auth card.
+   - Visualizes the full Living Manuscript landing page, SVG `#ink-bleed` filter bloom on the "Sonus" title, Classical Latin motto, 3 illuminated feature scrolls, and the Conservatory Guild Clerk auth card.
 2. **`02_practice_stand.png`** (51,438 bytes)
    - Visualizes instant entry via Guest Audition mode into the central 2D Practice Stand `(0, 0)`, complete with pitch ribbon, practice score stage, and marginal navigation anchors.
 3. **`03_constellation_history.png`** (227,717 bytes)

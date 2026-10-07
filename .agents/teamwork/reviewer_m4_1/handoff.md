@@ -34,7 +34,7 @@
 Direct visual inspection via `view_file` on all 7 physical screenshots in `d:\Projects\adaptive-music-practice\.agents\teamwork\verification_screenshots\`:
 1. `01_landing_page.png` (221,390 bytes):
    - Palette: Parchment `#F4F1EA`, Charcoal `#2C2A29`, Crimson `#9A2A2A`.
-   - Ink Bleed Bloom: Procedural SVG filter `#ink-bleed` (`feTurbulence`, `feDisplacementMap`, `feGaussianBlur`, `feMerge`) visibly alters letterforms of "PRISM".
+   - Ink Bleed Bloom: Procedural SVG filter `#ink-bleed` (`feTurbulence`, `feDisplacementMap`, `feGaussianBlur`, `feMerge`) visibly alters letterforms of "Sonus".
    - Motifs: Classical corner bracket flourishes (`⌜ ⌝ ⌞ ⌟`), Latin motto `"AUDIRE · DISCERE · EXERCERE ✦"`, three feature scrolls, zero border radius (`0px` / `rounded-none`), zero modern drop shadows (`shadow-none`), and styled Clerk Authentication container with instant "Audition as Guest" pathway.
 2. `02_practice_stand.png` (51,438 bytes):
    - Panned to center `(0, 0)` Practice Stand.

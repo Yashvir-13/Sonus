@@ -89,7 +89,7 @@ Direct code observations from files implemented by Worker M2:
 
 6. **Guest Audition Pathway & Legacy SaaS Navbar Stripping**:
    - `apps/web/src/components/auth/sign-in-page.tsx`:
-     - Detects `#guest` hash or `sessionStorage.getItem('prism_guest_mode') === 'true'`.
+     - Detects `#guest` hash or `sessionStorage.getItem('Sonus_guest_mode') === 'true'`.
      - Mounts prominent "Audition as Guest [Instant Access]" CTA that bypasses Clerk credentials.
      - Custom-themed Clerk `<SignIn />` with Living Manuscript tokens.
    - `apps/web/src/components/auth/auth-shell.tsx`:

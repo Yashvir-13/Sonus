@@ -44,7 +44,7 @@
        2. `<feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G" result="displaced" />`
        3. `<feGaussianBlur in="displaced" stdDeviation="0.6" result="bleed" />`
        4. `<feMerge><feMergeNode in="bleed" /><feMergeNode in="SourceGraphic" /></feMerge>`
-     - Applied to calligraphic PRISM hero title:
+     - Applied to calligraphic Sonus hero title:
        - Style: `filter: url(#ink-bleed)`
        - Hover reactive parameters: scale increases to `8`, stdDeviation to `1.1`.
      - Browser Console: `0 errors, 0 unhandled rejections`.
@@ -54,7 +54,7 @@
    - Button text: `"𝄐\nAudition as Guest\n[Instant Access]"`
    - Click event action: Invoked in live browser.
    - Result:
-     - `sessionStorage.getItem('prism_guest_mode')`: `"true"`
+     - `sessionStorage.getItem('Sonus_guest_mode')`: `"true"`
      - DOM state: Instantly transitioned from Landing Page to 2D Spatial Practice Stand `(0, 0)`.
      - Mounted spatial layout: `FolioNavAnchors`, `CelestialCompass`, and `App` with `isGuest={true}`.
 
@@ -103,7 +103,7 @@
 1. **Landing Screen Conformance**:
    - Observation 1 & 2 confirm zero compiler errors, zero type errors, and zero linter warnings.
    - Observation 3 confirms the procedural SVG `<InkBleedFilter />` is mounted with all 4 required SVG filter primitives (`feTurbulence`, `feDisplacementMap`, `feGaussianBlur`, `feMerge`) with `#ink-bleed` bound to the typography without rendering errors.
-   - Observation 4 confirms clicking `[data-testid="guest-audition-btn"]` writes `prism_guest_mode` to `sessionStorage` and swaps the unauthenticated view into the active 2D Spatial Container at `(0, 0)`.
+   - Observation 4 confirms clicking `[data-testid="guest-audition-btn"]` writes `Sonus_guest_mode` to `sessionStorage` and swaps the unauthenticated view into the active 2D Spatial Container at `(0, 0)`.
 
 2. **Tuning Ritual Astrolabe Conformance**:
    - Observation 5 confirms the needle rotation follows $\theta = \frac{\text{clamp}(\text{cents}, -50, 50)}{50} \times 60^\circ$ with exact $-60^\circ, -30^\circ, 0^\circ, +30^\circ, +60^\circ$ reference values and $1.2^\circ/\text{cent}$ sensitivity.
@@ -165,7 +165,7 @@ Final Verdict: **APPROVE**
 
 4. **Interactive In-Browser Verification**:
    - Navigate to `http://localhost:5173/`.
-   - Confirm `#ink-bleed` filter is present in DOM and applied to PRISM hero.
+   - Confirm `#ink-bleed` filter is present in DOM and applied to Sonus hero.
    - Click `[data-testid="guest-audition-btn"]`: Enters Practice Stand at `(0, 0)`.
    - Navigate to `#tuning`: Astrolabe dial renders at `(160, 160)`.
    - Click `[data-testid="test-flat"]`: Needle rotates to `-21.6deg`, dial displays `-18.0¢`, resonance ring deactivates.

@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary
 
-Milestone 3 of the PRISM Adaptive Musical Practice System has been successfully implemented. All four core screens—**Living Manuscript Landing Page**, **Setup & Sacred Tuning Ritual**, **Constellation History Star Map**, and **Composer's Bio Profile Folio**—have been constructed from the detailed specifications of Explorers M3-1, M3-2, and M3-3.
+Milestone 3 of the Sonus Adaptive Musical Practice System has been successfully implemented. All four core screens—**Living Manuscript Landing Page**, **Setup & Sacred Tuning Ritual**, **Constellation History Star Map**, and **Composer's Bio Profile Folio**—have been constructed from the detailed specifications of Explorers M3-1, M3-2, and M3-3.
 
 All screens are fully wired into the continuous 2D spatial canvas (`SpatialContainer`) in `apps/web/src/app.tsx` and the authentication gateway in `apps/web/src/components/auth/sign-in-page.tsx`.
 
@@ -19,7 +19,7 @@ Production compilation (`tsc -b && vite build`) and lint verification (`oxlint`)
 ## 2. Deliverables Inventory
 
 ### 2.1. `apps/web/src/components/screens/landing-screen.tsx`
-- **Calligraphic Master Hero**: "PRISM" heading set in Playfair Display with the `<InkBleedFilter />` SVG turbulence and displacement filter (`#ink-bleed`). Interactive hover triggers reactive bloom expansion (turbulence scale 5 → 8, blur 0.6 → 1.1px).
+- **Calligraphic Master Hero**: "Sonus" heading set in Playfair Display with the `<InkBleedFilter />` SVG turbulence and displacement filter (`#ink-bleed`). Interactive hover triggers reactive bloom expansion (turbulence scale 5 → 8, blur 0.6 → 1.1px).
 - **Historical Latin Marginalia**: Double hairline frame with corner flourishes, top-left Latin motto (`AUDIRE · DISCERE · EXERCERE`), and top-right monospace system telemetry (`REV. MMXXVI // ACOUSTIC INTELLIGENCE ENGINE // STANDBY ♮`).
 - **Three Illuminated Feature Scrolls**:
   - *Scroll I: The Attentive Ear* (Adaptive Intonation & Pitch Ribbon; G-Clef `𝄞`).
@@ -29,7 +29,7 @@ Production compilation (`tsc -b && vite build`) and lint verification (`oxlint`)
 - **Conservatory Guild Authentication Folio**:
   - Bespoke Clerk `<SignIn />` theme with zero-radius geometry, charcoal `#2C2A29` primary buttons with crimson `#9A2A2A` hover transitions, and `#E9E4DA` inputs.
 - **Audition as Guest CTA**:
-  - Instant access button (`[data-testid="guest-audition-btn"]`) flanked by a fermata `𝄐`. Synchronizes `sessionStorage.prism_guest_mode` and the `#guest` hash, transitioning directly into `<App isGuest={true} />`.
+  - Instant access button (`[data-testid="guest-audition-btn"]`) flanked by a fermata `𝄐`. Synchronizes `sessionStorage.Sonus_guest_mode` and the `#guest` hash, transitioning directly into `<App isGuest={true} />`.
 
 ### 2.2. `apps/web/src/components/screens/tuning-ritual-screen.tsx`
 - **Sacred Astrolabe Dial**:

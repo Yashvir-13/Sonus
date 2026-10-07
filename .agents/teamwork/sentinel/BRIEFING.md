@@ -1,7 +1,7 @@
 # BRIEFING — 2026-10-06T09:27:00Z
 
 ## Mission
-Monitor execution of the end-to-end frontend implementation for PRISM Adaptive Musical Practice System, manage orchestrator lifecycle, report progress, and coordinate victory auditing.
+Monitor execution of the end-to-end frontend implementation for Sonus Adaptive Musical Practice System, manage orchestrator lifecycle, report progress, and coordinate victory auditing.
 
 ## 🔒 My Identity
 - Archetype: sentinel
@@ -18,7 +18,7 @@ Monitor execution of the end-to-end frontend implementation for PRISM Adaptive M
 - Run progress and liveness crons
 
 ## User Context
-- **Last user request**: Implement end-to-end frontend for PRISM (Stitch MCP UI generation, Framer Motion spatial navigation, core screens, Playwright verification)
+- **Last user request**: Implement end-to-end frontend for Sonus (Stitch MCP UI generation, Framer Motion spatial navigation, core screens, Playwright verification)
 - **Pending clarifications**: none
 - **Delivered results**:
   - Full Living Manuscript design system in apps/web/src/design-system/

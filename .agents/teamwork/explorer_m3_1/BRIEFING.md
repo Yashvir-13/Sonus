@@ -1,7 +1,7 @@
 # BRIEFING — 2026-10-06T11:01:00Z
 
 ## Mission
-Formulate implementation architecture and concrete blueprint for Landing Page (`apps/web/src/components/screens/landing-screen.tsx`) featuring InkBleedFilter, calligraphic PRISM title, Latin marginalia, 3 illuminated parchment feature scrolls, Clerk auth integration, and Guest Audition instant access.
+Formulate implementation architecture and concrete blueprint for Landing Page (`apps/web/src/components/screens/landing-screen.tsx`) featuring InkBleedFilter, calligraphic Sonus title, Latin marginalia, 3 illuminated parchment feature scrolls, Clerk auth integration, and Guest Audition instant access.
 
 ## 🔒 My Identity
 - Archetype: Teamwork explorer

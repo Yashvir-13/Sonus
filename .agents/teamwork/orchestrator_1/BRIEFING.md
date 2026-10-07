@@ -1,7 +1,7 @@
 # BRIEFING — 2026-10-06T15:08:30Z
 
 ## Mission
-Orchestrate the end-to-end frontend implementation of PRISM Adaptive Musical Practice System including Stitch designs, Framer Motion spatial architecture, core screens, and Playwright verification.
+Orchestrate the end-to-end frontend implementation of Sonus Adaptive Musical Practice System including Stitch designs, Framer Motion spatial architecture, core screens, and Playwright verification.
 
 ## 🔒 My Identity
 - Archetype: orchestrator

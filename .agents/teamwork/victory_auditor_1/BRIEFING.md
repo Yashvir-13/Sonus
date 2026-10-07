@@ -1,7 +1,7 @@
 # BRIEFING — 2026-10-07T07:48:00Z
 
 ## Mission
-Independently audit and verify the victory claim for the PRISM Adaptive Musical Practice System frontend.
+Independently audit and verify the victory claim for the Sonus Adaptive Musical Practice System frontend.
 
 ## 🔒 My Identity
 - Archetype: victory_auditor
@@ -20,7 +20,7 @@ Independently audit and verify the victory claim for the PRISM Adaptive Musical 
 - Updated: 2026-10-07T07:39:10Z
 
 ## Audit Scope
-- **Work product**: PRISM Adaptive Musical Practice System frontend project
+- **Work product**: Sonus Adaptive Musical Practice System frontend project
 - **Profile loaded**: General Project / Victory Audit
 - **Audit type**: victory audit
 

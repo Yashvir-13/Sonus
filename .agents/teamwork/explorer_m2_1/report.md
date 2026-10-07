@@ -9,7 +9,7 @@
 
 ## 1. Executive Architectural Summary
 
-Milestone 2 establishes the core spatial canvas architecture for the PRISM Adaptive Musical Practice System. Traditional page-based routing (`react-router`, separate URLs) is replaced by a continuous, infinite 2D manuscript plane powered by Framer Motion. 
+Milestone 2 establishes the core spatial canvas architecture for the Sonus Adaptive Musical Practice System. Traditional page-based routing (`react-router`, separate URLs) is replaced by a continuous, infinite 2D manuscript plane powered by Framer Motion. 
 
 The musician navigates a cross/compass topology of four distinct folio surfaces:
 1. **Center `(0, 0)`**: **Practice Stand** (`LivePracticeView`, pitch ribbon, real-time performance feedback).

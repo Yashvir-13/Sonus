@@ -33,7 +33,7 @@ Empirically challenge Milestone 2: Spatial state machine & navigation transition
   - DOM focus scoping: confirmed `aria-hidden` and `inert` are applied to the 3 inactive viewports in every state.
   - Coordinate camera transforms: verified Framer Motion translates world canvas to matching coordinate vectors.
 - **Vulnerabilities found**:
-  - Caveat/Subtle edge case: In `SignInPage.tsx`, entering via URL hash `#guest` initializes in-memory state to guest mode but only writes `sessionStorage.setItem('prism_guest_mode', 'true')` on subsequent `hashchange` or when clicking the "Audition as Guest" button. If the user navigates directly to `#profile` and reloads before `sessionStorage` is set, guest state would reset to the sign-in frontispiece.
+  - Caveat/Subtle edge case: In `SignInPage.tsx`, entering via URL hash `#guest` initializes in-memory state to guest mode but only writes `sessionStorage.setItem('Sonus_guest_mode', 'true')` on subsequent `hashchange` or when clicking the "Audition as Guest" button. If the user navigates directly to `#profile` and reloads before `sessionStorage` is set, guest state would reset to the sign-in frontispiece.
   - Spring duration: A diagonal 2-axis or 200vw transition takes ~1100-1500ms to settle under `stiffness: 70, damping: 18`, while `spatial-context.tsx` resets `isPanning` after a fixed 800ms timer; however `SpatialContainer` attaches `onAnimationComplete`, which keeps the actual motion event accurate.
 - **Untested angles**:
   - Multi-touch swipe gestures on mobile (currently driven by keyboard, hash, and on-screen anchors).

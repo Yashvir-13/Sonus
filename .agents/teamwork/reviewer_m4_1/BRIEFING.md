@@ -29,7 +29,7 @@ Review Worker M4's Playwright E2E & visual verification deliverables against DES
 - Confirmed web build passes with exit code 0 (`tsc -b && vite build` in 930ms).
 - Confirmed linter passes with exit code 0 (`oxlint` on 25 files with 0 warnings and 0 errors).
 - Executed `pnpm run verify:m4`: all 54 assertions passed, 0 failures, 0 console errors, 0 page errors.
-- Inspected all 7 physical screenshots in `verification_screenshots/` via `view_file`: verified aesthetic compliance with DESIGN.md (parchment `#F4F1EA`, charcoal `#2C2A29`, crimson `#9A2A2A`, SVG ink bleed bloom on PRISM title, zero border radius, zero modern drop shadows, SMuFL musical glyphs).
+- Inspected all 7 physical screenshots in `verification_screenshots/` via `view_file`: verified aesthetic compliance with DESIGN.md (parchment `#F4F1EA`, charcoal `#2C2A29`, crimson `#9A2A2A`, SVG ink bleed bloom on Sonus title, zero border radius, zero modern drop shadows, SMuFL musical glyphs).
 - Adversarial integrity audit: verified absence of hardcoded cheating, facade implementations, or fabricated logs.
 - Verdict issued: **APPROVE**.
 

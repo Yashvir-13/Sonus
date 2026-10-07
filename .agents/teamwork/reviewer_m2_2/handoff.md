@@ -96,7 +96,7 @@
    - Lines 161, 168–176: Uses `useReducedMotion()`. When enabled, `springTransition = { duration: 0 }`, honoring OS accessibility preferences.
 
 6. **Guest Audition Pathway (`sign-in-page.tsx`)**:
-   - Lines 7–13 & 30–33: Evaluates `sessionStorage.getItem('prism_guest_mode') === 'true'` and `#guest` hash.
+   - Lines 7–13 & 30–33: Evaluates `sessionStorage.getItem('Sonus_guest_mode') === 'true'` and `#guest` hash.
    - Lines 43–45: Conditionally mounts `<App isGuest={true} onExitGuest={handleExitGuest} />`.
    - Lines 95–103: Provides prominent Living Manuscript styled "Audition as Guest [Instant Access]" CTA button.
 

@@ -8,7 +8,7 @@
   - Verified compilation and build health: `tsc -b && vite build` (pass, 0 errors) and `oxlint` (pass, 0 warnings/errors).
   - Architected the full Living Manuscript Landing Screen (`landing-screen.tsx`):
     1. Outer double-ruled hairline frame with classical corner brackets and Latin marginalia (*Audire · Discere · Exercere*) + telemetry status (*REV. MMXXVI // ACOUSTIC INTELLIGENCE ENGINE // STANDBY*).
-    2. Hero section with calligraphic title "PRISM" in Playfair Display, reactive ink-bleed bloom using `<InkBleedFilter />` with dynamic SVG displacement & turbulence scale on hover, and animated radial ink wash underlay.
+    2. Hero section with calligraphic title "Sonus" in Playfair Display, reactive ink-bleed bloom using `<InkBleedFilter />` with dynamic SVG displacement & turbulence scale on hover, and animated radial ink wash underlay.
     3. Three illuminated parchment feature scrolls (I. The Attentive Ear: Adaptive Intonation; II. The Spatial Canvas: Temporal DTW Alignment; III. The Constellation Memory: Celestial Constellation History).
     4. Embedded Clerk `<SignIn />` within an illuminated manuscript border with zero-radius Living Manuscript theme variables.
     5. Direct "Audition as Guest (Instant Access)" button with `sessionStorage` management, URL `#guest` synchronization, and instant entry into `<App isGuest={true} />`.

@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-Milestone 2 implements the **2D Spatial Single-Page Architecture** for the PRISM Adaptive Musical Practice System, replacing traditional route switching with an infinite 2D manuscript plane powered by Framer Motion.
+Milestone 2 implements the **2D Spatial Single-Page Architecture** for the Sonus Adaptive Musical Practice System, replacing traditional route switching with an infinite 2D manuscript plane powered by Framer Motion.
 
 The musician navigates a continuous cross/compass topology across four cardinal viewports:
 1. **Center `(0, 0)`**: Practice Stand (`LivePracticeView`, pitch ribbon, real-time acoustic telemetry).

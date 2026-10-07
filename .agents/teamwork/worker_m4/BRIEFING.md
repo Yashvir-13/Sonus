@@ -1,7 +1,7 @@
 # BRIEFING — 2026-10-06T15:42:00Z
 
 ## Mission
-Execute Milestone 4: End-to-end Playwright verification and visual regression testing of PRISM 2D Spatial Practice System with 7 required screenshots and zero console errors.
+Execute Milestone 4: End-to-end Playwright verification and visual regression testing of Sonus 2D Spatial Practice System with 7 required screenshots and zero console errors.
 
 ## 🔒 My Identity
 - Archetype: worker_m4

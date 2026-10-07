@@ -2,16 +2,16 @@
 
 **Explorer 1 — Design System Explorer Report**  
 **Date:** 2026-10-06  
-**Target Project:** PRISM — Adaptive Musical Practice System  
+**Target Project:** Sonus — Adaptive Musical Practice System  
 **Working Directory:** `.agents/teamwork/explorer_survey_1/`
 
 ---
 
 ## 1. Executive Summary & Design Vision
 
-PRISM is not a sterile music analytics dashboard or a standard SaaS utility. It is an **interactive, experimental musical instrument masquerading as sheet music**. The design philosophy is termed **"The Living Manuscript"**: an immersive digital parchment stand that feels like an ancient, illuminated musical treatise brought to life with dynamic reactive ink, high-contrast typography, and celestial geometry.
+Sonus is not a sterile music analytics dashboard or a standard SaaS utility. It is an **interactive, experimental musical instrument masquerading as sheet music**. The design philosophy is termed **"The Living Manuscript"**: an immersive digital parchment stand that feels like an ancient, illuminated musical treatise brought to life with dynamic reactive ink, high-contrast typography, and celestial geometry.
 
-Rather than relying on modern SaaS conventions—drop shadows, rounded pill buttons, floating glassmorphism cards, and standard toolbars—PRISM draws inspiration from:
+Rather than relying on modern SaaS conventions—drop shadows, rounded pill buttons, floating glassmorphism cards, and standard toolbars—Sonus draws inspiration from:
 - Historical musical treatises (e.g., J.S. Bach's handwritten manuscripts, Guido d'Arezzo's hexachord charts).
 - Astronomical and navigational folio charts (Johannes Kepler's *Harmonices Mundi*, medieval astrolabes).
 - Organic materials: hand-pressed parchment paper (`#F4F1EA`), iron gall and charcoal ink (`#2C2A29`), and rubricated crimson ink accents (`#9A2A2A`).
@@ -137,7 +137,7 @@ The "Living" aspect of the manuscript comes from dynamic ink behavior:
 ## 3. Screen 1: Landing Page Visual & Interactive Specification
 
 ### 3.1 Atmosphere & Hero Architecture
-The Landing Page serves as the **frontispiece and solemn gateway** to PRISM.
+The Landing Page serves as the **frontispiece and solemn gateway** to Sonus.
 - **Background:** Full viewport parchment (`#F4F1EA`) with faint paper grain and edge aging. A double charcoal border frames the screen with 24px inset margins.
 - **Top Marginalia:**
   - Left: Latin motto in small-caps serif: *AUDIRE · DISCERE · EXERCERE* (Listen · Learn · Practise with purpose).
@@ -145,7 +145,7 @@ The Landing Page serves as the **frontispiece and solemn gateway** to PRISM.
 - **Centerpiece (The Ink Bleed Bloom):**
   - An interactive calligraphy ink bloom that spreads outward upon page load using CSS/SVG mask or canvas simulation.
   - Embedded within the bloom is the primary title:
-    - **`PRISM`** (72px–96px, Playfair Display, tracking-tight, `#2C2A29`).
+    - **`Sonus`** (72px–96px, Playfair Display, tracking-tight, `#2C2A29`).
     - Subtitle: *"Opus Manuscriptum"* (24px, Playfair Display Italic, `#7E7570`).
     - Proposition: *"A living musical score that listens to your monophonic playing, detects recurring pitch and timing habits across time, and turns weaknesses into focused mastery."*
 - **Call-to-Action & Clerk Authentication Integration:**
@@ -167,7 +167,7 @@ The Landing Page serves as the **frontispiece and solemn gateway** to PRISM.
 
 ### 3.2 Stitch MCP Prompt: Landing Page
 ```text
-Screen: PRISM Living Manuscript Landing Page
+Screen: Sonus Living Manuscript Landing Page
 Device: Desktop (1440x900)
 Aesthetic: "The Living Manuscript" historical sheet music and illuminated treatise aesthetic.
 Colors: Background #F4F1EA (parchment paper), lines and text #2C2A29 (deep charcoal ink), accents #9A2A2A (crimson red ink), secondary #E9E4DA.
@@ -175,7 +175,7 @@ Typography: Header in Playfair Display serif, technical labels in Geist Mono mon
 Layout:
 - Framed by a delicate double-line charcoal border with classical corner flourishes.
 - Top marginalia showing Latin motto "AUDIRE · DISCERE · EXERCERE" and system status in monospace.
-- Hero center: Dramatic calligraphic ink bleed ring with title "PRISM" in 80px Playfair Display, subtitle "Opus Manuscriptum: Adaptive Musical Practice System".
+- Hero center: Dramatic calligraphic ink bleed ring with title "Sonus" in 80px Playfair Display, subtitle "Opus Manuscriptum: Adaptive Musical Practice System".
 - Integrated authentication folio box: An illuminated parchment card containing Clerk sign-in fields (Email, Passkey/Password, and "Enter Sanctuary" action button in #2C2A29 with #F4F1EA text).
 - Bottom: 5-line musical staff bar with 3 columns describing features ("The Attentive Ear", "The Celestial Memory", "The Adaptive Pen") styled like vintage musical annotations.
 ```
@@ -220,7 +220,7 @@ The visual centerpiece is a circular dial inspired by Renaissance astronomical q
 
 ### 4.4 Stitch MCP Prompt: Setup / Tuning Ritual
 ```text
-Screen: PRISM Device Setup and Sacred Tuning Ritual
+Screen: Sonus Device Setup and Sacred Tuning Ritual
 Device: Desktop (1440x900)
 Aesthetic: "The Living Manuscript" medieval astrolabe and musical calibration stand.
 Colors: Parchment background #F4F1EA, deep charcoal #2C2A29, crimson ink accents #9A2A2A.
@@ -238,7 +238,7 @@ Layout:
 ## 5. Screen 3: Constellation History Visual & Interactive Specification
 
 ### 5.1 The Celestial Star Map Metaphor
-Practice history in PRISM is not represented by boring corporate bar charts or database tables. It is structured as **The Constellation of Practice**: a celestial sky chart on parchment where every practice take is a star, and recurring patterns form connected constellations.
+Practice history in Sonus is not represented by boring corporate bar charts or database tables. It is structured as **The Constellation of Practice**: a celestial sky chart on parchment where every practice take is a star, and recurring patterns form connected constellations.
 
 ### 5.2 Scatter Plot Coordinates & Visual Encoding
 - **Canvas Space:**
@@ -278,7 +278,7 @@ Hovering or clicking on any star node opens a crisp, parchment-framed inspection
 
 ### 5.5 Stitch MCP Prompt: Constellation History
 ```text
-Screen: PRISM Constellation History Scatter Plot
+Screen: Sonus Constellation History Scatter Plot
 Device: Desktop (1440x900)
 Aesthetic: "The Living Manuscript" celestial astronomy map and vintage star chart on parchment.
 Colors: Parchment background #F4F1EA, charcoal ink #2C2A29 for grid and stars, crimson ink #9A2A2A for error stars and annotations.
@@ -302,7 +302,7 @@ The Composer's Bio Profile is designed as the **frontispiece of a 17th-century p
   - Illuminated Drop-Cap or Ornate Monogram seal (diameter 80px) in deep charcoal and crimson.
   - Performer Name: **`Maestro Yash`** (or authenticated user name) in 40px Playfair Display.
   - Subtitle: *"Soloist in Residence · Violin & Voice"*
-  - Registry: Clerk User ID & Authentication Seal in crisp Geist Mono (`ID: usr_2026_prism // KEY: VERIFIED`).
+  - Registry: Clerk User ID & Authentication Seal in crisp Geist Mono (`ID: usr_2026_Sonus // KEY: VERIFIED`).
 
 ### 6.2 Left Column: "The Physiognomy of Practice" (Musician Analytics)
 A structured breakdown of the musician's physical playing tendencies and strengths:
@@ -343,7 +343,7 @@ An illuminated list of masterworks currently under study:
 
 ### 6.5 Stitch MCP Prompt: Composer's Bio Profile
 ```text
-Screen: PRISM Composer's Bio Profile Folio
+Screen: Sonus Composer's Bio Profile Folio
 Device: Desktop (1440x900)
 Aesthetic: "The Living Manuscript" 17th-century printed music frontispiece and illuminated treatise.
 Colors: Parchment background #F4F1EA, charcoal ink #2C2A29, rubricated crimson ink accents #9A2A2A.
