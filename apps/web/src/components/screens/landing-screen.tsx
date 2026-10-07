@@ -2,7 +2,7 @@ import { SignInButton } from '@clerk/react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useState, useRef } from 'react'
 import App from '@/app'
-import { HarmonicSeismograph } from '@/components/ui/harmonic-seismograph'
+import { LivingManuscript } from '@/components/ui/living-manuscript'
 import { InkBleedFilter } from '@/components/ui/ink-bleed-filter'
 
 export interface LandingScreenProps {
@@ -53,11 +53,11 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
       className="bg-[#FAF7F0] text-[#2C2A29] selection:bg-[#2C2A29] selection:text-[#FAF7F0] min-h-screen flex flex-col relative parchment-texture" 
       ref={containerRef}
     >
-      <InkBleedFilter id="sonus-ink-bleed" baseFrequency={0.02} scale={20} stdDeviation={2.5} />
+      <InkBleedFilter id="sonus-ink-bleed" baseFrequency={0.02} scale={15} stdDeviation={2} />
       
-      {/* Harmonic Seismograph Background with improved ink bleed filter */}
+      {/* Living Manuscript Background with true ink bleed effect */}
       <div className="absolute inset-0 w-full h-full z-0 overflow-hidden" style={{ filter: 'url(#sonus-ink-bleed)' }}>
-        <HarmonicSeismograph />
+        <LivingManuscript />
       </div>
 
       {/* Main Content */}
