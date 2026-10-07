@@ -1,8 +1,9 @@
 import { SignInButton } from '@clerk/react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import App from '@/app'
-import { InkClouds } from '@/components/ui/ink-clouds'
+import { InteractiveInkShader } from '@/components/ui/interactive-ink-shader'
+import { InkBleedFilter } from '@/components/ui/ink-bleed-filter'
 
 export interface LandingScreenProps {
   onAuditionGuest?: () => void
@@ -11,10 +12,11 @@ export interface LandingScreenProps {
 export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
   const prefersReducedMotion = useReducedMotion()
   const [isGuest, setIsGuest] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const handleAuditionAsGuest = (e: React.MouseEvent) => {
     e.preventDefault();
-    sessionStorage.setItem('sonus_guest_mode', 'true')
+    sessionStorage.setItem('prism_guest_mode', 'true')
     setIsGuest(true)
     if (onAuditionGuest) {
       onAuditionGuest()
@@ -22,7 +24,7 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
   }
 
   const handleExitGuest = () => {
-    sessionStorage.removeItem('sonus_guest_mode')
+    sessionStorage.removeItem('prism_guest_mode')
     setIsGuest(false)
   }
 
@@ -49,7 +51,15 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
   return (
     <div 
       className="bg-[#FAF7F0] text-[#2C2A29] selection:bg-[#2C2A29] selection:text-[#FAF7F0] min-h-screen flex flex-col relative parchment-texture" 
+      ref={containerRef}
     >
+      <InkBleedFilter id="sonus-ink-bleed" baseFrequency={0.02} scale={15} stdDeviation={2} />
+      
+      {/* Interactive Ink Shader Background */}
+      <div className="absolute inset-0 w-full h-full z-0 overflow-hidden" style={{ filter: 'url(#sonus-ink-bleed)' }}>
+        <InteractiveInkShader />
+      </div>
+
       {/* Main Content */}
       <main className="flex-grow flex items-center justify-center relative z-10 w-full pointer-events-none">
         {/* Hero Content Container with staggered animation */}
@@ -79,12 +89,7 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
 
           {/* GOOGLE SIGN-IN CARD / MUSICIAN PORTAL (Right Column) */}
           <motion.div variants={itemVariants} className="lg:col-span-5 relative pointer-events-auto" id="signin">
-            {/* The Ink is placed ONLY behind the login container */}
-            <div className="absolute -inset-16 z-0 overflow-visible opacity-80 pointer-events-none">
-              <InkClouds className="w-full h-full" />
-            </div>
-
-            <div className="bg-[#F4F1EA]/95 backdrop-blur-md border border-[#2C2A29] p-8 sm:p-10 shadow-none relative z-10">
+            <div className="bg-[#F4F1EA]/95 backdrop-blur-md border border-[#2C2A29] p-8 sm:p-10 shadow-none relative">
               {/* Decorative Architectural Notch */}
               <div className="absolute -top-3 -right-3 w-6 h-6 border-t-2 border-r-2 border-[#9A2A2A]"></div>
               <div className="absolute -bottom-3 -left-3 w-6 h-6 border-b-2 border-l-2 border-[#9A2A2A]"></div>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sonus — Adaptive Musical Practice</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with CDN plugin scripts -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Configuration verbatim from Design System -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-low": "#f6f3ec",
+            "outline": "#7e7570",
+            "surface-container-highest": "#e5e2db",
+            "on-error-container": "#93000a",
+            "on-tertiary-container": "#929192",
+            "inverse-on-surface": "#f3f0e9",
+            "on-surface": "#1c1c18",
+            "on-background": "#1c1c18",
+            "inverse-surface": "#31312c",
+            "on-tertiary": "#ffffff",
+            "primary-container": "#2c2a29",
+            "on-error": "#ffffff",
+            "secondary-container": "#f9706a",
+            "surface-container-lowest": "#ffffff",
+            "background": "#fcf9f2",
+            "on-surface-variant": "#4d4541",
+            "on-primary-container": "#95918f",
+            "surface-bright": "#fcf9f2",
+            "on-secondary": "#ffffff",
+            "error-container": "#ffdad6",
+            "charcoal": "#2C2A29",
+            "on-primary": "#ffffff",
+            "surface-container": "#f1eee7",
+            "tertiary-fixed-dim": "#c8c6c7",
+            "outline-variant": "#cfc4be",
+            "secondary-fixed": "#ffdad7",
+            "on-secondary-fixed": "#410004",
+            "surface": "#fcf9f2",
+            "on-secondary-fixed-variant": "#881d1f",
+            "tertiary": "#151617",
+            "parchment": "#F4F1EA",
+            "tertiary-fixed": "#e4e2e3",
+            "surface-variant": "#e5e2db",
+            "on-primary-fixed-variant": "#494645",
+            "primary-fixed": "#e7e1df",
+            "on-tertiary-fixed": "#1b1b1c",
+            "surface-dim": "#dcdad3",
+            "surface-container-high": "#ebe8e1",
+            "secondary": "#a93534",
+            "surface-tint": "#615e5c",
+            "primary-fixed-dim": "#cac5c4",
+            "inverse-primary": "#cac5c4",
+            "secondary-fixed-dim": "#ffb3ae",
+            "primary": "#171615",
+            "on-primary-fixed": "#1d1b1a",
+            "on-secondary-container": "#6c040e",
+            "tertiary-container": "#2a2a2b",
+            "error": "#ba1a1a",
+            "on-tertiary-fixed-variant": "#474648",
+            "crimson": "#9A2A2A"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-sm": "1rem",
+            "space-md": "2rem",
+            "gutter": "2rem",
+            "space-xs": "0.5rem",
+            "space-lg": "4rem",
+            "space-xl": "6rem",
+            "margin": "3rem"
+          },
+          "fontFamily": {
+            "technical-data": ["JetBrains Mono"],
+            "headline-lg": ["Playfair Display"],
+            "headline-sm": ["Playfair Display"],
+            "body-sm": ["Newsreader"],
+            "body-lg": ["Newsreader"],
+            "headline-md": ["Playfair Display"]
+          },
+          "fontSize": {
+            "technical-data": ["0.875rem", { "lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "400" }],
+            "headline-lg": ["3rem", { "lineHeight": "1.2", "fontWeight": "600" }],
+            "headline-sm": ["1.5rem", { "lineHeight": "1.4", "fontWeight": "500" }],
+            "body-sm": ["1rem", { "lineHeight": "1.5", "fontWeight": "400" }],
+            "body-lg": ["1.125rem", { "lineHeight": "1.6", "fontWeight": "400" }],
+            "headline-md": ["2.25rem", { "lineHeight": "1.3", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-background text-primary selection:bg-charcoal selection:text-surface-bright min-h-screen flex flex-col font-body-sm relative">
+<!-- TOP APP BAR -->
+<header class="w-full bg-parchment/90 dark:bg-charcoal/90 backdrop-blur-sm border-b border-charcoal/20 dark:border-outline-variant/30 sticky top-0 z-50">
+<div class="w-full px-8 py-5 flex items-center justify-between max-w-7xl mx-auto">
+<!-- Brand Anchor -->
+<a class="font-headline-md text-headline-md tracking-tight text-primary dark:text-inverse-primary font-semibold flex items-center gap-3" href="#">
+<span>Sonus</span>
+<span class="font-technical-data text-technical-data tracking-widest text-crimson text-xs uppercase border border-crimson/30 px-2 py-0.5 rounded-sm hidden sm:inline-block">
+          Precision 192kHz
+        </span>
+</a>
+<!-- Desktop Navigation Links from JSON Anchor -->
+<nav class="hidden md:flex items-center gap-8">
+<a class="border-b-2 border-secondary text-primary dark:text-inverse-primary pb-1 font-medium font-body-sm text-body-sm transition-colors" href="#features">
+          Features
+        </a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-primary dark:hover:text-inverse-primary transition-colors font-body-sm text-body-sm" href="#precision-audio">
+          Precision Audio
+        </a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-primary dark:hover:text-inverse-primary transition-colors font-body-sm text-body-sm" href="#repertoire">
+          Repertoire
+        </a>
+</nav>
+<!-- Trailing Action Cluster -->
+<div class="flex items-center gap-4">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors px-3 py-1.5 hidden sm:inline-block" href="#signin">
+          Sign In
+        </a>
+<a class="font-technical-data text-technical-data text-xs tracking-wider uppercase bg-charcoal text-surface-bright hover:bg-crimson px-5 py-2.5 transition-all border border-charcoal hover:border-crimson shadow-none" href="#signin">
+          Begin Practice
+        </a>
+</div>
+</div>
+</header>
+<!-- LIVE SYSTEM STATUS TICKER -->
+<div class="w-full bg-surface-container border-b border-charcoal/10 py-2 px-8 overflow-x-auto">
+<div class="max-w-7xl mx-auto flex items-center justify-between gap-6 font-technical-data text-technical-data text-xs text-on-surface-variant whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="inline-block w-2 h-2 rounded-full bg-crimson animate-pulse"></span>
+<span class="font-medium text-charcoal">Engine:</span> WebAudio Operational
+      </div>
+<div class="hidden sm:inline-block text-outline-variant">|</div>
+<div>
+<span class="font-medium text-charcoal">Calibration:</span> Standard A440
+      </div>
+<div class="hidden sm:inline-block text-outline-variant">|</div>
+<div>
+<span class="font-medium text-charcoal">Latency:</span> 2.1 ms
+      </div>
+<div class="hidden sm:inline-block text-outline-variant">|</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-xs">mic</span>
+<span class="font-medium text-charcoal">Input:</span> Studio Microphone
+      </div>
+</div>
+</div>
+<!-- MAIN CANVAS -->
+<main class="flex-grow">
+<!-- HERO SECTION WITH INK BLEED ARTWORK -->
+<section class="relative overflow-hidden border-b border-charcoal/20 min-h-[640px] flex items-center">
+<!-- Sumi Ink Bleed Graphic Asset -->
+<div class="absolute inset-y-0 right-0 w-full lg:w-3/5 pointer-events-none mix-blend-multiply opacity-80 z-0 flex items-center justify-end">
+<img alt="Organic sumi ink wash bleeding into archival parchment paper" class="w-full h-full object-cover object-left-center select-none" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbCz9O22GLqGTLog6OZUcXNPFXEJzgihg-hyo5dTEdGL245XADt1Wozv9EbB5vWi1MPIjFa1thh2FGzHRimoqITz4ywLbXnfH6ZmQBA8HAKHuq3sjm4WGP2zUT7pfdfCNMgXCbjvJJHu21gvi8gD4pNhL2mhQqsmzmx_2gVGfBLL_pZPH4xFgFIYrm4RJY_MTqjguMGfZIMaGb124LeZqcB4KPnB0lvN7OHdTjw0UPJABFLU3yVBXb9DSu9w5MLSivSiS76JYOzLQ"/>
+</div>
+<!-- Hero Content Container -->
+<div class="relative z-10 max-w-7xl mx-auto px-8 py-16 lg:py-24 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+<!-- Hero Text & Specs (Left Column) -->
+<div class="lg:col-span-7 space-y-8">
+<div class="space-y-3">
+<div class="inline-flex items-center gap-2">
+<span class="font-technical-data text-technical-data text-xs uppercase tracking-widest text-crimson font-medium">
+                Adaptive Musical Practice
+              </span>
+<span class="text-charcoal/40 font-technical-data text-xs">—</span>
+<span class="font-technical-data text-technical-data text-xs text-on-surface-variant">
+                Standard v2.4
+              </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg tracking-tight text-primary leading-tight">
+              Real-time intonation and acoustic feedback engineered for every instrument.
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl leading-relaxed pt-2">
+              Connect your microphone or instrument to track pitch precision, overtone resonance, and timing consistency with laboratory accuracy.
+            </p>
+</div>
+<!-- Laboratory Specs Grid -->
+<div class="pt-2 border-t border-charcoal/15 grid grid-cols-1 sm:grid-cols-3 gap-6">
+<div class="space-y-1">
+<p class="font-technical-data text-technical-data text-lg font-semibold text-charcoal">
+                ±0.1 Cents
+              </p>
+<p class="font-technical-data text-technical-data text-xs text-on-surface-variant tracking-wider uppercase">
+                Intonation Floor
+              </p>
+</div>
+<div class="space-y-1">
+<p class="font-technical-data text-technical-data text-lg font-semibold text-crimson">
+                &lt; 4.2 ms
+              </p>
+<p class="font-technical-data text-technical-data text-xs text-on-surface-variant tracking-wider uppercase">
+                Audio Latency
+              </p>
+</div>
+<div class="space-y-1">
+<p class="font-technical-data text-technical-data text-lg font-semibold text-charcoal">
+                27Hz – 4.2kHz
+              </p>
+<p class="font-technical-data text-technical-data text-xs text-on-surface-variant tracking-wider uppercase">
+                Frequency Range
+              </p>
+</div>
+</div>
+</div>
+<!-- GOOGLE SIGN-IN CARD / MUSICIAN PORTAL (Right Column) -->
+<div class="lg:col-span-5 relative" id="signin">
+<div class="bg-surface border-2 border-charcoal p-8 sm:p-10 shadow-none relative">
+<!-- Decorative Architectural Notch -->
+<div class="absolute -top-3 -right-3 w-6 h-6 border-t-2 border-r-2 border-crimson"></div>
+<div class="absolute -bottom-3 -left-3 w-6 h-6 border-b-2 border-l-2 border-crimson"></div>
+<div class="space-y-2 mb-6">
+<h2 class="font-headline-sm text-headline-sm font-semibold text-primary">
+                Start Your Practice Session
+              </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+                Immediate calibration for solo performers, ensembles, and teachers.
+              </p>
+</div>
+<!-- Google Authentication Action -->
+<button class="w-full flex items-center justify-center gap-3 bg-surface-container-lowest border border-charcoal hover:bg-surface-container-high py-3 px-4 transition-all duration-150 group" type="button">
+<svg aria-hidden="true" class="w-4 h-4" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"></path>
+</svg>
+<span class="font-technical-data text-technical-data text-xs tracking-wider uppercase text-charcoal font-medium group-hover:text-crimson">
+                Continue with Google
+              </span>
+</button>
+<!-- Divider -->
+<div class="relative my-6 flex items-center justify-center">
+<div class="w-full border-t border-charcoal/20"></div>
+<span class="bg-surface px-3 font-technical-data text-technical-data text-xs text-on-surface-variant uppercase tracking-wider relative z-10">
+                or enter email
+              </span>
+</div>
+<!-- Direct Entry Form -->
+<form class="space-y-4" onsubmit="event.preventDefault();">
+<div>
+<label class="block font-technical-data text-technical-data text-xs text-on-surface-variant uppercase tracking-wider mb-1" for="musician-email">
+                  Email Address
+                </label>
+<input class="w-full bg-surface-container-low border border-charcoal/40 focus:border-charcoal focus:ring-0 px-3 py-2.5 font-technical-data text-technical-data text-sm text-charcoal placeholder:text-outline/60 outline-none" id="musician-email" placeholder="performer@acoustics.org" type="email"/>
+</div>
+<div>
+<div class="flex justify-between items-center mb-1">
+<label class="font-technical-data text-technical-data text-xs text-on-surface-variant uppercase tracking-wider" for="musician-key">
+                    Access Passcode
+                  </label>
+<a class="font-technical-data text-technical-data text-xs text-crimson hover:underline" href="#">
+                    Reset
+                  </a>
+</div>
+<input class="w-full bg-surface-container-low border border-charcoal/40 focus:border-charcoal focus:ring-0 px-3 py-2.5 font-technical-data text-technical-data text-sm text-charcoal placeholder:text-outline/60 outline-none" id="musician-key" placeholder="••••••••••••" type="password"/>
+</div>
+<!-- Primary Submission Button -->
+<button class="w-full bg-charcoal hover:bg-crimson text-surface-bright font-technical-data text-technical-data text-xs uppercase tracking-wider py-3.5 transition-colors border border-charcoal hover:border-crimson font-medium mt-2" type="submit">
+                Sign In &amp; Launch Practice Stand
+              </button>
+<!-- Secondary Quick Action Button -->
+<button class="w-full bg-transparent hover:bg-surface-container text-on-surface-variant hover:text-charcoal font-technical-data text-technical-data text-xs tracking-wider py-2.5 transition-colors border border-dashed border-charcoal/30 flex items-center justify-center gap-2" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-crimson"></span>
+                Practice as Guest (Instant A440 Calibration)
+              </button>
+</form>
+</div>
+</div>
+</div>
+</section>
+<!-- FEATURES & CAPABILITIES GRID -->
+<section class="py-20 border-b border-charcoal/20 max-w-7xl mx-auto px-8" id="features">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12 pb-4 border-b border-charcoal/20">
+<div>
+<span class="font-technical-data text-technical-data text-xs uppercase tracking-widest text-crimson font-semibold">
+            Performance Core
+          </span>
+<h2 class="font-headline-md text-headline-md font-semibold text-primary mt-1">
+            Engineered for Demanding Acoustics
+          </h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-md mt-4 md:mt-0">
+          Built without bloated abstractions. Immediate response curves for strings, woodwinds, brass, and solo vocalists.
+        </p>
+</div>
+<!-- Bento-Editorial Three Card Cluster -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="border border-charcoal/30 bg-surface-container-low p-8 relative flex flex-col justify-between group hover:border-charcoal transition-all">
+<div class="space-y-4">
+<div class="flex items-center justify-between border-b border-charcoal/15 pb-4">
+<span class="font-technical-data text-technical-data text-xs text-crimson font-semibold">
+                MODULE 01
+              </span>
+<span class="font-technical-data text-technical-data text-xs text-on-surface-variant">
+                TRACKING
+              </span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-semibold text-primary pt-2">
+              Continuous Pitch Tracking
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Microtonal cents tracking and visual acoustic guidance responding in milliseconds. Isolate drifting pitch without audio bottlenecks.
+            </p>
+</div>
+<div class="pt-8 mt-6 border-t border-charcoal/10 font-technical-data text-technical-data text-xs text-charcoal flex items-center justify-between">
+<span>Accuracy: ±0.1 cent</span>
+<span class="text-crimson font-medium">Active</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="border border-charcoal/30 bg-surface-container-low p-8 relative flex flex-col justify-between group hover:border-charcoal transition-all">
+<div class="space-y-4">
+<div class="flex items-center justify-between border-b border-charcoal/15 pb-4">
+<span class="font-technical-data text-technical-data text-xs text-crimson font-semibold">
+                MODULE 02
+              </span>
+<span class="font-technical-data text-technical-data text-xs text-on-surface-variant">
+                PROCESSING
+              </span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-semibold text-primary pt-2">
+              Zero Hardware Setup
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Runs directly in your browser with studio-grade WebAudio processing. Calibrates automatically to your room acoustics and ambient noise.
+            </p>
+</div>
+<div class="pt-8 mt-6 border-t border-charcoal/10 font-technical-data text-technical-data text-xs text-charcoal flex items-center justify-between">
+<span>Room Cancellation: Auto</span>
+<span class="text-crimson font-medium">Calibrated</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="border border-charcoal/30 bg-surface-container-low p-8 relative flex flex-col justify-between group hover:border-charcoal transition-all">
+<div class="space-y-4">
+<div class="flex items-center justify-between border-b border-charcoal/15 pb-4">
+<span class="font-technical-data text-technical-data text-xs text-crimson font-semibold">
+                MODULE 03
+              </span>
+<span class="font-technical-data text-technical-data text-xs text-on-surface-variant">
+                INTELLIGENCE
+              </span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-semibold text-primary pt-2">
+              Adaptive Repertoire
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Import standard sheet music files or practice freeform exercises. The engine tracks your measures and annotates timing drift with precision crimson markers.
+            </p>
+</div>
+<div class="pt-8 mt-6 border-t border-charcoal/10 font-technical-data text-technical-data text-xs text-charcoal flex items-center justify-between">
+<span>MusicXML &amp; MIDI</span>
+<span class="text-crimson font-medium">Ready</span>
+</div>
+</div>
+</div>
+</section>
+<!-- LIVE PRACTICE VISUAL METAPHOR (EDITORIAL RUNWAY) -->
+<section class="py-20 max-w-7xl mx-auto px-8" id="precision-audio">
+<div class="border-2 border-charcoal p-8 sm:p-12 bg-surface-container-lowest">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-charcoal/15">
+<div>
+<h2 class="font-headline-sm text-headline-sm font-semibold text-primary">
+              Real-Time Acoustic Feedback Stand
+            </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Live pitch deflection tracking against calibrated concert frequency.
+            </p>
+</div>
+<div class="flex items-center gap-3 font-technical-data text-technical-data text-xs">
+<span class="px-2.5 py-1 bg-surface-container border border-charcoal/30">Target: 440.0 Hz (A4)</span>
+<span class="px-2.5 py-1 bg-crimson/10 text-crimson border border-crimson/30">Current: 440.2 Hz (+0.8 cents)</span>
+</div>
+</div>
+<!-- 5-Line Pitch Grid Representation -->
+<div class="relative h-44 bg-surface-container-low border border-charcoal/20 flex flex-col justify-between py-6 px-4 overflow-hidden">
+<div class="w-full border-b border-charcoal/15"></div>
+<div class="w-full border-b border-charcoal/15"></div>
+<div class="w-full border-b-2 border-charcoal/40 relative">
+<!-- Center Intonation Target Line -->
+<span class="absolute right-2 -top-4 font-technical-data text-technical-data text-[10px] text-charcoal/60">Reference Line A440</span>
+</div>
+<div class="w-full border-b border-charcoal/15"></div>
+<div class="w-full border-b border-charcoal/15"></div>
+<!-- Dynamic Pitch Trace Vector Simulation -->
+<div class="absolute inset-x-0 top-1/2 -translate-y-1/2 flex items-center px-12 pointer-events-none">
+<div class="w-2/3 h-1 bg-gradient-to-r from-transparent via-charcoal to-crimson relative">
+<!-- Note Cursor -->
+<div class="absolute right-0 -top-2 w-5 h-5 rounded-full bg-crimson border-2 border-surface flex items-center justify-center shadow-none">
+<div class="w-1.5 h-1.5 rounded-full bg-surface"></div>
+</div>
+</div>
+<div class="ml-4 font-technical-data text-technical-data text-xs text-crimson font-semibold">
+              Stable Sustained Tone
+            </div>
+</div>
+</div>
+<div class="mt-6 flex flex-wrap items-center justify-between gap-4 font-technical-data text-technical-data text-xs text-on-surface-variant">
+<span>Input Sample Rate: 192.0 kHz / 32-bit Float</span>
+<span class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-charcoal"></span>
+            Hardware Acceleration Enabled
+          </span>
+<span>Zero External Plugins Required</span>
+</div>
+</div>
+</section>
+</main>
+<!-- WEB FOOTER from Shared Components JSON -->
+<footer class="w-full bg-parchment dark:bg-charcoal border-t border-charcoal/20 dark:border-outline-variant/30">
+<div class="w-full px-8 py-12 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+<!-- Legal & System Specs -->
+<div class="space-y-2 max-w-2xl">
+<div class="font-headline-sm text-headline-sm font-semibold text-primary dark:text-inverse-primary">
+          Sonus
+        </div>
+<p class="font-technical-data text-technical-data text-xs text-on-surface-variant dark:text-on-primary-container leading-relaxed">
+          © 2025 Sonus Systems. High-resolution pitch tracking at 192kHz sampling, 32-bit floating point processing, and zero-latency synthesis engine.
+        </p>
+</div>
+<!-- Navigation Links cluster from JSON -->
+<div class="flex flex-wrap items-center gap-6 font-body-sm text-body-sm">
+<a class="text-secondary dark:text-secondary-fixed font-medium hover:text-secondary dark:hover:text-secondary-fixed underline transition-colors" href="#precision-audio">
+          Audio Engine
+        </a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-primary dark:hover:text-inverse-primary hover:text-secondary dark:hover:text-secondary-fixed underline transition-colors" href="#features">
+          Documentation
+        </a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-primary dark:hover:text-inverse-primary hover:text-secondary dark:hover:text-secondary-fixed underline transition-colors" href="#">
+          Privacy Architecture
+        </a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-primary dark:hover:text-inverse-primary hover:text-secondary dark:hover:text-secondary-fixed underline transition-colors" href="#">
+          Terms of Performance
+        </a>
+<a class="text-on-surface-variant dark:text-on-primary-container hover:text-primary dark:hover:text-inverse-primary hover:text-secondary dark:hover:text-secondary-fixed underline transition-colors" href="#">
+          System Status
+        </a>
+</div>
+</div>
+</footer>
+</body></html>
