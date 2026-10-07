@@ -2,7 +2,7 @@ import { SignInButton } from '@clerk/react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useState } from 'react'
 import App from '@/app'
-import { InkClouds } from '@/components/ui/ink-clouds'
+import { InkBleedFilter } from '@/components/ui/ink-bleed-filter'
 
 export interface LandingScreenProps {
   onAuditionGuest?: () => void
@@ -50,6 +50,7 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
     <div 
       className="bg-[#FAF7F0] text-[#2C2A29] selection:bg-[#2C2A29] selection:text-[#FAF7F0] min-h-screen flex flex-col relative parchment-texture" 
     >
+      <InkBleedFilter />
       {/* Main Content */}
       <main className="flex-grow flex items-center justify-center relative z-10 w-full pointer-events-none">
         {/* Hero Content Container with staggered animation */}
@@ -80,8 +81,13 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
           {/* GOOGLE SIGN-IN CARD / MUSICIAN PORTAL (Right Column) */}
           <motion.div variants={itemVariants} className="lg:col-span-5 relative pointer-events-auto" id="signin">
             {/* The Ink is placed ONLY behind the login container */}
-            <div className="absolute -inset-16 z-0 overflow-visible opacity-80 pointer-events-none">
-              <InkClouds className="w-full h-full" />
+            <div className="absolute -inset-[30rem] z-0 overflow-visible opacity-90 pointer-events-none mix-blend-multiply transition-all duration-1000 ease-out" style={{ filter: 'url(#ink-bleed)' }}>
+              <div 
+                className="absolute inset-0 w-full h-full"
+                style={{
+                  background: 'radial-gradient(ellipse at 60% 50%, rgba(44,42,41,0.85) 0%, rgba(44,42,41,0.6) 25%, rgba(44,42,41,0.15) 50%, transparent 70%)'
+                }}
+              />
             </div>
 
             <div className="bg-[#FAF7F0] border border-[#2C2A29] p-8 sm:p-10 shadow-none relative z-10">
