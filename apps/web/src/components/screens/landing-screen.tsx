@@ -2,7 +2,7 @@ import { SignInButton } from '@clerk/react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useState } from 'react'
 import App from '@/app'
-import { InkBleedFilter } from '@/components/ui/ink-bleed-filter'
+import { InteractiveInkShader } from '@/components/ui/interactive-ink-shader'
 
 export interface LandingScreenProps {
   onAuditionGuest?: () => void
@@ -47,10 +47,10 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
   }
 
   return (
-    <div 
-      className="bg-[#FAF7F0] text-[#2C2A29] selection:bg-[#2C2A29] selection:text-[#FAF7F0] min-h-screen flex flex-col relative parchment-texture" 
-    >
-      <InkBleedFilter />
+    <div className="text-[#2C2A29] selection:bg-[#2C2A29] selection:text-[#FAF7F0] min-h-screen flex flex-col relative overflow-hidden">
+      {/* Full-screen WebGL Shader handles both parchment background and right-side ink bloom */}
+      <InteractiveInkShader className="fixed inset-0 w-full h-full z-0" />
+      
       {/* Main Content */}
       <main className="flex-grow flex items-center justify-center relative z-10 w-full pointer-events-none">
         {/* Hero Content Container with staggered animation */}
@@ -80,16 +80,6 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
 
           {/* GOOGLE SIGN-IN CARD / MUSICIAN PORTAL (Right Column) */}
           <motion.div variants={itemVariants} className="lg:col-span-5 relative pointer-events-auto" id="signin">
-            {/* The Ink is placed ONLY behind the login container */}
-            <div className="absolute -inset-[30rem] z-0 overflow-visible opacity-90 pointer-events-none mix-blend-multiply transition-all duration-1000 ease-out" style={{ filter: 'url(#ink-bleed)' }}>
-              <div 
-                className="absolute inset-0 w-full h-full"
-                style={{
-                  background: 'radial-gradient(ellipse at 60% 50%, rgba(44,42,41,0.85) 0%, rgba(44,42,41,0.6) 25%, rgba(44,42,41,0.15) 50%, transparent 70%)'
-                }}
-              />
-            </div>
-
             <div className="bg-[#FAF7F0] border border-[#2C2A29] p-8 sm:p-10 shadow-none relative z-10">
               {/* Decorative Architectural Notch */}
               <div className="absolute -top-3 -right-3 w-6 h-6 border-t-2 border-r-2 border-[#9A2A2A]"></div>
@@ -116,7 +106,7 @@ export function LandingScreen({ onAuditionGuest }: LandingScreenProps) {
               {/* Divider */}
               <div className="relative my-6 flex items-center justify-center">
                 <div className="w-full border-t border-[#2C2A29]/20"></div>
-                <span className="bg-[#F4F1EA] px-3 font-mono text-xs text-[#7E7570] uppercase tracking-wider relative z-10">
+                <span className="bg-[#FAF7F0] px-3 font-mono text-xs text-[#7E7570] uppercase tracking-wider relative z-10">
                   or
                 </span>
               </div>
