@@ -2,7 +2,7 @@
 
 import os
 from collections.abc import AsyncIterator
-from typing import Callable
+from typing import Any, Callable
 
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI
@@ -26,7 +26,7 @@ def create_server(
     server: Server,
     middleware: Middleware,
     *,
-    lifespan: Callable[[FastAPI], AsyncIterator[None]] | None = None,
+    lifespan: Any = None,
 ) -> tuple[FastAPI, APIRouter]:
     """Create a FastAPI server."""
     env = os.getenv("ENV", "development").strip().lower()

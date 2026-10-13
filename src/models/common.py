@@ -1,8 +1,6 @@
-"""Common mixins for SQLModel models."""
+from datetime import UTC, datetime
 
-from datetime import datetime
-
-from sqlalchemy import DateTime, func
+from sqlalchemy import Column, DateTime, func
 from sqlmodel import Field
 
 
@@ -10,14 +8,16 @@ class TimestampMixin:
     """Mixin for SQLModel models with audit fields."""
 
     created_at: datetime = Field(
-        sa_type=DateTime(timezone=True),
+        default_factory=lambda: datetime.now(UTC),
+        sa_type=DateTime,
         sa_column_kwargs={
             "server_default": func.now(),
             "nullable": False,
         },
     )
     updated_at: datetime = Field(
-        sa_type=DateTime(timezone=True),
+        default_factory=lambda: datetime.now(UTC),
+        sa_type=DateTime,
         sa_column_kwargs={
             "server_default": func.now(),
             "onupdate": func.now(),
@@ -32,6 +32,6 @@ class VerificationMixin:
     verified: bool = Field(default=False)
     verified_at: datetime | None = Field(
         default=None,
-        sa_type=DateTime(timezone=True),
+        sa_type=DateTime,
         sa_column_kwargs={"nullable": True},
     )

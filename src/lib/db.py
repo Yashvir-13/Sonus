@@ -9,6 +9,7 @@ from urllib.parse import quote_plus
 from uuid import uuid4
 
 from dotenv import load_dotenv
+import socket
 from sqlalchemy import create_engine
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import (
@@ -32,6 +33,16 @@ def _require_env(name: str) -> str:
     return value
 
 
+def _resolve_ipv4(host: str, port: int = 5432) -> str | None:
+    try:
+        infos = socket.getaddrinfo(host, port, socket.AF_INET)
+        if infos:
+            return str(infos[0][4][0])
+    except Exception:
+        pass
+    return None
+
+
 def _is_cloud_ssl_host(host: str) -> bool:
     return "supabase.co" in host or "pooler.supabase.com" in host or "neon.tech" in host
 
@@ -48,12 +59,17 @@ def _url_from_environment(*, driver: str) -> str | None:
         return None
 
     url = make_url(raw_url).set(drivername=driver)
+    query = dict(url.query)
+    query.pop("channel_binding", None)
     if is_async:
-        query = dict(url.query)
         query.pop("sslmode", None)
-        query.pop("channel_binding", None)
         query["ssl"] = "require"
-        url = url.set(query=query)
+    elif _is_cloud_ssl_host(url.host or ""):
+        query.setdefault("sslmode", "require")
+        ipv4 = _resolve_ipv4(url.host or "", url.port or 5432)
+        if ipv4:
+            query["hostaddr"] = ipv4
+    url = url.set(query=query)
 
     return url.render_as_string(hide_password=False)
 
