@@ -10,7 +10,13 @@ from uuid import uuid4
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+from sqlalchemy.engine import make_url
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool
 
@@ -26,14 +32,45 @@ def _require_env(name: str) -> str:
     return value
 
 
-def _is_supabase_host(host: str) -> bool:
-    return "supabase.co" in host or "pooler.supabase.com" in host
+def _is_cloud_ssl_host(host: str) -> bool:
+    return "supabase.co" in host or "pooler.supabase.com" in host or "neon.tech" in host
+
+
+def _url_from_environment(*, driver: str) -> str | None:
+    """Return a configured database URL adapted for the requested driver."""
+    is_async = driver.endswith("+asyncpg")
+    raw_url = (
+        os.environ.get("DATABASE_URL_POOLED")
+        if is_async
+        else os.environ.get("DATABASE_URL")
+    ) or os.environ.get("DATABASE_URL_POOLED")
+    if not raw_url:
+        return None
+
+    url = make_url(raw_url).set(drivername=driver)
+    if is_async:
+        query = dict(url.query)
+        query.pop("sslmode", None)
+        query.pop("channel_binding", None)
+        query["ssl"] = "require"
+        url = url.set(query=query)
+
+    return url.render_as_string(hide_password=False)
 
 
 def _pooler_mode() -> str | None:
-    """Return Supavisor pool mode from host/port, or None for direct connections."""
-    host = _require_env("DATABASE_HOST")
-    port = _require_env("DATABASE_PORT")
+    """Return pooler mode from host/port, or None for direct connections."""
+    configured_url = os.environ.get("DATABASE_URL_POOLED") or os.environ.get("DATABASE_URL")
+    if configured_url:
+        parsed_url = make_url(configured_url)
+        host = parsed_url.host or ""
+        port = str(parsed_url.port or 5432)
+    else:
+        host = _require_env("DATABASE_HOST")
+        port = _require_env("DATABASE_PORT")
+
+    if "neon.tech" in host and "-pooler" in host:
+        return "transaction"
     if "pooler.supabase.com" not in host:
         return None
     if port == "6543":
@@ -44,7 +81,11 @@ def _pooler_mode() -> str | None:
 
 
 def build_database_url(*, driver: str) -> str:
-    """Build a SQLAlchemy URL with encoded credentials and Supabase SSL when needed."""
+    """Build a SQLAlchemy URL with encoded credentials and cloud SSL when needed."""
+    configured_url = _url_from_environment(driver=driver)
+    if configured_url is not None:
+        return configured_url
+
     user = quote_plus(_require_env("DATABASE_USER"))
     password = quote_plus(_require_env("DATABASE_PASSWORD"))
     host = _require_env("DATABASE_HOST")
@@ -52,7 +93,7 @@ def build_database_url(*, driver: str) -> str:
     name = _require_env("DATABASE_NAME")
 
     url = f"{driver}://{user}:{password}@{host}:{port}/{name}"
-    if _is_supabase_host(host):
+    if _is_cloud_ssl_host(host):
         if driver.endswith("+asyncpg"):
             return f"{url}?ssl=require"
         return f"{url}?sslmode=require"
@@ -108,7 +149,7 @@ engine: AsyncEngine = create_async_engine(
     **_async_engine_kwargs,
 )
 
-AsyncSessionLocal = sessionmaker(
+AsyncSessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(
     bind=engine,
     class_=AsyncSession,
     expire_on_commit=False,

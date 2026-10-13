@@ -3,6 +3,7 @@
 from src.lib.fastapi.server import cors_allow_origins, create_server
 from src.lib.schemas.fastapi import Middleware, Server
 from src.services.api.routes.me import router as me_router
+from src.services.api.routes.exercises import router as exercises_router
 
 server = Server(
     title="Blueprint API",
@@ -20,4 +21,5 @@ middleware = Middleware(
 
 app, router = create_server(server, middleware)
 router.include_router(me_router)
+router.include_router(exercises_router)
 app.include_router(router)
