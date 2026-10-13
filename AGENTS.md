@@ -272,9 +272,11 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 Rules:
 
 - Load root `.env` once; never hard-code credentials.
-- Support local Postgres and Supabase SSL/pooler quirks in URL builders.
+- Support local Postgres, Supabase, and Neon Serverless SSL/pooler quirks in URL builders.
+- On Windows or environments with partial IPv6 routing, resolve IPv4 to set `hostaddr` in cloud database URLs to prevent libpq socket dropouts.
 - Routes import `get_session`, not engines (except health checks).
 - Alembic `env.py` calls `sync_database_url()` and `import src.models`.
+- Endpoints handling both multipart media (WAV) and JSON bodies should inspect `request: Request` content-type rather than mixing `File()` and Pydantic bodies.
 
 ### Exceptions
 

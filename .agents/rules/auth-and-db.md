@@ -45,6 +45,7 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 
 - Alembic uses `sync_database_url()` + `import src.models`
 - Routes take `Depends(get_session)`, not raw engines (health may ping `engine`)
+- On Windows or networks with partial IPv6 routing, cloud hosts (Neon, Supabase) must resolve IPv4 to set `hostaddr` to prevent libpq socket dropouts
 
 ## Route wiring (SOLID)
 
@@ -63,3 +64,10 @@ async def get_me(
 ```python
 # ❌ BAD — Clerk + engine + SQL inside the route
 ```
+
+## Dual-Payload Endpoints (Audio / JSON)
+
+For endpoints supporting both file uploads (e.g. WAV multipart takes) and client telemetry/events (JSON):
+- Use `request: Request` with `request.headers.get("content-type")` branching.
+- Do not combine `File()` and JSON Pydantic bodies in the same route signature (causes Starlette 422 conflicts).
+
