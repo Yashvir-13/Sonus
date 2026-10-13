@@ -1,12 +1,23 @@
-import React from 'react'
-
 export default function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900">
-      <div className="text-center space-y-4 p-8 bg-white rounded-lg shadow-sm border border-gray-200">
-        <h1 className="text-2xl font-bold">Frontend Reset</h1>
-        <p className="text-gray-500">The frontend has been completely cleared.</p>
+    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-10">
+      <div className="space-y-2">
+        <p className="font-brand text-sm font-bold tracking-[0.05em] text-muted-foreground">
+          Sonus
+        </p>
+        <h1 className="font-display text-4xl font-light tracking-tight text-foreground md:text-5xl">
+          Adaptive Music Practice
+        </h1>
+        <p className="max-w-xl text-base text-muted-foreground">
+          Real-time intonation analysis and adaptive rehearsal system for monophonic instruments.
+        </p>
       </div>
-    </div>
+
+      <div className="rounded-[20px] border border-border bg-card p-6 text-card-foreground shadow-none">
+        <p className="text-sm text-muted-foreground">
+          Clean blueprint foundation ready for feature development.
+        </p>
+      </div>
+    </main>
   )
 }

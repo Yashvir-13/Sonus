@@ -1,0 +1,4 @@
+arXiv API Terms of Use Notice
+Accessed on: 2026-10-12T23:54:40+05:30
+Terms: https://info.arxiv.org/help/api/index.html
+User was notified to check terms and check licenses of retrieved papers for restrictions. Rate limit of 1 request per 3 seconds strictly respected.

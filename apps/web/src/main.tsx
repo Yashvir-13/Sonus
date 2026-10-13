@@ -1,29 +1,35 @@
+import { ClerkProvider, Show } from '@clerk/react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { ClerkProvider, SignedIn, SignedOut } from '@clerk/react'
-import App from './app.tsx'
-import './styles/index.css'
+import '@fontsource/inter/400.css'
+import '@fontsource/inter/500.css'
+import '@fontsource/dm-sans/300.css'
+import '@fontsource/space-grotesk/700.css'
+import '@fontsource/geist-mono/400.css'
+import App from '@/app'
+import { AuthShell } from '@/components/auth/auth-shell'
+import { SignInPage } from '@/components/auth/sign-in-page'
+import '@/styles/index.css'
 
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
 if (!publishableKey) {
-  throw new Error('Missing Publishable Key')
+  throw new Error(
+    'Missing VITE_CLERK_PUBLISHABLE_KEY. Copy apps/web/.env.example to apps/web/.env and fill in your Clerk key.',
+  )
 }
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ClerkProvider publishableKey={publishableKey}>
-      <SignedOut>
-        <div className="min-h-screen flex items-center justify-center p-8">
-          <div className="text-center space-y-4 max-w-md w-full bg-white p-8 rounded-xl shadow border">
-            <h1 className="text-2xl font-bold">Please Sign In</h1>
-            <p className="text-gray-500">The frontend has been reset. Authenticate to proceed.</p>
-          </div>
-        </div>
-      </SignedOut>
-      <SignedIn>
-        <App />
-      </SignedIn>
+      <Show when="signed-out">
+        <SignInPage />
+      </Show>
+      <Show when="signed-in">
+        <AuthShell>
+          <App />
+        </AuthShell>
+      </Show>
     </ClerkProvider>
-  </StrictMode>
+  </StrictMode>,
 )

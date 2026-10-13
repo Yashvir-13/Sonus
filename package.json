@@ -15,12 +15,9 @@
     "app:web": "python scripts/run.py app:web",
     "service:api": "python scripts/run.py service:api",
     "app:clean:all": "pnpm dlx rimraf node_modules apps/web/node_modules apps/web/dist",
-    "app:clean:install": "pnpm run app:clean:all && pnpm install",
-    "verify:m4": "node scripts/verify-m4-playwright-e2e.mjs",
-    "verify:landing": "node scripts/verify-sonus-landing.mjs"
+    "app:clean:install": "pnpm run app:clean:all && pnpm install"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1",
-    "playwright": "^1.63.0"
+    "concurrently": "^9.2.1"
   }
 }

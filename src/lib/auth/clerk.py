@@ -49,7 +49,7 @@ def require_clerk_identity(request: Request) -> ClerkIdentity:
         ),
     )
     if not state.is_signed_in or state.payload is None:
-        detail = state.reason or "Unauthorized"
+        detail = str(state.reason or "Unauthorized")
         raise Unauthorized(detail)
 
     user_id = state.payload.get("sub")
