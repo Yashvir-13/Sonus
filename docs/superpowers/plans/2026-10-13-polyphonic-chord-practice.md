@@ -1,6 +1,6 @@
 # Polyphonic Adaptive Music Practice Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build a complete, free, and open-source adaptive music practice loop for piano and guitar chords that listens in real time, provides low-latency feedback, performs deep post-take polyphonic analysis, and generates adaptive drills based on longitudinal habits.
 
@@ -103,7 +103,7 @@ Add `validate_progression_schema` in `src/lib/music/progressions.py` and test in
   - Neon Serverless PostgreSQL connection support (PgBouncer transaction pooler & SSL)
   - Alembic migration revision for practice tables
 
-- [ ] **Step 1: Write the failing test for practice models**
+- [x] **Step 1: Write the failing test for practice models**
 
 ```python
 # tests/test_models.py
@@ -138,25 +138,25 @@ def test_create_exercise_and_session():
         assert retrieved.exercise_id == "ex_1"
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_models.py -v`  
 Expected: FAIL with `ModuleNotFoundError: No module named 'src.models.practice'`
 
-- [ ] **Step 3: Implement SQLModel table definitions in `src/models/practice.py`**
+- [x] **Step 3: Implement SQLModel table definitions in `src/models/practice.py`**
 
 Define `Exercise`, `PracticeSession`, `SessionChordMetric`, `HabitPattern`, and `AdaptiveIntervention` inheriting from `Base` and `TimestampMixin`. Barrel export table classes in `src/models/__init__.py`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/test_models.py -v`  
 Expected: PASS
 
-- [ ] **Step 5: Configure Neon PostgreSQL connection & pooler handling**
+- [x] **Step 5: Configure Neon PostgreSQL connection & pooler handling**
 
 Update `src/lib/db.py` to detect Neon hostnames (`neon.tech`), enable `ssl=require` / `sslmode=require`, configure transaction pooler mode, and update `.env.example.api`.
 
-- [ ] **Step 6: Autogenerate Alembic migration**
+- [x] **Step 6: Autogenerate Alembic migration**
 
 Run: `pnpm run db:make "add practice tables"`  
 Expected: Successfully generates new migration revision script in `src/alembic/versions/`.
@@ -178,7 +178,7 @@ Expected: Successfully generates new migration revision script in `src/alembic/v
   - `cluster_chords_from_notes(notes: list[dict], strum_window_ms: float = 50.0) -> list[dict]`: Clusters asynchronous strums into discrete chord strike events.
   - `align_chord_sequence(played_chords: list[dict], reference_chords: list[dict]) -> list[dict]`: Weighted dynamic programming sequence alignment returning matched chord metrics, timing offsets, and voicing accuracy.
 
-- [ ] **Step 1: Write the failing test for dynamic programming chord alignment**
+- [x] **Step 1: Write the failing test for dynamic programming chord alignment**
 
 ```python
 # tests/test_audio_alignment.py
@@ -215,20 +215,20 @@ def test_align_with_skipped_chord():
     assert matches[2]["is_matched"] is True  # G still aligns correctly
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_audio_alignment.py -v`  
 Expected: FAIL with `ModuleNotFoundError: No module named 'src.lib.audio.alignment'`
 
-- [ ] **Step 3: Implement dynamic programming sequence alignment in `src/lib/audio/alignment.py`**
+- [x] **Step 3: Implement dynamic programming sequence alignment in `src/lib/audio/alignment.py`**
 
 Implement Needleman-Wunsch / Levenshtein-variant weighted sequence alignment tailored to music chord progressions.
 
-- [ ] **Step 4: Implement Basic Pitch wrapper and strum clustering**
+- [x] **Step 4: Implement Basic Pitch wrapper and strum clustering**
 
 Implement `transcribe_polyphonic_wav` in `src/lib/audio/transcription.py` and strum clustering in `src/lib/audio/voicing.py`.
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `pytest tests/test_audio_alignment.py -v`  
 Expected: PASS
@@ -251,7 +251,7 @@ Expected: PASS
   - `POST /api/sessions/{id}/take`: Upload WAV take for async polyphonic processing
   - `GET /api/sessions/{id}/analysis`: Retrieve per-chord metrics and timing
 
-- [ ] **Step 1: Write the failing API test**
+- [x] **Step 1: Write the failing API test**
 
 ```python
 # tests/test_sessions_api.py
@@ -268,16 +268,16 @@ async def test_create_and_get_exercise():
         assert isinstance(res.json(), list)
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_sessions_api.py -v`  
 Expected: FAIL with 404 Not Found (router not mounted)
 
-- [ ] **Step 3: Implement exercise and session routers**
+- [x] **Step 3: Implement exercise and session routers**
 
 Build `src/services/api/routes/exercises.py` and `src/services/api/routes/sessions.py`. Wire into `src/services/api/app.py`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pytest tests/test_sessions_api.py -v`  
 Expected: PASS
@@ -299,7 +299,7 @@ Expected: PASS
   - `generate_intervention(pattern: HabitPattern) -> AdaptiveIntervention`
   - `generate_grounded_report(session_id: str, metrics: list[SessionChordMetric]) -> dict`
 
-- [ ] **Step 1: Write the failing test for habit pattern detection**
+- [x] **Step 1: Write the failing test for habit pattern detection**
 
 ```python
 # tests/test_adaptive_engine.py
@@ -319,20 +319,20 @@ def test_detect_f_to_g_transition_lag():
     assert patterns[0]["status"] == "active"
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_adaptive_engine.py -v`  
 Expected: FAIL with `ModuleNotFoundError: No module named 'src.lib.adaptive'`
 
-- [ ] **Step 3: Implement pattern detection and intervention generator**
+- [x] **Step 3: Implement pattern detection and intervention generator**
 
 Implement transition lag, tempo threshold, and voicing drop detection in `src/lib/adaptive/patterns.py` and rule-based drill generation in `src/lib/adaptive/interventions.py`.
 
-- [ ] **Step 4: Implement grounded fact-bundle report generation**
+- [x] **Step 4: Implement grounded fact-bundle report generation**
 
 Build `src/lib/adaptive/reports.py` generating deterministic summaries strictly tied to fact IDs.
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `pytest tests/test_adaptive_engine.py -v`  
 Expected: PASS
@@ -353,7 +353,7 @@ Expected: PASS
   - `chromaToChord(chromaVector: number[]): { chord: string; confidence: number; bass: string }`
   - `createAudioWorkletNode(ctx: AudioContext): Promise<AudioWorkletNode>`
 
-- [ ] **Step 1: Write the failing Vitest test for chroma chord resolution**
+- [x] **Step 1: Write the failing Vitest test for chroma chord resolution**
 
 ```ts
 // apps/web/src/lib/audio/__tests__/chord-detector.test.ts
@@ -378,21 +378,21 @@ describe('chromaToChord', () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm --filter web test`  
 Expected: FAIL with `Cannot find module '../chord-detector'`
 
-- [ ] **Step 3: Implement `chromaToChord` using `tonal`**
+- [x] **Step 3: Implement `chromaToChord` using `tonal`**
 
 Install `tonal` dependency in `apps/web` and implement template matching with bass note detection in `apps/web/src/lib/audio/chord-detector.ts`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pnpm --filter web test`  
 Expected: PASS
 
-- [ ] **Step 5: Implement `AudioWorklet` processor for non-blocking buffer capture**
+- [x] **Step 5: Implement `AudioWorklet` processor for non-blocking buffer capture**
 
 Create `chroma-processor.ts` for zero-allocation audio streaming.
 
@@ -414,7 +414,7 @@ Create `chroma-processor.ts` for zero-allocation audio streaming.
   - `uploadSessionTake(sessionId: string, audioBlob: Blob, token: string): Promise<{ jobId: string }>`
   - `fetchSessionAnalysis(sessionId: string, token: string): Promise<SessionAnalysisDto>`
 
-- [ ] **Step 1: Write the failing test for WAV encoding**
+- [x] **Step 1: Write the failing test for WAV encoding**
 
 ```ts
 // apps/web/src/lib/audio/__tests__/wav-encoder.test.ts
@@ -431,20 +431,20 @@ describe('encodeMonoWav', () => {
 })
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm --filter web test`  
 Expected: FAIL with `Cannot find module '../wav-encoder'`
 
-- [ ] **Step 3: Implement 16-bit WAV encoder and metronome scheduler**
+- [x] **Step 3: Implement 16-bit WAV encoder and metronome scheduler**
 
 Implement standard RIFF header formatting in `wav-encoder.ts` and lookahead audio timing scheduler in `metronome.ts`.
 
-- [ ] **Step 4: Implement typed session API client in `apps/web/src/api/sessions.ts`**
+- [x] **Step 4: Implement typed session API client in `apps/web/src/api/sessions.ts`**
 
 Implement `uploadSessionTake` and `fetchSessionAnalysis` following `AGENTS.md` API conventions.
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `pnpm --filter web test`  
 Expected: PASS
@@ -469,7 +469,7 @@ Expected: PASS
   - Real-time client & backend observability with Sentry
   - Doppler SecretOps workflow documentation
 
-- [ ] **Step 1: Write end-to-end integration test**
+- [x] **Step 1: Write end-to-end integration test**
 
 ```python
 # tests/test_e2e_practice_loop.py
@@ -497,20 +497,20 @@ async def test_full_practice_cycle():
         assert status_res.json()["state"] in ["recording", "analysing", "ready"]
 ```
 
-- [ ] **Step 2: Run integration tests to verify complete vertical slice**
+- [x] **Step 2: Run integration tests to verify complete vertical slice**
 
 Run: `pytest tests/test_e2e_practice_loop.py -v`  
 Expected: PASS
 
-- [ ] **Step 3: Wire Sentry observability into frontend and backend**
+- [x] **Step 3: Wire Sentry observability into frontend and backend**
 
 Add Sentry initialization in `src/services/api/app.py` (`sentry_sdk.init(...)`) and in `apps/web/src/main.tsx` (`Sentry.init(...)`) conditioned on `SENTRY_DSN` / `VITE_SENTRY_DSN`.
 
-- [ ] **Step 4: Create automated GitHub Actions CI workflow**
+- [x] **Step 4: Create automated GitHub Actions CI workflow**
 
 Create `.github/workflows/ci.yml` executing Python tests (pytest, mypy, ruff) and frontend tests (vitest, typecheck, build) on push and pull requests.
 
-- [ ] **Step 5: Run full repo lint, typecheck, and build checks**
+- [x] **Step 5: Run full repo lint, typecheck, and build checks**
 
 Run: `pnpm --filter web build` and `pytest tests/`  
 Expected: All TypeScript and Python tests pass cleanly with zero errors.
