@@ -55,7 +55,10 @@ def load_env() -> dict[str, str]:
         if not stripped or stripped.startswith("#") or "=" not in stripped:
             continue
         key, _, value = stripped.partition("=")
-        env[key.strip()] = value.strip()
+        val = value.strip()
+        if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+            val = val[1:-1]
+        env[key.strip()] = val
     return env
 
 
@@ -70,7 +73,10 @@ def load_env_optional() -> dict[str, str]:
         if not stripped or stripped.startswith("#") or "=" not in stripped:
             continue
         key, _, value = stripped.partition("=")
-        env[key.strip()] = value.strip()
+        val = value.strip()
+        if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+            val = val[1:-1]
+        env[key.strip()] = val
     return env
 
 

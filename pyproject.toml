@@ -18,6 +18,14 @@ dependencies = [
     "python-multipart (>=0.0.27,<0.0.28)",
     "email-validator (>=2.2.0,<3.0.0)",
     "pydantic[email] (>=2.13.4,<3.0.0)",
+    "basic-pitch (>=0.4.0)",
+    "onnxruntime (>=1.20.0)",
+    "librosa (>=0.10.0)",
+    "scipy (>=1.14.0)",
+    "numpy (>=1.26.0)",
+    "sentry-sdk[fastapi] (>=2.0.0)",
+    "aiosqlite (>=0.20.0)",
+    "anyio (>=4.0.0)",
 ]
 
 [tool.poetry]

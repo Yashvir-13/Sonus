@@ -58,6 +58,7 @@ def _url_from_environment(*, driver: str) -> str | None:
     if not raw_url:
         return None
 
+    raw_url = raw_url.strip().strip("'\"")
     url = make_url(raw_url).set(drivername=driver)
     query = dict(url.query)
     query.pop("channel_binding", None)
@@ -78,7 +79,7 @@ def _pooler_mode() -> str | None:
     """Return pooler mode from host/port, or None for direct connections."""
     configured_url = os.environ.get("DATABASE_URL_POOLED") or os.environ.get("DATABASE_URL")
     if configured_url:
-        parsed_url = make_url(configured_url)
+        parsed_url = make_url(configured_url.strip().strip("'\""))
         host = parsed_url.host or ""
         port = str(parsed_url.port or 5432)
     else:
