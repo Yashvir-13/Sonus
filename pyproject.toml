@@ -26,10 +26,19 @@ dependencies = [
     "sentry-sdk[fastapi] (>=2.0.0)",
     "aiosqlite (>=0.20.0)",
     "anyio (>=4.0.0)",
+    "pytest (>=8.0.0)",
+    "pytest-asyncio (>=0.23.0)",
+    "mypy (>=1.10.0)",
 ]
 
 [tool.poetry]
 package-mode = false
+
+[tool.uv]
+override-dependencies = [
+    "tensorflow; sys_platform == 'never'",
+    "tensorflow-macos; sys_platform == 'never'",
+]
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.20.1"

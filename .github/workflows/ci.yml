@@ -27,13 +27,12 @@ jobs:
         run: |
           uv venv
           uv pip install -r pyproject.toml
-          uv pip install pytest pytest-asyncio mypy
 
       - name: Run strict type checking
-        run: uv run mypy src/ tests/
+        run: uv run --no-project mypy src/ tests/
 
       - name: Run pytest test suite
-        run: uv run pytest tests/ -v
+        run: uv run --no-project pytest tests/ -v
 
   frontend:
     name: Frontend Vitest, Types & Build
