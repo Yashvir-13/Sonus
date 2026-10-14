@@ -19,6 +19,31 @@ def evaluate_chord_voicing(
     expected_pitches: list[int],
 ) -> dict[str, Any]:
     """Calculate voicing completeness and identify missed and extra pitches."""
+    if not expected_pitches:
+        return {
+            "voicing_completeness": 1.0,
+            "missed_notes": [],
+            "extra_notes": [midi_to_pitch_name(p) for p in sorted(detected_pitches)],
+            "matched_pitches": [],
+        }
+
+    # If reference pitches are provided as pitch classes (0-11)
+    is_pitch_class_ref = all(0 <= p <= 11 for p in expected_pitches)
+
+    if is_pitch_class_ref:
+        exp_pcs = set(expected_pitches)
+        det_pcs = {p % 12 for p in detected_pitches}
+        matched_pcs = exp_pcs & det_pcs
+        missed_pcs = exp_pcs - det_pcs
+        extra_pcs = det_pcs - exp_pcs
+        completeness = len(matched_pcs) / len(exp_pcs) if exp_pcs else 1.0
+        return {
+            "voicing_completeness": completeness,
+            "missed_notes": [_NOTE_NAMES[pc] for pc in sorted(missed_pcs)],
+            "extra_notes": [_NOTE_NAMES[pc] for pc in sorted(extra_pcs)],
+            "matched_pitches": sorted(p for p in detected_pitches if p % 12 in matched_pcs),
+        }
+
     expected_set = set(expected_pitches)
     detected_set = set(detected_pitches)
 
