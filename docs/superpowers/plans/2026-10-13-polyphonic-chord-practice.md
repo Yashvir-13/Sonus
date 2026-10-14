@@ -514,3 +514,378 @@ Create `.github/workflows/ci.yml` executing Python tests (pytest, mypy, ruff) an
 
 Run: `pnpm --filter web build` and `pytest tests/`  
 Expected: All TypeScript and Python tests pass cleanly with zero errors.
+
+---
+
+### Task 9: Grounded AI Practice Coach via Google Gemini 1.5 Flash (F-15)
+
+**Files:**
+- Create: `src/lib/adaptive/llm_coach.py`
+- Modify: `src/services/api/routes/sessions.py`
+- Test: `tests/test_llm_coach.py`
+
+**Interfaces:**
+- Consumes:
+  - `src.lib.adaptive.reports.generate_grounded_report`
+  - `src.lib.adaptive.patterns.detect_habits`
+  - `GEMINI_API_KEY` environment variable
+- Produces:
+  - `generate_coaching_report(session_id: str, chord_metrics: list[dict], habits: list[dict], instrument: str = "piano") -> dict[str, Any]`: Returns structured coaching object containing:
+    - `status`: `"ai_grounded"` or `"deterministic_fallback"`
+    - `primary_bottleneck`: specific mechanical or transition issue identified
+    - `ergonomic_advice`: instrument-specific posture/fretting guidance
+    - `coaching_letter`: encouraging, pedagogical feedback
+    - `tailored_drills`: prioritized list of drills with target BPMs
+
+- [ ] **Step 1: Write the failing test for the grounded Gemini coach**
+
+```python
+# tests/test_llm_coach.py
+from unittest.mock import patch
+from src.lib.adaptive.llm_coach import generate_coaching_report
+
+def test_generate_coaching_report_deterministic_fallback():
+    # Without GEMINI_API_KEY, gracefully returns grounded deterministic report
+    metrics = [{
+        "chord_index": 0,
+        "expected_chord": "C",
+        "detected_chord": "C",
+        "is_matched": True,
+        "onset_error_ms": 12.0,
+        "voicing_completeness": 1.0,
+    }]
+    with patch.dict("os.environ", {}, clear=True):
+        report = generate_coaching_report("sess_test", metrics, habits=[])
+        assert report["status"] == "deterministic_fallback"
+        assert "sess_test" in report["summary"]
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/test_llm_coach.py -v`  
+Expected: FAIL with `ModuleNotFoundError: No module named 'src.lib.adaptive.llm_coach'`
+
+- [ ] **Step 3: Implement `generate_coaching_report` in `src/lib/adaptive/llm_coach.py`**
+
+Implement Google Gemini integration using `google-genai` SDK (`gemini-1.5-flash`), strictly prompting with the pre-computed fact bundle (onset timing errors, voicing drops, habit patterns). Catch exceptions or missing API key and return deterministic fallback report.
+
+- [ ] **Step 4: Integrate AI coaching generation into `POST /api/sessions/{session_id}/take`**
+
+Modify `src/services/api/routes/sessions.py` to invoke `generate_coaching_report` and return coaching insights in the take response.
+
+- [ ] **Step 5: Run tests to verify they pass**
+
+Run: `pytest tests/test_llm_coach.py tests/test_sessions_api.py -v`  
+Expected: PASS
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add src/lib/adaptive/llm_coach.py src/services/api/routes/sessions.py tests/test_llm_coach.py
+git commit -m "feat(ai): add grounded Gemini 1.5 Flash music coaching with offline fallback"
+```
+
+---
+
+### Task 10: Longitudinal Outcome Tracking & Follow-Up Comparison (F-07, F-09)
+
+**Files:**
+- Modify: `src/models/practice.py` (add `intervention_id` foreign key on `PracticeSession`)
+- Create: `src/lib/adaptive/tracking.py`
+- Modify: `src/services/api/routes/sessions.py`
+- Test: `tests/test_outcome_tracking.py`
+
+**Interfaces:**
+- Consumes:
+  - `src.models.practice.PracticeSession`
+  - `src.models.practice.AdaptiveIntervention`
+  - `src.models.practice.SessionChordMetric`
+- Produces:
+  - `evaluate_drill_outcome(baseline_metrics: list[dict], follow_up_metrics: list[dict], drill_type: str) -> dict[str, Any]`: Computes delta on the targeted metric (e.g., transition latency reduction, onset rushing improvement, voicing recovery), returns `outcome` (`"improved" | "steady" | "worsened" | "inconclusive"`) and numeric `measured_improvement`.
+
+- [ ] **Step 1: Write the failing test for outcome tracking**
+
+```python
+# tests/test_outcome_tracking.py
+from src.lib.adaptive.tracking import evaluate_drill_outcome
+
+def test_transition_lag_improvement():
+    baseline = [{"from_chord": "Am", "to_chord": "F", "transition_latency_ms": 140.0}]
+    follow_up = [{"from_chord": "Am", "to_chord": "F", "transition_latency_ms": 85.0}]
+    
+    result = evaluate_drill_outcome(baseline, follow_up, drill_type="isolated_transition")
+    assert result["outcome"] == "improved"
+    assert result["measured_improvement"] == 55.0  # 55 ms latency reduction
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/test_outcome_tracking.py -v`  
+Expected: FAIL with `ModuleNotFoundError: No module named 'src.lib.adaptive.tracking'`
+
+- [ ] **Step 3: Implement outcome evaluation in `src/lib/adaptive/tracking.py`**
+
+Implement metric delta calculations for `isolated_transition` (latency reduction), `subdivision_click` (rushing reduction), and `voicing_arpeggio` (voicing completeness gain).
+
+- [ ] **Step 4: Update `PracticeSession` model and migration**
+
+Add `intervention_id: str | None = Field(default=None, foreign_key="adaptive_interventions.id", index=True, max_length=100)` to `PracticeSession`.
+
+- [ ] **Step 5: Wire outcome tracking into sessions API route**
+
+When a take is submitted for a session linked to an `intervention_id`, calculate the outcome against the baseline session and update `AdaptiveIntervention.measured_improvement` and `AdaptiveIntervention.completed = True`.
+
+- [ ] **Step 6: Run tests to verify they pass**
+
+Run: `pytest tests/test_outcome_tracking.py -v`  
+Expected: PASS
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add src/models/practice.py src/lib/adaptive/tracking.py src/services/api/routes/sessions.py tests/test_outcome_tracking.py
+git commit -m "feat(adaptive): add longitudinal outcome tracking and intervention follow-up evaluation"
+```
+
+---
+
+### Task 11: User Privacy, Consent & Self-Service Data Deletion Controls (F-01, F-10)
+
+**Files:**
+- Create: `src/services/api/routes/privacy.py`
+- Modify: `src/services/api/app.py`
+- Test: `tests/test_privacy_api.py`
+
+**Interfaces:**
+- Consumes: `ClerkIdentityDep`, `get_session`
+- Produces:
+  - `GET /api/me/privacy-status`: Returns `{ "raw_audio_stored": False, "data_retention_days": 90, "total_sessions_saved": int }`
+  - `DELETE /api/me/practice-data`: Deletes all `PracticeSession`, `SessionChordMetric`, `HabitPattern`, and `AdaptiveIntervention` records belonging to the authenticated Clerk user without deleting their Clerk user account.
+
+- [ ] **Step 1: Write the failing test for privacy status and data deletion**
+
+```python
+# tests/test_privacy_api.py
+import pytest
+from httpx import AsyncClient, ASGITransport
+from src.services.api.app import app
+
+@pytest.mark.asyncio
+async def test_privacy_status_and_deletion(async_client: AsyncClient):
+    # 1. Fetch privacy policy status
+    res = await async_client.get("/api/me/privacy-status")
+    assert res.status_code == 200
+    assert res.json()["raw_audio_stored"] is False
+    
+    # 2. Request complete data wipe
+    del_res = await async_client.delete("/api/me/practice-data")
+    assert del_res.status_code == 200
+    assert del_res.json()["deleted"] is True
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/test_privacy_api.py -v`  
+Expected: FAIL with 404 Not Found on `/api/me/privacy-status`
+
+- [ ] **Step 3: Implement privacy routes in `src/services/api/routes/privacy.py`**
+
+Implement `GET /api/me/privacy-status` and `DELETE /api/me/practice-data` with atomic cascading deletion across SQLModel practice tables. Register router in `src/services/api/app.py`.
+
+- [ ] **Step 4: Run tests to verify they pass**
+
+Run: `pytest tests/test_privacy_api.py -v`  
+Expected: PASS
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add src/services/api/routes/privacy.py src/services/api/app.py tests/test_privacy_api.py
+git commit -m "feat(privacy): add user privacy status and self-service data deletion endpoint"
+```
+
+---
+
+### Task 12: Interactive Browser Practice Studio UI & Drill Runner (F-02, F-03, F-04, F-06, F-08)
+
+**Files:**
+- Create: `apps/web/src/components/practice/exercise-selector.tsx`
+- Create: `apps/web/src/components/practice/practice-room.tsx`
+- Create: `apps/web/src/components/practice/session-summary.tsx`
+- Create: `apps/web/src/components/practice/ai-coach-card.tsx`
+- Modify: `apps/web/src/app.tsx`
+- Test: `apps/web/src/components/practice/__tests__/practice-flow.test.tsx`
+
+**Interfaces:**
+- Consumes:
+  - `apps/web/src/api/sessions.ts`
+  - `apps/web/src/lib/audio/metronome.ts`
+  - `apps/web/src/lib/audio/wav-encoder.ts`
+  - `@clerk/react` auth hooks
+- Produces:
+  - `ExerciseSelector`: Browse piano/guitar chord exercises by difficulty and tempo.
+  - `PracticeRoom`: Metronome audio scheduler, visual beat flasher, microphone input level meter, start/stop/discard take controls.
+  - `SessionSummary`: Chord-by-chord performance cards with timing latency gauges (ms), voicing tags, and score.
+  - `AiCoachCard`: Renders Gemini 1.5 Flash coaching advice with a single-click "Practice Recommended Drill" button that automatically launches the remedial drill at the recommended tempo.
+
+- [ ] **Step 1: Write failing component tests in Vitest**
+
+```tsx
+// apps/web/src/components/practice/__tests__/practice-flow.test.tsx
+import { render, screen } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+import { AiCoachCard } from '../ai-coach-card'
+
+describe('AiCoachCard', () => {
+  it('renders bottleneck and drill recommendation', () => {
+    const report = {
+      primary_bottleneck: 'F to G transition latency',
+      ergonomic_advice: 'Pivot on the index finger when shifting to G.',
+      tailored_drills: [{ drill_type: 'isolated_transition', target_tempo: 75, target_repetitions: 5 }]
+    }
+    render(<AiCoachCard report={report} onStartDrill={() => {}} />)
+    expect(screen.getByText(/F to G transition latency/i)).toBeDefined()
+    expect(screen.getByRole('button', { name: /Practice Recommended Drill/i })).toBeDefined()
+  })
+})
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pnpm --filter web test`  
+Expected: FAIL with `Cannot find module '../ai-coach-card'`
+
+- [ ] **Step 3: Implement Practice Studio components**
+
+Build `ExerciseSelector`, `PracticeRoom`, `SessionSummary`, and `AiCoachCard` using standard React and the existing design tokens in `index.css`. Wire into `apps/web/src/app.tsx` replacing the starter placeholder.
+
+- [ ] **Step 4: Run tests and frontend build to verify they pass**
+
+Run: `pnpm --filter web test` and `pnpm --filter web build`  
+Expected: PASS with 0 TypeScript/Vitest errors.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add apps/web/src/components/practice/ apps/web/src/app.tsx
+git commit -m "feat(web): add interactive practice studio, take recorder, and AI coach card UI"
+```
+
+---
+
+### Task 13: Labelled Audio Benchmark Evaluation & Uncertainty Calibration (Objective 1, 6, Table 5)
+
+**Files:**
+- Create: `scripts/benchmark_evaluation.py`
+- Create: `tests/benchmarks/test_labelled_benchmarks.py`
+
+**Interfaces:**
+- Consumes:
+  - Labelled synthetic & acoustic audio samples
+  - `src.lib.audio.transcription.transcribe_polyphonic_wav`
+  - `src.lib.audio.alignment.align_chord_sequence`
+- Produces:
+  - Benchmark evaluation reporting:
+    - Note Precision $\ge 80\%$
+    - Note Recall $\ge 80\%$
+    - Onset Timing Error within $\pm 100\text{ ms}$
+    - Intonation / Pitch Class Accuracy within $\le 50\text{ cents}$
+    - Separate verification tables for Piano and Guitar solo tracks.
+
+- [ ] **Step 1: Write the failing benchmark test**
+
+```python
+# tests/benchmarks/test_labelled_benchmarks.py
+from scripts.benchmark_evaluation import run_evaluation_benchmark
+
+def test_benchmark_targets_satisfied():
+    results = run_evaluation_benchmark()
+    assert results["precision"] >= 0.80
+    assert results["recall"] >= 0.80
+    assert results["mean_onset_error_ms"] <= 100.0
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/benchmarks/test_labelled_benchmarks.py -v`  
+Expected: FAIL with `ModuleNotFoundError: No module named 'scripts.benchmark_evaluation'`
+
+- [ ] **Step 3: Implement benchmark evaluation harness in `scripts/benchmark_evaluation.py`**
+
+Generate ground-truth synthetic test takes for piano and guitar across supported registers, run through Basic Pitch + Alignment pipeline, and compute precision, recall, and onset delta statistics.
+
+- [ ] **Step 4: Run benchmark test to verify it passes**
+
+Run: `pytest tests/benchmarks/test_labelled_benchmarks.py -v`  
+Expected: PASS with documented precision/recall $\ge 80\%$.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add scripts/benchmark_evaluation.py tests/benchmarks/
+git commit -m "test(benchmarks): add automated evaluation benchmark harness for piano and guitar transcription"
+```
+
+---
+
+### Task 14 (P2 / Stretch Goal): Opt-In Asynchronous Jam & Matched-Exercise Comparison (F-12, F-14)
+
+**Files:**
+- Create: `src/models/collaboration.py`
+- Create: `src/services/api/routes/jam.py`
+- Modify: `src/models/__init__.py`
+- Modify: `src/services/api/app.py`
+- Test: `tests/test_jam_api.py`
+
+**Interfaces:**
+- Consumes: `ClerkIdentityDep`, `get_session`, `PracticeSession`
+- Produces:
+  - `POST /api/jam/tracks`: Create an asynchronous turn-taking jam session over a shared exercise backing track.
+  - `POST /api/jam/tracks/{id}/contribute`: Submit a user take to the jam sequence.
+  - `GET /api/jam/compare`: Compare two opted-in takes on the exact same exercise and tempo using objective metrics (timing error ms, voicing score) under pseudonyms without an arbitrary ranking.
+
+- [ ] **Step 1: Write the failing test for asynchronous jam and comparison**
+
+```python
+# tests/test_jam_api.py
+import pytest
+from httpx import AsyncClient
+
+@pytest.mark.asyncio
+async def test_jam_track_creation_and_matched_comparison(async_client: AsyncClient):
+    # 1. Create jam prompt
+    res = await async_client.post("/api/jam/tracks", json={"title": "Pop Cadence Turn-Taking", "exercise_id": "ex_pop_01"})
+    assert res.status_code == 201
+    track_id = res.json()["id"]
+
+    # 2. Compare matched exercise takes
+    comp_res = await async_client.get(f"/api/jam/tracks/{track_id}/compare")
+    assert comp_res.status_code == 200
+    assert "comparison_metrics" in comp_res.json()
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/test_jam_api.py -v`  
+Expected: FAIL with 404 Not Found on `/api/jam/tracks`
+
+- [ ] **Step 3: Implement Jam models in `src/models/collaboration.py`**
+
+Define `JamTrack` and `JamContribution` SQLModel tables. Export from `src/models/__init__.py`.
+
+- [ ] **Step 4: Implement routes in `src/services/api/routes/jam.py`**
+
+Implement turn-taking contribution endpoints and pseudonymized matched-exercise comparison logic. Register in `src/services/api/app.py`.
+
+- [ ] **Step 5: Run tests to verify they pass**
+
+Run: `pytest tests/test_jam_api.py -v`  
+Expected: PASS
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add src/models/collaboration.py src/models/__init__.py src/services/api/routes/jam.py src/services/api/app.py tests/test_jam_api.py
+git commit -m "feat(collaboration): add opt-in asynchronous jam turn-taking and matched-exercise comparison"
+```
+
