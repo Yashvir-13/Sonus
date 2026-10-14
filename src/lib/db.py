@@ -83,8 +83,8 @@ def _pooler_mode() -> str | None:
         host = parsed_url.host or ""
         port = str(parsed_url.port or 5432)
     else:
-        host = _require_env("DATABASE_HOST")
-        port = _require_env("DATABASE_PORT")
+        host = os.environ.get("DATABASE_HOST", "")
+        port = str(os.environ.get("DATABASE_PORT", "5432"))
 
     if "neon.tech" in host and "-pooler" in host:
         return "transaction"
@@ -103,11 +103,15 @@ def build_database_url(*, driver: str) -> str:
     if configured_url is not None:
         return configured_url
 
-    user = quote_plus(_require_env("DATABASE_USER"))
-    password = quote_plus(_require_env("DATABASE_PASSWORD"))
-    host = _require_env("DATABASE_HOST")
-    port = _require_env("DATABASE_PORT")
-    name = _require_env("DATABASE_NAME")
+    user_val = os.environ.get("DATABASE_USER")
+    if not user_val:
+        return f"{driver}://postgres:postgres@localhost:5432/postgres"
+
+    user = quote_plus(user_val)
+    password = quote_plus(os.environ.get("DATABASE_PASSWORD", ""))
+    host = os.environ.get("DATABASE_HOST", "localhost")
+    port = os.environ.get("DATABASE_PORT", "5432")
+    name = os.environ.get("DATABASE_NAME", "postgres")
 
     url = f"{driver}://{user}:{password}@{host}:{port}/{name}"
     if _is_cloud_ssl_host(host):

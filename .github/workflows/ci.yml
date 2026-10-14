@@ -30,9 +30,17 @@ jobs:
 
       - name: Run strict type checking
         run: uv run --no-project mypy src/ tests/
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+          DATABASE_URL_POOLED: postgresql://postgres:postgres@localhost:5432/test
+          CLERK_SECRET_KEY: sk_test_mock_clerk_secret_for_ci
 
       - name: Run pytest test suite
         run: uv run --no-project pytest tests/ -v
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+          DATABASE_URL_POOLED: postgresql://postgres:postgres@localhost:5432/test
+          CLERK_SECRET_KEY: sk_test_mock_clerk_secret_for_ci
 
   frontend:
     name: Frontend Vitest, Types & Build
