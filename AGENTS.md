@@ -277,6 +277,12 @@ Rules:
 - Routes import `get_session`, not engines (except health checks).
 - Alembic `env.py` calls `sync_database_url()` and `import src.models`.
 - Endpoints handling both multipart media (WAV) and JSON bodies should inspect `request: Request` content-type rather than mixing `File()` and Pydantic bodies.
+- Never eagerly require database secrets at top-level module import time; provide safe fallback URLs so test suites using in-memory SQLite mocks can import modules cleanly in environments without `.env` (e.g., GitHub Actions).
+
+### AI Music Coaching (Hybrid Architecture)
+
+- Maintain strict grounding: LLMs must receive pre-computed, deterministic fact bundles (timing ms, pitch sets, habit flags) rather than hallucinating raw metrics.
+- All LLM-generated reports must support deterministic fallback if `GEMINI_API_KEY` is absent or the API request times out.
 
 ### Exceptions
 
