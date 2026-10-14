@@ -173,6 +173,7 @@ async def submit_take(
     return {
         "session_id": practice_session.id,
         "state": practice_session.state,
+        "analysis_status": "complete",
         "overall_accuracy": practice_session.overall_accuracy,
         "avg_timing_error_ms": practice_session.avg_timing_error_ms,
         "voicing_score": practice_session.voicing_score,

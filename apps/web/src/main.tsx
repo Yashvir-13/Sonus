@@ -6,10 +6,19 @@ import '@fontsource/inter/500.css'
 import '@fontsource/dm-sans/300.css'
 import '@fontsource/space-grotesk/700.css'
 import '@fontsource/geist-mono/400.css'
+import * as Sentry from '@sentry/react'
 import App from '@/app'
 import { AuthShell } from '@/components/auth/auth-shell'
 import { SignInPage } from '@/components/auth/sign-in-page'
 import '@/styles/index.css'
+
+const sentryDsn = import.meta.env.VITE_SENTRY_DSN
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    tracesSampleRate: 1.0,
+  })
+}
 
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
