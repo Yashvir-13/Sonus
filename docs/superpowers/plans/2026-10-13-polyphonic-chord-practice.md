@@ -517,7 +517,111 @@ Expected: All TypeScript and Python tests pass cleanly with zero errors.
 
 ---
 
-### Task 9: Grounded AI Practice Coach via Google Gemini 1.5 Flash (F-15)
+### Task 9: Temporary Audio Test Bench & Chord Detection Playground (Dev Testing Frontend)
+
+**Files:**
+- Create: `src/services/api/routes/audio_test.py`
+- Create: `apps/web/src/components/dev/audio-test-bench.tsx`
+- Modify: `src/services/api/app.py`
+- Modify: `apps/web/src/app.tsx`
+- Test: `tests/test_audio_test_api.py`
+- Test: `apps/web/src/components/dev/__tests__/audio-test-bench.test.tsx`
+
+**Interfaces:**
+- Consumes:
+  - `apps/web/src/lib/audio/chord-detector.ts`
+  - `apps/web/src/lib/audio/wav-encoder.ts`
+  - `src.lib.audio.transcription.transcribe_polyphonic_wav`
+  - `src.lib.audio.voicing.cluster_chords_from_notes`
+- Produces:
+  - `POST /api/audio/test-transcribe`: Unauthenticated developer test endpoint accepting a WAV audio file, running Spotify Basic Pitch ONNX transcription, clustering notes into chords, and returning `{ "notes": [...], "chords": [...], "duration_seconds": float }`.
+  - `AudioTestBench`: Interactive testing component with:
+    - Microphone capture toggle with visual audio volume / waveform meter.
+    - Real-time client chromagram chord identifier (e.g. "Detected: C Major (C, E, G)").
+    - 5-second take recorder with instant WAV submission to `/api/audio/test-transcribe`.
+    - Chord Accuracy Checker: User selects target chord from a dropdown, plays it on piano/guitar, and gets instant green/red accuracy verification with detected notes and confidence score.
+
+- [ ] **Step 1: Write the failing test for the audio test endpoint**
+
+```python
+# tests/test_audio_test_api.py
+import pytest
+from httpx import AsyncClient, ASGITransport
+from src.services.api.app import app
+
+@pytest.mark.asyncio
+async def test_transcribe_test_wav_endpoint():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # Generate dummy 0.1-second WAV
+        from scipy.io import wavfile
+        import io, numpy as np
+        buf = io.BytesIO()
+        wavfile.write(buf, 22050, np.zeros(2205, dtype=np.float32))
+        buf.seek(0)
+        
+        res = await client.post("/api/audio/test-transcribe", files={"file": ("test.wav", buf, "audio/wav")})
+        assert res.status_code == 200
+        data = res.json()
+        assert "notes" in data
+        assert "chords" in data
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `pytest tests/test_audio_test_api.py -v`  
+Expected: FAIL with 404 Not Found
+
+- [ ] **Step 3: Implement `src/services/api/routes/audio_test.py`**
+
+Implement `POST /api/audio/test-transcribe` accepting multipart WAV audio, saving temporarily, invoking `transcribe_polyphonic_wav` and `cluster_chords_from_notes`, and returning structured notes and chords without requiring Clerk authentication. Register in `src/services/api/app.py`.
+
+- [ ] **Step 4: Write failing test for the frontend `AudioTestBench` component**
+
+```tsx
+// apps/web/src/components/dev/__tests__/audio-test-bench.test.tsx
+import { render, screen } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+import { AudioTestBench } from '../audio-test-bench'
+
+describe('AudioTestBench', () => {
+  it('renders chord selection dropdown and recording controls', () => {
+    render(<AudioTestBench />)
+    expect(screen.getByText(/Audio Test Bench/i)).toBeDefined()
+    expect(screen.getByRole('button', { name: /Start Listening/i })).toBeDefined()
+  })
+})
+```
+
+- [ ] **Step 5: Run test to verify it fails**
+
+Run: `pnpm --filter web test`  
+Expected: FAIL with `Cannot find module '../audio-test-bench'`
+
+- [ ] **Step 6: Implement `AudioTestBench` in `apps/web/src/components/dev/audio-test-bench.tsx`**
+
+Build clean, reactive test bench with:
+- Microphone permission and audio analyzer node.
+- Live pitch class visualizer and Tonal.js chord detector.
+- Take recording with WAV export and submission to `/api/audio/test-transcribe`.
+- Target chord verification badge (Matched / Missed).
+Mount into `apps/web/src/app.tsx` with a prominent dev toggle.
+
+- [ ] **Step 7: Run tests to verify they pass**
+
+Run: `pytest tests/test_audio_test_api.py -v` and `pnpm --filter web test`  
+Expected: PASS
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add src/services/api/routes/audio_test.py src/services/api/app.py apps/web/src/components/dev/ apps/web/src/app.tsx tests/test_audio_test_api.py
+git commit -m "feat(dev): add temporary audio test bench and chord detection playground frontend"
+```
+
+---
+
+### Task 10: Grounded AI Practice Coach via Google Gemini 1.5 Flash (F-15)
 
 **Files:**
 - Create: `src/lib/adaptive/llm_coach.py`
@@ -587,7 +691,7 @@ git commit -m "feat(ai): add grounded Gemini 1.5 Flash music coaching with offli
 
 ---
 
-### Task 10: Longitudinal Outcome Tracking & Follow-Up Comparison (F-07, F-09)
+### Task 11: Longitudinal Outcome Tracking & Follow-Up Comparison (F-07, F-09)
 
 **Files:**
 - Modify: `src/models/practice.py` (add `intervention_id` foreign key on `PracticeSession`)
@@ -649,7 +753,7 @@ git commit -m "feat(adaptive): add longitudinal outcome tracking and interventio
 
 ---
 
-### Task 11: User Privacy, Consent & Self-Service Data Deletion Controls (F-01, F-10)
+### Task 12: User Privacy, Consent & Self-Service Data Deletion Controls (F-01, F-10)
 
 **Files:**
 - Create: `src/services/api/routes/privacy.py`
@@ -706,7 +810,7 @@ git commit -m "feat(privacy): add user privacy status and self-service data dele
 
 ---
 
-### Task 12: Interactive Browser Practice Studio UI & Drill Runner (F-02, F-03, F-04, F-06, F-08)
+### Task 13: Interactive Browser Practice Studio UI & Drill Runner (F-02, F-03, F-04, F-06, F-08)
 
 **Files:**
 - Create: `apps/web/src/components/practice/exercise-selector.tsx`
@@ -773,7 +877,7 @@ git commit -m "feat(web): add interactive practice studio, take recorder, and AI
 
 ---
 
-### Task 13: Labelled Audio Benchmark Evaluation & Uncertainty Calibration (Objective 1, 6, Table 5)
+### Task 14: Labelled Audio Benchmark Evaluation & Uncertainty Calibration (Objective 1, 6, Table 5)
 
 **Files:**
 - Create: `scripts/benchmark_evaluation.py`
@@ -828,7 +932,7 @@ git commit -m "test(benchmarks): add automated evaluation benchmark harness for 
 
 ---
 
-### Task 14 (P2 / Stretch Goal): Opt-In Asynchronous Jam & Matched-Exercise Comparison (F-12, F-14)
+### Task 15 (P2 / Stretch Goal): Opt-In Asynchronous Jam & Matched-Exercise Comparison (F-12, F-14)
 
 **Files:**
 - Create: `src/models/collaboration.py`
