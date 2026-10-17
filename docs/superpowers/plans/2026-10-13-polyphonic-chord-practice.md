@@ -541,7 +541,7 @@ Expected: All TypeScript and Python tests pass cleanly with zero errors.
     - 5-second take recorder with instant WAV submission to `/api/audio/test-transcribe`.
     - Chord Accuracy Checker: User selects target chord from a dropdown, plays it on piano/guitar, and gets instant green/red accuracy verification with detected notes and confidence score.
 
-- [ ] **Step 1: Write the failing test for the audio test endpoint**
+- [x] **Step 1: Write the failing test for the audio test endpoint**
 
 ```python
 # tests/test_audio_test_api.py
@@ -567,16 +567,16 @@ async def test_transcribe_test_wav_endpoint():
         assert "chords" in data
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_audio_test_api.py -v`  
 Expected: FAIL with 404 Not Found
 
-- [ ] **Step 3: Implement `src/services/api/routes/audio_test.py`**
+- [x] **Step 3: Implement `src/services/api/routes/audio_test.py`**
 
 Implement `POST /api/audio/test-transcribe` accepting multipart WAV audio, saving temporarily, invoking `transcribe_polyphonic_wav` and `cluster_chords_from_notes`, and returning structured notes and chords without requiring Clerk authentication. Register in `src/services/api/app.py`.
 
-- [ ] **Step 4: Write failing test for the frontend `AudioTestBench` component**
+- [x] **Step 4: Write failing test for the frontend `AudioTestBench` component**
 
 ```tsx
 // apps/web/src/components/dev/__tests__/audio-test-bench.test.tsx
@@ -593,12 +593,12 @@ describe('AudioTestBench', () => {
 })
 ```
 
-- [ ] **Step 5: Run test to verify it fails**
+- [x] **Step 5: Run test to verify it fails**
 
 Run: `pnpm --filter web test`  
 Expected: FAIL with `Cannot find module '../audio-test-bench'`
 
-- [ ] **Step 6: Implement `AudioTestBench` in `apps/web/src/components/dev/audio-test-bench.tsx`**
+- [x] **Step 6: Implement `AudioTestBench` in `apps/web/src/components/dev/audio-test-bench.tsx`**
 
 Build clean, reactive test bench with:
 - Microphone permission and audio analyzer node.
@@ -607,12 +607,12 @@ Build clean, reactive test bench with:
 - Target chord verification badge (Matched / Missed).
 Mount into `apps/web/src/app.tsx` with a prominent dev toggle.
 
-- [ ] **Step 7: Run tests to verify they pass**
+- [x] **Step 7: Run tests to verify they pass**
 
 Run: `pytest tests/test_audio_test_api.py -v` and `pnpm --filter web test`  
 Expected: PASS
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/services/api/routes/audio_test.py src/services/api/app.py apps/web/src/components/dev/ apps/web/src/app.tsx tests/test_audio_test_api.py
