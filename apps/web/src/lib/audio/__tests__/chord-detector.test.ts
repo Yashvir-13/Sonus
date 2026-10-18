@@ -20,6 +20,15 @@ describe('chromaToChord', () => {
     expect(result.bass).toBe('A')
   })
 
+  it('identifies D Major even with guitar acoustic overtones', () => {
+    // D=2, F#=6, A=9, with overtones/leakage
+    // [C, C#, D, D#, E, F, F#, G, G#, A, A#, B]
+    const vector = [0.15, 0.05, 1.0, 0.05, 0.1, 0.05, 0.85, 0.05, 0.05, 0.9, 0.05, 0.05]
+    const result = chromaToChord(vector)
+    expect(result.chord).toBe('D')
+    expect(result.confidence).toBeGreaterThan(0.6)
+  })
+
   it('handles low energy / silence gracefully', () => {
     const vector = [0.01, 0.02, 0, 0, 0, 0.01, 0, 0, 0, 0, 0, 0]
     const result = chromaToChord(vector)

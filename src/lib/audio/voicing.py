@@ -65,32 +65,44 @@ def identify_chord_from_pitches(pitches: list[int]) -> str:
     """Best-effort chord identification from a collection of MIDI pitches."""
     if not pitches:
         return ""
-    pitch_classes = sorted({p % 12 for p in pitches})
-    note_names = set(_NOTE_NAMES[pc] for pc in pitch_classes)
+    detected_pcs = set(p % 12 for p in pitches)
 
     # Check common triads and seventh chords
     common_qualities = ["", "m", "7", "maj7", "m7", "dim", "aug", "sus2", "sus4"]
     best_chord = ""
-    best_overlap = 0.0
+    best_score = 0.0
 
     for root in _NOTE_NAMES:
         for quality in common_qualities:
             candidate = f"{root}{quality}"
             try:
                 candidate_notes = set(parse_chord_notes(candidate))
-                overlap = len(candidate_notes & note_names) / len(candidate_notes | note_names)
-                if overlap > best_overlap:
-                    best_overlap = overlap
+                common = candidate_notes & detected_pcs
+                if not common:
+                    continue
+                recall = len(common) / len(candidate_notes)
+                precision = len(common) / len(detected_pcs)
+                f1 = (2 * recall * precision) / (recall + precision) if (recall + precision) > 0 else 0.0
+                # Prioritize complete major/minor triads, then other triads
+                bonus = 0.0
+                if recall == 1.0:
+                    if quality in ("", "m"):
+                        bonus = 0.08
+                    elif len(candidate_notes) == 3:
+                        bonus = 0.04
+                score = f1 + bonus
+                if score > best_score:
+                    best_score = score
                     best_chord = candidate
             except ValueError:
                 continue
 
-    return best_chord if best_overlap >= 0.6 else ""
+    return best_chord if best_score >= 0.6 else ""
 
 
 def cluster_chords_from_notes(
     notes: list[dict[str, Any]],
-    strum_window_ms: float = 50.0,
+    strum_window_ms: float = 120.0,
 ) -> list[dict[str, Any]]:
     """Cluster asynchronous note onsets within a strum window into chord strikes."""
     if not notes:

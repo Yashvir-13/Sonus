@@ -103,6 +103,19 @@ def test_evaluate_chord_voicing() -> None:
     assert "C5" in metric["extra_notes"]
 
 
+def test_identify_chord_from_pitches() -> None:
+    from src.lib.audio.voicing import identify_chord_from_pitches
+
+    # D major (D3, A3, D4, F#4)
+    assert identify_chord_from_pitches([50, 57, 62, 66]) == "D"
+    # D major with partial overtone (E=64)
+    assert identify_chord_from_pitches([50, 57, 62, 64, 66]) == "D"
+    # D7 (D, F#, A, C)
+    assert identify_chord_from_pitches([50, 57, 60, 66]) == "D7"
+    # C major (C4, E4, G4)
+    assert identify_chord_from_pitches([60, 64, 67]) == "C"
+
+
 def test_transcribe_missing_file() -> None:
     from src.lib.audio.transcription import transcribe_polyphonic_wav
 

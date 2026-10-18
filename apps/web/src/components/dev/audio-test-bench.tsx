@@ -41,12 +41,13 @@ type TranscribeResult = {
 
 export function AudioTestBench() {
   const [isListening, setIsListening] = useState(false)
-  const [targetChord, setTargetChord] = useState<string>('C')
+  const [targetChord, setTargetChord] = useState<string>('D')
   const [detectedChord, setDetectedChord] = useState<ChordDetectionResult>({
     chord: 'None',
     confidence: 0,
     bass: 'None',
   })
+  const [activeNotes, setActiveNotes] = useState<string[]>([])
   const [chromaEnergies, setChromaEnergies] = useState<number[]>(new Array(12).fill(0))
   const [volumeLevel, setVolumeLevel] = useState<number>(0)
 
@@ -65,6 +66,10 @@ export function AudioTestBench() {
   const animFrameIdRef = useRef<number | null>(null)
   const recordedSamplesRef = useRef<Float32Array[]>([])
   const recordingProcessorRef = useRef<ScriptProcessorNode | null>(null)
+
+  // Temporal smoothing and debouncing refs
+  const smoothedChromaRef = useRef<number[]>(new Array(12).fill(0))
+  const candidateChordRef = useRef<{ chord: string; count: number }>({ chord: 'None', count: 0 })
 
   const stopListening = useCallback(() => {
     if (animFrameIdRef.current) {
@@ -100,6 +105,9 @@ export function AudioTestBench() {
     setIsListening(false)
     setVolumeLevel(0)
     setChromaEnergies(new Array(12).fill(0))
+    smoothedChromaRef.current = new Array(12).fill(0)
+    candidateChordRef.current = { chord: 'None', count: 0 }
+    setActiveNotes([])
     setDetectedChord({ chord: 'None', confidence: 0, bass: 'None' })
   }, [])
 
@@ -128,8 +136,9 @@ export function AudioTestBench() {
       audioContextRef.current = ctx
 
       const analyser = ctx.createAnalyser()
-      analyser.fftSize = 2048
-      analyser.smoothingTimeConstant = 0.6
+      // Use 4096 FFT size for accurate semitone frequency separation in guitar fundamental register
+      analyser.fftSize = 4096
+      analyser.smoothingTimeConstant = 0.65
       analyserRef.current = analyser
 
       const source = ctx.createMediaStreamSource(stream)
@@ -142,6 +151,7 @@ export function AudioTestBench() {
       const bufferLength = analyser.frequencyBinCount
       const freqData = new Float32Array(bufferLength)
       const timeData = new Float32Array(analyser.fftSize)
+      const binHz = (sampleRate / 2) / bufferLength
 
       const updateLoop = () => {
         if (!analyserRef.current) return
@@ -156,38 +166,100 @@ export function AudioTestBench() {
           sumSquares += val * val
         }
         const rms = Math.sqrt(sumSquares / timeData.length)
-        setVolumeLevel(Math.min(1.0, rms * 5))
+        const currentVolume = Math.min(1.0, rms * 6)
+        setVolumeLevel(currentVolume)
 
-        // 2. Compute 12-semitone chroma vector
-        const chroma = new Array(12).fill(0)
-        const nyquist = sampleRate / 2
-        const binHz = nyquist / bufferLength
+        // If below ambient noise floor, decay and clear
+        if (currentVolume < 0.02) {
+          for (let i = 0; i < 12; i++) {
+            smoothedChromaRef.current[i]! *= 0.8
+          }
+          const maxVal = Math.max(...smoothedChromaRef.current)
+          setChromaEnergies(maxVal > 0.05 ? smoothedChromaRef.current.map((v) => v / maxVal) : new Array(12).fill(0))
+          candidateChordRef.current = { chord: 'None', count: 0 }
+          setDetectedChord({ chord: 'None', confidence: 0, bass: 'None' })
+          setActiveNotes([])
+          animFrameIdRef.current = requestAnimationFrame(updateLoop)
+          return
+        }
 
-        for (let bin = 1; bin < bufferLength; bin++) {
-          const freq = bin * binHz
-          // Filter to guitar/piano fundamental chord frequencies (65 Hz to 1200 Hz)
-          if (freq >= 65 && freq <= 1200) {
-            const db = freqData[bin] ?? -100
-            if (db > -75) {
-              const mag = Math.pow(10, (db + 75) / 20)
-              const midi = 69 + 12 * Math.log2(freq / 440)
-              const pitchClass = Math.round(midi) % 12
-              const pcIdx = pitchClass < 0 ? pitchClass + 12 : pitchClass
-              chroma[pcIdx] += mag
+        // 2. Find maximum magnitude in chord frequency zone (65Hz to 1200Hz)
+        const minBin = Math.max(2, Math.floor(65 / binHz))
+        const maxBin = Math.min(bufferLength - 2, Math.ceil(1200 / binHz))
+
+        let maxDbInZone = -100
+        for (let b = minBin; b <= maxBin; b++) {
+          const db = freqData[b] ?? -100
+          if (db > maxDbInZone) maxDbInZone = db
+        }
+
+        const instantChroma = new Array(12).fill(0)
+        // Inspect spectral peaks within 28dB of strongest peak and above -60dB noise gate
+        const peakThreshold = Math.max(-60, maxDbInZone - 28)
+
+        for (let b = minBin; b <= maxBin; b++) {
+          const prev = freqData[b - 1] ?? -100
+          const curr = freqData[b] ?? -100
+          const next = freqData[b + 1] ?? -100
+
+          // Local peak detection
+          if (curr > prev && curr > next && curr > peakThreshold) {
+            // Parabolic interpolation for exact sub-bin frequency detection
+            const alpha = Math.pow(10, (prev + 100) / 20)
+            const beta = Math.pow(10, (curr + 100) / 20)
+            const gamma = Math.pow(10, (next + 100) / 20)
+            const denom = alpha - 2 * beta + gamma
+            const delta = denom !== 0 ? (0.5 * (alpha - gamma)) / denom : 0
+            const trueFreq = (b + delta) * binHz
+
+            if (trueFreq >= 65 && trueFreq <= 1400) {
+              const midi = 69 + 12 * Math.log2(trueFreq / 440)
+              const pitchClass = ((Math.round(midi) % 12) + 12) % 12
+              instantChroma[pitchClass] += beta
             }
           }
         }
 
-        // Normalize chroma values for display (0.0 - 1.0)
-        const maxChroma = Math.max(...chroma)
-        const normalizedChroma = chroma.map((val) =>
+        // 3. Exponential moving average smoothing on chroma vector to eliminate frame jitter
+        for (let i = 0; i < 12; i++) {
+          smoothedChromaRef.current[i] =
+            smoothedChromaRef.current[i]! * 0.7 + instantChroma[i] * 0.3
+        }
+
+        const maxChroma = Math.max(...smoothedChromaRef.current)
+        const normalizedChroma = smoothedChromaRef.current.map((val) =>
           maxChroma > 0.05 ? Math.min(1.0, val / maxChroma) : 0,
         )
         setChromaEnergies(normalizedChroma)
 
-        // 3. Resolve chord via chord-detector
-        const detection = chromaToChord(chroma)
-        setDetectedChord(detection)
+        // Extract active ringing notes with >= 40% energy
+        const ringingNotes: string[] = []
+        for (let i = 0; i < 12; i++) {
+          if (normalizedChroma[i]! >= 0.4) {
+            ringingNotes.push(PITCH_NAMES[i]!)
+          }
+        }
+        setActiveNotes(ringingNotes)
+
+        // 4. Resolve chord via chord-detector
+        const detection = chromaToChord(smoothedChromaRef.current)
+        if (detection.chord !== 'None') {
+          if (detection.chord === candidateChordRef.current.chord) {
+            candidateChordRef.current.count++
+          } else {
+            candidateChordRef.current = { chord: detection.chord, count: 1 }
+          }
+
+          // Debounce: update once chord is confirmed across 3 consecutive frames
+          if (candidateChordRef.current.count >= 3) {
+            setDetectedChord(detection)
+          }
+        } else if (candidateChordRef.current.count > 0) {
+          candidateChordRef.current.count--
+          if (candidateChordRef.current.count <= 0) {
+            setDetectedChord({ chord: 'None', confidence: 0, bass: 'None' })
+          }
+        }
 
         animFrameIdRef.current = requestAnimationFrame(updateLoop)
       }
@@ -240,7 +312,11 @@ export function AudioTestBench() {
       }
 
       source.connect(processor)
-      processor.connect(ctx.destination)
+      // Connect to zero-gain node to prevent speaker feedback while keeping processor alive
+      const silentGain = ctx.createGain()
+      silentGain.gain.value = 0
+      processor.connect(silentGain)
+      silentGain.connect(ctx.destination)
 
       setIsRecordingTake(true)
       setRecordingCountdown(5)
@@ -325,7 +401,8 @@ export function AudioTestBench() {
     }
   }, [stopListening])
 
-  const isMatched = isListening && detectedChord.chord === targetChord && detectedChord.confidence > 0.5
+  const isMatched =
+    isListening && detectedChord.chord === targetChord && detectedChord.confidence > 0.5
 
   return (
     <div className="w-full space-y-6 rounded-[24px] border border-border bg-card p-6 text-card-foreground shadow-sm md:p-8">
@@ -440,6 +517,22 @@ export function AudioTestBench() {
             <div className="font-display text-5xl font-bold tracking-tight text-foreground md:text-6xl">
               {detectedChord.chord !== 'None' ? detectedChord.chord : '—'}
             </div>
+
+            {/* Active detected notes badge list */}
+            {activeNotes.length > 0 && (
+              <div className="mt-2.5 flex items-center justify-center gap-1.5 text-xs">
+                <span className="text-muted-foreground font-medium">Notes Heard:</span>
+                {activeNotes.map((note) => (
+                  <span
+                    key={note}
+                    className="rounded bg-primary/10 px-2 py-0.5 font-bold text-primary"
+                  >
+                    {note}
+                  </span>
+                ))}
+              </div>
+            )}
+
             <p className="mt-2 text-sm text-muted-foreground">
               {detectedChord.chord !== 'None'
                 ? `Confidence: ${(detectedChord.confidence * 100).toFixed(0)}% • Bass: ${detectedChord.bass}`
@@ -470,7 +563,7 @@ export function AudioTestBench() {
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Chromagram Energy (12 Pitch Classes)
             </span>
-            <span className="text-xs text-muted-foreground">&lt;30ms latency</span>
+            <span className="text-xs text-muted-foreground">Parabolic FFT Peak Interpolation</span>
           </div>
 
           <div className="my-4 grid grid-cols-12 gap-1.5 pt-4">
@@ -500,7 +593,8 @@ export function AudioTestBench() {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            C, E, G highlights signify C Major triad presence; harmonic distribution updates per audio frame.
+            D, F#, A highlights signify D Major triad presence; harmonic distribution updates with
+            temporal smoothing.
           </p>
         </div>
       </div>
@@ -552,7 +646,7 @@ export function AudioTestBench() {
               {transcribeResult.chords.length > 0 && (
                 <div>
                   <h4 className="mb-2 text-xs font-semibold text-muted-foreground">
-                    Clustered Chords (Strum Window 50ms):
+                    Clustered Chords (Strum Window 120ms):
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {transcribeResult.chords.map((chord, i) => (

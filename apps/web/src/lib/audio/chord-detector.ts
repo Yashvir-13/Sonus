@@ -13,13 +13,13 @@ type ChordTemplate = {
 }
 
 const CHORD_TEMPLATES: ChordTemplate[] = [
-  { suffix: '', intervals: [0, 4, 7], weight: 1.0 }, // Major
-  { suffix: 'm', intervals: [0, 3, 7], weight: 1.0 }, // Minor
-  { suffix: '7', intervals: [0, 4, 7, 10], weight: 1.1 }, // Dominant 7th
-  { suffix: 'maj7', intervals: [0, 4, 7, 11], weight: 1.1 }, // Major 7th
-  { suffix: 'm7', intervals: [0, 3, 7, 10], weight: 1.1 }, // Minor 7th
-  { suffix: 'dim', intervals: [0, 3, 6], weight: 0.9 }, // Diminished
+  { suffix: '', intervals: [0, 4, 7], weight: 1.05 }, // Major
+  { suffix: 'm', intervals: [0, 3, 7], weight: 1.05 }, // Minor
   { suffix: 'sus4', intervals: [0, 5, 7], weight: 0.95 }, // Sus4
+  { suffix: 'dim', intervals: [0, 3, 6], weight: 0.9 }, // Diminished
+  { suffix: '7', intervals: [0, 4, 7, 10], weight: 0.95 }, // Dominant 7th
+  { suffix: 'maj7', intervals: [0, 4, 7, 11], weight: 0.95 }, // Major 7th
+  { suffix: 'm7', intervals: [0, 3, 7, 10], weight: 0.95 }, // Minor 7th
 ]
 
 /**
@@ -48,6 +48,16 @@ export function chromaToChord(chromaVector: number[]): ChordDetectionResult {
 
   for (let root = 0; root < 12; root++) {
     for (const tmpl of CHORD_TEMPLATES) {
+      // For 7th chords, verify the 7th degree actually has significant energy
+      if (tmpl.intervals.length === 4) {
+        const seventhIdx = (root + tmpl.intervals[3]!) % 12
+        const rootEnergy = normalizedVector[root] ?? 0
+        const seventhEnergy = normalizedVector[seventhIdx] ?? 0
+        if (seventhEnergy < 0.35 * rootEnergy) {
+          continue
+        }
+      }
+
       // Build binary/weighted template vector
       const templateVector = new Array(12).fill(0)
       for (const interval of tmpl.intervals) {
