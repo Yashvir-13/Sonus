@@ -92,7 +92,10 @@ async def submit_take(
     if exercise is None:
         raise NotFound("Associated exercise not found")
 
-    reference_chords: list[dict[str, Any]] = json.loads(exercise.progression_json)
+    prog_data = json.loads(exercise.progression_json)
+    reference_chords: list[dict[str, Any]] = (
+        prog_data if isinstance(prog_data, list) else prog_data.get("chords", [])
+    )
 
     played_chords: list[dict[str, Any]] = []
 

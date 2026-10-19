@@ -1,0 +1,17 @@
+$kind: http-request
+method: POST
+url: '{{base_url}}/sessions/{{session_id}}/take'
+order: 7000
+headers:
+  - key: Content-Type
+    value: text/plain
+body:
+  type: text
+  content: '"invalid body"'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 422", function () {
+        pm.response.to.have.status(422);
+      });

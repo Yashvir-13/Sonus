@@ -1,0 +1,50 @@
+$kind: http-request
+method: POST
+url: '{{base_url}}/sessions/{{session_id}}/take'
+order: 5000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "played_chords": [
+        { "chord": "C", "onset_time": 0.0, "notes": ["C4", "E4", "G4"] },
+        { "chord": "G", "onset_time": 1.5, "notes": ["G3", "B3", "D4"] },
+        { "chord": "Am", "onset_time": 3.0, "notes": ["A3", "C4", "E4"] },
+        { "chord": "F", "onset_time": 4.5, "notes": ["F3", "A3", "C4"] }
+      ]
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test("Response has required fields", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("session_id");
+        pm.expect(json).to.have.property("state");
+        pm.expect(json).to.have.property("overall_accuracy");
+        pm.expect(json).to.have.property("avg_timing_error_ms");
+        pm.expect(json).to.have.property("voicing_score");
+        pm.expect(json).to.have.property("chord_metrics");
+      });
+
+      pm.test("state equals completed", function () {
+        pm.expect(pm.response.json().state).to.eql("completed");
+      });
+
+      pm.test("overall_accuracy is a number between 0 and 1", function () {
+        const accuracy = pm.response.json().overall_accuracy;
+        pm.expect(accuracy).to.be.a("number");
+        pm.expect(accuracy).to.be.at.least(0);
+        pm.expect(accuracy).to.be.at.most(1);
+      });
+
+      pm.test("chord_metrics is an array", function () {
+        pm.expect(pm.response.json().chord_metrics).to.be.an("array");
+      });

@@ -1,0 +1,13 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/me'
+order: 5000
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 401 or 403", function () {
+        pm.expect([401, 403]).to.include(pm.response.code);
+      });

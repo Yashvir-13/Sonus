@@ -9,7 +9,7 @@ class TimestampMixin:
 
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
-        sa_type=DateTime,
+        sa_type=DateTime(timezone=True),
         sa_column_kwargs={
             "server_default": func.now(),
             "nullable": False,
@@ -17,7 +17,7 @@ class TimestampMixin:
     )
     updated_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
-        sa_type=DateTime,
+        sa_type=DateTime(timezone=True),
         sa_column_kwargs={
             "server_default": func.now(),
             "onupdate": func.now(),
@@ -32,6 +32,6 @@ class VerificationMixin:
     verified: bool = Field(default=False)
     verified_at: datetime | None = Field(
         default=None,
-        sa_type=DateTime,
+        sa_type=DateTime(timezone=True),
         sa_column_kwargs={"nullable": True},
     )

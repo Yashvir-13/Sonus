@@ -23,6 +23,8 @@ ClerkIdentityDep = Annotated[ClerkIdentity, Depends(require_clerk_identity)]
 - Env: `CLERK_SECRET_KEY` (fail if missing)
 - Errors: `Unauthorized` / `Unprocessable` from `src.lib.exception`
 - `User.id` == Clerk JWT `sub` == `identity.user_id`
+- In `ENV=development`, allow `dev_token` (or `dev`) for non-browser tooling (Postman, cURL) to eliminate 60s JWT expirations.
+- Keep `resolve_clerk_email` cached with `@lru_cache` and lazy (do not invoke on every request).
 
 ## DB — `src/lib/db.py`
 
@@ -45,7 +47,8 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 
 - Alembic uses `sync_database_url()` + `import src.models`
 - Routes take `Depends(get_session)`, not raw engines (health may ping `engine`)
-- On Windows or networks with partial IPv6 routing, cloud hosts (Neon, Supabase) must resolve IPv4 to set `hostaddr` to prevent libpq socket dropouts
+- On Windows or environments with dual-stack/partial IPv6 routing, cloud hosts (Neon, Supabase) must resolve IPv4 with `@lru_cache` and route directly via IPv4 to prevent 15-30s dual-stack socket timeouts (`[WinError 121]`).
+- Do not use `NullPool` on FastAPI servers; use `QueuePool` with persistent connection reuse (`statement_cache_size=0, pool_recycle=300`).
 
 ## Route wiring (SOLID)
 

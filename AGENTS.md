@@ -246,6 +246,8 @@ Rules:
 - Map auth failures to `Unauthorized` from `src.lib.exception`.
 - Do **not** load SQLModel users inside `clerk.py` (SRP).
 - Product `User.id` **is** `identity.user_id` (Clerk `sub`).
+- Support static `dev_token` (or `dev`) when `ENV=development` for Postman/cURL testing to prevent 60-second JWT expiration during local API development. Disabled in `production`.
+- Keep email resolution lazy and cached via `@lru_cache` on `resolve_clerk_email`; do not block `require_clerk_identity` on external Clerk REST queries for routes that only require `user_id`.
 
 ### DB module (`src/lib/db.py`)
 
@@ -273,7 +275,8 @@ Rules:
 
 - Load root `.env` once; never hard-code credentials.
 - Support local Postgres, Supabase, and Neon Serverless SSL/pooler quirks in URL builders.
-- On Windows or environments with partial IPv6 routing, resolve IPv4 to set `hostaddr` in cloud database URLs to prevent libpq socket dropouts.
+- On Windows or environments with dual-stack/partial IPv6 routing, cloud database hosts (Neon, Supabase) must be resolved to IPv4 with `@lru_cache` and routed directly via IPv4 to prevent 15-30s dual-stack socket timeouts (`[WinError 121]`). For Neon over direct IPv4, pass `options=endpoint=<endpoint_id>` and SSL context.
+- Never use `NullPool` on persistent web application servers (FastAPI); use `QueuePool` with persistent connection reuse (`statement_cache_size=0, pool_recycle=300`) to eliminate connection handshakes on subsequent requests.
 - Routes import `get_session`, not engines (except health checks).
 - Alembic `env.py` calls `sync_database_url()` and `import src.models`.
 - Endpoints handling both multipart media (WAV) and JSON bodies should inspect `request: Request` content-type rather than mixing `File()` and Pydantic bodies.

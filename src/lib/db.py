@@ -33,6 +33,11 @@ def _require_env(name: str) -> str:
     return value
 
 
+from functools import lru_cache
+import ssl
+
+
+@lru_cache(maxsize=128)
 def _resolve_ipv4(host: str, port: int = 5432) -> str | None:
     try:
         infos = socket.getaddrinfo(host, port, socket.AF_INET)
@@ -50,11 +55,7 @@ def _is_cloud_ssl_host(host: str) -> bool:
 def _url_from_environment(*, driver: str) -> str | None:
     """Return a configured database URL adapted for the requested driver."""
     is_async = driver.endswith("+asyncpg")
-    raw_url = (
-        os.environ.get("DATABASE_URL_POOLED")
-        if is_async
-        else os.environ.get("DATABASE_URL")
-    ) or os.environ.get("DATABASE_URL_POOLED")
+    raw_url = os.environ.get("DATABASE_URL") or os.environ.get("DATABASE_URL_POOLED")
     if not raw_url:
         return None
 
@@ -150,19 +151,31 @@ _async_connect_args: dict[str, object] = {}
 _async_engine_kwargs: dict[str, object] = {
     "echo": False,
     "future": True,
-    "pool_pre_ping": True,
     "pool_size": 10,
     "max_overflow": 20,
+    "pool_recycle": 300,
 }
+
+_parsed_async = make_url(_async_url)
+_orig_host = _parsed_async.host or ""
+if _is_cloud_ssl_host(_orig_host):
+    _ipv4 = _resolve_ipv4(_orig_host, _parsed_async.port or 5432)
+    if _ipv4:
+        _ssl_ctx = ssl.create_default_context()
+        _ssl_ctx.check_hostname = False
+        _ssl_ctx.verify_mode = ssl.CERT_NONE
+        _async_connect_args["ssl"] = _ssl_ctx
+        if "neon.tech" in _orig_host:
+            _endpoint_id = _orig_host.split(".")[0]
+            _async_connect_args["server_settings"] = {"options": f"endpoint={_endpoint_id}"}
+        _async_url = _parsed_async.set(host=_ipv4).render_as_string(hide_password=False)
+
 if _pooler_mode() == "transaction":
-    _async_connect_args = {
+    _async_connect_args.update({
         "statement_cache_size": 0,
         "prepared_statement_cache_size": 0,
         "prepared_statement_name_func": lambda: f"__asyncpg_{uuid4()}__",
-    }
-    _async_engine_kwargs["poolclass"] = NullPool
-    _async_engine_kwargs.pop("pool_size", None)
-    _async_engine_kwargs.pop("max_overflow", None)
+    })
 
 engine: AsyncEngine = create_async_engine(
     _async_url,

@@ -1,0 +1,36 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/sessions/{{session_id}}/analysis'
+order: 8000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test("Response has session and chord_metrics fields", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("session");
+        pm.expect(json).to.have.property("chord_metrics");
+      });
+
+      pm.test("session.id equals session_id env variable", function () {
+        pm.expect(pm.response.json().session.id).to.eql(pm.environment.get("session_id"));
+      });
+
+      pm.test("chord_metrics is an array", function () {
+        pm.expect(pm.response.json().chord_metrics).to.be.an("array");
+      });
+
+      pm.test("First chord_metric has required fields (if non-empty)", function () {
+        const metrics = pm.response.json().chord_metrics;
+        if (metrics.length > 0) {
+          const item = metrics[0];
+          pm.expect(item).to.have.property("chord_index");
+          pm.expect(item).to.have.property("expected_chord");
+          pm.expect(item).to.have.property("detected_chord");
+          pm.expect(item).to.have.property("is_matched");
+        }
+      });

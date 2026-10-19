@@ -1,0 +1,22 @@
+$kind: http-request
+method: POST
+url: '{{base_url}}/sessions/{{session_id}}/take'
+order: 6000
+auth:
+  type: noauth
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "played_chords": []
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 401 or 403", function () {
+        pm.expect([401, 403]).to.include(pm.response.code);
+      });

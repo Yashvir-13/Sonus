@@ -1,0 +1,21 @@
+$kind: http-request
+method: POST
+url: '{{base_url}}/sessions'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "exercise_id": "nonexistent_exercise_id",
+      "tempo_bpm": 80
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 404", function () {
+        pm.response.to.have.status(404);
+      });

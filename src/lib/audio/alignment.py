@@ -12,7 +12,7 @@ def _compute_chord_similarity(
 ) -> float:
     """Compute harmonic and pitch-class similarity between reference and played chords."""
     ref_name = str(ref.get("name", ""))
-    det_name = str(played.get("detected_name", ""))
+    det_name = str(played.get("detected_name", "") or played.get("chord", ""))
 
     exp_notes = [int(p) for p in ref.get("expected_pitches", [])]
     if not exp_notes and ref_name:
@@ -21,8 +21,10 @@ def _compute_chord_similarity(
         except Exception:
             exp_notes = []
 
-    det_notes = [int(p) for p in played.get("pitches", [])]
-    if not det_notes and det_name:
+    det_notes: list[int] = []
+    if played.get("pitches"):
+        det_notes = [int(p) for p in played["pitches"]]
+    elif det_name:
         try:
             det_notes = parse_chord_notes(det_name)
         except Exception:
@@ -77,7 +79,7 @@ def align_chord_sequence(
         for j in range(1, n + 1):
             played = played_chords[j - 1]
             sim = _compute_chord_similarity(ref, played)
-            played_time = float(played.get("timestamp_sec", 0.0))
+            played_time = float(played.get("timestamp_sec", played.get("onset_time", 0.0)))
             time_diff = abs(played_time - exp_time)
 
             if sim >= 0.5:
@@ -101,7 +103,7 @@ def align_chord_sequence(
             ref = reference_chords[i - 1]
             played = played_chords[j - 1]
             sim = _compute_chord_similarity(ref, played)
-            played_time = float(played.get("timestamp_sec", 0.0))
+            played_time = float(played.get("timestamp_sec", played.get("onset_time", 0.0)))
             time_diff = abs(played_time - expected_time_sec(ref))
             score = ((10.0 * sim) - min(time_diff, 3.0)) if sim >= 0.5 else -6.0
 
@@ -130,9 +132,9 @@ def align_chord_sequence(
         played_idx = aligned_pairs.get(ref_idx)
         if played_idx is not None:
             played = played_chords[played_idx]
-            played_time = float(played.get("timestamp_sec", 0.0))
+            played_time = float(played.get("timestamp_sec", played.get("onset_time", 0.0)))
             det_pitches = [int(p) for p in played.get("pitches", [])]
-            detected_chord_name = str(played.get("detected_name", "")) or expected_chord_name
+            detected_chord_name = str(played.get("detected_name", "") or played.get("chord", "")) or expected_chord_name
 
             timing_error_ms = (played_time - exp_time) * 1000.0
             voicing = evaluate_chord_voicing(det_pitches, exp_pitches)

@@ -1,0 +1,13 @@
+$kind: collection
+name: Adaptive Music Practice API
+description: 'API collection for the Adaptive Music Practice platform. Tests all endpoints: user management, exercises, practice sessions, and audio analysis.'
+variables:
+  - key: base_url
+    value: 'http://localhost:8000/api'
+  - key: clerk_token
+    value: ''
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{clerk_token}}'

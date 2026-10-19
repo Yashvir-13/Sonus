@@ -1,0 +1,34 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/exercises'
+order: 1000
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is an array", function () {
+        pm.expect(pm.response.json()).to.be.an("array");
+      });
+
+      pm.test("First item has required fields (if non-empty)", function () {
+        const json = pm.response.json();
+        if (json.length > 0) {
+          const item = json[0];
+          pm.expect(item).to.have.property("id");
+          pm.expect(item).to.have.property("title");
+          pm.expect(item).to.have.property("instrument");
+          pm.expect(item).to.have.property("tempo_bpm");
+          pm.expect(item).to.have.property("difficulty");
+          pm.expect(item).to.have.property("progression_json");
+        }
+      });
+
+      if (pm.response.json().length > 0) {
+        pm.environment.set("exercise_id", pm.response.json()[0].id);
+      }

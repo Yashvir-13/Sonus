@@ -1,0 +1,21 @@
+$kind: http-request
+method: POST
+url: '{{base_url}}/me'
+order: 4000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Test User",
+      "username": "ab"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 422", function () {
+        pm.response.to.have.status(422);
+      });
