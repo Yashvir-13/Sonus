@@ -1,0 +1,44 @@
+$kind: http-request
+method: POST
+url: '{{base_url}}/exercises'
+order: 5000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "12-Bar Blues Progression in E",
+      "description": "Standard blues turnaround progression in E major with dominant 7th chords",
+      "instrument": "guitar",
+      "tempo_bpm": 100,
+      "difficulty": 2,
+      "progression": {
+        "key": "E Major",
+        "time_signature": "4/4",
+        "default_tempo_bpm": 100,
+        "tempo_range": [75, 125],
+        "chords": [
+          {"name": "E7", "beat": 1.0, "duration_beats": 4.0},
+          {"name": "A7", "beat": 5.0, "duration_beats": 4.0},
+          {"name": "B7", "beat": 9.0, "duration_beats": 4.0}
+        ]
+      }
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 201", function () {
+        pm.response.to.have.status(201);
+      });
+
+      pm.test("Response contains created exercise metadata", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("id");
+        pm.expect(json.title).to.include("Blues");
+        pm.expect(json.instrument).to.eql("guitar");
+        pm.expect(json.progression).to.be.an("object");
+        pm.environment.set("custom_exercise_id", json.id);
+      });

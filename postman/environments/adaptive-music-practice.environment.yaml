@@ -3,10 +3,10 @@ values:
   - key: base_url
     value: 'http://localhost:8000/api'
   - key: clerk_token
-    value: eyJhbGciOiJSUzI1NiIsImNhdCI6ImNsX0I3ZDRQRDExMUFBQSIsImtpZCI6Imluc18zS0VPU2JuUExlZ3V1NXE3Q1lkd3ZSOWZidXAiLCJvaWF0IjoxNzkyNDE3NTY5LCJ0eXAiOiJKV1QifQ.eyJleHAiOjE3OTI0MTc2MjksImZ2YSI6Wzc0MTYsLTFdLCJpYXQiOjE3OTI0MTc1NjksImlzcyI6Imh0dHBzOi8vcGxlYXNlZC1tYW5hdGVlLTkxNzQuY2xlcmsuYWNjb3VudHMuZGV2IiwibmJmIjoxNzkyNDE3NTU5LCJzaWQiOiJzZXNzXzNLZ0kwN3JibUNSUFNaSURWSTlPUGNWaHc4diIsInN0cyI6ImFjdGl2ZSIsInN1YiI6InVzZXJfM0tFUDdPWmlpS01zd3JsNWYyOEFqeE9WN0tsIiwidiI6Mn0.zJczb2_9N5ffHLdWF7cVBIFiGTCN6g1uCAT0SEZDsA5exGOf_I1osuabpU7SbHQhiFqtAZgf2m0Dt6x29LcFIwBLGyci5SELBCZn2_qdcW2dpg_vVyO8JXIr8Qdj1LS2KrcbGUoEOV8jc6kruBfbVGwbgbY5Xp6g4wChldgk9LnhRmnqQgLLVw0zEjQUYKTZzXHFo3KdaEk2Uu45L-Bm3AMpkev0MUtDWYm6boBIIZ3_MypV-PgQFH4IMNuLAkMLRCyKi5KJxYzOUD9lSiwWIBMdxuTQhfW0HCXYfVZGuKrsw-xQ69FnnaEP8GIWLNnSglBgH0OEySGTUs8Rt0IpoQ
+    value: dev_token
   - key: exercise_id
     value: ex_guitar_knockin
   - key: session_id
     value: ''
   - key: user_id
-    value: ''
+    value: user_3KEP7OZiiKMswrl5f28AjxOV7Kl

@@ -1,1 +1,1604 @@
-{"openapi":"3.1.0","info":{"title":"Blueprint API","description":"Blueprint platform API","version":"0.1.0"},"paths":{"/api/health":{"get":{"tags":["Health"],"summary":"Health Check","description":"Return service status after verifying database connectivity.","operationId":"Health_check_api_health_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"additionalProperties":true,"type":"object","title":"Response Health Check Api Health Get"}}}}}}},"/api/me":{"get":{"tags":["Me"],"summary":"Get Me","description":"Return the signed-in user's DB row.","operationId":"get_me_api_me_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/User"}}}}}},"post":{"tags":["Me"],"summary":"Create Me","description":"Create the product user row for a signed-in Clerk account.","operationId":"create_me_api_me_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/MeCreateRequest"}}},"required":true},"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/User"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/api/exercises":{"get":{"tags":["Exercises"],"summary":"Get Exercises","description":"Return all exercises.","operationId":"get_exercises_api_exercises_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/ExerciseRead"},"type":"array","title":"Response Get Exercises Api Exercises Get"}}}}}}},"/api/sessions":{"post":{"tags":["Practice Sessions"],"summary":"Create Practice Session","description":"Create a new practice session for the authenticated user.","operationId":"create_practice_session_api_sessions_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PracticeSessionCreate"}}},"required":true},"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/PracticeSessionRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/api/sessions/{session_id}":{"get":{"tags":["Practice Sessions"],"summary":"Get Practice Session","description":"Retrieve practice session details.","operationId":"get_practice_session_api_sessions__session_id__get","parameters":[{"name":"session_id","in":"path","required":true,"schema":{"type":"string","title":"Session Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/PracticeSessionRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/api/sessions/{session_id}/take":{"post":{"tags":["Practice Sessions"],"summary":"Submit Take","description":"Submit recorded audio WAV or played chord events for sequence alignment and evaluation.","operationId":"submit_take_api_sessions__session_id__take_post","parameters":[{"name":"session_id","in":"path","required":true,"schema":{"type":"string","title":"Session Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"object","additionalProperties":true,"title":"Response Submit Take Api Sessions  Session Id  Take Post"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/api/sessions/{session_id}/analysis":{"get":{"tags":["Practice Sessions"],"summary":"Get Session Analysis","description":"Retrieve full session results and per-chord metrics.","operationId":"get_session_analysis_api_sessions__session_id__analysis_get","parameters":[{"name":"session_id","in":"path","required":true,"schema":{"type":"string","title":"Session Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SessionAnalysisResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/api/audio/test-transcribe":{"post":{"tags":["Audio Developer Testing"],"summary":"Test Transcribe","description":"Developer test endpoint to transcribe WAV audio without authentication.","operationId":"test_transcribe_api_audio_test_transcribe_post","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"additionalProperties":true,"type":"object","title":"Response Test Transcribe Api Audio Test Transcribe Post"}}}}}}}},"components":{"schemas":{"ExerciseRead":{"properties":{"id":{"type":"string","title":"Id"},"title":{"type":"string","title":"Title"},"description":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Description"},"instrument":{"type":"string","title":"Instrument"},"tempo_bpm":{"type":"integer","title":"Tempo Bpm"},"difficulty":{"type":"integer","title":"Difficulty"},"progression_json":{"type":"string","title":"Progression Json"}},"type":"object","required":["id","title","instrument","tempo_bpm","difficulty","progression_json"],"title":"ExerciseRead","description":"Schema for reading an exercise."},"HTTPValidationError":{"properties":{"detail":{"items":{"$ref":"#/components/schemas/ValidationError"},"type":"array","title":"Detail"}},"type":"object","title":"HTTPValidationError"},"MeCreateRequest":{"properties":{"name":{"type":"string","maxLength":100,"minLength":1,"title":"Name"},"username":{"type":"string","maxLength":30,"minLength":3,"title":"Username"}},"type":"object","required":["name","username"],"title":"MeCreateRequest","description":"Fields required to create a product user after Clerk sign-in."},"PracticeSessionCreate":{"properties":{"exercise_id":{"type":"string","title":"Exercise Id"},"tempo_bpm":{"type":"integer","title":"Tempo Bpm"}},"type":"object","required":["exercise_id","tempo_bpm"],"title":"PracticeSessionCreate","description":"Schema for creating a practice session."},"PracticeSessionRead":{"properties":{"id":{"type":"string","title":"Id"},"user_id":{"type":"string","title":"User Id"},"exercise_id":{"type":"string","title":"Exercise Id"},"tempo_bpm":{"type":"integer","title":"Tempo Bpm"},"state":{"type":"string","title":"State"},"overall_accuracy":{"anyOf":[{"type":"number"},{"type":"null"}],"title":"Overall Accuracy"},"avg_timing_error_ms":{"anyOf":[{"type":"number"},{"type":"null"}],"title":"Avg Timing Error Ms"},"voicing_score":{"anyOf":[{"type":"number"},{"type":"null"}],"title":"Voicing Score"}},"type":"object","required":["id","user_id","exercise_id","tempo_bpm","state"],"title":"PracticeSessionRead","description":"Schema for reading a practice session."},"SessionAnalysisResponse":{"properties":{"session":{"$ref":"#/components/schemas/PracticeSessionRead"},"chord_metrics":{"items":{"$ref":"#/components/schemas/SessionChordMetricRead"},"type":"array","title":"Chord Metrics"}},"type":"object","required":["session","chord_metrics"],"title":"SessionAnalysisResponse"},"SessionChordMetricRead":{"properties":{"id":{"type":"string","title":"Id"},"session_id":{"type":"string","title":"Session Id"},"chord_index":{"type":"integer","title":"Chord Index"},"expected_chord":{"type":"string","title":"Expected Chord"},"detected_chord":{"type":"string","title":"Detected Chord"},"is_matched":{"type":"boolean","title":"Is Matched"},"onset_error_ms":{"type":"number","title":"Onset Error Ms"},"voicing_completeness":{"type":"number","title":"Voicing Completeness"},"missed_notes_json":{"type":"string","title":"Missed Notes Json"},"extra_notes_json":{"type":"string","title":"Extra Notes Json"}},"type":"object","required":["id","session_id","chord_index","expected_chord","detected_chord","is_matched","onset_error_ms","voicing_completeness","missed_notes_json","extra_notes_json"],"title":"SessionChordMetricRead","description":"Schema for reading session chord metrics."},"User":{"properties":{"verified":{"type":"boolean","title":"Verified","default":false},"verified_at":{"anyOf":[{"type":"string","format":"date-time"},{"type":"null"}],"title":"Verified At"},"created_at":{"type":"string","format":"date-time","title":"Created At"},"updated_at":{"type":"string","format":"date-time","title":"Updated At"},"name":{"type":"string","maxLength":100,"title":"Name"},"username":{"type":"string","maxLength":30,"title":"Username"},"email":{"type":"string","maxLength":255,"format":"email","title":"Email"},"id":{"type":"string","maxLength":255,"title":"Id"},"onboarding_done":{"type":"boolean","title":"Onboarding Done","default":false}},"type":"object","required":["name","username","email","id"],"title":"User","description":"Product identity for the platform.\n\nPrimary key ``id`` is the Clerk user id (JWT ``sub``)."},"ValidationError":{"properties":{"loc":{"items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"type":"array","title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error Type"},"input":{"title":"Input"},"ctx":{"type":"object","title":"Context"}},"type":"object","required":["loc","msg","type"],"title":"ValidationError"}}}}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Blueprint API",
+    "description": "Blueprint platform API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health Check",
+        "description": "Return service status after verifying database connectivity.",
+        "operationId": "Health_check_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Check Api Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Get Me",
+        "description": "Return the signed-in user's DB row.",
+        "operationId": "get_me_api_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Create Me",
+        "description": "Create the product user row for a signed-in Clerk account.",
+        "operationId": "create_me_api_me_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MeCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me/sessions": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Get My Sessions",
+        "description": "Retrieve paginated practice session history for the current user.",
+        "operationId": "get_my_sessions_api_me_sessions_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MeSessionHistoryItem"
+                  },
+                  "title": "Response Get My Sessions Api Me Sessions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me/stats": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Get My Stats",
+        "description": "Retrieve aggregated practice performance statistics and streak data.",
+        "operationId": "get_my_stats_api_me_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeStatsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me/interventions": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Get My Interventions",
+        "description": "Retrieve all adaptive drills and interventions generated for the user.",
+        "operationId": "get_my_interventions_api_me_interventions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AdaptiveInterventionRead"
+                  },
+                  "type": "array",
+                  "title": "Response Get My Interventions Api Me Interventions Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises": {
+      "get": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Get Exercises",
+        "description": "Return all exercises matching optional instrument, difficulty, or search filters.",
+        "operationId": "get_exercises_api_exercises_get",
+        "parameters": [
+          {
+            "name": "instrument",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by instrument ('piano' or 'guitar')",
+              "title": "Instrument"
+            },
+            "description": "Filter by instrument ('piano' or 'guitar')"
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by difficulty level (1-5, or 'beginner', 'intermediate', 'advanced')",
+              "title": "Difficulty"
+            },
+            "description": "Filter by difficulty level (1-5, or 'beginner', 'intermediate', 'advanced')"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Search keywords in title or description",
+              "title": "Search"
+            },
+            "description": "Search keywords in title or description"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseRead"
+                  },
+                  "title": "Response Get Exercises Api Exercises Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Create Custom Exercise",
+        "description": "Ingest a new custom chord progression exercise with validated music theory metadata.",
+        "operationId": "create_custom_exercise_api_exercises_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomExerciseCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseDetailRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exercises/{exercise_id}": {
+      "get": {
+        "tags": [
+          "Exercises"
+        ],
+        "summary": "Get Exercise Detail",
+        "description": "Return complete exercise details with fully parsed progression, voicings, tabs, and tempo ranges.",
+        "operationId": "get_exercise_detail_api_exercises__exercise_id__get",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Exercise Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseDetailRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions": {
+      "post": {
+        "tags": [
+          "Practice Sessions"
+        ],
+        "summary": "Create Practice Session",
+        "description": "Create a new practice session for the authenticated user.",
+        "operationId": "create_practice_session_api_sessions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PracticeSessionCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PracticeSessionRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{session_id}": {
+      "get": {
+        "tags": [
+          "Practice Sessions"
+        ],
+        "summary": "Get Practice Session",
+        "description": "Retrieve practice session details.",
+        "operationId": "get_practice_session_api_sessions__session_id__get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PracticeSessionRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{session_id}/takes": {
+      "post": {
+        "tags": [
+          "Practice Sessions"
+        ],
+        "summary": "Submit Take",
+        "description": "Submit recorded audio WAV or played chord events for sequence alignment and evaluation.",
+        "operationId": "submit_take_api_sessions__session_id__takes_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Submit Take Api Sessions  Session Id  Takes Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{session_id}/take": {
+      "post": {
+        "tags": [
+          "Practice Sessions"
+        ],
+        "summary": "Submit Take",
+        "description": "Submit recorded audio WAV or played chord events for sequence alignment and evaluation.",
+        "operationId": "submit_take_api_sessions__session_id__take_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Submit Take Api Sessions  Session Id  Take Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{session_id}/analysis": {
+      "get": {
+        "tags": [
+          "Practice Sessions"
+        ],
+        "summary": "Get Session Analysis",
+        "description": "Retrieve full session results and per-chord metrics.",
+        "operationId": "get_session_analysis_api_sessions__session_id__analysis_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionAnalysisResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{session_id}/coaching": {
+      "get": {
+        "tags": [
+          "Practice Sessions"
+        ],
+        "summary": "Get Session Coaching",
+        "description": "Retrieve pedagogical AI coaching report for a completed session.",
+        "operationId": "get_session_coaching_api_sessions__session_id__coaching_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Session Coaching Api Sessions  Session Id  Coaching Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sessions/{session_id}/drill": {
+      "post": {
+        "tags": [
+          "Practice Sessions"
+        ],
+        "summary": "Create Session Drill",
+        "description": "Generate and persist an adaptive practice drill to remediate detected bottlenecks.",
+        "operationId": "create_session_drill_api_sessions__session_id__drill_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdaptiveInterventionRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/audio/test-transcribe": {
+      "post": {
+        "tags": [
+          "Audio Developer Testing"
+        ],
+        "summary": "Test Transcribe",
+        "description": "Developer test endpoint to transcribe WAV audio without authentication.",
+        "operationId": "test_transcribe_api_audio_test_transcribe_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Test Transcribe Api Audio Test Transcribe Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdaptiveInterventionRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "pattern_id": {
+            "type": "string",
+            "title": "Pattern Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "drill_type": {
+            "type": "string",
+            "title": "Drill Type"
+          },
+          "target_tempo": {
+            "type": "integer",
+            "title": "Target Tempo"
+          },
+          "target_repetitions": {
+            "type": "integer",
+            "title": "Target Repetitions"
+          },
+          "completed": {
+            "type": "boolean",
+            "title": "Completed"
+          },
+          "measured_improvement": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measured Improvement"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "pattern_id",
+          "user_id",
+          "drill_type",
+          "target_tempo",
+          "target_repetitions",
+          "completed"
+        ],
+        "title": "AdaptiveInterventionRead",
+        "description": "Schema for reading adaptive interventions."
+      },
+      "ChordDefinition": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "beat": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Beat",
+            "default": 1.0
+          },
+          "duration_beats": {
+            "type": "number",
+            "minimum": 0.5,
+            "title": "Duration Beats",
+            "default": 4.0
+          },
+          "expected_pitches": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Expected Pitches"
+          },
+          "guitar_tabs": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GuitarTabs"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "piano_voicings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PianoVoicings"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "common_mistakes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Common Mistakes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "ChordDefinition",
+        "description": "Discrete reference chord event in an exercise."
+      },
+      "CustomExerciseCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 2,
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "instrument": {
+            "type": "string",
+            "pattern": "^(piano|guitar)$",
+            "title": "Instrument"
+          },
+          "tempo_bpm": {
+            "type": "integer",
+            "maximum": 220.0,
+            "minimum": 40.0,
+            "title": "Tempo Bpm",
+            "default": 80
+          },
+          "difficulty": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Difficulty",
+            "default": 1
+          },
+          "progression": {
+            "$ref": "#/components/schemas/ProgressionData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "instrument",
+          "progression"
+        ],
+        "title": "CustomExerciseCreate",
+        "description": "Payload for creating a custom practice exercise."
+      },
+      "ExerciseDetailRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "instrument": {
+            "type": "string",
+            "title": "Instrument"
+          },
+          "tempo_bpm": {
+            "type": "integer",
+            "title": "Tempo Bpm"
+          },
+          "difficulty": {
+            "type": "integer",
+            "title": "Difficulty"
+          },
+          "progression": {
+            "$ref": "#/components/schemas/ProgressionData"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "instrument",
+          "tempo_bpm",
+          "difficulty",
+          "progression"
+        ],
+        "title": "ExerciseDetailRead",
+        "description": "Detailed exercise view with parsed progression schema."
+      },
+      "ExerciseRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "instrument": {
+            "type": "string",
+            "title": "Instrument"
+          },
+          "tempo_bpm": {
+            "type": "integer",
+            "title": "Tempo Bpm"
+          },
+          "difficulty": {
+            "type": "integer",
+            "title": "Difficulty"
+          },
+          "progression_json": {
+            "type": "string",
+            "title": "Progression Json"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "instrument",
+          "tempo_bpm",
+          "difficulty",
+          "progression_json"
+        ],
+        "title": "ExerciseRead",
+        "description": "Schema for reading an exercise."
+      },
+      "GuitarTabs": {
+        "properties": {
+          "frets": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Frets",
+            "description": "Fret numbers per string (None for muted)"
+          },
+          "strings": {
+            "type": "string",
+            "title": "Strings",
+            "default": "E-A-D-G-B-e"
+          },
+          "fingering": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fingering"
+          }
+        },
+        "type": "object",
+        "title": "GuitarTabs",
+        "description": "Fretboard fingering and string positions for guitar."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "MeCreateRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 3,
+            "title": "Username"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "username"
+        ],
+        "title": "MeCreateRequest",
+        "description": "Fields required to create a product user after Clerk sign-in."
+      },
+      "MeSessionHistoryItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "exercise_id": {
+            "type": "string",
+            "title": "Exercise Id"
+          },
+          "exercise_title": {
+            "type": "string",
+            "title": "Exercise Title"
+          },
+          "instrument": {
+            "type": "string",
+            "title": "Instrument"
+          },
+          "tempo_bpm": {
+            "type": "integer",
+            "title": "Tempo Bpm"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "overall_accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overall Accuracy"
+          },
+          "avg_timing_error_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Timing Error Ms"
+          },
+          "voicing_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voicing Score"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "exercise_id",
+          "exercise_title",
+          "instrument",
+          "tempo_bpm",
+          "state"
+        ],
+        "title": "MeSessionHistoryItem",
+        "description": "User practice session summary item."
+      },
+      "MeStatsResponse": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "total_sessions_completed": {
+            "type": "integer",
+            "title": "Total Sessions Completed"
+          },
+          "overall_accuracy_pct": {
+            "type": "number",
+            "title": "Overall Accuracy Pct"
+          },
+          "avg_timing_error_ms": {
+            "type": "number",
+            "title": "Avg Timing Error Ms"
+          },
+          "avg_voicing_score": {
+            "type": "number",
+            "title": "Avg Voicing Score"
+          },
+          "active_habits_count": {
+            "type": "integer",
+            "title": "Active Habits Count"
+          },
+          "interventions_completed": {
+            "type": "integer",
+            "title": "Interventions Completed"
+          },
+          "streak_days": {
+            "type": "integer",
+            "title": "Streak Days"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "total_sessions_completed",
+          "overall_accuracy_pct",
+          "avg_timing_error_ms",
+          "avg_voicing_score",
+          "active_habits_count",
+          "interventions_completed",
+          "streak_days"
+        ],
+        "title": "MeStatsResponse",
+        "description": "Aggregated longitudinal practice statistics."
+      },
+      "PianoVoicings": {
+        "properties": {
+          "lh_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lh Note"
+          },
+          "rh_notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Rh Notes"
+          },
+          "lh_pitches": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Lh Pitches"
+          },
+          "rh_pitches": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Rh Pitches"
+          },
+          "inversion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inversion"
+          }
+        },
+        "type": "object",
+        "title": "PianoVoicings",
+        "description": "Left hand and right hand piano voicings and inversions."
+      },
+      "PracticeSessionCreate": {
+        "properties": {
+          "exercise_id": {
+            "type": "string",
+            "title": "Exercise Id"
+          },
+          "tempo_bpm": {
+            "type": "integer",
+            "title": "Tempo Bpm"
+          }
+        },
+        "type": "object",
+        "required": [
+          "exercise_id",
+          "tempo_bpm"
+        ],
+        "title": "PracticeSessionCreate",
+        "description": "Schema for creating a practice session."
+      },
+      "PracticeSessionRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "exercise_id": {
+            "type": "string",
+            "title": "Exercise Id"
+          },
+          "tempo_bpm": {
+            "type": "integer",
+            "title": "Tempo Bpm"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "overall_accuracy": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overall Accuracy"
+          },
+          "avg_timing_error_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Timing Error Ms"
+          },
+          "voicing_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voicing Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "exercise_id",
+          "tempo_bpm",
+          "state"
+        ],
+        "title": "PracticeSessionRead",
+        "description": "Schema for reading a practice session."
+      },
+      "ProgressionData": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key",
+            "default": "C Major"
+          },
+          "time_signature": {
+            "type": "string",
+            "title": "Time Signature",
+            "default": "4/4"
+          },
+          "default_tempo_bpm": {
+            "type": "integer",
+            "title": "Default Tempo Bpm",
+            "default": 80
+          },
+          "tempo_range": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TempoRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "strumming_pattern": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strumming Pattern"
+          },
+          "educational_focus": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Educational Focus"
+          },
+          "chords": {
+            "items": {
+              "$ref": "#/components/schemas/ChordDefinition"
+            },
+            "type": "array",
+            "title": "Chords"
+          }
+        },
+        "type": "object",
+        "title": "ProgressionData",
+        "description": "Full structured progression metadata and chord timeline."
+      },
+      "SessionAnalysisResponse": {
+        "properties": {
+          "session": {
+            "$ref": "#/components/schemas/PracticeSessionRead"
+          },
+          "chord_metrics": {
+            "items": {
+              "$ref": "#/components/schemas/SessionChordMetricRead"
+            },
+            "type": "array",
+            "title": "Chord Metrics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session",
+          "chord_metrics"
+        ],
+        "title": "SessionAnalysisResponse"
+      },
+      "SessionChordMetricRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "chord_index": {
+            "type": "integer",
+            "title": "Chord Index"
+          },
+          "expected_chord": {
+            "type": "string",
+            "title": "Expected Chord"
+          },
+          "detected_chord": {
+            "type": "string",
+            "title": "Detected Chord"
+          },
+          "is_matched": {
+            "type": "boolean",
+            "title": "Is Matched"
+          },
+          "onset_error_ms": {
+            "type": "number",
+            "title": "Onset Error Ms"
+          },
+          "voicing_completeness": {
+            "type": "number",
+            "title": "Voicing Completeness"
+          },
+          "missed_notes_json": {
+            "type": "string",
+            "title": "Missed Notes Json"
+          },
+          "extra_notes_json": {
+            "type": "string",
+            "title": "Extra Notes Json"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "session_id",
+          "chord_index",
+          "expected_chord",
+          "detected_chord",
+          "is_matched",
+          "onset_error_ms",
+          "voicing_completeness",
+          "missed_notes_json",
+          "extra_notes_json"
+        ],
+        "title": "SessionChordMetricRead",
+        "description": "Schema for reading session chord metrics."
+      },
+      "TempoRange": {
+        "properties": {
+          "min_bpm": {
+            "type": "integer",
+            "maximum": 240.0,
+            "minimum": 30.0,
+            "title": "Min Bpm",
+            "default": 50
+          },
+          "default_bpm": {
+            "type": "integer",
+            "maximum": 240.0,
+            "minimum": 30.0,
+            "title": "Default Bpm",
+            "default": 80
+          },
+          "max_bpm": {
+            "type": "integer",
+            "maximum": 240.0,
+            "minimum": 30.0,
+            "title": "Max Bpm",
+            "default": 120
+          },
+          "gradual_step_bpm": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Gradual Step Bpm",
+            "default": 5
+          }
+        },
+        "type": "object",
+        "title": "TempoRange",
+        "description": "Tempo boundaries and practice stepping for an exercise."
+      },
+      "User": {
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "title": "Verified",
+            "default": false
+          },
+          "verified_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Name"
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 30,
+            "title": "Username"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "email",
+            "title": "Email"
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 255,
+            "title": "Id"
+          },
+          "onboarding_done": {
+            "type": "boolean",
+            "title": "Onboarding Done",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "username",
+          "email",
+          "id"
+        ],
+        "title": "User",
+        "description": "Product identity for the platform.\n\nPrimary key ``id`` is the Clerk user id (JWT ``sub``)."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/exercises/{{exercise_id}}'
+order: 3000
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test("Exercise detail contains rich domain fields", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("id");
+        pm.expect(json).to.have.property("title");
+        pm.expect(json).to.have.property("instrument");
+        pm.expect(json).to.have.property("tempo_bpm");
+        pm.expect(json).to.have.property("difficulty");
+        pm.expect(json).to.have.property("progression");
+      });
+
+      pm.test("Progression has structured chords", function () {
+        const json = pm.response.json();
+        pm.expect(json.progression).to.have.property("chords");
+        pm.expect(json.progression.chords).to.be.an("array");
+      });

@@ -1,0 +1,27 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/me/sessions?limit=10&offset=0'
+order: 6000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is an array of practice sessions", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.be.an("array");
+      });
+
+      pm.test("Sessions have user_id, exercise_id and state", function () {
+        const json = pm.response.json();
+        if (json.length > 0) {
+          const item = json[0];
+          pm.expect(item).to.have.property("id");
+          pm.expect(item).to.have.property("user_id");
+          pm.expect(item).to.have.property("exercise_id");
+          pm.expect(item).to.have.property("state");
+        }
+      });

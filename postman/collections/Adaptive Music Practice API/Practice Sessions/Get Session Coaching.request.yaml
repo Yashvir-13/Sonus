@@ -1,0 +1,31 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/sessions/{{session_id}}/coaching'
+order: 9000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test("Coaching report has rich pedagogy fields", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("session_id");
+        pm.expect(json).to.have.property("headline");
+        pm.expect(json).to.have.property("score");
+        pm.expect(json).to.have.property("key_strengths");
+        pm.expect(json).to.have.property("growth_areas");
+        pm.expect(json).to.have.property("habit_alerts");
+        pm.expect(json).to.have.property("recommended_actions");
+        pm.expect(json).to.have.property("recommended_tempo_adjustment");
+      });
+
+      pm.test("Lists are valid arrays", function () {
+        const json = pm.response.json();
+        pm.expect(json.key_strengths).to.be.an("array");
+        pm.expect(json.growth_areas).to.be.an("array");
+        pm.expect(json.habit_alerts).to.be.an("array");
+        pm.expect(json.recommended_actions).to.be.an("array");
+      });

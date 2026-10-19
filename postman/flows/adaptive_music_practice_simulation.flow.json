@@ -1,0 +1,255 @@
+{
+  "name": "Adaptive Music Practice Simulation Flow",
+  "description": "End-to-end simulation of the adaptive music practice loop: User Discovery -> Session Start -> Take Submission -> Audio Analysis -> Grounded AI Coaching -> Dynamic Drill Generation -> Longitudinal Habit Tracking.",
+  "version": "1.0.0",
+  "settings": {
+    "autoRun": false,
+    "environment": "adaptive-music-practice",
+    "stopOnError": true
+  },
+  "blocks": [
+    {
+      "id": "block-start",
+      "type": "start",
+      "name": "Start Simulation",
+      "position": { "x": 100, "y": 200 },
+      "data": {
+        "description": "Initializes practice simulation with target instrument and user persona.",
+        "parameters": {
+          "user_id": "user_3KEP7OZiiKMswrl5f28AjxOV7Kl",
+          "instrument": "guitar",
+          "difficulty": "beginner",
+          "target_tempo": 80
+        }
+      }
+    },
+    {
+      "id": "block-get-me",
+      "type": "send-request",
+      "name": "Verify Current User",
+      "position": { "x": 350, "y": 200 },
+      "data": {
+        "method": "GET",
+        "url": "{{base_url}}/me",
+        "headers": {
+          "Authorization": "Bearer {{clerk_token}}"
+        }
+      }
+    },
+    {
+      "id": "block-filter-exercises",
+      "type": "send-request",
+      "name": "Filter Repertoire",
+      "position": { "x": 600, "y": 200 },
+      "data": {
+        "method": "GET",
+        "url": "{{base_url}}/exercises?instrument=guitar&difficulty=beginner"
+      }
+    },
+    {
+      "id": "block-select-exercise",
+      "type": "select",
+      "name": "Select Exercise",
+      "position": { "x": 850, "y": 200 },
+      "data": {
+        "path": "$[0].id",
+        "fallback": "ex_guitar_knockin",
+        "outputVariable": "exercise_id"
+      }
+    },
+    {
+      "id": "block-get-exercise-detail",
+      "type": "send-request",
+      "name": "Get Exercise Detail & Progression",
+      "position": { "x": 1100, "y": 200 },
+      "data": {
+        "method": "GET",
+        "url": "{{base_url}}/exercises/{{exercise_id}}"
+      }
+    },
+    {
+      "id": "block-create-session",
+      "type": "send-request",
+      "name": "Create Practice Session",
+      "position": { "x": 1350, "y": 200 },
+      "data": {
+        "method": "POST",
+        "url": "{{base_url}}/sessions",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {{clerk_token}}"
+        },
+        "body": {
+          "exercise_id": "{{exercise_id}}",
+          "tempo_bpm": 80
+        }
+      }
+    },
+    {
+      "id": "block-select-session",
+      "type": "select",
+      "name": "Extract Session ID",
+      "position": { "x": 1600, "y": 200 },
+      "data": {
+        "path": "$.id",
+        "outputVariable": "session_id"
+      }
+    },
+    {
+      "id": "block-submit-take",
+      "type": "send-request",
+      "name": "Submit Simulated Chord Take",
+      "position": { "x": 1850, "y": 200 },
+      "data": {
+        "method": "POST",
+        "url": "{{base_url}}/sessions/{{session_id}}/takes",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {{clerk_token}}"
+        },
+        "body": {
+          "chords": [
+            {
+              "chord": "G",
+              "confidence": 0.95,
+              "start_time_seconds": 0.05,
+              "end_time_seconds": 2.95,
+              "root_pitch": 55,
+              "quality": "major",
+              "bass_pitch": 43
+            },
+            {
+              "chord": "D",
+              "confidence": 0.92,
+              "start_time_seconds": 3.02,
+              "end_time_seconds": 5.92,
+              "root_pitch": 62,
+              "quality": "major",
+              "bass_pitch": 50
+            },
+            {
+              "chord": "Am7",
+              "confidence": 0.88,
+              "start_time_seconds": 6.15,
+              "end_time_seconds": 8.95,
+              "root_pitch": 57,
+              "quality": "min7",
+              "bass_pitch": 45
+            },
+            {
+              "chord": "C",
+              "confidence": 0.76,
+              "start_time_seconds": 9.35,
+              "end_time_seconds": 12.10,
+              "root_pitch": 60,
+              "quality": "major",
+              "bass_pitch": 48
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "block-get-analysis",
+      "type": "send-request",
+      "name": "Get Session Precision Analysis",
+      "position": { "x": 2100, "y": 200 },
+      "data": {
+        "method": "GET",
+        "url": "{{base_url}}/sessions/{{session_id}}/analysis",
+        "headers": {
+          "Authorization": "Bearer {{clerk_token}}"
+        }
+      }
+    },
+    {
+      "id": "block-evaluate-take",
+      "type": "evaluate",
+      "name": "Evaluate Pedagogical Triggers",
+      "position": { "x": 2350, "y": 200 },
+      "data": {
+        "fql": "session.accuracy_score < 0.90 or count(chord_metrics[?is_matched == `false`]) > 0"
+      }
+    },
+    {
+      "id": "block-get-ai-coaching",
+      "type": "send-request",
+      "name": "Get Grounded AI Coaching",
+      "position": { "x": 2600, "y": 100 },
+      "data": {
+        "method": "GET",
+        "url": "{{base_url}}/sessions/{{session_id}}/coaching",
+        "headers": {
+          "Authorization": "Bearer {{clerk_token}}"
+        }
+      }
+    },
+    {
+      "id": "block-create-adaptive-drill",
+      "type": "send-request",
+      "name": "Generate Adaptive Drill",
+      "position": { "x": 2850, "y": 100 },
+      "data": {
+        "method": "POST",
+        "url": "{{base_url}}/sessions/{{session_id}}/drill",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {{clerk_token}}"
+        },
+        "body": {}
+      }
+    },
+    {
+      "id": "block-get-user-stats",
+      "type": "send-request",
+      "name": "Track Longitudinal Stats",
+      "position": { "x": 3100, "y": 200 },
+      "data": {
+        "method": "GET",
+        "url": "{{base_url}}/me/stats",
+        "headers": {
+          "Authorization": "Bearer {{clerk_token}}"
+        }
+      }
+    },
+    {
+      "id": "block-get-interventions",
+      "type": "send-request",
+      "name": "Audit Pedagogical Interventions",
+      "position": { "x": 3350, "y": 200 },
+      "data": {
+        "method": "GET",
+        "url": "{{base_url}}/me/interventions?limit=5",
+        "headers": {
+          "Authorization": "Bearer {{clerk_token}}"
+        }
+      }
+    },
+    {
+      "id": "block-terminal-summary",
+      "type": "output",
+      "name": "Practice Simulation Report",
+      "position": { "x": 3600, "y": 200 },
+      "data": {
+        "summary": "Adaptive practice lifecycle executed successfully. Precision analysis, grounded AI coaching, dynamic drill generation, and habit interventions verified."
+      }
+    }
+  ],
+  "connections": [
+    { "from": "block-start", "to": "block-get-me", "fromPort": "out", "toPort": "in" },
+    { "from": "block-get-me", "to": "block-filter-exercises", "fromPort": "response", "toPort": "in" },
+    { "from": "block-filter-exercises", "to": "block-select-exercise", "fromPort": "response", "toPort": "in" },
+    { "from": "block-select-exercise", "to": "block-get-exercise-detail", "fromPort": "out", "toPort": "in" },
+    { "from": "block-get-exercise-detail", "to": "block-create-session", "fromPort": "response", "toPort": "in" },
+    { "from": "block-create-session", "to": "block-select-session", "fromPort": "response", "toPort": "in" },
+    { "from": "block-select-session", "to": "block-submit-take", "fromPort": "out", "toPort": "in" },
+    { "from": "block-submit-take", "to": "block-get-analysis", "fromPort": "response", "toPort": "in" },
+    { "from": "block-get-analysis", "to": "block-evaluate-take", "fromPort": "response", "toPort": "in" },
+    { "from": "block-evaluate-take", "to": "block-get-ai-coaching", "fromPort": "true", "toPort": "in" },
+    { "from": "block-get-ai-coaching", "to": "block-create-adaptive-drill", "fromPort": "response", "toPort": "in" },
+    { "from": "block-create-adaptive-drill", "to": "block-get-user-stats", "fromPort": "response", "toPort": "in" },
+    { "from": "block-evaluate-take", "to": "block-get-user-stats", "fromPort": "false", "toPort": "in" },
+    { "from": "block-get-user-stats", "to": "block-get-interventions", "fromPort": "response", "toPort": "in" },
+    { "from": "block-get-interventions", "to": "block-terminal-summary", "fromPort": "response", "toPort": "in" }
+  ]
+}

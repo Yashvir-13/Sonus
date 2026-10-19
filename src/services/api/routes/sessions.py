@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import json
-import tempfile
-from pathlib import Path
 from typing import Annotated, Any
 from uuid import uuid4
 
@@ -12,14 +9,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from starlette.datastructures import UploadFile as StarletteUploadFile
 
-from src.lib.audio.alignment import align_chord_sequence
-from src.lib.audio.transcription import transcribe_polyphonic_wav
-from src.lib.audio.voicing import cluster_chords_from_notes
+from src.lib.adaptive.interventions import generate_intervention
+from src.lib.adaptive.llm_coach import generate_coaching_report
 from src.lib.auth.clerk import ClerkIdentityDep
 from src.lib.db import get_session
 from src.lib.exception import NotFound, Unprocessable
+from src.lib.practice.evaluator import TakeEvaluator
 from src.models.practice import (
+    AdaptiveIntervention,
+    AdaptiveInterventionRead,
     Exercise,
+    HabitPattern,
     PracticeSession,
     PracticeSessionCreate,
     PracticeSessionRead,
@@ -77,6 +77,7 @@ async def get_practice_session(
 
 
 @router.post("/{session_id}/take")
+@router.post("/{session_id}/takes")
 async def submit_take(
     session_id: str,
     identity: ClerkIdentityDep,
@@ -92,96 +93,38 @@ async def submit_take(
     if exercise is None:
         raise NotFound("Associated exercise not found")
 
-    prog_data = json.loads(exercise.progression_json)
-    reference_chords: list[dict[str, Any]] = (
-        prog_data if isinstance(prog_data, list) else prog_data.get("chords", [])
-    )
-
-    played_chords: list[dict[str, Any]] = []
+    audio_bytes: bytes | None = None
+    played_chords: list[dict[str, Any]] | None = None
 
     content_type = request.headers.get("content-type", "").lower()
     if "multipart/form-data" in content_type:
         form = await request.form()
         uploaded_file = form.get("audio_file")
         if isinstance(uploaded_file, StarletteUploadFile):
-            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-                tmp_path = Path(tmp.name)
-                content = await uploaded_file.read()
-                tmp_path.write_bytes(content)
-
-            try:
-                notes = transcribe_polyphonic_wav(tmp_path)
-                played_chords = cluster_chords_from_notes(notes)
-            finally:
-                if tmp_path.exists():
-                    tmp_path.unlink()
+            audio_bytes = await uploaded_file.read()
         else:
             raise Unprocessable("Missing audio_file in multipart form")
     elif "application/json" in content_type:
         raw_body = await request.json()
-        if isinstance(raw_body, dict) and "played_chords" in raw_body and isinstance(raw_body["played_chords"], list):
-            played_chords = raw_body["played_chords"]
+        chords_list = raw_body.get("played_chords") if isinstance(raw_body, dict) else None
+        if chords_list is None and isinstance(raw_body, dict):
+            chords_list = raw_body.get("chords")
+
+        if isinstance(chords_list, list):
+            played_chords = chords_list
         else:
-            raise Unprocessable("JSON body must contain 'played_chords' list")
+            raise Unprocessable("JSON body must contain 'played_chords' or 'chords' list")
     else:
         raise Unprocessable("Content-Type must be application/json or multipart/form-data")
 
-    # Run dynamic programming sequence alignment
-    alignment = align_chord_sequence(
+    # Delegate full evaluation pipeline to deep TakeEvaluator module
+    return await TakeEvaluator.evaluate_take(
+        session=session,
+        practice_session=practice_session,
+        exercise=exercise,
+        audio_bytes=audio_bytes,
         played_chords=played_chords,
-        reference_chords=reference_chords,
-        tempo_bpm=practice_session.tempo_bpm,
     )
-
-    matched = [m for m in alignment if m["is_matched"]]
-    overall_accuracy = (len(matched) / len(alignment)) if alignment else 0.0
-
-    timing_errors = [abs(float(m["onset_error_ms"])) for m in matched]
-    avg_timing_error = (sum(timing_errors) / len(timing_errors)) if timing_errors else 0.0
-
-    voicing_scores = [float(m["voicing_completeness"]) for m in matched]
-    voicing_score = (sum(voicing_scores) / len(voicing_scores)) if voicing_scores else 0.0
-
-    # Delete existing metrics if take is being re-submitted
-    existing_metrics = await session.execute(
-        select(SessionChordMetric).where(SessionChordMetric.session_id == session_id)
-    )
-    for row in existing_metrics.scalars().all():
-        await session.delete(row)
-
-    # Persist chord metrics
-    for m in alignment:
-        metric = SessionChordMetric(
-            id=f"metric_{uuid4().hex[:16]}",
-            session_id=practice_session.id,
-            chord_index=int(m["chord_index"]),
-            expected_chord=str(m["expected_chord"]),
-            detected_chord=str(m["detected_chord"]),
-            is_matched=bool(m["is_matched"]),
-            onset_error_ms=float(m["onset_error_ms"]),
-            voicing_completeness=float(m["voicing_completeness"]),
-            missed_notes_json=json.dumps(m["missed_notes"]),
-            extra_notes_json=json.dumps(m["extra_notes"]),
-        )
-        session.add(metric)
-
-    practice_session.state = "completed"
-    practice_session.overall_accuracy = round(overall_accuracy, 3)
-    practice_session.avg_timing_error_ms = round(avg_timing_error, 2)
-    practice_session.voicing_score = round(voicing_score, 3)
-    session.add(practice_session)
-    await session.commit()
-    await session.refresh(practice_session)
-
-    return {
-        "session_id": practice_session.id,
-        "state": practice_session.state,
-        "analysis_status": "complete",
-        "overall_accuracy": practice_session.overall_accuracy,
-        "avg_timing_error_ms": practice_session.avg_timing_error_ms,
-        "voicing_score": practice_session.voicing_score,
-        "chord_metrics": alignment,
-    }
 
 
 @router.get("/{session_id}/analysis", response_model=SessionAnalysisResponse)
@@ -206,3 +149,101 @@ async def get_session_analysis(
         "session": practice_session,
         "chord_metrics": chord_metrics,
     }
+
+
+@router.get("/{session_id}/coaching")
+async def get_session_coaching(
+    session_id: str,
+    identity: ClerkIdentityDep,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    """Retrieve pedagogical AI coaching report for a completed session."""
+    practice_session = await session.get(PracticeSession, session_id)
+    if practice_session is None or practice_session.user_id != identity.user_id:
+        raise NotFound("Practice session not found")
+
+    exercise = await session.get(Exercise, practice_session.exercise_id)
+    instrument = exercise.instrument if exercise else "piano"
+
+    metrics_res = await session.execute(
+        select(SessionChordMetric)
+        .where(SessionChordMetric.session_id == session_id)
+        .order_by(SessionChordMetric.chord_index)  # type: ignore[arg-type]
+    )
+    metrics = [
+        {
+            "chord_index": m.chord_index,
+            "expected_chord": m.expected_chord,
+            "detected_chord": m.detected_chord,
+            "is_matched": m.is_matched,
+            "onset_error_ms": m.onset_error_ms,
+            "voicing_completeness": m.voicing_completeness,
+        }
+        for m in metrics_res.scalars().all()
+    ]
+
+    habits_res = await session.execute(
+        select(HabitPattern).where(HabitPattern.user_id == identity.user_id)
+    )
+    habits = [
+        {
+            "id": h.id,
+            "pattern_type": h.pattern_type,
+            "context": h.trigger_context,
+            "evidence_count": h.evidence_count,
+        }
+        for h in habits_res.scalars().all()
+    ]
+
+    return generate_coaching_report(
+        session_id=session_id,
+        chord_metrics=metrics,
+        habits=habits,
+        instrument=instrument,
+    )
+
+
+@router.post("/{session_id}/drill", response_model=AdaptiveInterventionRead, status_code=status.HTTP_201_CREATED)
+async def create_session_drill(
+    session_id: str,
+    identity: ClerkIdentityDep,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> AdaptiveIntervention:
+    """Generate and persist an adaptive practice drill to remediate detected bottlenecks."""
+    practice_session = await session.get(PracticeSession, session_id)
+    if practice_session is None or practice_session.user_id != identity.user_id:
+        raise NotFound("Practice session not found")
+
+    # Find the most prominent active or emerging habit pattern for this user
+    habit_query = await session.execute(
+        select(HabitPattern)
+        .where(HabitPattern.user_id == identity.user_id)
+        .order_by(HabitPattern.evidence_count.desc())  # type: ignore[attr-defined]
+    )
+    pattern = habit_query.scalars().first()
+
+    pattern_dict = {
+        "id": pattern.id if pattern else f"pat_default_{session_id[:6]}",
+        "pattern_type": pattern.pattern_type if pattern else "transition_lag",
+        "context": pattern.trigger_context if pattern else "General progression",
+    }
+
+    drill_data = generate_intervention(
+        pattern=pattern_dict,
+        user_id=identity.user_id,
+        reference_tempo=practice_session.tempo_bpm,
+    )
+
+    new_intervention = AdaptiveIntervention(
+        id=drill_data["id"],
+        pattern_id=drill_data["pattern_id"],
+        user_id=identity.user_id,
+        drill_type=drill_data["drill_type"],
+        target_tempo=drill_data["target_tempo"],
+        target_repetitions=drill_data["target_repetitions"],
+        completed=False,
+    )
+    session.add(new_intervention)
+    await session.commit()
+    await session.refresh(new_intervention)
+    return new_intervention

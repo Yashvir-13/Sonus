@@ -1,0 +1,25 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/me/stats'
+order: 7000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test("Stats response contains comprehensive metrics", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("user_id");
+        pm.expect(json).to.have.property("total_sessions_completed");
+        pm.expect(json).to.have.property("overall_accuracy_pct");
+        pm.expect(json).to.have.property("avg_timing_error_ms");
+        pm.expect(json).to.have.property("avg_voicing_score");
+        pm.expect(json).to.have.property("active_habits_count");
+        pm.expect(json).to.have.property("interventions_completed");
+        pm.expect(json).to.have.property("streak_days");
+        pm.expect(json.total_sessions_completed).to.be.a("number");
+        pm.expect(json.overall_accuracy_pct).to.be.a("number");
+      });

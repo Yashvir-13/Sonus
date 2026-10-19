@@ -1,0 +1,28 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/me/interventions'
+order: 8000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is an array of interventions", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.be.an("array");
+      });
+
+      pm.test("Intervention records contain target drill type and tempo", function () {
+        const json = pm.response.json();
+        if (json.length > 0) {
+          const item = json[0];
+          pm.expect(item).to.have.property("id");
+          pm.expect(item).to.have.property("pattern_id");
+          pm.expect(item).to.have.property("drill_type");
+          pm.expect(item).to.have.property("target_tempo");
+          pm.expect(item).to.have.property("target_repetitions");
+        }
+      });
