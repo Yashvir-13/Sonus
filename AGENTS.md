@@ -287,6 +287,16 @@ Rules:
 - Maintain strict grounding: LLMs must receive pre-computed, deterministic fact bundles (timing ms, pitch sets, habit flags) rather than hallucinating raw metrics.
 - All LLM-generated reports must support deterministic fallback if `GEMINI_API_KEY` is absent or the API request times out.
 
+### Route & Query Normalization
+
+- Discrete enumerations or difficulty scales should support both numeric integers (`1..5`) and canonical semantic aliases (`"beginner"`, `"intermediate"`, `"advanced"`).
+- Endpoints processing takes or submissions should alias both singular and plural forms (e.g., `@router.post("/{id}/take")` and `@router.post("/{id}/takes")`) to support diverse HTTP client idioms.
+
+### CLI & Script Logging on Windows
+
+- On Windows consoles where default encoding is `cp1252`, scripts outputting unicode music glyphs or emojis must configure stdout via `getattr(sys.stdout, "reconfigure", None)(encoding="utf-8")` to prevent fatal `UnicodeEncodeError`.
+- For strict mypy compatibility, always use safe attribute lookup (`getattr`) rather than direct invocation on `sys.stdout`.
+
 ### Exceptions
 
 Use `src.lib.exception` (`Unauthorized`, `NotFound`, `Unprocessable`). Do not raise bare `HTTPException` in new route code unless extending that module.

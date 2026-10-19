@@ -97,3 +97,8 @@ scratch/
 scratch_*.py
 bench_*.py
 
+# =========================
+# Postman local scratch
+# =========================
+postman/flows/
+
