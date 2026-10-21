@@ -1,17 +1,13 @@
-"""Deep domain module for processing and evaluating musical practice takes."""
+"""Deep domain module for evaluating musical practice takes and extracting habit patterns."""
 
 from __future__ import annotations
 
 import json
 import logging
-import tempfile
-from pathlib import Path
+from dataclasses import dataclass
 from typing import Any
-from uuid import uuid4
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import col
 
 from src.lib.adaptive.llm_coach import generate_coaching_report
 from src.lib.adaptive.patterns import (
@@ -22,23 +18,151 @@ from src.lib.adaptive.patterns import (
 )
 from src.lib.adaptive.tracking import evaluate_drill_outcome
 from src.lib.audio.alignment import align_chord_sequence
-from src.lib.audio.transcription import async_transcribe_polyphonic_wav, transcribe_polyphonic_wav
-from src.lib.audio.validation import validate_audio_upload
-from src.lib.audio.voicing import cluster_chords_from_notes
+from src.lib.audio.decoder import PolyphonicAudioDecoder
 from src.lib.exception import Unprocessable
-from src.models.practice import (
-    AdaptiveIntervention,
-    Exercise,
-    HabitPattern,
-    PracticeSession,
-    SessionChordMetric,
-)
+from src.lib.practice.persistence import TakePersistenceAdapter
+from src.models.practice import AdaptiveIntervention, Exercise, PracticeSession
 
 logger = logging.getLogger(__name__)
 
 
+@dataclass(frozen=True, slots=True)
+class TakeEvaluationResult:
+    """Pure mathematical and pedagogical result of aligning and evaluating a practice take."""
+
+    overall_accuracy: float
+    avg_timing_error_ms: float
+    voicing_score: float
+    alignment: list[dict[str, Any]]
+    chord_metrics: list[dict[str, Any]]
+    detected_habits: list[dict[str, Any]]
+    coaching_report: dict[str, Any]
+    drill_outcome: dict[str, Any] | None
+
+    def to_payload(self, session_id: str, state: str = "completed") -> dict[str, Any]:
+        """Convert evaluation result into standard API response payload."""
+        payload: dict[str, Any] = {
+            "session_id": session_id,
+            "state": state,
+            "analysis_status": "complete",
+            "overall_accuracy": round(self.overall_accuracy, 3),
+            "avg_timing_error_ms": round(self.avg_timing_error_ms, 2),
+            "voicing_score": round(self.voicing_score, 3),
+            "chord_metrics": self.alignment,
+            "coaching_report": self.coaching_report,
+        }
+        if self.drill_outcome is not None:
+            payload["drill_outcome"] = self.drill_outcome
+        return payload
+
+
+class PracticeTakeEvaluator:
+    """Pure in-memory domain evaluator for music practice takes.
+
+    Contains ZERO database dependencies. Accepts in-memory chord events, exercise progression,
+    and optional baseline metrics; performs dynamic programming alignment, habit detection,
+    and outcome evaluation.
+    """
+
+    @classmethod
+    def evaluate(
+        cls,
+        played_chords: list[dict[str, Any]],
+        reference_chords: list[dict[str, Any]],
+        tempo_bpm: int,
+        session_id: str,
+        instrument: str = "piano",
+        baseline_metrics: list[dict[str, Any]] | None = None,
+        drill_type: str | None = None,
+    ) -> TakeEvaluationResult:
+        """Run sequence alignment, compute timing/voicing scores, detect habits, and evaluate deltas."""
+        # 1. Dynamic Programming Alignment
+        alignment = align_chord_sequence(
+            played_chords=played_chords,
+            reference_chords=reference_chords,
+            tempo_bpm=tempo_bpm,
+        )
+
+        matched = [m for m in alignment if m.get("is_matched")]
+        overall_accuracy = (len(matched) / len(alignment)) if alignment else 0.0
+
+        timing_errors = [abs(float(m.get("onset_error_ms", 0.0))) for m in matched]
+        avg_timing_error = (sum(timing_errors) / len(timing_errors)) if timing_errors else 0.0
+
+        voicing_scores = [float(m.get("voicing_completeness", 1.0)) for m in matched]
+        voicing_score = (sum(voicing_scores) / len(voicing_scores)) if voicing_scores else 0.0
+
+        # 2. Extract structured chord metrics
+        chord_metric_records: list[dict[str, Any]] = []
+        for m in alignment:
+            metric_record = {
+                "chord_index": int(m.get("chord_index", 0)),
+                "expected_chord": str(m.get("expected_chord", "")),
+                "detected_chord": str(m.get("detected_chord", "")),
+                "is_matched": bool(m.get("is_matched", False)),
+                "onset_error_ms": float(m.get("onset_error_ms", 0.0)),
+                "voicing_completeness": float(m.get("voicing_completeness", 0.0)),
+                "missed_notes": m.get("missed_notes", []),
+                "extra_notes": m.get("extra_notes", []),
+            }
+            chord_metric_records.append(metric_record)
+
+        # 3. Detect Habits
+        detected_habits: list[dict[str, Any]] = []
+        transitions: list[dict[str, Any]] = []
+        for i in range(len(matched) - 1):
+            transitions.append({
+                "from_chord": matched[i]["expected_chord"],
+                "to_chord": matched[i + 1]["expected_chord"],
+                "transition_latency_ms": abs(matched[i + 1]["onset_error_ms"]),
+            })
+        detected_habits.extend(detect_transition_lag_patterns(transitions, threshold_ms=80.0, min_evidence=2))
+        detected_habits.extend(detect_tempo_rushing_patterns(matched, rush_threshold_ms=-25.0, min_evidence=2))
+        detected_habits.extend(detect_tempo_dragging_patterns(matched, drag_threshold_ms=30.0, min_evidence=2))
+        detected_habits.extend(detect_voicing_drop_patterns(matched, min_evidence=1))
+
+        # 4. Generate Grounded AI Coaching Feedback
+        coaching_report = generate_coaching_report(
+            session_id=session_id,
+            chord_metrics=chord_metric_records,
+            habits=detected_habits,
+            instrument=instrument,
+        )
+
+        # 5. Longitudinal Outcome Tracking for Remedial Drill Interventions
+        drill_outcome: dict[str, Any] | None = None
+        if baseline_metrics and drill_type:
+            follow_up_metrics = [
+                {
+                    "chord": cm["expected_chord"],
+                    "from_chord": cm["expected_chord"],
+                    "to_chord": cm["expected_chord"],
+                    "transition_latency_ms": abs(cm["onset_error_ms"]),
+                    "onset_error_ms": cm["onset_error_ms"],
+                    "voicing_completeness": cm["voicing_completeness"],
+                }
+                for cm in chord_metric_records
+            ]
+            drill_outcome = evaluate_drill_outcome(
+                baseline_metrics=baseline_metrics,
+                follow_up_metrics=follow_up_metrics,
+                drill_type=drill_type,
+            )
+
+        return TakeEvaluationResult(
+            overall_accuracy=overall_accuracy,
+            avg_timing_error_ms=avg_timing_error,
+            voicing_score=voicing_score,
+            alignment=alignment,
+            chord_metrics=chord_metric_records,
+            detected_habits=detected_habits,
+            coaching_report=coaching_report,
+            drill_outcome=drill_outcome,
+        )
+
+
 class TakeEvaluator:
-    """Encapsulates the end-to-end take evaluation, alignment, metrics, and habit detection pipeline."""
+    """Coordinator module wiring audio decoding, pure domain evaluation, and persistence at their seams."""
 
     @staticmethod
     def _extract_reference_chords(exercise: Exercise) -> list[dict[str, Any]]:
@@ -64,21 +188,9 @@ class TakeEvaluator:
         audio_bytes: bytes | None = None,
         played_chords: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
-        """Process audio or pre-detected chord events, run alignment, persist metrics, and analyze habits."""
-        final_played_chords: list[dict[str, Any]] = []
-
+        """Decode audio (if present), run pure evaluation, and persist results via persistence adapter."""
         if audio_bytes:
-            validate_audio_upload(audio_bytes)
-            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-                tmp_path = Path(tmp.name)
-                tmp_path.write_bytes(audio_bytes)
-
-            try:
-                notes = await async_transcribe_polyphonic_wav(tmp_path)
-                final_played_chords = cluster_chords_from_notes(notes)
-            finally:
-                if tmp_path.exists():
-                    tmp_path.unlink()
+            final_played_chords = await PolyphonicAudioDecoder.decode_chords(audio_bytes)
         elif played_chords is not None:
             final_played_chords = played_chords
         else:
@@ -86,179 +198,40 @@ class TakeEvaluator:
 
         reference_chords = cls._extract_reference_chords(exercise)
 
-        # 1. Dynamic Programming Alignment
-        alignment = align_chord_sequence(
-            played_chords=final_played_chords,
-            reference_chords=reference_chords,
-            tempo_bpm=practice_session.tempo_bpm,
-        )
-
-        matched = [m for m in alignment if m.get("is_matched")]
-        overall_accuracy = (len(matched) / len(alignment)) if alignment else 0.0
-
-        timing_errors = [abs(float(m.get("onset_error_ms", 0.0))) for m in matched]
-        avg_timing_error = (sum(timing_errors) / len(timing_errors)) if timing_errors else 0.0
-
-        voicing_scores = [float(m.get("voicing_completeness", 1.0)) for m in matched]
-        voicing_score = (sum(voicing_scores) / len(voicing_scores)) if voicing_scores else 0.0
-
-        # 2. Clear existing metrics for re-takes on the same session
-        existing_metrics = await session.execute(
-            select(SessionChordMetric).where(col(SessionChordMetric.session_id) == practice_session.id)
-        )
-        for row in existing_metrics.scalars().all():
-            await session.delete(row)
-
-        # 3. Persist new chord metrics
-        chord_metric_records: list[dict[str, Any]] = []
-        for m in alignment:
-            metric_record = {
-                "chord_index": int(m.get("chord_index", 0)),
-                "expected_chord": str(m.get("expected_chord", "")),
-                "detected_chord": str(m.get("detected_chord", "")),
-                "is_matched": bool(m.get("is_matched", False)),
-                "onset_error_ms": float(m.get("onset_error_ms", 0.0)),
-                "voicing_completeness": float(m.get("voicing_completeness", 0.0)),
-                "missed_notes": m.get("missed_notes", []),
-                "extra_notes": m.get("extra_notes", []),
-            }
-            chord_metric_records.append(metric_record)
-
-            metric_db = SessionChordMetric(
-                id=f"metric_{uuid4().hex[:16]}",
-                session_id=practice_session.id,
-                chord_index=metric_record["chord_index"],
-                expected_chord=metric_record["expected_chord"],
-                detected_chord=metric_record["detected_chord"],
-                is_matched=metric_record["is_matched"],
-                onset_error_ms=metric_record["onset_error_ms"],
-                voicing_completeness=metric_record["voicing_completeness"],
-                missed_notes_json=json.dumps(metric_record["missed_notes"]),
-                extra_notes_json=json.dumps(metric_record["extra_notes"]),
-            )
-            session.add(metric_db)
-
-        # 4. Detect Habits & Interventions
-        detected_habits: list[dict[str, Any]] = []
-        # Check transition latencies
-        transitions: list[dict[str, Any]] = []
-        for i in range(len(matched) - 1):
-            transitions.append({
-                "from_chord": matched[i]["expected_chord"],
-                "to_chord": matched[i + 1]["expected_chord"],
-                "transition_latency_ms": abs(matched[i + 1]["onset_error_ms"]),
-            })
-        detected_habits.extend(detect_transition_lag_patterns(transitions, threshold_ms=80.0, min_evidence=2))
-        detected_habits.extend(detect_tempo_rushing_patterns(matched, rush_threshold_ms=-25.0, min_evidence=2))
-        detected_habits.extend(detect_tempo_dragging_patterns(matched, drag_threshold_ms=30.0, min_evidence=2))
-        detected_habits.extend(detect_voicing_drop_patterns(matched, min_evidence=1))
-
-        # Persist detected habit patterns if new
-        for habit in detected_habits:
-            p_type = habit["pattern_type"]
-            ctx = habit["context"]
-            existing_p = await session.execute(
-                select(HabitPattern).where(
-                    col(HabitPattern.user_id) == practice_session.user_id,
-                    col(HabitPattern.pattern_type) == p_type,
-                    col(HabitPattern.trigger_context) == ctx,
-                )
-            )
-            pattern_row = existing_p.scalar_one_or_none()
-            if pattern_row:
-                pattern_row.evidence_count += habit.get("evidence_count", 1)
-                pattern_row.status = habit.get("status", "emerging")
-                session.add(pattern_row)
-            else:
-                new_pat = HabitPattern(
-                    id=f"pat_{uuid4().hex[:16]}",
-                    user_id=practice_session.user_id,
-                    pattern_type=p_type,
-                    trigger_context=ctx,
-                    evidence_count=habit.get("evidence_count", 1),
-                    status=habit.get("status", "emerging"),
-                )
-                session.add(new_pat)
-
-        # 5. Generate Grounded AI Coaching Feedback
-        coaching_report = generate_coaching_report(
-            session_id=practice_session.id,
-            chord_metrics=chord_metric_records,
-            habits=detected_habits,
-            instrument=exercise.instrument,
-        )
-
-        # 6. Longitudinal Outcome Tracking for Remedial Drill Interventions
-        drill_outcome: dict[str, Any] | None = None
+        # Retrieve baseline metrics if an intervention is being remediated
+        intervention: AdaptiveIntervention | None = None
+        baseline_metrics: list[dict[str, Any]] | None = None
         if practice_session.intervention_id:
             intervention = await session.get(AdaptiveIntervention, practice_session.intervention_id)
             if intervention and intervention.user_id == practice_session.user_id:
-                past_metrics_query = await session.execute(
-                    select(SessionChordMetric)
-                    .join(PracticeSession, col(SessionChordMetric.session_id) == col(PracticeSession.id))
-                    .where(
-                        col(PracticeSession.user_id) == practice_session.user_id,
-                        col(PracticeSession.id) != practice_session.id,
-                    )
-                    .order_by(col(PracticeSession.created_at).desc())
-                    .limit(30)
+                baseline_metrics = await TakePersistenceAdapter.fetch_baseline_metrics(
+                    session=session,
+                    user_id=practice_session.user_id,
+                    current_session_id=practice_session.id,
                 )
-                past_metrics = past_metrics_query.scalars().all()
-                baseline_metrics = [
-                    {
-                        "chord": pm.expected_chord,
-                        "from_chord": pm.expected_chord,
-                        "to_chord": pm.expected_chord,
-                        "transition_latency_ms": abs(pm.onset_error_ms),
-                        "onset_error_ms": pm.onset_error_ms,
-                        "voicing_completeness": pm.voicing_completeness,
-                    }
-                    for pm in past_metrics
-                ]
-                follow_up_metrics = [
-                    {
-                        "chord": cm["expected_chord"],
-                        "from_chord": cm["expected_chord"],
-                        "to_chord": cm["expected_chord"],
-                        "transition_latency_ms": abs(cm["onset_error_ms"]),
-                        "onset_error_ms": cm["onset_error_ms"],
-                        "voicing_completeness": cm["voicing_completeness"],
-                    }
-                    for cm in chord_metric_records
-                ]
 
-                drill_outcome = evaluate_drill_outcome(
-                    baseline_metrics=baseline_metrics,
-                    follow_up_metrics=follow_up_metrics,
-                    drill_type=intervention.drill_type,
-                )
-                if drill_outcome.get("completed"):
-                    intervention.completed = True
-                    val = drill_outcome.get("measured_improvement")
-                    if val is not None:
-                        intervention.measured_improvement = float(val)
-                    session.add(intervention)
+        # Pure mathematical and pedagogical domain evaluation
+        evaluation = PracticeTakeEvaluator.evaluate(
+            played_chords=final_played_chords,
+            reference_chords=reference_chords,
+            tempo_bpm=practice_session.tempo_bpm,
+            session_id=practice_session.id,
+            instrument=exercise.instrument,
+            baseline_metrics=baseline_metrics,
+            drill_type=intervention.drill_type if intervention else None,
+        )
 
-        # 7. Update Practice Session State
-        practice_session.state = "completed"
-        practice_session.overall_accuracy = round(overall_accuracy, 3)
-        practice_session.avg_timing_error_ms = round(avg_timing_error, 2)
-        practice_session.voicing_score = round(voicing_score, 3)
-        session.add(practice_session)
+        # Persist metrics, habit updates, and intervention status at the storage seam
+        await TakePersistenceAdapter.persist_take(
+            session=session,
+            practice_session=practice_session,
+            overall_accuracy=evaluation.overall_accuracy,
+            avg_timing_error_ms=evaluation.avg_timing_error_ms,
+            voicing_score=evaluation.voicing_score,
+            chord_metric_records=evaluation.chord_metrics,
+            detected_habits=evaluation.detected_habits,
+            drill_outcome=evaluation.drill_outcome,
+            intervention=intervention,
+        )
 
-        await session.commit()
-        await session.refresh(practice_session)
-
-        result_payload: dict[str, Any] = {
-            "session_id": practice_session.id,
-            "state": practice_session.state,
-            "analysis_status": "complete",
-            "overall_accuracy": practice_session.overall_accuracy,
-            "avg_timing_error_ms": practice_session.avg_timing_error_ms,
-            "voicing_score": practice_session.voicing_score,
-            "chord_metrics": alignment,
-            "coaching_report": coaching_report,
-        }
-        if drill_outcome is not None:
-            result_payload["drill_outcome"] = drill_outcome
-        return result_payload
+        return evaluation.to_payload(practice_session.id, practice_session.state)

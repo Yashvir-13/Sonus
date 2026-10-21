@@ -3,16 +3,13 @@
 from __future__ import annotations
 
 import logging
-import tempfile
-from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, Request, status
+
 from starlette.datastructures import UploadFile as StarletteUploadFile
 
-from src.lib.audio.transcription import async_transcribe_polyphonic_wav
-from src.lib.audio.validation import validate_audio_upload
-from src.lib.audio.voicing import cluster_chords_from_notes
+from src.lib.audio.decoder import PolyphonicAudioDecoder
 from src.lib.exception import Unprocessable
 
 logger = logging.getLogger(__name__)
@@ -39,26 +36,13 @@ async def transcribe_test_audio(request: Request) -> dict[str, Any]:
         msg = "Uploaded audio file is empty"
         raise Unprocessable(msg)
 
-    validation_result = validate_audio_upload(content)
+    decoded = await PolyphonicAudioDecoder.decode(content)
 
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-        tmp_path = Path(tmp.name)
-        tmp_path.write_bytes(content)
+    return {
+        "notes": decoded.notes,
+        "chords": decoded.chords,
+        "duration_seconds": decoded.duration_seconds,
+        "sample_rate": decoded.sample_rate,
+        "channels": decoded.channels,
+    }
 
-    try:
-        notes = await async_transcribe_polyphonic_wav(tmp_path)
-        chords = cluster_chords_from_notes(notes)
-
-        return {
-            "notes": notes,
-            "chords": chords,
-            "duration_seconds": validation_result.duration_seconds,
-            "sample_rate": validation_result.sample_rate,
-            "channels": validation_result.channels,
-        }
-    finally:
-        if tmp_path.exists():
-            try:
-                tmp_path.unlink()
-            except OSError:
-                pass

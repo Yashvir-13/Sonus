@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from starlette.datastructures import UploadFile as StarletteUploadFile
 
-from src.lib.adaptive.interventions import generate_intervention
+from src.lib.adaptive.mastery import StudentMasteryEngine
 from src.lib.adaptive.llm_coach import generate_coaching_report
 from src.lib.auth.clerk import ClerkIdentityDep
 from src.lib.db import get_session
@@ -229,11 +229,12 @@ async def create_session_drill(
         "context": pattern.trigger_context if pattern else "General progression",
     }
 
-    drill_data = generate_intervention(
-        pattern=pattern_dict,
+    drill_data = StudentMasteryEngine.generate_adaptive_drill_plan(
+        habit_pattern=pattern_dict,
         user_id=identity.user_id,
         reference_tempo=practice_session.tempo_bpm,
     )
+
 
     new_intervention = AdaptiveIntervention(
         id=drill_data["id"],

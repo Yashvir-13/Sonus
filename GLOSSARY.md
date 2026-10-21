@@ -39,3 +39,16 @@ _Avoid_: Remedial exercise, drill recommendation, homework
 **Grounded Fact Bundle**:
 A tamper-proof deterministic JSON collection of pre-computed mathematical performance facts passed to the AI coach to prevent hallucination.
 _Avoid_: Context prompt, metrics dump, AI payload
+
+**Polyphonic Audio Decoder**:
+A deep audio processing module that validates RIFF/WAVE audio bytes, performs neural multipitch inference on a worker threadpool, and clusters note events into discrete played chords with zero raw audio persistence.
+_Avoid_: Transcriber wrapper, audio helper, sound parser
+
+**Practice Take Evaluator**:
+A pure, database-agnostic domain engine that aligns played chords against reference exercises, extracts chord metrics, detects habit patterns, and computes outcome deltas.
+_Avoid_: Take service, practice manager, evaluation handler
+
+**Student Mastery Engine**:
+A unified cognitive modeling module that maintains latent transition mastery (BKT), motor skill review intervals (SM-2), change-point detection (CUSUM), and reinforcement learning drill policies (Bandit).
+_Avoid_: Adaptive service, learner tracker, AI manager
+
