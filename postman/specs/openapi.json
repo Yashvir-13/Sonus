@@ -1,8 +1,8 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Blueprint API",
-    "description": "Blueprint platform API",
+    "title": "Sonus Adaptive Music Practice API",
+    "description": "Production-grade adaptive music practice platform with real-time and polyphonic audio analysis",
     "version": "0.1.0"
   },
   "paths": {
@@ -194,6 +194,32 @@
                   },
                   "type": "array",
                   "title": "Response Get My Interventions Api Me Interventions Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me/habits": {
+      "get": {
+        "tags": [
+          "Me"
+        ],
+        "summary": "Get My Habits",
+        "description": "Retrieve all detected habit patterns (tempo rushing, dragging, transition lag, voicing drops).",
+        "operationId": "get_my_habits_api_me_habits_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/HabitPatternRead"
+                  },
+                  "type": "array",
+                  "title": "Response Get My Habits Api Me Habits Get"
                 }
               }
             }
@@ -687,9 +713,9 @@
         "tags": [
           "Audio Developer Testing"
         ],
-        "summary": "Test Transcribe",
+        "summary": "Transcribe Test Audio",
         "description": "Developer test endpoint to transcribe WAV audio without authentication.",
-        "operationId": "test_transcribe_api_audio_test_transcribe_post",
+        "operationId": "transcribe_test_audio_api_audio_test_transcribe_post",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -698,7 +724,7 @@
                 "schema": {
                   "additionalProperties": true,
                   "type": "object",
-                  "title": "Response Test Transcribe Api Audio Test Transcribe Post"
+                  "title": "Response Transcribe Test Audio Api Audio Test Transcribe Post"
                 }
               }
             }
@@ -1026,6 +1052,45 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "HabitPatternRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "pattern_type": {
+            "type": "string",
+            "title": "Pattern Type"
+          },
+          "trigger_context": {
+            "type": "string",
+            "title": "Trigger Context"
+          },
+          "evidence_count": {
+            "type": "integer",
+            "title": "Evidence Count"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "pattern_type",
+          "trigger_context",
+          "evidence_count",
+          "status"
+        ],
+        "title": "HabitPatternRead",
+        "description": "Schema for reading habit patterns."
+      },
       "MeCreateRequest": {
         "properties": {
           "name": {
@@ -1241,6 +1306,17 @@
           "tempo_bpm": {
             "type": "integer",
             "title": "Tempo Bpm"
+          },
+          "intervention_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intervention Id"
           }
         },
         "type": "object",
@@ -1305,6 +1381,17 @@
               }
             ],
             "title": "Voicing Score"
+          },
+          "intervention_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intervention Id"
           }
         },
         "type": "object",

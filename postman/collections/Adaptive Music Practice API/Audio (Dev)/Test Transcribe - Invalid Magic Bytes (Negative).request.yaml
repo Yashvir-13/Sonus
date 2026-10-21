@@ -1,0 +1,38 @@
+$kind: http-request
+method: POST
+url: '{{base_url}}/audio/test-transcribe'
+order: 2500
+auth:
+  type: noauth
+headers:
+  - key: Content-Type
+    value: multipart/form-data
+body:
+  type: formdata
+  content:
+    - key: file
+      type: text
+      value: "This is a plain text file, not valid RIFF/WAVE audio data."
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 422 Unprocessable Content", function () {
+        pm.response.to.have.status(422);
+      });
+
+      pm.test("Response is RFC 9457 Problem Details", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("type");
+        pm.expect(json).to.have.property("title");
+        pm.expect(json).to.have.property("status", 422);
+        pm.expect(json).to.have.property("detail");
+        pm.expect(json).to.have.property("instance");
+        pm.expect(json).to.have.property("request_id");
+        pm.expect(pm.response.headers.get("Content-Type")).to.include("application/problem+json");
+      });
+
+      pm.test("Error detail mentions RIFF/WAVE", function () {
+        const json = pm.response.json();
+        pm.expect(String(json.detail).toLowerCase()).to.include("riff/wave");
+      });

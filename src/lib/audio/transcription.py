@@ -1,13 +1,46 @@
 from __future__ import annotations
 
 import logging
+import tempfile
 from pathlib import Path
 from typing import Any
 
+import anyio
 import numpy as np
 from scipy.io import wavfile
 
 logger = logging.getLogger(__name__)
+
+
+def warmup_transcription_engine() -> bool:
+    """Preload and warm up neural transcription weights to eliminate cold-start latency."""
+    logger.info("Initializing and warming up polyphonic transcription engine...")
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+        # 0.05s synthetic silence at 22050 Hz
+        sample_rate = 22050
+        silence = np.zeros(int(sample_rate * 0.05), dtype=np.float32)
+        wavfile.write(str(tmp_path), sample_rate, silence)
+
+    try:
+        transcribe_polyphonic_wav(tmp_path)
+        logger.info("Transcription engine warmed up successfully.")
+        return True
+    except Exception as exc:
+        logger.warning("Transcription engine warmup failed (non-fatal): %s", exc)
+        return False
+    finally:
+        if tmp_path.exists():
+            try:
+                tmp_path.unlink()
+            except OSError:
+                pass
+
+
+async def async_transcribe_polyphonic_wav(wav_path: str | Path) -> list[dict[str, Any]]:
+    """Asynchronously transcribe polyphonic audio by offloading CPU computation to a threadpool."""
+    return await anyio.to_thread.run_sync(transcribe_polyphonic_wav, Path(wav_path))
+
 
 
 def transcribe_polyphonic_wav(wav_path: str | Path) -> list[dict[str, Any]]:

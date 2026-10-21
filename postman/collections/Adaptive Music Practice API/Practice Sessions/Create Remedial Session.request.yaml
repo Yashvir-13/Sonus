@@ -1,0 +1,33 @@
+$kind: http-request
+method: POST
+url: '{{base_url}}/sessions'
+order: 10500
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "exercise_id": "{{exercise_id}}",
+      "tempo_bpm": 80,
+      "intervention_id": "{{drill_id}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 201", function () {
+        pm.response.to.have.status(201);
+      });
+
+      pm.test("Remedial session has intervention_id attached", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("id");
+        pm.expect(json).to.have.property("intervention_id");
+        pm.expect(json.intervention_id).to.eql(pm.environment.get("drill_id"));
+      });
+
+      if (pm.response.code === 201) {
+        pm.environment.set("remedial_session_id", pm.response.json().id);
+      }

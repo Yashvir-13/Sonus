@@ -18,3 +18,8 @@ scripts:
         pm.expect(json).to.have.property("database", "ok");
         pm.expect(json).to.have.property("timestamp");
       });
+
+      pm.test("Response includes correlation ID header", function () {
+        pm.expect(pm.response.headers.has("X-Request-ID")).to.be.true;
+      });
+

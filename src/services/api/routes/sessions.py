@@ -55,6 +55,7 @@ async def create_practice_session(
         user_id=identity.user_id,
         exercise_id=body.exercise_id,
         tempo_bpm=body.tempo_bpm,
+        intervention_id=body.intervention_id,
         state="recording",
     )
     session.add(new_session)
@@ -99,11 +100,11 @@ async def submit_take(
     content_type = request.headers.get("content-type", "").lower()
     if "multipart/form-data" in content_type:
         form = await request.form()
-        uploaded_file = form.get("audio_file")
+        uploaded_file = form.get("audio_file") or form.get("file")
         if isinstance(uploaded_file, StarletteUploadFile):
             audio_bytes = await uploaded_file.read()
         else:
-            raise Unprocessable("Missing audio_file in multipart form")
+            raise Unprocessable("Missing audio_file or file in multipart form")
     elif "application/json" in content_type:
         raw_body = await request.json()
         chords_list = raw_body.get("played_chords") if isinstance(raw_body, dict) else None

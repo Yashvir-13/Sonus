@@ -641,7 +641,7 @@ git commit -m "feat(dev): add temporary audio test bench and chord detection pla
     - `coaching_letter`: encouraging, pedagogical feedback
     - `tailored_drills`: prioritized list of drills with target BPMs
 
-- [ ] **Step 1: Write the failing test for the grounded Gemini coach**
+- [x] **Step 1: Write the failing test for the grounded Gemini coach**
 
 ```python
 # tests/test_llm_coach.py
@@ -664,25 +664,25 @@ def test_generate_coaching_report_deterministic_fallback():
         assert "sess_test" in report["summary"]
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pytest tests/test_llm_coach.py -v`  
 Expected: FAIL with `ModuleNotFoundError: No module named 'src.lib.adaptive.llm_coach'`
 
-- [ ] **Step 3: Implement `generate_coaching_report` in `src/lib/adaptive/llm_coach.py`**
+- [x] **Step 3: Implement `generate_coaching_report` in `src/lib/adaptive/llm_coach.py`**
 
 Implement Google Gemini integration using `google-genai` SDK (`gemini-1.5-flash`), strictly prompting with the pre-computed fact bundle (onset timing errors, voicing drops, habit patterns). Catch exceptions or missing API key and return deterministic fallback report.
 
-- [ ] **Step 4: Integrate AI coaching generation into `POST /api/sessions/{session_id}/take`**
+- [x] **Step 4: Integrate AI coaching generation into `POST /api/sessions/{session_id}/take`**
 
 Modify `src/services/api/routes/sessions.py` to invoke `generate_coaching_report` and return coaching insights in the take response.
 
-- [ ] **Step 5: Run tests to verify they pass**
+- [x] **Step 5: Run tests to verify they pass**
 
 Run: `pytest tests/test_llm_coach.py tests/test_sessions_api.py -v`  
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/lib/adaptive/llm_coach.py src/services/api/routes/sessions.py tests/test_llm_coach.py

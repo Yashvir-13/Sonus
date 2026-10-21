@@ -1,0 +1,28 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/me/habits'
+order: 9000
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200", function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is an array of detected habits", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.be.an("array");
+      });
+
+      pm.test("Habit records contain pattern type, context, and evidence", function () {
+        const json = pm.response.json();
+        if (json.length > 0) {
+          const item = json[0];
+          pm.expect(item).to.have.property("id");
+          pm.expect(item).to.have.property("pattern_type");
+          pm.expect(item).to.have.property("trigger_context");
+          pm.expect(item).to.have.property("evidence_count");
+          pm.expect(item).to.have.property("status");
+        }
+      });

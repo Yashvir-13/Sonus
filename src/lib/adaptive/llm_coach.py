@@ -156,8 +156,8 @@ def generate_coaching_report(
     grounded_data = generate_grounded_report(session_id, chord_metrics)
 
     gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
-    if not gemini_key:
-        logger.info("GEMINI_API_KEY not configured; returning deterministic fallback coaching report.")
+    if not gemini_key or not gemini_key.startswith("AIzaSy"):
+        logger.info("Valid GEMINI_API_KEY not configured; returning deterministic fallback coaching report.")
         return generate_deterministic_fallback(session_id, grounded_data, habit_list, instrument)
 
     prompt = {

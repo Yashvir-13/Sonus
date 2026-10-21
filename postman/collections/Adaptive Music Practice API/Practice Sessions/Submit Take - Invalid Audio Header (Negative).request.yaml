@@ -1,0 +1,33 @@
+$kind: http-request
+method: POST
+url: '{{base_url}}/sessions/{{session_id}}/take'
+order: 7500
+headers:
+  - key: Content-Type
+    value: multipart/form-data
+  - key: Authorization
+    value: 'Bearer {{token}}'
+body:
+  type: formdata
+  content:
+    - key: audio_file
+      type: text
+      value: "corrupted non-wav content stream"
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 422 Unprocessable Content", function () {
+        pm.response.to.have.status(422);
+      });
+
+      pm.test("Response is RFC 9457 Problem Details", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("type");
+        pm.expect(json).to.have.property("title");
+        pm.expect(json).to.have.property("status", 422);
+        pm.expect(json).to.have.property("detail");
+        pm.expect(json).to.have.property("instance");
+        pm.expect(json).to.have.property("request_id");
+        pm.expect(pm.response.headers.get("Content-Type")).to.include("application/problem+json");
+      });

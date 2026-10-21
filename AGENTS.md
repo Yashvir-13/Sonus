@@ -34,6 +34,7 @@ Python: `>=3.12,<3.13`. Package mode is off (`pyproject.toml`). Frontend path al
 5. Do not invent product tables beyond what the user asks. Prefer extending `User` carefully over sprawling schemas.
 6. Never commit secrets. `.env` is gitignored; only update `.env.example` / `.env.example.api` with placeholder names.
 7. Follow SOLID (see below). Prefer small, typed modules over god-files.
+8. Do not delete PDFs (`*.pdf`) or important project documentation (`docs/`, proposals, milestones, architecture decision records).
 
 ---
 
@@ -299,7 +300,20 @@ Rules:
 
 ### Exceptions
 
-Use `src.lib.exception` (`Unauthorized`, `NotFound`, `Unprocessable`). Do not raise bare `HTTPException` in new route code unless extending that module.
+Use `src.lib.exception` (`Unauthorized`, `NotFound`, `Unprocessable`). Do not raise bare `HTTPException` in new route code unless extending that module. Error responses must adhere to the RFC 9457 Problem Details format (`application/problem+json`). Avoid referencing `status.HTTP_422_UNPROCESSABLE_ENTITY` due to Starlette deprecation warnings; use integer `422` or `status.HTTP_422_UNPROCESSABLE_CONTENT`.
+
+### Async Testing & Pytest Rules
+
+- Async tests must use `@pytest.mark.anyio` rather than `@pytest.mark.asyncio`, as the test runner runs on AnyIO.
+- In `pyproject.toml`, always enforce `testpaths = ["tests"]` under `[tool.pytest.ini_options]` so application route modules (such as `audio_test.py`) are never mistakenly executed as test suites.
+
+### CPU-Bound Audio & ML Execution
+
+- Any CPU-intensive machine learning or signal processing (e.g. `basic-pitch` ONNX transcription, librosa STFT) must be executed in a worker threadpool via `anyio.to_thread.run_sync` or background workers. Never invoke synchronous ML inference directly within async FastAPI routes.
+- ML models must be preloaded and warmed up in the FastAPI `lifespan` handler to eliminate 5-8 second cold-start spikes on the first user request.
+- Raw audio uploads must be verified for valid `RIFF/WAVE` magic bytes, clamped to a maximum size of 15 MB, and restricted to durations $\le 180$ seconds.
+- Every incoming/outgoing request must be traced with an `X-Request-ID` correlation header, bound to execution contextvars and Sentry error scopes.
+
 
 ---
 

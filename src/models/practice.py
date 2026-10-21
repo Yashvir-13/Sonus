@@ -57,14 +57,21 @@ class PracticeSession(TimestampMixin, Base, table=True):
     overall_accuracy: float | None = None
     avg_timing_error_ms: float | None = None
     voicing_score: float | None = None
+    intervention_id: str | None = Field(
+        default=None,
+        foreign_key="adaptive_interventions.id",
+        index=True,
+        max_length=100,
+    )
 
 
 class PracticeSessionCreate(SQLModel):
     """Schema for creating a practice session."""
-    
-    exercise_id:str
-    tempo_bpm:int
-    
+
+    exercise_id: str
+    tempo_bpm: int
+    intervention_id: str | None = None
+
 
 class PracticeSessionRead(SQLModel):
     """Schema for reading a practice session."""
@@ -76,6 +83,7 @@ class PracticeSessionRead(SQLModel):
     overall_accuracy: float | None = None
     avg_timing_error_ms: float | None = None
     voicing_score: float | None = None
+    intervention_id: str | None = None
 
 
 class SessionChordMetric(Base, table=True):

@@ -20,6 +20,7 @@ from src.models.practice import (
     AdaptiveInterventionRead,
     Exercise,
     HabitPattern,
+    HabitPatternRead,
     PracticeSession,
 )
 from src.models.user import User
@@ -245,4 +246,19 @@ async def get_my_interventions(
         .order_by(col(AdaptiveIntervention.created_at).desc())
     )
     return list(query.scalars().all())
+
+
+@router.get("/me/habits", response_model=list[HabitPatternRead])
+async def get_my_habits(
+    identity: ClerkIdentityDep,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[HabitPattern]:
+    """Retrieve all detected habit patterns (tempo rushing, dragging, transition lag, voicing drops)."""
+    query = await session.execute(
+        select(HabitPattern)
+        .where(col(HabitPattern.user_id) == identity.user_id)
+        .order_by(col(HabitPattern.evidence_count).desc())
+    )
+    return list(query.scalars().all())
+
 

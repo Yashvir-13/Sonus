@@ -1,6 +1,11 @@
 """HTTP exceptions for API routes."""
 
+from __future__ import annotations
+
+from typing import Any
 from fastapi import HTTPException, status
+
+HTTP_422 = 422
 
 
 class Unauthorized(HTTPException):
@@ -28,4 +33,4 @@ class Unprocessable(HTTPException):
 
     def __init__(self, detail: str) -> None:
         """Store ``detail`` as the HTTP error body."""
-        super().__init__(status.HTTP_422_UNPROCESSABLE_ENTITY, detail)
+        super().__init__(HTTP_422, detail)

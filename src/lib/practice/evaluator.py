@@ -15,15 +15,24 @@ from sqlmodel import col
 
 from src.lib.adaptive.llm_coach import generate_coaching_report
 from src.lib.adaptive.patterns import (
+    detect_tempo_dragging_patterns,
     detect_tempo_rushing_patterns,
     detect_transition_lag_patterns,
     detect_voicing_drop_patterns,
 )
+from src.lib.adaptive.tracking import evaluate_drill_outcome
 from src.lib.audio.alignment import align_chord_sequence
-from src.lib.audio.transcription import transcribe_polyphonic_wav
+from src.lib.audio.transcription import async_transcribe_polyphonic_wav, transcribe_polyphonic_wav
+from src.lib.audio.validation import validate_audio_upload
 from src.lib.audio.voicing import cluster_chords_from_notes
 from src.lib.exception import Unprocessable
-from src.models.practice import Exercise, HabitPattern, PracticeSession, SessionChordMetric
+from src.models.practice import (
+    AdaptiveIntervention,
+    Exercise,
+    HabitPattern,
+    PracticeSession,
+    SessionChordMetric,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -59,12 +68,13 @@ class TakeEvaluator:
         final_played_chords: list[dict[str, Any]] = []
 
         if audio_bytes:
+            validate_audio_upload(audio_bytes)
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
                 tmp_path = Path(tmp.name)
                 tmp_path.write_bytes(audio_bytes)
 
             try:
-                notes = transcribe_polyphonic_wav(tmp_path)
+                notes = await async_transcribe_polyphonic_wav(tmp_path)
                 final_played_chords = cluster_chords_from_notes(notes)
             finally:
                 if tmp_path.exists():
@@ -140,6 +150,7 @@ class TakeEvaluator:
             })
         detected_habits.extend(detect_transition_lag_patterns(transitions, threshold_ms=80.0, min_evidence=2))
         detected_habits.extend(detect_tempo_rushing_patterns(matched, rush_threshold_ms=-25.0, min_evidence=2))
+        detected_habits.extend(detect_tempo_dragging_patterns(matched, drag_threshold_ms=30.0, min_evidence=2))
         detected_habits.extend(detect_voicing_drop_patterns(matched, min_evidence=1))
 
         # Persist detected habit patterns if new
@@ -177,7 +188,58 @@ class TakeEvaluator:
             instrument=exercise.instrument,
         )
 
-        # 6. Update Practice Session State
+        # 6. Longitudinal Outcome Tracking for Remedial Drill Interventions
+        drill_outcome: dict[str, Any] | None = None
+        if practice_session.intervention_id:
+            intervention = await session.get(AdaptiveIntervention, practice_session.intervention_id)
+            if intervention and intervention.user_id == practice_session.user_id:
+                past_metrics_query = await session.execute(
+                    select(SessionChordMetric)
+                    .join(PracticeSession, col(SessionChordMetric.session_id) == col(PracticeSession.id))
+                    .where(
+                        col(PracticeSession.user_id) == practice_session.user_id,
+                        col(PracticeSession.id) != practice_session.id,
+                    )
+                    .order_by(col(PracticeSession.created_at).desc())
+                    .limit(30)
+                )
+                past_metrics = past_metrics_query.scalars().all()
+                baseline_metrics = [
+                    {
+                        "chord": pm.expected_chord,
+                        "from_chord": pm.expected_chord,
+                        "to_chord": pm.expected_chord,
+                        "transition_latency_ms": abs(pm.onset_error_ms),
+                        "onset_error_ms": pm.onset_error_ms,
+                        "voicing_completeness": pm.voicing_completeness,
+                    }
+                    for pm in past_metrics
+                ]
+                follow_up_metrics = [
+                    {
+                        "chord": cm["expected_chord"],
+                        "from_chord": cm["expected_chord"],
+                        "to_chord": cm["expected_chord"],
+                        "transition_latency_ms": abs(cm["onset_error_ms"]),
+                        "onset_error_ms": cm["onset_error_ms"],
+                        "voicing_completeness": cm["voicing_completeness"],
+                    }
+                    for cm in chord_metric_records
+                ]
+
+                drill_outcome = evaluate_drill_outcome(
+                    baseline_metrics=baseline_metrics,
+                    follow_up_metrics=follow_up_metrics,
+                    drill_type=intervention.drill_type,
+                )
+                if drill_outcome.get("completed"):
+                    intervention.completed = True
+                    val = drill_outcome.get("measured_improvement")
+                    if val is not None:
+                        intervention.measured_improvement = float(val)
+                    session.add(intervention)
+
+        # 7. Update Practice Session State
         practice_session.state = "completed"
         practice_session.overall_accuracy = round(overall_accuracy, 3)
         practice_session.avg_timing_error_ms = round(avg_timing_error, 2)
@@ -187,7 +249,7 @@ class TakeEvaluator:
         await session.commit()
         await session.refresh(practice_session)
 
-        return {
+        result_payload: dict[str, Any] = {
             "session_id": practice_session.id,
             "state": practice_session.state,
             "analysis_status": "complete",
@@ -197,3 +259,6 @@ class TakeEvaluator:
             "chord_metrics": alignment,
             "coaching_report": coaching_report,
         }
+        if drill_outcome is not None:
+            result_payload["drill_outcome"] = drill_outcome
+        return result_payload
