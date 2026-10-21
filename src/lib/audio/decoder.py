@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import subprocess
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -34,23 +35,74 @@ class PolyphonicAudioDecoder:
     """
 
     @classmethod
+    def _transcode_non_wav_if_needed(cls, audio_bytes: bytes) -> bytes:
+        """If audio_bytes do not have a standard RIFF/WAVE header, attempt transcoding via ffmpeg."""
+        if len(audio_bytes) >= 12 and audio_bytes[:4] == b"RIFF" and audio_bytes[8:12] == b"WAVE":
+            return audio_bytes
+
+        out_path: Path | None = None
+        with tempfile.NamedTemporaryFile(suffix=".raw_audio", delete=False) as in_tmp:
+            in_path = Path(in_tmp.name)
+            in_path.write_bytes(audio_bytes)
+
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as out_tmp:
+                out_path = Path(out_tmp.name)
+
+            cmd = [
+                "ffmpeg",
+                "-y",
+                "-i",
+                str(in_path),
+                "-ar",
+                "22050",
+                "-ac",
+                "1",
+                "-c:a",
+                "pcm_s16le",
+                str(out_path),
+            ]
+            res = subprocess.run(cmd, capture_output=True, timeout=15)
+            if res.returncode == 0 and out_path.exists() and out_path.stat().st_size > 44:
+                return out_path.read_bytes()
+        except Exception as exc:
+            logger.debug("Automatic audio transcoding non-fatal fallback: %s", exc)
+        finally:
+            if in_path.exists():
+                try:
+                    in_path.unlink()
+                except OSError:
+                    pass
+            if out_path and out_path.exists():
+                try:
+                    out_path.unlink()
+                except OSError:
+                    pass
+
+        return audio_bytes
+
+
+    @classmethod
     async def decode(cls, audio_bytes: bytes) -> DecodedAudioTake:
-        """Validate WAV bytes, transcribe note events, cluster into chords, and clean up temporary storage.
+        """Validate audio bytes, transcribe note events, cluster into chords, and clean up temporary storage.
+
+        Transparently transcodes compressed audio formats (e.g. M4A, MP3, AAC, OGG) to 16-bit mono WAV.
 
         Args:
-            audio_bytes: Raw 16-bit mono WAV audio byte buffer.
+            audio_bytes: Raw audio byte buffer (WAV or supported compressed format).
 
         Returns:
             DecodedAudioTake with notes, chords, and audio format metadata.
 
         Raises:
-            Unprocessable: If the audio bytes fail RIFF validation, duration or size limits.
+            Unprocessable: If the audio bytes fail validation, duration or size limits.
         """
-        validation_result = validate_audio_upload(audio_bytes)
+        wav_bytes = cls._transcode_non_wav_if_needed(audio_bytes)
+        validation_result = validate_audio_upload(wav_bytes)
 
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
             tmp_path = Path(tmp.name)
-            tmp_path.write_bytes(audio_bytes)
+            tmp_path.write_bytes(wav_bytes)
 
         try:
             notes = await async_transcribe_polyphonic_wav(tmp_path)
