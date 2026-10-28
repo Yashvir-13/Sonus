@@ -30,27 +30,27 @@ function DevOfflineShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-svh flex-col bg-background text-foreground transition-colors duration-200">
       <header className="sticky top-0 z-50 flex items-center justify-between border-b border-border/70 bg-card/75 px-6 py-3 backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-brand font-bold text-sm">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#9A2A2A]/10 border border-[#9A2A2A]/25 text-[#9A2A2A] font-brand font-bold text-sm shadow-2xs">
             S
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-brand text-base font-bold tracking-[0.05em] text-foreground">
+              <span className="font-brand text-base font-bold tracking-[0.05em] text-[#242321]">
                 Sonus Studio
               </span>
-              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-500 dark:text-emerald-400 border border-emerald-500/20">
-                Offline Dev
+              <span className="rounded-full bg-[#EFECE6] px-2 py-0.5 text-[10px] font-mono font-semibold text-[#524D44] border border-[#D9D3C7]">
+                Archival Conservatory
               </span>
             </div>
-            <p className="text-[11px] text-muted-foreground hidden sm:block">
+            <p className="text-[11px] text-[#736E65] hidden sm:block">
               Adaptive Musical Practice & Pedagogical Engine
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden items-center gap-2 rounded-full border border-border/80 bg-background/80 px-3 py-1 text-xs text-muted-foreground md:flex">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="hidden items-center gap-2 rounded-full border border-[#D9D3C7] bg-[#FCFBF8] px-3 py-1 text-xs text-[#736E65] font-mono md:flex shadow-2xs">
+            <span className="h-2 w-2 rounded-full bg-[#4A6B5B] animate-pulse" />
             <span>SQLite & Dev Token Active</span>
           </div>
           <ThemeToggle />

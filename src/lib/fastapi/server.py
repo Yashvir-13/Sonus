@@ -44,6 +44,19 @@ def create_server(
 
     router = APIRouter(prefix=server.base_path)
     router.include_router(health_router)
+    app.include_router(health_router)
+
+    @app.get("/", include_in_schema=False)
+    async def root_index() -> dict[str, Any]:
+        """Root API metadata and health pointers."""
+        return {
+            "name": server.title,
+            "version": server.version,
+            "status": "online",
+            "docs_url": "/docs" if env != "production" else None,
+            "health_url": f"{server.base_path}/health",
+            "api_prefix": server.base_path,
+        }
 
     if env != "production":
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TempoRange(BaseModel):
@@ -36,12 +36,16 @@ class PianoVoicings(BaseModel):
 class ChordDefinition(BaseModel):
     """Discrete reference chord event in an exercise."""
 
+    model_config = ConfigDict(extra="allow")
+
     name: str
     beat: float = Field(default=1.0, ge=0.0)
     duration_beats: float = Field(default=4.0, ge=0.5)
     expected_pitches: list[int] = Field(default_factory=list)
     guitar_tabs: GuitarTabs | None = None
     piano_voicings: PianoVoicings | None = None
+    melody_notes: list[dict[str, Any]] | None = None
+    strum_events: list[dict[str, Any]] | None = None
     common_mistakes: list[str] = Field(default_factory=list)
 
 

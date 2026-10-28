@@ -6,9 +6,9 @@ const THEME_STORAGE_KEY = 'sonus_theme'
 
 export function useTheme() {
   const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'dark'
+    if (typeof window === 'undefined') return 'light'
     const saved = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null
-    return saved || 'dark'
+    return saved || 'light'
   })
 
   useEffect(() => {

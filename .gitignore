@@ -102,3 +102,8 @@ bench_*.py
 # =========================
 postman/flows/
 
+# =========================
+# Playwright test artifacts
+# =========================
+.playwright-mcp/
+
