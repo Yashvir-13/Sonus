@@ -51,18 +51,18 @@
 }
 
 .dark {
-  --color-parchment-white: #141312;
-  --color-warm-sand: #1c1b19;
-  --color-ash-border: #2e2c29;
-  --color-midnight-ink: #f5f3f1;
-  --color-driftwood: #a59f97;
-  --color-fog: #777169;
-  --color-silver-mist: #5c5852;
+  --color-parchment-white: #09090b;
+  --color-warm-sand: #121217;
+  --color-ash-border: #262633;
+  --color-midnight-ink: #f8fafc;
+  --color-driftwood: #94a3b8;
+  --color-fog: #64748b;
+  --color-silver-mist: #475569;
 
-  --surface-canvas: #141312;
-  --surface-card: #1c1b19;
-  --surface-border: #2e2c29;
-  --surface-elevated: #242220;
+  --surface-canvas: #09090b;
+  --surface-card: #121217;
+  --surface-border: #262633;
+  --surface-elevated: #1a1a24;
 
   --color-parchment: var(--color-parchment-white);
   --color-ink: var(--color-midnight-ink);

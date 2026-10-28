@@ -6,34 +6,54 @@ export default function App() {
   const [activeView, setActiveView] = useState<'practice' | 'audio'>('practice')
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-6 py-10">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
-          <p className="font-brand text-sm font-bold tracking-[0.05em] text-muted-foreground">
-            Sonus
-          </p>
-          <h1 className="font-display text-4xl font-light tracking-tight text-foreground md:text-5xl">
+    <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
+      {/* Studio Banner & View Navigator */}
+      <header className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between rounded-2xl border border-border/80 bg-card/60 p-6 shadow-sm backdrop-blur-md">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="font-brand text-xs font-bold tracking-[0.15em] uppercase text-emerald-500 dark:text-emerald-400">
+              Conservatory Engine
+            </span>
+            <span className="text-muted-foreground">•</span>
+            <span className="text-xs text-muted-foreground">Version 0.1.0</span>
+          </div>
+          <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Adaptive Music Practice
           </h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            Real-time polyphonic chord alignment, statistical habit modeling, grounded AI coaching, and dynamic remedial drill generation.
+          <p className="max-w-2xl text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            Real-time polyphonic chord alignment, statistical motor-habit modeling, Bayesian Knowledge Tracing, and grounded AI coaching.
           </p>
+
+          <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] text-muted-foreground">
+            <span className="rounded-md border border-border/60 bg-muted/60 px-2 py-0.5">
+              ⚡ &lt;30ms Latency
+            </span>
+            <span className="rounded-md border border-border/60 bg-muted/60 px-2 py-0.5">
+              🧠 BKT & SM-2
+            </span>
+            <span className="rounded-md border border-border/60 bg-muted/60 px-2 py-0.5">
+              🎼 Jaccard DP Alignment
+            </span>
+            <span className="rounded-md border border-border/60 bg-muted/60 px-2 py-0.5">
+              🎯 Multi-Armed Bandit
+            </span>
+          </div>
         </div>
 
         {/* View Switcher Controls */}
-        <div className="flex rounded-full border border-border bg-card p-1 shadow-xs">
+        <div className="flex self-start md:self-auto rounded-xl border border-border bg-background/90 p-1.5 shadow-xs">
           <button
             type="button"
             onClick={() => setActiveView('practice')}
-            className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold tracking-wide transition-colors ${
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold tracking-wide transition-all duration-150 ${
               activeView === 'practice'
                 ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground'
+                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
             }`}
           >
             <span
               className={`h-2 w-2 rounded-full ${
-                activeView === 'practice' ? 'bg-emerald-400 animate-pulse' : 'bg-muted-foreground'
+                activeView === 'practice' ? 'bg-emerald-300 animate-pulse' : 'bg-muted-foreground/50'
               }`}
             />
             Practice & Drill Studio
@@ -41,15 +61,15 @@ export default function App() {
           <button
             type="button"
             onClick={() => setActiveView('audio')}
-            className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold tracking-wide transition-colors ${
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold tracking-wide transition-all duration-150 ${
               activeView === 'audio'
                 ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground'
+                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
             }`}
           >
             <span
               className={`h-2 w-2 rounded-full ${
-                activeView === 'audio' ? 'bg-emerald-400 animate-pulse' : 'bg-muted-foreground'
+                activeView === 'audio' ? 'bg-emerald-300 animate-pulse' : 'bg-muted-foreground/50'
               }`}
             />
             Acoustic & FFT Bench
@@ -58,7 +78,7 @@ export default function App() {
       </header>
 
       {/* Main Studio Workspaces */}
-      <section aria-label="Testing Studio">
+      <section aria-label="Testing Studio" className="w-full">
         {activeView === 'practice' ? (
           <PracticeTestingStudio />
         ) : (
