@@ -385,7 +385,7 @@ function buildShostakovichWaltz2(): FullSongChordItem[] {
       lhPitches: [43, 53, 59],
       rhMelody: [
         { pitch: 'D5', beatOffset: 0, duration: 2 },
-        { pitch: 'C5', beatOffset: 2, duration: 1 },
+        { pitch: 'B4', beatOffset: 2, duration: 1 },
       ],
       section: 'Theme A (First Strain)',
     },

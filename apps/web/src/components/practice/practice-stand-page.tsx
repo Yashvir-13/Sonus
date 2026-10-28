@@ -3,6 +3,7 @@ import { FlowingNotationStand } from './flowing-notation-stand'
 import { PracticeTelemetryHUD } from './practice-telemetry-hud'
 import { parseProgressionSequence, resolveChordVoicing, type VoicingDefinition } from '@/lib/music/chord-voicings'
 import { RealtimePitchTracker, type PitchDetectionResult } from '@/lib/audio/realtime-pitch-tracker'
+import { PracticeAudioEngine } from '@/lib/audio/practice-audio-engine'
 
 const PRESET_PROGRESSIONS = [
   { name: "User Take: D - A - E - Em", chords: ['D', 'A', 'E', 'Em'] },
@@ -18,6 +19,18 @@ export function PracticeStandPage(): React.JSX.Element {
   const [customInput, setCustomInput] = useState<string>('D - A - E - Em')
   const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [currentBeat, setCurrentBeat] = useState<number>(0)
+  const [isMetronomeEnabled, setIsMetronomeEnabled] = useState<boolean>(true)
+  const [isBackingAudioEnabled, setIsBackingAudioEnabled] = useState<boolean>(true)
+
+  const audioEngineRef = useRef<PracticeAudioEngine | null>(null)
+
+  useEffect(() => {
+    audioEngineRef.current = new PracticeAudioEngine()
+    return () => {
+      audioEngineRef.current?.dispose()
+      audioEngineRef.current = null
+    }
+  }, [])
 
   // Telemetry & Live Audio State
   const [liveRmsDb, setLiveRmsDb] = useState<number>(-45)
@@ -54,39 +67,17 @@ export function PracticeStandPage(): React.JSX.Element {
   const trackerRef = useRef<RealtimePitchTracker | null>(null)
 
   // Metronome click synthesis using Web Audio API
-  const audioCtxRef = useRef<AudioContext | null>(null)
+
   const lastClickBeatRef = useRef<number>(-1)
 
   const playClickSound = useCallback((isDownbeat: boolean) => {
-    try {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
-      }
-      const ctx = audioCtxRef.current
-      if (ctx.state === 'suspended') {
-        ctx.resume()
-      }
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-
-      osc.type = 'triangle'
-      osc.frequency.setValueAtTime(isDownbeat ? 880 : 440, ctx.currentTime)
-
-      gain.gain.setValueAtTime(0.3, ctx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05)
-
-      osc.connect(gain)
-      gain.connect(ctx.destination)
-
-      osc.start()
-      osc.stop(ctx.currentTime + 0.06)
-    } catch {
-      // AudioContext unavailable in non-browser testing
-    }
-  }, [])
+    if (!isMetronomeEnabled) return
+    audioEngineRef.current?.playClick(isDownbeat)
+  }, [isMetronomeEnabled])
 
   // Start / Pause toggle
   const handleTogglePlay = useCallback(() => {
+    audioEngineRef.current?.unlock()
     if (isPlaying) {
       setIsPlaying(false)
       pausedAtBeatRef.current = currentBeat
@@ -135,12 +126,21 @@ export function PracticeStandPage(): React.JSX.Element {
 
       setCurrentBeat(loopBeat)
 
-      // Metronome audio pulse check
+      // Metronome audio pulse & chord playback check
       const currentIntBeat = Math.floor(loopBeat)
       if (currentIntBeat !== lastClickBeatRef.current) {
         lastClickBeatRef.current = currentIntBeat
         const isDownbeat = currentIntBeat % beatsPerMeasure === 0
         playClickSound(isDownbeat)
+
+        if (isDownbeat && isBackingAudioEnabled) {
+          const measureDurationSec = beatsPerMeasure * (60 / tempoBpm)
+          const curMeasureIdx = Math.floor(currentIntBeat / beatsPerMeasure) % totalMeasures
+          const chordToPlay = progression[curMeasureIdx] || progression[0]
+          if (chordToPlay) {
+            audioEngineRef.current?.playChord(chordToPlay.chordName, undefined, measureDurationSec, instrument)
+          }
+        }
       }
 
       animFrameRef.current = requestAnimationFrame(loop)
@@ -229,6 +229,10 @@ export function PracticeStandPage(): React.JSX.Element {
             : undefined
         }
         liveRmsDb={liveRmsDb}
+        isBackingAudioEnabled={isBackingAudioEnabled}
+        onToggleBackingAudio={() => setIsBackingAudioEnabled((v) => !v)}
+        isMetronomeEnabled={isMetronomeEnabled}
+        onToggleMetronome={() => setIsMetronomeEnabled((v) => !v)}
       />
 
       {/* ─────────────────────────────────────────────────────────────

@@ -24,4 +24,12 @@ describe('PracticeStandPage', () => {
     fireEvent.click(playBtn)
     expect(screen.getByRole('button', { name: /pause/i })).toBeDefined()
   })
+
+  it('toggles metronome beat ticks on and off', () => {
+    render(<PracticeStandPage />)
+    const ticksBtn = screen.getByRole('button', { name: /TICKS ON/i })
+    expect(ticksBtn).toBeDefined()
+    fireEvent.click(ticksBtn)
+    expect(screen.getByRole('button', { name: /TICKS OFF/i })).toBeDefined()
+  })
 })

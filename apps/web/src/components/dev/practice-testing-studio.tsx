@@ -15,7 +15,7 @@ import {
   type UserStatsDto,
 } from '@/api/sessions'
 import { encodeMonoWav } from '@/lib/audio/wav-encoder'
-import { PracticeAudioEngine } from '@/lib/audio/practice-audio-engine'
+import { PracticeAudioEngine, DEFAULT_CHORD_PITCHES } from '@/lib/audio/practice-audio-engine'
 import {
   FlowingNotationStand,
   type FlowingChordItem,
@@ -68,7 +68,7 @@ export function PracticeTestingStudio() {
   const [playAlongTempo, setPlayAlongTempo] = useState<number>(70)
   const [currentChordIdx, setCurrentChordIdx] = useState<number>(0)
   const [currentChordBeat, setCurrentChordBeat] = useState<number>(1)
-  const isMetronomeEnabled = true
+  const [isMetronomeEnabled, setIsMetronomeEnabled] = useState(true)
   const [isChordAudioEnabled, setIsChordAudioEnabled] = useState(true)
   const [isPlayAlongComplete, setIsPlayAlongComplete] = useState(false)
 
@@ -658,15 +658,108 @@ export function PracticeTestingStudio() {
     setCountInBeat(beatsInMeasure)
 
     let localCountingIn = true
-    let localCount = beatsInMeasure
+    let countInTick = 0
     let localChordIdx = currentChordIdx >= progressionChords.length ? 0 : currentChordIdx
-    let localChordBeat = 1
+    let localSubBeat = 0.0
 
     setCurrentChordIdx(localChordIdx)
     setCurrentChordBeat(1)
 
     const bpm = playAlongTempo || selectedExercise.tempo_bpm || 70
-    const beatIntervalMs = (60 / bpm) * 1000
+    const inst = selectedExercise.instrument?.toLowerCase() === 'piano' ? 'piano' : 'guitar'
+    // Sub-beat interval: 8th note resolution (half of a beat interval)
+    const tickIntervalMs = (30 / bpm) * 1000
+
+    // Render audio events (strum, melody, bass, chord) at a given beat offset
+    const renderMusicAtOffset = (chordItem: ProgressionChordItem, beatOffset: number) => {
+      if (!isChordAudioEnabled || !audioEngineRef.current) return
+
+      const totalChordDur = chordItem.duration_beats || 4
+      const remainingBeats = Math.max(0.5, totalChordDur - beatOffset)
+      const remainingSec = remainingBeats * (60 / bpm)
+
+      if (inst === 'guitar') {
+        // 1. Guitar strum events (down/up strums, accents)
+        if (chordItem.strum_events && chordItem.strum_events.length > 0) {
+          const matchedStrum = chordItem.strum_events.find(
+            (se) => Math.abs(se.beatOffset - beatOffset) < 0.08
+          )
+          if (matchedStrum) {
+            const pitches =
+              chordItem.expected_pitches || DEFAULT_CHORD_PITCHES[chordItem.name] || [50, 57, 62, 66]
+            audioEngineRef.current.playGuitarStrum(
+              pitches,
+              matchedStrum.direction === 'up' ? 'up' : 'down',
+              Boolean(matchedStrum.accent),
+              remainingSec
+            )
+          }
+        } else if (beatOffset === 0.0) {
+          // Default guitar chord strum on downbeat
+          audioEngineRef.current.playChord(
+            chordItem.name,
+            chordItem.expected_pitches,
+            totalChordDur * (60 / bpm),
+            'guitar'
+          )
+        }
+
+        // 2. Guitar melody / arpeggio notes
+        if (chordItem.melody_notes && chordItem.melody_notes.length > 0) {
+          const matchedNotes = chordItem.melody_notes.filter(
+            (mn) => Math.abs(mn.beatOffset - beatOffset) < 0.08
+          )
+          matchedNotes.forEach((mn) => {
+            const noteDur = (mn.duration || 1) * (60 / bpm)
+            audioEngineRef.current?.playGuitarPluck(mn.pitch, noteDur, 0.8)
+          })
+        }
+      } else {
+        // Piano rendering
+        let hasCustomNotes = false
+
+        // 1. Grand staff melody notes (treble & bass)
+        if (chordItem.melody_notes && chordItem.melody_notes.length > 0) {
+          const matchedNotes = chordItem.melody_notes.filter(
+            (mn) => Math.abs(mn.beatOffset - beatOffset) < 0.08
+          )
+          if (matchedNotes.length > 0) {
+            hasCustomNotes = true
+            matchedNotes.forEach((mn) => {
+              const noteDur = (mn.duration || 1) * (60 / bpm)
+              const isBass = mn.clef === 'bass'
+              audioEngineRef.current?.playPianoNote(mn.pitch, noteDur, 0.75, isBass)
+            })
+          }
+        }
+
+        // 2. Piano voicings (LH bass note & RH shell voicings)
+        if (chordItem.piano_voicings && beatOffset === 0.0 && !hasCustomNotes) {
+          hasCustomNotes = true
+          const lh =
+            chordItem.piano_voicings.lh_pitches ||
+            (chordItem.piano_voicings.lh_note ? [chordItem.piano_voicings.lh_note] : [])
+          const rh =
+            chordItem.piano_voicings.rh_pitches || chordItem.piano_voicings.rh_notes || []
+          audioEngineRef.current.playPianoVoicing(
+            lh,
+            rh,
+            totalChordDur * (60 / bpm),
+            0.75
+          )
+        }
+
+        // 3. Fallback: Sustained piano chord on downbeat for full measure
+        if (beatOffset === 0.0 && !hasCustomNotes) {
+          audioEngineRef.current.playChord(
+            chordItem.name,
+            chordItem.expected_pitches,
+            totalChordDur * (60 / bpm),
+            'piano'
+          )
+        }
+      }
+    }
 
     // Play first count-in click immediately
     if (isMetronomeEnabled) {
@@ -675,17 +768,22 @@ export function PracticeTestingStudio() {
 
     playAlongTimerRef.current = window.setInterval(() => {
       if (localCountingIn) {
-        localCount -= 1
-        if (localCount > 0) {
-          setCountInBeat(localCount)
-          if (isMetronomeEnabled) {
-            audioEngineRef.current?.playClick(localCount === 1)
+        countInTick += 1
+        if (countInTick < beatsInMeasure * 2) {
+          if (countInTick % 2 === 0) {
+            const beatNum = beatsInMeasure - countInTick / 2
+            setCountInBeat(beatNum)
+            if (isMetronomeEnabled) {
+              audioEngineRef.current?.playClick(beatNum === 1)
+            }
           }
         } else {
-          // Count-in finished! Start playing along on current chord
+          // Count-in finished! Start playing along on current chord downbeat
           localCountingIn = false
           setIsCountingIn(false)
-          localChordBeat = 1
+          localChordIdx = currentChordIdx >= progressionChords.length ? 0 : currentChordIdx
+          localSubBeat = 0.0
+          setCurrentChordIdx(localChordIdx)
           setCurrentChordBeat(1)
 
           const chord = progressionChords[localChordIdx]
@@ -693,28 +791,36 @@ export function PracticeTestingStudio() {
             if (isMetronomeEnabled) {
               audioEngineRef.current?.playClick(true) // Downbeat
             }
-            if (isChordAudioEnabled) {
-              audioEngineRef.current?.playChord(chord.name, chord.expected_pitches)
-            }
+            renderMusicAtOffset(chord, 0.0)
           }
         }
       } else {
-        // Normal Play-Along Tick
+        // Normal Play-Along Sub-Beat Tick
+        localSubBeat = Math.round((localSubBeat + 0.5) * 10) / 10
         const currentChord = progressionChords[localChordIdx]
         const chordDuration = currentChord?.duration_beats || 4
 
-        if (localChordBeat < chordDuration) {
-          // Still in current chord
-          localChordBeat += 1
-          setCurrentChordBeat(localChordBeat)
-          if (isMetronomeEnabled) {
-            audioEngineRef.current?.playClick(false) // Upbeat
+        if (localSubBeat < chordDuration) {
+          // Still within current chord
+          const isIntegerBeat = Math.abs(localSubBeat - Math.round(localSubBeat)) < 0.05
+          if (isIntegerBeat) {
+            const intBeat = Math.round(localSubBeat) + 1
+            setCurrentChordBeat(intBeat)
+            if (isMetronomeEnabled) {
+              audioEngineRef.current?.playClick(false) // Upbeat
+            }
+          } else {
+            setCurrentChordBeat(localSubBeat + 1)
+          }
+
+          if (currentChord) {
+            renderMusicAtOffset(currentChord, localSubBeat)
           }
         } else {
-          // Transition to next chord!
+          // Transition to next chord in progression!
           if (localChordIdx + 1 < progressionChords.length) {
             localChordIdx += 1
-            localChordBeat = 1
+            localSubBeat = 0.0
             setCurrentChordIdx(localChordIdx)
             setCurrentChordBeat(1)
 
@@ -723,9 +829,7 @@ export function PracticeTestingStudio() {
               if (isMetronomeEnabled) {
                 audioEngineRef.current?.playClick(true) // Downbeat on chord change
               }
-              if (isChordAudioEnabled) {
-                audioEngineRef.current?.playChord(nextChord.name, nextChord.expected_pitches)
-              }
+              renderMusicAtOffset(nextChord, 0.0)
             }
           } else {
             // Reached end of entire progression!
@@ -741,7 +845,7 @@ export function PracticeTestingStudio() {
           }
         }
       }
-    }, beatIntervalMs)
+    }, tickIntervalMs)
   }, [
     selectedExercise,
     progressionChords,
@@ -749,6 +853,7 @@ export function PracticeTestingStudio() {
     handleStartSession,
     currentChordIdx,
     playAlongTempo,
+    progressionMeta?.timeSignature,
     isMetronomeEnabled,
     isChordAudioEnabled,
   ])
@@ -778,7 +883,11 @@ export function PracticeTestingStudio() {
     setCurrentChordBeat(1)
     if (isChordAudioEnabled && audioEngineRef.current) {
       audioEngineRef.current.unlock()
-      audioEngineRef.current.playChord(progressionChords[idx].name, progressionChords[idx].expected_pitches)
+      const chord = progressionChords[idx]
+      const bpm = playAlongTempo || selectedExercise?.tempo_bpm || 70
+      const chordDurationSec = (chord.duration_beats || 4) * (60 / bpm)
+      const inst = selectedExercise?.instrument?.toLowerCase() === 'piano' ? 'piano' : 'guitar'
+      audioEngineRef.current.playChord(chord.name, chord.expected_pitches, chordDurationSec, inst)
     }
   }
 
@@ -966,6 +1075,8 @@ export function PracticeTestingStudio() {
               liveRmsDb={liveTelemetry.liveRmsDb}
               isBackingAudioEnabled={isChordAudioEnabled}
               onToggleBackingAudio={() => setIsChordAudioEnabled((v) => !v)}
+              isMetronomeEnabled={isMetronomeEnabled}
+              onToggleMetronome={() => setIsMetronomeEnabled((v) => !v)}
             />
 
             <FlowingNotationStand

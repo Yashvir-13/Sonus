@@ -88,4 +88,56 @@ describe('PracticeTelemetryHUD', () => {
     fireEvent.click(pianoBtn)
     expect(onInstrumentChange).toHaveBeenCalledWith('piano')
   })
+
+  it('renders and toggles beat ticks metronome button', () => {
+    const onToggleMetronome = vi.fn()
+    const { rerender } = render(
+      <PracticeTelemetryHUD
+        instrument="guitar"
+        onInstrumentChange={vi.fn()}
+        pieceTitle="Four-Chord Anthem"
+        keySignature="D Major"
+        currentMeasure={14}
+        totalMeasures={32}
+        tempoBpm={80}
+        onTempoChange={vi.fn()}
+        activeChord={chord}
+        intonationAccuracy={98.4}
+        timingSyncMs={6}
+        voicingStringsCount={6}
+        isPlaying={false}
+        onTogglePlay={vi.fn()}
+        onRestart={vi.fn()}
+        isMetronomeEnabled={true}
+        onToggleMetronome={onToggleMetronome}
+      />
+    )
+    const ticksBtn = screen.getByRole('button', { name: /TICKS ON/i })
+    expect(ticksBtn).toBeDefined()
+    fireEvent.click(ticksBtn)
+    expect(onToggleMetronome).toHaveBeenCalledTimes(1)
+
+    rerender(
+      <PracticeTelemetryHUD
+        instrument="guitar"
+        onInstrumentChange={vi.fn()}
+        pieceTitle="Four-Chord Anthem"
+        keySignature="D Major"
+        currentMeasure={14}
+        totalMeasures={32}
+        tempoBpm={80}
+        onTempoChange={vi.fn()}
+        activeChord={chord}
+        intonationAccuracy={98.4}
+        timingSyncMs={6}
+        voicingStringsCount={6}
+        isPlaying={false}
+        onTogglePlay={vi.fn()}
+        onRestart={vi.fn()}
+        isMetronomeEnabled={false}
+        onToggleMetronome={onToggleMetronome}
+      />
+    )
+    expect(screen.getByRole('button', { name: /TICKS OFF/i })).toBeDefined()
+  })
 })

@@ -21,6 +21,8 @@ export type PracticeTelemetryHUDProps = {
   liveRmsDb?: number
   isBackingAudioEnabled?: boolean
   onToggleBackingAudio?: () => void
+  isMetronomeEnabled?: boolean
+  onToggleMetronome?: () => void
   className?: string
 }
 
@@ -44,6 +46,8 @@ export function PracticeTelemetryHUD({
   liveRmsDb = -45,
   isBackingAudioEnabled = true,
   onToggleBackingAudio,
+  isMetronomeEnabled = true,
+  onToggleMetronome,
   className = '',
 }: PracticeTelemetryHUDProps): React.JSX.Element {
   // Normalize VU meter level to percentage [0, 100] from dB [-60, 0]
@@ -130,6 +134,23 @@ export function PracticeTelemetryHUD({
             >
               <span>{isBackingAudioEnabled ? '🎵' : '🔇'}</span>
               <span>AUDIO {isBackingAudioEnabled ? 'ON' : 'OFF'}</span>
+            </button>
+          )}
+
+          {/* Metronome Beat Ticks Toggle */}
+          {onToggleMetronome && (
+            <button
+              type="button"
+              onClick={onToggleMetronome}
+              title={isMetronomeEnabled ? 'Metronome Beat Ticks are ON' : 'Metronome Beat Ticks are MUTED'}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-mono font-medium border transition-colors ${
+                isMetronomeEnabled
+                  ? 'bg-[#242321] text-[#FCFBF8] border-[#242321] dark:bg-[#EDE8DF] dark:text-[#141312] dark:border-[#EDE8DF] font-bold'
+                  : 'bg-[#FCFBF8] text-[#736E65] border-[#D9D3C7] dark:bg-[#141312] dark:text-[#A39C8F] dark:border-[#38342E] hover:text-[#242321] dark:hover:text-[#EDE8DF]'
+              }`}
+            >
+              <span>{isMetronomeEnabled ? '⏱️' : '🔇'}</span>
+              <span>TICKS {isMetronomeEnabled ? 'ON' : 'OFF'}</span>
             </button>
           )}
 
