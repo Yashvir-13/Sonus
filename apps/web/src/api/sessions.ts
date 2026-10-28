@@ -3,6 +3,7 @@ import { apiBaseUrl } from '@/lib/api/config'
 export type ExerciseDto = {
   id: string
   title: string
+  description?: string | null
   instrument: string
   tempo_bpm: number
   progression_json?: string
@@ -18,7 +19,18 @@ export type ExerciseDto = {
     chords?: Array<{
       name: string
       beat: number
+      duration_beats?: number
       expected_pitches?: number[]
+      guitar_tabs?: {
+        frets?: Array<number | null>
+        strings?: string
+        fingering?: string
+      }
+      piano_keys?: {
+        keys?: string[]
+        octave?: number
+      }
+      common_mistakes?: string[]
     }>
   }
 }

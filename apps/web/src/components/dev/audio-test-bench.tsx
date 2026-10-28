@@ -405,20 +405,20 @@ export function AudioTestBench() {
     isListening && detectedChord.chord === targetChord && detectedChord.confidence > 0.5
 
   return (
-    <div className="w-full space-y-6 rounded-[24px] border border-border bg-card p-6 text-card-foreground shadow-sm md:p-8">
+    <div className="w-full space-y-6 rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-6 text-card-foreground shadow-xl md:p-8">
       {/* Header */}
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between border-b border-border/60 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-              Dev Testing Playground
+            <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+              Real-Time AudioWorklet + Basic Pitch
             </span>
-            <span className="text-xs text-muted-foreground">AudioWorklet + Basic Pitch</span>
+            <span className="text-xs text-muted-foreground">DSP Signal Processing Bench</span>
           </div>
-          <h2 className="mt-1 font-display text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+          <h2 className="mt-1.5 font-display text-2xl font-bold tracking-tight text-foreground md:text-3xl">
             Audio Test Bench
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground mt-0.5">
             Test instrument chord playing directly in the browser with real-time chromagram and deep
             backend transcription.
           </p>
@@ -426,13 +426,17 @@ export function AudioTestBench() {
 
         {/* Live Status indicator */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-xs">
+          <div className={`flex items-center gap-2.5 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all ${
+            isListening
+              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+              : 'border-border/80 bg-background/80 text-muted-foreground'
+          }`}>
             <span
-              className={`inline-block h-2 w-2 rounded-full ${
-                isListening ? 'animate-pulse bg-emerald-500' : 'bg-muted-foreground/40'
+              className={`inline-block h-2.5 w-2.5 rounded-full ${
+                isListening ? 'animate-pulse bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-muted-foreground/40'
               }`}
             />
-            <span className="font-medium text-foreground">
+            <span>
               {isListening ? 'Live Mic Active' : 'Mic Inactive'}
             </span>
           </div>
@@ -440,9 +444,9 @@ export function AudioTestBench() {
       </div>
 
       {/* Target Chord Selector & Controls */}
-      <div className="grid grid-cols-1 gap-4 rounded-xl border border-border bg-background/50 p-4 sm:grid-cols-3">
-        <div className="space-y-1">
-          <label htmlFor="target-chord" className="text-xs font-medium text-muted-foreground">
+      <div className="grid grid-cols-1 gap-4 rounded-xl border border-border/80 bg-background/60 p-4 sm:grid-cols-3">
+        <div className="space-y-1.5">
+          <label htmlFor="target-chord" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Target Chord
           </label>
           <select
@@ -450,7 +454,7 @@ export function AudioTestBench() {
             aria-label="Target Chord"
             value={targetChord}
             onChange={(e) => setTargetChord(e.target.value)}
-            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground shadow-none focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm font-semibold text-foreground shadow-xs focus:outline-none focus:ring-2 focus:ring-primary/40 transition-colors"
           >
             {CHORD_OPTIONS.map((c) => (
               <option key={c} value={c}>
@@ -464,10 +468,10 @@ export function AudioTestBench() {
           <button
             type="button"
             onClick={isListening ? stopListening : startListening}
-            className={`w-full rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+            className={`w-full rounded-xl px-4 py-2.5 text-sm font-semibold transition-all shadow-xs ${
               isListening
-                ? 'bg-destructive/15 text-destructive hover:bg-destructive/25'
-                : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                ? 'bg-destructive/15 text-destructive border border-destructive/30 hover:bg-destructive/25'
+                : 'bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]'
             }`}
           >
             {isListening ? 'Stop Listening' : 'Start Listening'}
@@ -479,7 +483,7 @@ export function AudioTestBench() {
             type="button"
             disabled={isRecordingTake || isTranscribing}
             onClick={start5SecondTake}
-            className="w-full rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-card-foreground shadow-none hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
+            className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-card-foreground shadow-xs hover:bg-accent hover:text-accent-foreground disabled:opacity-50 transition-colors"
           >
             {isRecordingTake ? `Recording Take (${recordingCountdown}s)...` : 'Record 5s Take'}
           </button>
@@ -489,7 +493,11 @@ export function AudioTestBench() {
       {/* Real-Time Detection Display Grid */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Chord Accuracy Card */}
-        <div className="flex flex-col justify-between rounded-xl border border-border bg-background/40 p-5">
+        <div className={`flex flex-col justify-between rounded-xl border p-5 transition-all ${
+          isMatched
+            ? 'border-emerald-500/40 bg-emerald-500/5 shadow-[0_0_24px_rgba(16,185,129,0.12)]'
+            : 'border-border/80 bg-background/50'
+        }`}>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Live Chord Detection
@@ -505,7 +513,7 @@ export function AudioTestBench() {
                 }`}
               >
                 {isMatched
-                  ? 'Matched'
+                  ? '✓ Matched'
                   : detectedChord.chord !== 'None'
                     ? `Playing ${detectedChord.chord} (Expected ${targetChord})`
                     : `Waiting for ${targetChord}...`}
@@ -514,18 +522,20 @@ export function AudioTestBench() {
           </div>
 
           <div className="my-6 text-center">
-            <div className="font-display text-5xl font-bold tracking-tight text-foreground md:text-6xl">
+            <div className={`font-display text-5xl font-extrabold tracking-tight md:text-6xl transition-colors ${
+              isMatched ? 'text-emerald-500 dark:text-emerald-400' : 'text-foreground'
+            }`}>
               {detectedChord.chord !== 'None' ? detectedChord.chord : '—'}
             </div>
 
             {/* Active detected notes badge list */}
             {activeNotes.length > 0 && (
-              <div className="mt-2.5 flex items-center justify-center gap-1.5 text-xs">
+              <div className="mt-3 flex items-center justify-center gap-1.5 text-xs">
                 <span className="text-muted-foreground font-medium">Notes Heard:</span>
                 {activeNotes.map((note) => (
                   <span
                     key={note}
-                    className="rounded bg-primary/10 px-2 py-0.5 font-bold text-primary"
+                    className="rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 font-mono font-bold text-primary"
                   >
                     {note}
                   </span>
@@ -533,7 +543,7 @@ export function AudioTestBench() {
               </div>
             )}
 
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-xs text-muted-foreground">
               {detectedChord.chord !== 'None'
                 ? `Confidence: ${(detectedChord.confidence * 100).toFixed(0)}% • Bass: ${detectedChord.bass}`
                 : isListening
@@ -545,12 +555,16 @@ export function AudioTestBench() {
           {/* Audio Input Level Meter */}
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Input Volume Level</span>
-              <span>{(volumeLevel * 100).toFixed(0)}%</span>
+              <span>Input Level</span>
+              <span className="font-mono">{(volumeLevel * 100).toFixed(0)}%</span>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-border">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-border/60 p-0.5">
               <div
-                className="h-full bg-primary transition-all duration-75"
+                className={`h-full rounded-full transition-all duration-75 ${
+                  volumeLevel > 0.8
+                    ? 'bg-amber-500'
+                    : 'bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+                }`}
                 style={{ width: `${Math.min(100, volumeLevel * 100)}%` }}
               />
             </div>
@@ -558,12 +572,12 @@ export function AudioTestBench() {
         </div>
 
         {/* 12-Semitone Chromagram Energy Visualizer */}
-        <div className="flex flex-col justify-between rounded-xl border border-border bg-background/40 p-5">
+        <div className="flex flex-col justify-between rounded-xl border border-border/80 bg-background/50 p-5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Chromagram Energy (12 Pitch Classes)
             </span>
-            <span className="text-xs text-muted-foreground">Parabolic FFT Peak Interpolation</span>
+            <span className="text-xs text-muted-foreground font-mono">Parabolic FFT</span>
           </div>
 
           <div className="my-4 grid grid-cols-12 gap-1.5 pt-4">
@@ -572,17 +586,19 @@ export function AudioTestBench() {
               const isActive = energy > 0.4
               return (
                 <div key={name} className="flex flex-col items-center gap-1.5">
-                  <div className="relative flex h-24 w-full items-end justify-center rounded-md bg-border/40 p-0.5">
+                  <div className="relative flex h-24 w-full items-end justify-center rounded-lg bg-border/30 p-0.5 overflow-hidden">
                     <div
-                      className={`w-full rounded-sm transition-all duration-75 ${
-                        isActive ? 'bg-primary' : 'bg-muted-foreground/30'
+                      className={`w-full rounded-md transition-all duration-75 ${
+                        isActive
+                          ? 'bg-gradient-to-t from-primary/70 to-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]'
+                          : 'bg-muted-foreground/20'
                       }`}
-                      style={{ height: `${Math.max(4, energy * 100)}%` }}
+                      style={{ height: `${Math.max(6, energy * 100)}%` }}
                     />
                   </div>
                   <span
-                    className={`text-[11px] font-medium ${
-                      isActive ? 'font-bold text-foreground' : 'text-muted-foreground'
+                    className={`font-mono text-[11px] ${
+                      isActive ? 'font-bold text-primary' : 'text-muted-foreground'
                     }`}
                   >
                     {name}
@@ -593,8 +609,7 @@ export function AudioTestBench() {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            D, F#, A highlights signify D Major triad presence; harmonic distribution updates with
-            temporal smoothing.
+            Harmonic distribution updates in real-time with exponential temporal smoothing.
           </p>
         </div>
       </div>
