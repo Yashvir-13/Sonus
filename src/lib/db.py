@@ -158,18 +158,7 @@ _async_engine_kwargs: dict[str, object] = {
 
 _parsed_async = make_url(_async_url)
 _orig_host = _parsed_async.host or ""
-if _is_cloud_ssl_host(_orig_host):
-    _ipv4 = _resolve_ipv4(_orig_host, _parsed_async.port or 5432)
-    if _ipv4:
-        _ssl_ctx = ssl.create_default_context()
-        _ssl_ctx.check_hostname = False
-        _ssl_ctx.verify_mode = ssl.CERT_NONE
-        _async_connect_args["ssl"] = _ssl_ctx
-        if "neon.tech" in _orig_host:
-            _endpoint_id = _orig_host.split(".")[0]
-            _async_connect_args["server_settings"] = {"options": f"endpoint={_endpoint_id}"}
-        _async_url = _parsed_async.set(host=_ipv4).render_as_string(hide_password=False)
-
+# Note: asyncpg relies on hostname for TLS SNI routing to cloud proxies (e.g. Neon, Supabase)
 if _pooler_mode() == "transaction":
     _async_connect_args.update({
         "statement_cache_size": 0,
