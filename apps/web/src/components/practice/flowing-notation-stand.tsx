@@ -59,8 +59,8 @@ const DIATONIC_INDEX: Record<string, number> = {
 /**
  * Calculates absolute diatonic step scalar for pitch string (e.g. "C4" -> 28, "G4" -> 32, "C3" -> 21)
  */
-export function getDiatonicStep(pitchStr: string): number {
-  const match = pitchStr.match(/^([A-Ga-g])([#b]?)(-?\d+)$/)
+function getDiatonicStep(pitchStr: string): number {
+  const match = pitchStr.match(/^([A-Ga-g])([#bB]?)(-?\d+)$/)
   if (!match) return 32 // fallback G4
   const letter = match[1].toUpperCase()
   const octave = parseInt(match[3], 10)
@@ -71,7 +71,7 @@ export function getDiatonicStep(pitchStr: string): number {
  * Calculates Y coordinate and required ledger lines for a pitch on Treble or Bass staff.
  * Uses S = 9px line spacing (step = 4.5px).
  */
-export function calculateStaffPitchY(
+function calculateStaffPitchY(
   pitchStr: string,
   preferredClef?: 'treble' | 'bass'
 ): { y: number; clef: 'treble' | 'bass'; ledgerYs: number[]; isMiddleC: boolean } {
@@ -149,17 +149,19 @@ export function FlowingNotationStand({
   // Calculate cumulative offsets and durations for each chord/measure
   const chordsWithOffsets = useMemo(() => {
     let currentOffset = 0
-    return progression.map((chord, idx) => {
+    const result: Array<FlowingChordItem & { duration_beats: number; startBeat: number; measureNumber: number }> = []
+    for (let idx = 0; idx < progression.length; idx++) {
+      const chord = progression[idx]
       const duration = chord.duration_beats ?? effectiveBeatsPerMeasure
-      const item = {
+      result.push({
         ...chord,
         duration_beats: duration,
         startBeat: currentOffset,
         measureNumber: idx + 1,
-      }
+      })
       currentOffset += duration
-      return item
-    })
+    }
+    return result
   }, [progression, effectiveBeatsPerMeasure])
 
   const totalBeats =
@@ -298,7 +300,9 @@ export function FlowingNotationStand({
 
           {/* Sliding Track: scrolls right-to-left from HIT_CALIPER_LEFT */}
           <div
-            className="absolute top-0 bottom-0 flex transition-transform duration-75 ease-linear"
+            className={`absolute top-0 bottom-0 flex will-change-transform ${
+              isPlaying ? 'transition-none' : 'transition-transform duration-100 ease-out'
+            }`}
             style={{
               transform: `translateX(calc(${HIT_CALIPER_LEFT}px - ${playheadOffsetPx}px))`,
             }}

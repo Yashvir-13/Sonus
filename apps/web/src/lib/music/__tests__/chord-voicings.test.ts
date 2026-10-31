@@ -33,6 +33,34 @@ describe('resolveChordVoicing', () => {
     expect(cVoicing.guitarTab.frets).toEqual([null, 3, 2, 0, 1, 0])
   })
 
+  it('resolves flat chords like Eb and Bb7 with correct root normalization and voicings', () => {
+    const eb = resolveChordVoicing('Eb')
+    expect(eb.chordName).toBe('Eb')
+    expect(eb.root).toBe('Eb')
+    expect(eb.pianoVoicing.lhNotes[0]).toBe('Eb2')
+    expect(eb.pitchClasses).toEqual([3, 7, 10]) // Eb, G, Bb
+    expect(eb.guitarTab.frets).toEqual([null, null, 1, 3, 4, 3])
+
+    const bb7 = resolveChordVoicing('Bb7')
+    expect(bb7.chordName).toBe('Bb7')
+    expect(bb7.root).toBe('Bb')
+    expect(bb7.pitchClasses).toEqual([2, 5, 8, 10]) // D, F, Ab, Bb
+    expect(bb7.guitarTab.frets).toEqual([null, 1, 3, 1, 3, 1])
+  })
+
+  it('resolves jazz and extended modal chords (Am7b5, Gmaj7, B7)', () => {
+    const am7b5 = resolveChordVoicing('Am7b5')
+    expect(am7b5.quality).toBe('m7b5')
+    expect(am7b5.pitchClasses).toEqual([0, 3, 7, 9]) // C, Eb, G, A
+
+    const gmaj7 = resolveChordVoicing('Gmaj7')
+    expect(gmaj7.pitchClasses).toEqual([2, 6, 7, 11]) // D, F#, G, B
+    expect(gmaj7.guitarTab.frets).toEqual([3, null, 0, 0, 0, 2])
+
+    const b7 = resolveChordVoicing('B7')
+    expect(b7.guitarTab.frets).toEqual([null, 2, 1, 2, 0, 2])
+  })
+
   it('parses arbitrary progression sequences into chained voicings', () => {
     const prog = parseProgressionSequence(['D', 'A', 'Bm', 'G'])
     expect(prog).toHaveLength(4)

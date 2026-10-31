@@ -1,9 +1,47 @@
 import { useState } from 'react'
 import { AudioTestBench } from '@/components/dev/audio-test-bench'
 import { PracticeTestingStudio } from '@/components/dev/practice-testing-studio'
+import { LandingPage } from '@/components/landing/landing-page'
+import { SignInModal } from '@/components/auth/sign-in-modal'
 
-export default function App() {
-  const [activeView, setActiveView] = useState<'practice' | 'audio'>('practice')
+export type AppProps = {
+  initialView?: 'landing' | 'practice' | 'audio'
+  userButtonSlot?: React.ReactNode
+  defaultSignedIn?: boolean
+}
+
+export default function App({ initialView = 'landing', userButtonSlot, defaultSignedIn = false }: AppProps) {
+  const [activeView, setActiveView] = useState<'landing' | 'practice' | 'audio'>(initialView)
+  const [isSignedIn, setIsSignedIn] = useState(defaultSignedIn || Boolean(userButtonSlot))
+  const [showSignInModal, setShowSignInModal] = useState(false)
+
+  if (activeView === 'landing') {
+    return (
+      <>
+        <LandingPage
+          onEnterStudio={() => {
+            if (isSignedIn) {
+              setActiveView('practice')
+            } else {
+              setShowSignInModal(true)
+            }
+          }}
+          onSignIn={() => setShowSignInModal(true)}
+          isSignedIn={isSignedIn}
+          userButtonSlot={userButtonSlot}
+        />
+        <SignInModal
+          isOpen={showSignInModal}
+          onClose={() => setShowSignInModal(false)}
+          onSuccess={() => {
+            setIsSignedIn(true)
+            setShowSignInModal(false)
+            setActiveView('practice')
+          }}
+        />
+      </>
+    )
+  }
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8 font-serif">
@@ -12,7 +50,7 @@ export default function App() {
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs font-bold tracking-[0.15em] uppercase text-[#9A2A2A] dark:text-[#D9534F]">
-              SONUS CONSERVATORY
+              SONUS
             </span>
             <span className="text-[#A09A8F] dark:text-[#6E675C]">•</span>
             <span className="text-xs text-[#736E65] dark:text-[#A39C8F] font-sans">Precision Adaptive Music Practice</span>
@@ -21,7 +59,7 @@ export default function App() {
             Adaptive Music Practice Studio
           </h1>
           <p className="max-w-2xl text-xs sm:text-sm text-[#736E65] dark:text-[#A39C8F] leading-relaxed font-sans">
-            Real-time flowing notation stand & guitar tabs, continuous microtonal pitch detection, and full-song interactive practice.
+            Real-time flowing notation stand &amp; guitar tabs, continuous microtonal pitch detection, and full-song interactive practice.
           </p>
 
           <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-mono text-[#736E65] dark:text-[#A39C8F]">
@@ -34,14 +72,19 @@ export default function App() {
             <span className="rounded border border-[#D9D3C7] bg-[#FCFBF8] dark:border-[#38342E] dark:bg-[#1A1816] px-2 py-0.5">
               ⚡ Real-Time Pitch Tracking &amp; Noise Gate
             </span>
-            <span className="rounded border border-[#D9D3C7] bg-[#FCFBF8] dark:border-[#38342E] dark:bg-[#1A1816] px-2 py-0.5">
-              📜 Archival Conservatory
-            </span>
           </div>
         </div>
 
         {/* View Switcher Controls */}
-        <div className="flex self-start md:self-auto rounded-xl border border-[#D9D3C7] bg-[#FCFBF8] dark:border-[#38342E] dark:bg-[#1A1816] p-1 shadow-2xs font-sans">
+        <div className="flex flex-wrap self-start md:self-auto rounded-xl border border-[#D9D3C7] bg-[#FCFBF8] dark:border-[#38342E] dark:bg-[#1A1816] p-1 shadow-2xs font-sans">
+          <button
+            type="button"
+            onClick={() => setActiveView('landing')}
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold tracking-wide text-[#736E65] hover:bg-[#EFECE6] hover:text-[#242321] dark:text-[#A39C8F] dark:hover:bg-[#2A2723] dark:hover:text-[#EDE8DF] transition-all"
+          >
+            <span>←</span>
+            <span>Back to Desk</span>
+          </button>
           <button
             type="button"
             onClick={() => setActiveView('practice')}

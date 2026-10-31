@@ -1,9 +1,25 @@
-import { SignIn } from '@clerk/react'
+import { useState } from 'react'
+import { LandingPage } from '@/components/landing/landing-page'
+import { SignInModal } from '@/components/auth/sign-in-modal'
 
 export function SignInPage() {
+  const [showSignInModal, setShowSignInModal] = useState(false)
+
   return (
-    <main className="grid min-h-svh place-items-center bg-background p-6 text-foreground">
-      <SignIn />
-    </main>
+    <div className="relative min-h-screen w-full bg-background text-foreground">
+      <LandingPage
+        onSignIn={() => setShowSignInModal(true)}
+        onEnterStudio={() => setShowSignInModal(true)}
+      />
+
+      <SignInModal
+        isOpen={showSignInModal}
+        onClose={() => setShowSignInModal(false)}
+        onSuccess={() => {
+          setShowSignInModal(false)
+          // If in offline dev mode, reloading or navigating can transition
+        }}
+      />
+    </div>
   )
 }

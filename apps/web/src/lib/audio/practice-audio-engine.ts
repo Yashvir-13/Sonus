@@ -23,10 +23,10 @@ export function parsePitchToMidi(pitch: string | number): number {
   if (typeof pitch === 'number') {
     return Math.round(pitch)
   }
-  const match = pitch.trim().match(/^([A-Ga-g])([#b]?)(-?\d+)$/)
+  const match = pitch.trim().match(/^([A-Ga-g])([#bB]?)(-?\d+)$/)
   if (!match) return 60 // Middle C default
   const letter = match[1].toUpperCase()
-  const accidental = match[2]
+  const accidental = match[2] ? match[2].toLowerCase() : ''
   const octave = parseInt(match[3], 10)
   const key = `${letter}${accidental}`
   const semitone = NOTE_SEMITONES[key] ?? NOTE_SEMITONES[letter] ?? 0
@@ -56,6 +56,13 @@ export const DEFAULT_CHORD_PITCHES: Record<string, number[]> = {
   Cmaj7: [48, 52, 55, 59, 64],   // C3, E3, G3, B3, E4
   Cm: [48, 51, 55, 60, 63],      // C3, Eb3, G3, C4, Eb4
   Fm: [41, 48, 53, 56, 60],      // F2, C3, F3, Ab3, C4
+  Eb: [51, 55, 58, 63, 67],      // Eb3, G3, Bb3, Eb4, G4
+  Ab: [44, 51, 56, 60, 63],      // Ab2, Eb3, Ab3, C4, Eb4
+  Bb: [46, 53, 58, 62, 65],      // Bb2, F3, Bb3, D4, F4
+  Bb7: [46, 53, 56, 58, 62],     // Bb2, F3, Ab3, Bb3, D4
+  Gmaj7: [43, 50, 54, 59, 66],   // G2, D3, F#3, B3, F#4
+  Dmaj7: [50, 57, 61, 66],       // D3, A3, C#4, F#4
+  Gm: [43, 50, 55, 58, 62],      // G2, D3, G3, Bb3, D4
 }
 
 export class PracticeAudioEngine {

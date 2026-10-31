@@ -31,24 +31,30 @@ export type VoicingDefinition = {
 const NOTE_TO_PITCH_CLASS: Record<string, number> = {
   C: 0,
   'C#': 1,
+  Db: 1,
   DB: 1,
   D: 2,
   'D#': 3,
+  Eb: 3,
   EB: 3,
   E: 4,
   F: 5,
   'F#': 6,
+  Gb: 6,
   GB: 6,
   G: 7,
   'G#': 8,
+  Ab: 8,
   AB: 8,
   A: 9,
   'A#': 10,
+  Bb: 10,
   BB: 10,
   B: 11,
 }
 
-const PITCH_CLASS_TO_NOTE = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+const PITCH_CLASS_TO_NOTE_SHARPS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+const PITCH_CLASS_TO_NOTE_FLATS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
 
 const CHORD_INTERVALS: Record<string, number[]> = {
   '': [0, 4, 7],
@@ -59,6 +65,14 @@ const CHORD_INTERVALS: Record<string, number[]> = {
   maj7: [0, 4, 7, 11],
   m7: [0, 3, 7, 10],
   min7: [0, 3, 7, 10],
+  m7b5: [0, 3, 6, 10],
+  '7sus4': [0, 5, 7, 10],
+  maj9: [0, 4, 7, 11, 14],
+  '9': [0, 4, 7, 10, 14],
+  m9: [0, 3, 7, 10, 14],
+  '6': [0, 4, 7, 9],
+  m6: [0, 3, 7, 9],
+  add9: [0, 4, 7, 14],
   dim: [0, 3, 6],
   dim7: [0, 3, 6, 9],
   aug: [0, 4, 8],
@@ -164,6 +178,65 @@ const STANDARD_GUITAR_VOICINGS: Record<string, GuitarTabVoicing> = {
     barreFret: 1,
     strings: 'x-x-D-G-B-e',
   },
+  B7: {
+    frets: [null, 2, 1, 2, 0, 2],
+    fingering: 'x-2-1-3-0-4',
+    strings: 'x-A-D-G-B-e',
+  },
+  Eb: {
+    frets: [null, null, 1, 3, 4, 3],
+    fingering: 'x-x-1-3-4-2',
+    strings: 'x-x-D-G-B-e',
+  },
+  Ab: {
+    frets: [4, 6, 6, 5, 4, 4],
+    fingering: '1-3-4-2-1-1',
+    barreFret: 4,
+    strings: 'E-A-D-G-B-e',
+  },
+  Bb: {
+    frets: [null, 1, 3, 3, 3, 1],
+    fingering: 'x-1-2-3-4-1',
+    barreFret: 1,
+    strings: 'x-A-D-G-B-e',
+  },
+  Bb7: {
+    frets: [null, 1, 3, 1, 3, 1],
+    fingering: 'x-1-3-1-4-1',
+    barreFret: 1,
+    strings: 'x-A-D-G-B-e',
+  },
+  Gmaj7: {
+    frets: [3, null, 0, 0, 0, 2],
+    fingering: '2-x-0-0-0-1',
+    strings: 'E-x-D-G-B-e',
+  },
+  Dmaj7: {
+    frets: [null, null, 0, 2, 2, 2],
+    fingering: 'x-x-0-1-1-1',
+    strings: 'x-x-D-G-B-e',
+  },
+  Gm: {
+    frets: [3, 5, 5, 3, 3, 3],
+    fingering: '1-3-4-1-1-1',
+    barreFret: 3,
+    strings: 'E-A-D-G-B-e',
+  },
+  E7: {
+    frets: [0, 2, 0, 1, 0, 0],
+    fingering: '0-2-0-1-0-0',
+    strings: 'E-A-D-G-B-e',
+  },
+  D7: {
+    frets: [null, null, 0, 2, 1, 2],
+    fingering: 'x-x-0-2-1-3',
+    strings: 'x-x-D-G-B-e',
+  },
+  C7: {
+    frets: [null, 3, 2, 3, 1, 0],
+    fingering: 'x-3-2-4-1-0',
+    strings: 'x-A-D-G-B-e',
+  },
 }
 
 function parseRootAndQuality(chordName: string): { root: string; quality: string } {
@@ -171,7 +244,9 @@ function parseRootAndQuality(chordName: string): { root: string; quality: string
   if (!match) {
     return { root: 'C', quality: '' }
   }
-  const root = match[1].toUpperCase()
+  const letter = match[1][0].toUpperCase()
+  const accidental = match[1].slice(1).toLowerCase()
+  const root = `${letter}${accidental}`
   const quality = match[2] || ''
   return { root, quality }
 }
@@ -219,7 +294,8 @@ export function resolveChordVoicing(chordName: string): VoicingDefinition {
   intervals.forEach((semitones) => {
     const midi = 60 + rootPc + semitones
     const pc = midi % 12
-    rhNotes.push(`${PITCH_CLASS_TO_NOTE[pc]}4`)
+    const noteTable = (root.includes('b') || root === 'F') ? PITCH_CLASS_TO_NOTE_FLATS : PITCH_CLASS_TO_NOTE_SHARPS
+    rhNotes.push(`${noteTable[pc]}4`)
     rhPitches.push(midi)
   })
 
@@ -228,7 +304,7 @@ export function resolveChordVoicing(chordName: string): VoicingDefinition {
   const pitchSpelling: PitchSpellingItem[] = intervals.map((_, idx) => {
     const pc = (rootPc + intervals[idx]) % 12
     return {
-      note: PITCH_CLASS_TO_NOTE[pc],
+      note: ((root.includes('b') || root === 'F') ? PITCH_CLASS_TO_NOTE_FLATS : PITCH_CLASS_TO_NOTE_SHARPS)[pc],
       role: roleNames[idx] || 'Extension',
     }
   })
