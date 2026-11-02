@@ -413,8 +413,26 @@ export async function fetchMe(token: string): Promise<UserDto> {
 fetch("http://localhost:8000/api/me") // hard-coded origin, no types, no auth header
 ```
 
----
 
+## Archival Music Desk Design System (`apps/web`)
+
+Reference rule: [`.agents/rules/archival-music-desk-design.md`](.agents/rules/archival-music-desk-design.md) (Figma origin: [Direction 1: Archival Music Desk](https://www.figma.com/design/zY5UlhIZAQxmeBcW9MTq1q)).
+
+- **Aesthetic**: 19th-Century Conservatory Music Desk & Urtext Engraving. Pure instrumental craftsmanship, tactile paper and burnished brass. No cyber/neon gradients, laser lines, or AI marketing hyperbole.
+- **Color Tokens**:
+  - *Light Mode*: Pressed Cotton Ivory canvas (`#F7F5F0`), Linen panels (`#FAF8F3`, `#FCFBF8`), Iron Gall Charcoal ink (`#242321`), Ash hairlines (`#E2DDD3`, `#D9D3C7`).
+  - *Dark Mode*: Smoked Ebony canvas (`#141312`), Walnut Charcoal panels (`#1E1C1A`), Ivory Pearl ink (`#EDE8DF`), Charcoal hairlines (`#38342E`).
+  - *Accents*: Bookbinder Terracotta caliper playhead & LH notes (`#9A2A2A` / `#A04B32`), Patina Jade RH notes & verified intonation (`#3B6E57` / `#4A6B5B`), Burnished Antique Brass hardware (`#C5A059`).
+- **Typography Pairings**:
+  - Scores & Headlines: Cormorant Garamond (`--font-serif`, `font-serif`).
+  - Telemetry, HUD, Cents, Frets: Geist Mono (`--font-mono`, `font-mono`).
+  - Brand Wordmark: Space Grotesk (`--font-brand`, `font-bold`).
+  - Body & UI Controls: Inter & DM Sans (`--font-sans`, `--font-display`).
+- **Guitar Diagrams**: Separate fret coordinates from fretting fingers (`frets: Array<number | null>`, `fingers: Array<number | 'T' | null>`); embed finger digits inside fret dots; render vector `O` (open) and `X` (muted) above nut; format base frets with ordinals (`1st`, `2nd`, `3rd`).
+- **Piano Visualizer**: Never display guitar fretboard in piano mode; render 25-key keyboard with 2-pass SVG key stacking (white keys first, black keys second); color-code LH (Terracotta) and RH (Patina Jade); render Middle C anchor at MIDI 60 (C4); Grand Staff spans Treble + Bass clefs with calligraphic brace and dynamic ledger lines.
+- **Sensory & Audio**: Karplus-Strong string synthesis, multi-partial acoustic piano with inharmonicity dispersion, dual-cavity authentic wooden metronome click (1150 Hz / 850 Hz); Lenis smooth scroll; zero unprompted microphone access.
+
+---
 ## Commands agents should know
 
 ```bash
