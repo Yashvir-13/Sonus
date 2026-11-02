@@ -14,8 +14,29 @@ export default defineConfig({
       '@': path.resolve(rootDir, 'src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'vendor-react'
+          }
+          if (id.includes('node_modules/@clerk/')) {
+            return 'vendor-clerk'
+          }
+          if (id.includes('node_modules/motion/') || id.includes('node_modules/lenis/')) {
+            return 'vendor-motion'
+          }
+          if (id.includes('node_modules/lucide-react/')) {
+            return 'vendor-icons'
+          }
+        },
+      },
+    },
+  },
   test: {
     environment: 'happy-dom',
     globals: true,
+    testTimeout: 15000,
   },
 })

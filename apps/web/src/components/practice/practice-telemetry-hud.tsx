@@ -1,5 +1,9 @@
 import React from 'react'
 import type { VoicingDefinition } from '@/lib/music/chord-voicings'
+import { formatFretOrdinal } from '@/components/practice/guitar-fretboard-diagram'
+import { ActiveVoicingDisplay } from '@/components/practice/active-voicing-display'
+
+export { formatFretOrdinal }
 
 export type PracticeTelemetryHUDProps = {
   instrument: 'guitar' | 'piano'
@@ -17,6 +21,7 @@ export type PracticeTelemetryHUDProps = {
   isPlaying: boolean
   onTogglePlay: () => void
   onRestart: () => void
+  onKeyClick?: (midi: number) => void
   livePitchText?: string
   liveRmsDb?: number
   isBackingAudioEnabled?: boolean
@@ -42,6 +47,7 @@ export function PracticeTelemetryHUD({
   isPlaying,
   onTogglePlay,
   onRestart,
+  onKeyClick,
   livePitchText,
   liveRmsDb = -45,
   isBackingAudioEnabled = true,
@@ -210,9 +216,15 @@ export function PracticeTelemetryHUD({
                 {activeChord.chordName}
               </div>
             </div>
-            {activeChord.guitarTab.barreFret ? (
+            {instrument === 'piano' ? (
+              <span className="text-[11px] font-mono bg-[#EFECE6] text-[#736E65] dark:bg-[#24221F] dark:text-[#A39C8F] px-2 py-0.5 rounded font-semibold">
+                {activeChord.pianoVoicing?.lhNotes?.length && activeChord.pianoVoicing?.rhNotes?.length
+                  ? 'Piano Voicing — LH & RH'
+                  : 'Piano Voicing — RH'}
+              </span>
+            ) : activeChord.guitarTab?.barreFret ? (
               <span className="text-[11px] font-mono bg-[#E2DDD3] text-[#524D44] dark:bg-[#2A2723] dark:text-[#A39C8F] px-2 py-0.5 rounded font-semibold">
-                Barre {activeChord.guitarTab.barreFret}nd Fret
+                Barre {formatFretOrdinal(activeChord.guitarTab.barreFret)} Fret
               </span>
             ) : (
               <span className="text-[11px] font-mono bg-[#EFECE6] text-[#736E65] dark:bg-[#24221F] dark:text-[#A39C8F] px-2 py-0.5 rounded">
@@ -221,77 +233,17 @@ export function PracticeTelemetryHUD({
             )}
           </div>
 
-          {/* Instrument Diagram: Guitar Fretboard or Piano Keyboard */}
+          {/* Instrument Diagram: Guitar Fretboard or Piano Dual Rendering */}
           <div className="my-3 flex items-center justify-center">
-            {instrument === 'guitar' ? (
-              <div data-testid="fretboard-diagram" className="flex flex-col items-center">
-                {/* String Mute / Open indicators */}
-                <div className="flex gap-4 font-mono text-[10px] text-[#736E65] dark:text-[#A39C8F] pb-1">
-                  {activeChord.guitarTab.frets.map((fret, i) => (
-                    <span key={i} className="w-3 text-center">
-                      {fret === null ? 'x' : fret === 0 ? '○' : '•'}
-                    </span>
-                  ))}
-                </div>
-
-                {/* SVG 5-fret diagram */}
-                <svg
-                  width="180"
-                  height="100"
-                  viewBox="0 0 180 100"
-                  className="bg-[#FCFBF8] dark:bg-[#1A1816] border border-[#D9D3C7] dark:border-[#38342E] rounded"
-                >
-                  {/* Nut line */}
-                  <line x1="20" y1="12" x2="160" y2="12" stroke="currentColor" className="text-[#242321] dark:text-[#EDE8DF]" strokeWidth="4" />
-                  {/* Fret lines (1 to 4) */}
-                  {[32, 52, 72, 92].map((y, idx) => (
-                    <line
-                      key={idx}
-                      x1="20"
-                      y1={y}
-                      x2="160"
-                      y2={y}
-                      stroke="currentColor"
-                      className="text-[#C9C3B5] dark:text-[#3E3A32]"
-                      strokeWidth="1.5"
-                    />
-                  ))}
-                  {/* 6 String Lines */}
-                  {[20, 48, 76, 104, 132, 160].map((x, sIdx) => {
-                    const fret = activeChord.guitarTab.frets[sIdx]
-                    const fretY = fret && fret > 0 ? 12 + (fret - 0.5) * 20 : null
-
-                    return (
-                      <g key={sIdx}>
-                        <line x1={x} y1="12" x2={x} y2="92" stroke="currentColor" className="text-[#8A857A] dark:text-[#5C564C]" strokeWidth="1" />
-                        {fretY && (
-                          <circle cx={x} cy={fretY} r="5" fill="currentColor" className="text-[#242321] dark:text-[#EDE8DF]" />
-                        )}
-                      </g>
-                    )
-                  })}
-                </svg>
-                <div className="text-[10px] font-mono text-[#736E65] dark:text-[#A39C8F] mt-1">
-                  Fingering: {activeChord.guitarTab.fingering}
-                </div>
-              </div>
-            ) : (
-              <div data-testid="piano-keyboard-diagram" className="flex flex-col items-center py-2">
-                <div className="flex border border-[#242321] dark:border-[#38342E] rounded overflow-hidden">
-                  {['C', 'D', 'E', 'F', 'G', 'A', 'B'].map((k) => (
-                    <div
-                      key={k}
-                      className="w-6 h-20 border-r border-[#D9D3C7] dark:border-[#38342E] bg-[#FCFBF8] dark:bg-[#1A1816] last:border-r-0 flex items-end justify-center pb-1 text-[9px] font-mono text-[#736E65] dark:text-[#A39C8F]"
-                    >
-                      {k}
-                    </div>
-                  ))}
-                </div>
-                <div className="text-[10px] font-mono text-[#736E65] dark:text-[#A39C8F] mt-1">
-                  RH Notes: {activeChord.pianoVoicing.rhNotes.join(' · ')}
-                </div>
-              </div>
-            )}
+            <ActiveVoicingDisplay
+              instrument={instrument}
+              chordName={activeChord.chordName || (activeChord as unknown as { name?: string }).name || ''}
+              guitarTab={activeChord.guitarTab}
+              pianoVoicing={activeChord.pianoVoicing}
+              activePitches={activeChord.expectedPitches}
+              onKeyClick={onKeyClick}
+              className="w-full"
+            />
           </div>
 
           {/* Pitch Spelling Badges */}
@@ -374,12 +326,26 @@ export function PracticeTelemetryHUD({
             <div className="flex flex-col items-center justify-center p-2 rounded bg-[#FCFBF8] dark:bg-[#1E1C1A] border border-[#E2DDD3] dark:border-[#38342E]">
               <span className="text-[9px] font-mono text-[#736E65] dark:text-[#A39C8F] uppercase">VOICING</span>
               <span className="text-xl font-serif font-black text-[#242321] dark:text-[#EDE8DF] my-1">
-                {voicingStringsCount > 0 ? `${voicingStringsCount}/6 str` : '0/6 str'}
+                {instrument === 'piano'
+                  ? voicingStringsCount >= 88
+                    ? 'Polyphonic'
+                    : voicingStringsCount > 0
+                      ? `${voicingStringsCount} keys`
+                      : '0 keys'
+                  : voicingStringsCount > 0
+                    ? `${voicingStringsCount}/6 str`
+                    : '0/6 str'}
               </span>
               <span className={`text-[8px] font-mono uppercase font-bold ${
-                voicingStringsCount >= 4 ? 'text-[#4A6B5B] dark:text-[#689F84]' : 'text-[#736E65] dark:text-[#A39C8F]'
+                (instrument === 'piano' ? (voicingStringsCount >= 4 || voicingStringsCount >= 88) : voicingStringsCount >= 4)
+                  ? 'text-[#4A6B5B] dark:text-[#689F84]'
+                  : 'text-[#736E65] dark:text-[#A39C8F]'
               }`}>
-                {voicingStringsCount >= 4 ? 'FULL HARMONY' : voicingStringsCount > 0 ? 'PARTIAL' : 'SILENT'}
+                {(instrument === 'piano' ? (voicingStringsCount >= 4 || voicingStringsCount >= 88) : voicingStringsCount >= 4)
+                  ? 'FULL HARMONY'
+                  : voicingStringsCount > 0
+                    ? 'PARTIAL'
+                    : 'SILENT'}
               </span>
             </div>
           </div>

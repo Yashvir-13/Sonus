@@ -1,5 +1,6 @@
 import type { ExerciseDto } from '@/api/sessions'
 import type { GrandStaffNote, StrumEvent } from '@/components/practice/flowing-notation-stand'
+import { parseFingeringString } from '@/lib/music/chord-voicings'
 
 export type FullSongChordItem = {
   name: string
@@ -10,6 +11,9 @@ export type FullSongChordItem = {
     frets: Array<number | null>
     strings: string
     fingering?: string
+    fingers?: Array<number | null | string>
+    barreFret?: number
+    baseFret?: number
   }
   piano_voicings?: {
     lh_note: string
@@ -84,6 +88,8 @@ function buildKnockinFullSong(): FullSongChordItem[] {
           frets: item.frets,
           strings: item.str,
           fingering: item.fing,
+          fingers: parseFingeringString(item.fing),
+          baseFret: 1,
         },
         strum_events: strumEvents,
         section: sec.name,
@@ -239,6 +245,9 @@ function buildFourChordAnthemFullSong(): FullSongChordItem[] {
             frets: item.frets,
             strings: item.str,
             fingering: item.fing,
+            fingers: parseFingeringString(item.fing),
+            barreFret: item.name === 'Bm' ? 2 : undefined,
+            baseFret: 1,
           },
           strum_events: strumEvents,
           section: sec.name,
@@ -286,6 +295,9 @@ function buildRisingSunFullSong(): FullSongChordItem[] {
           frets: item.frets,
           strings: item.str,
           fingering: item.fing,
+          fingers: parseFingeringString(item.fing),
+          barreFret: item.name === 'F' ? 1 : undefined,
+          baseFret: 1,
         },
         strum_events: strumEvents,
       })

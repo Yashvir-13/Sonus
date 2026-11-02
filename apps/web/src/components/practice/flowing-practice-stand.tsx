@@ -28,6 +28,7 @@ export type FlowingPracticeStandProps = {
   onCustomInputChange?: (val: string) => void
   timeSignature?: string
   onSeekBeat?: (beat: number) => void
+  onKeyClick?: (midi: number) => void
 }
 
 const DEFAULT_HERO_PROGRESSION_CHORDS = ['G', 'D', 'Em', 'C']
@@ -49,6 +50,7 @@ export function FlowingPracticeStand({
   onCustomInputChange,
   timeSignature = '4/4',
   onSeekBeat,
+  onKeyClick,
 }: FlowingPracticeStandProps): React.JSX.Element {
   // Internal state when not fully controlled
   const [internalInstrument, setInternalInstrument] = useState<'guitar' | 'piano'>('guitar')
@@ -171,6 +173,16 @@ export function FlowingPracticeStand({
     }
   }, [isPlaying])
 
+  // Key click callback for interactive piano keyboard
+  const handleKeyClick = useCallback(
+    (midi: number) => {
+      audioEngineRef.current?.unlock()
+      audioEngineRef.current?.playPianoNote(midi, 1.2, 0.8)
+      onKeyClick?.(midi)
+    },
+    [onKeyClick]
+  )
+
   // Rewind playhead to start when a different piece is loaded
   const prevPieceRef = useRef(pieceTitle)
   useEffect(() => {
@@ -223,9 +235,14 @@ export function FlowingPracticeStand({
           const measureDurationSec = beatsPerMeasure * (60 / tempoBpm)
           const chordToPlay = progression[currentMeasureIdx] || progression[0]
           if (chordToPlay) {
+            const pitchesToPlay =
+              instrument === 'piano' && chordToPlay.pianoVoicing
+                ? [...chordToPlay.pianoVoicing.lhPitches, ...chordToPlay.pianoVoicing.rhPitches]
+                : chordToPlay.expectedPitches
+
             audioEngineRef.current?.playChord(
               chordToPlay.chordName,
-              chordToPlay.expectedPitches,
+              pitchesToPlay,
               measureDurationSec,
               instrument
             )
@@ -357,6 +374,7 @@ export function FlowingPracticeStand({
         isPlaying={isPlaying}
         onTogglePlay={handleTogglePlay}
         onRestart={handleRestart}
+        onKeyClick={handleKeyClick}
         livePitchText={livePitchText}
         liveRmsDb={liveRmsDb}
         isBackingAudioEnabled={isBackingAudioEnabled}

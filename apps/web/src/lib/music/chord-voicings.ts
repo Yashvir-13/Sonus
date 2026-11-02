@@ -1,8 +1,49 @@
 export type GuitarTabVoicing = {
   frets: (number | null)[] // [E2, A2, D3, G3, B3, E4]
   fingering: string
+  fingers?: (number | null | string)[]
   barreFret?: number
+  baseFret?: number
   strings: string
+}
+
+/**
+ * Parses a guitar fingering string (e.g. '2-1-0-0-3-4', 'x-3-2-0-1-0', 'x 3 2 0 1 0', 'T-x-0-1-3-2')
+ * into a structured 6-element array of finger assignments (1-4, 'T') or null for open/muted strings.
+ */
+export function parseFingeringString(fingering: string): (number | string | null)[] {
+  if (!fingering || typeof fingering !== 'string') {
+    return [null, null, null, null, null, null]
+  }
+
+  const trimmed = fingering.trim()
+  let tokens: string[]
+
+  if (/[-/\s,]/.test(trimmed)) {
+    tokens = trimmed.split(/[-/\s,]+/).filter((t) => t.length > 0)
+  } else {
+    tokens = trimmed.split('')
+  }
+
+  const result: (number | string | null)[] = []
+  for (let i = 0; i < 6; i++) {
+    const rawToken = tokens[i]?.trim()
+    const token = rawToken?.toLowerCase()
+    if (!token || token === 'x' || token === '0' || token === '-' || token === '.') {
+      result.push(null)
+    } else if (token === 't') {
+      result.push('T')
+    } else {
+      const num = parseInt(token, 10)
+      if (!isNaN(num) && num >= 1 && num <= 4) {
+        result.push(num)
+      } else {
+        result.push(null)
+      }
+    }
+  }
+
+  return result
 }
 
 export type PianoVoicing = {
@@ -86,155 +127,293 @@ const GUITAR_STRING_MIDI = [40, 45, 50, 55, 59, 64]
 /**
  * Standard chord fret dictionary for common guitar voicings.
  */
-const STANDARD_GUITAR_VOICINGS: Record<string, GuitarTabVoicing> = {
+export const STANDARD_GUITAR_VOICINGS: Record<string, GuitarTabVoicing> = {
   C: {
     frets: [null, 3, 2, 0, 1, 0],
     fingering: 'x-3-2-0-1-0',
+    fingers: [null, 3, 2, null, 1, null],
+    baseFret: 1,
     strings: 'x-A-D-G-B-e',
   },
   D: {
     frets: [null, null, 0, 2, 3, 2],
     fingering: 'x-x-0-1-3-2',
+    fingers: [null, null, null, 1, 3, 2],
+    baseFret: 1,
     strings: 'x-x-D-G-B-e',
   },
   E: {
     frets: [0, 2, 2, 1, 0, 0],
     fingering: '0-2-3-1-0-0',
+    fingers: [null, 2, 3, 1, null, null],
+    baseFret: 1,
     strings: 'E-A-D-G-B-e',
   },
   Em: {
     frets: [0, 2, 2, 0, 0, 0],
     fingering: '0-2-3-0-0-0',
+    fingers: [null, 2, 3, null, null, null],
+    baseFret: 1,
     strings: 'E-A-D-G-B-e',
   },
   F: {
     frets: [1, 3, 3, 2, 1, 1],
     fingering: '1-3-4-2-1-1',
+    fingers: [1, 3, 4, 2, 1, 1],
     barreFret: 1,
+    baseFret: 1,
     strings: 'E-A-D-G-B-e',
   },
   G: {
     frets: [3, 2, 0, 0, 3, 3],
     fingering: '2-1-0-0-3-4',
+    fingers: [2, 1, null, null, 3, 4],
+    baseFret: 1,
+    strings: 'E-A-D-G-B-e',
+  },
+  G_folk: {
+    frets: [3, 2, 0, 0, 0, 3],
+    fingering: '2-1-0-0-0-3',
+    fingers: [2, 1, null, null, null, 3],
+    baseFret: 1,
+    strings: 'E-A-D-G-B-e',
+  },
+  Gfolk: {
+    frets: [3, 2, 0, 0, 0, 3],
+    fingering: '2-1-0-0-0-3',
+    fingers: [2, 1, null, null, null, 3],
+    baseFret: 1,
+    strings: 'E-A-D-G-B-e',
+  },
+  G3: {
+    frets: [3, 2, 0, 0, 0, 3],
+    fingering: '2-1-0-0-0-3',
+    fingers: [2, 1, null, null, null, 3],
+    baseFret: 1,
     strings: 'E-A-D-G-B-e',
   },
   A: {
     frets: [null, 0, 2, 2, 2, 0],
     fingering: 'x-0-1-2-3-0',
+    fingers: [null, null, 1, 2, 3, null],
+    baseFret: 1,
     strings: 'x-A-D-G-B-e',
   },
   Am: {
     frets: [null, 0, 2, 2, 1, 0],
     fingering: 'x-0-2-3-1-0',
+    fingers: [null, null, 2, 3, 1, null],
+    baseFret: 1,
     strings: 'x-A-D-G-B-e',
   },
   B: {
     frets: [null, 2, 4, 4, 4, 2],
     fingering: 'x-1-2-3-4-1',
+    fingers: [null, 1, 2, 3, 4, 1],
     barreFret: 2,
+    baseFret: 2,
     strings: 'x-A-D-G-B-e',
   },
   Bm: {
     frets: [null, 2, 4, 4, 3, 2],
     fingering: 'x-1-3-4-2-1',
+    fingers: [null, 1, 3, 4, 2, 1],
     barreFret: 2,
+    baseFret: 2,
     strings: 'x-A-D-G-B-e',
   },
   Dm: {
     frets: [null, null, 0, 2, 3, 1],
     fingering: 'x-x-0-2-3-1',
+    fingers: [null, null, null, 2, 3, 1],
+    baseFret: 1,
     strings: 'x-x-D-G-B-e',
   },
   Cmaj7: {
     frets: [null, 3, 2, 0, 0, 0],
     fingering: 'x-3-2-0-0-0',
+    fingers: [null, 3, 2, null, null, null],
+    baseFret: 1,
     strings: 'x-A-D-G-B-e',
   },
   Cm: {
     frets: [null, 3, 5, 5, 4, 3],
     fingering: 'x-1-3-4-2-1',
+    fingers: [null, 1, 3, 4, 2, 1],
     barreFret: 3,
+    baseFret: 3,
     strings: 'x-A-D-G-B-e',
   },
   Fm: {
     frets: [1, 3, 3, 1, 1, 1],
     fingering: '1-3-4-1-1-1',
+    fingers: [1, 3, 4, 1, 1, 1],
     barreFret: 1,
+    baseFret: 1,
     strings: 'E-A-D-G-B-e',
   },
   G7: {
     frets: [3, 2, 0, 0, 0, 1],
     fingering: '3-2-0-0-0-1',
+    fingers: [3, 2, null, null, null, 1],
+    baseFret: 1,
     strings: 'E-A-D-G-B-e',
   },
   A7: {
     frets: [null, 0, 2, 0, 2, 0],
     fingering: 'x-0-2-0-3-0',
+    fingers: [null, null, 2, null, 3, null],
+    baseFret: 1,
     strings: 'x-A-D-G-B-e',
   },
   Dm7: {
     frets: [null, null, 0, 2, 1, 1],
     fingering: 'x-x-0-2-1-1',
+    fingers: [null, null, null, 2, 1, 1],
     barreFret: 1,
+    baseFret: 1,
     strings: 'x-x-D-G-B-e',
   },
   B7: {
     frets: [null, 2, 1, 2, 0, 2],
     fingering: 'x-2-1-3-0-4',
+    fingers: [null, 2, 1, 3, null, 4],
+    baseFret: 1,
     strings: 'x-A-D-G-B-e',
   },
   Eb: {
     frets: [null, null, 1, 3, 4, 3],
     fingering: 'x-x-1-3-4-2',
+    fingers: [null, null, 1, 3, 4, 2],
+    baseFret: 1,
     strings: 'x-x-D-G-B-e',
   },
   Ab: {
     frets: [4, 6, 6, 5, 4, 4],
     fingering: '1-3-4-2-1-1',
+    fingers: [1, 3, 4, 2, 1, 1],
     barreFret: 4,
+    baseFret: 4,
     strings: 'E-A-D-G-B-e',
   },
   Bb: {
     frets: [null, 1, 3, 3, 3, 1],
     fingering: 'x-1-2-3-4-1',
+    fingers: [null, 1, 2, 3, 4, 1],
     barreFret: 1,
+    baseFret: 1,
     strings: 'x-A-D-G-B-e',
   },
   Bb7: {
     frets: [null, 1, 3, 1, 3, 1],
     fingering: 'x-1-3-1-4-1',
+    fingers: [null, 1, 3, 1, 4, 1],
     barreFret: 1,
+    baseFret: 1,
     strings: 'x-A-D-G-B-e',
   },
   Gmaj7: {
     frets: [3, null, 0, 0, 0, 2],
     fingering: '2-x-0-0-0-1',
+    fingers: [2, null, null, null, null, 1],
+    baseFret: 1,
     strings: 'E-x-D-G-B-e',
   },
   Dmaj7: {
     frets: [null, null, 0, 2, 2, 2],
     fingering: 'x-x-0-1-1-1',
+    fingers: [null, null, null, 1, 1, 1],
+    barreFret: 2,
+    baseFret: 1,
     strings: 'x-x-D-G-B-e',
   },
   Gm: {
     frets: [3, 5, 5, 3, 3, 3],
     fingering: '1-3-4-1-1-1',
+    fingers: [1, 3, 4, 1, 1, 1],
     barreFret: 3,
+    baseFret: 3,
     strings: 'E-A-D-G-B-e',
   },
   E7: {
     frets: [0, 2, 0, 1, 0, 0],
     fingering: '0-2-0-1-0-0',
+    fingers: [null, 2, null, 1, null, null],
+    baseFret: 1,
     strings: 'E-A-D-G-B-e',
   },
   D7: {
     frets: [null, null, 0, 2, 1, 2],
     fingering: 'x-x-0-2-1-3',
+    fingers: [null, null, null, 2, 1, 3],
+    baseFret: 1,
     strings: 'x-x-D-G-B-e',
   },
   C7: {
     frets: [null, 3, 2, 3, 1, 0],
     fingering: 'x-3-2-4-1-0',
+    fingers: [null, 3, 2, 4, 1, null],
+    baseFret: 1,
+    strings: 'x-A-D-G-B-e',
+  },
+  Cm7: {
+    frets: [null, 3, 5, 3, 4, 3],
+    fingering: 'x-1-3-1-2-1',
+    fingers: [null, 1, 3, 1, 2, 1],
+    barreFret: 3,
+    baseFret: 3,
+    strings: 'x-A-D-G-B-e',
+  },
+  F7: {
+    frets: [1, 3, 1, 2, 1, 1],
+    fingering: '1-3-1-2-1-1',
+    fingers: [1, 3, 1, 2, 1, 1],
+    barreFret: 1,
+    baseFret: 1,
+    strings: 'E-A-D-G-B-e',
+  },
+  Bbmaj7: {
+    frets: [null, 1, 3, 2, 3, 1],
+    fingering: 'x-1-3-2-4-1',
+    fingers: [null, 1, 3, 2, 4, 1],
+    barreFret: 1,
+    baseFret: 1,
+    strings: 'x-A-D-G-B-e',
+  },
+  Ebmaj7: {
+    frets: [null, null, 1, 3, 3, 3],
+    fingering: 'x-x-1-2-3-4',
+    fingers: [null, null, 1, 2, 3, 4],
+    baseFret: 1,
+    strings: 'x-x-D-G-B-e',
+  },
+  Am7b5: {
+    frets: [null, 0, 1, 0, 1, null],
+    fingering: 'x-0-1-0-2-x',
+    fingers: [null, null, 1, null, 2, null],
+    baseFret: 1,
+    strings: 'x-A-D-G-B-x',
+  },
+  Bm7: {
+    frets: [null, 2, 4, 2, 3, 2],
+    fingering: 'x-1-3-1-2-1',
+    fingers: [null, 1, 3, 1, 2, 1],
+    barreFret: 2,
+    baseFret: 2,
+    strings: 'x-A-D-G-B-e',
+  },
+  Dmaj9: {
+    frets: [null, null, 0, 2, 2, 0],
+    fingering: 'x-x-0-1-2-0',
+    fingers: [null, null, null, 1, 2, null],
+    baseFret: 1,
+    strings: 'x-x-D-G-B-e',
+  },
+  A7sus4: {
+    frets: [null, 0, 2, 0, 3, 0],
+    fingering: 'x-0-2-0-3-0',
+    fingers: [null, null, 2, null, 3, null],
+    baseFret: 1,
     strings: 'x-A-D-G-B-e',
   },
 }
@@ -264,12 +443,25 @@ export function resolveChordVoicing(chordName: string): VoicingDefinition {
   const pitchClasses = intervals.map((i) => (rootPc + i) % 12).sort((a, b) => a - b)
 
   // Guitar Tab lookup or dynamic approximation
-  let guitarTab = STANDARD_GUITAR_VOICINGS[chordName]
-  if (!guitarTab) {
+  let rawGuitarTab = STANDARD_GUITAR_VOICINGS[chordName]
+  if (!rawGuitarTab && (chordName === 'G_folk' || chordName === 'Gfolk' || chordName === 'G-folk' || chordName === 'G3')) {
+    rawGuitarTab = STANDARD_GUITAR_VOICINGS['G_folk']
+  }
+
+  let guitarTab: GuitarTabVoicing
+  if (rawGuitarTab) {
+    guitarTab = {
+      ...rawGuitarTab,
+      fingers: rawGuitarTab.fingers ?? parseFingeringString(rawGuitarTab.fingering),
+      baseFret: rawGuitarTab.baseFret ?? 1,
+    }
+  } else {
     guitarTab = {
       frets: [null, null, 0, null, null, null],
       fingering: 'x-x-0-x-x-x',
+      fingers: [null, null, null, null, null, null],
       strings: 'x-x-D-G-B-e',
+      baseFret: 1,
     }
     if (quality.includes('m') || quality.includes('min')) {
       guitarTab.barreFret = rootPc
@@ -295,7 +487,8 @@ export function resolveChordVoicing(chordName: string): VoicingDefinition {
     const midi = 60 + rootPc + semitones
     const pc = midi % 12
     const noteTable = (root.includes('b') || root === 'F') ? PITCH_CLASS_TO_NOTE_FLATS : PITCH_CLASS_TO_NOTE_SHARPS
-    rhNotes.push(`${noteTable[pc]}4`)
+    const octave = Math.floor(midi / 12) - 1
+    rhNotes.push(`${noteTable[pc]}${octave}`)
     rhPitches.push(midi)
   })
 

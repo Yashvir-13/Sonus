@@ -1071,6 +1071,10 @@ export function PracticeTestingStudio() {
                 else startPlayAlong()
               }}
               onRestart={restartPlayAlong}
+              onKeyClick={(midi) => {
+                audioEngineRef.current?.unlock()
+                audioEngineRef.current?.playPianoNote(midi, 1.2, 0.8)
+              }}
               livePitchText={liveTelemetry.livePitchText}
               liveRmsDb={liveTelemetry.liveRmsDb}
               isBackingAudioEnabled={isChordAudioEnabled}
