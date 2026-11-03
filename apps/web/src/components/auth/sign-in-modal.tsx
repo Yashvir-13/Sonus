@@ -22,14 +22,14 @@ export function SignInModal({
       role="dialog"
       aria-modal="true"
       aria-label="Sign in to Sonus"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200"
     >
-      <div className="relative rounded-2xl bg-[#FAF8F3] dark:bg-[#1C1A18] border border-[#E2DDD3] dark:border-[#38342E] p-6 sm:p-8 shadow-2xl max-w-md w-full text-[#242321] dark:text-[#EDE8DF]">
+      <div className="relative rounded-xl bg-[#111114] border border-zinc-800 p-6 sm:p-8 shadow-2xl max-w-md w-full text-zinc-100">
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 rounded-lg p-1.5 text-xs font-mono font-bold text-[#736E65] hover:text-[#242321] dark:text-[#A39C8F] dark:hover:text-[#EDE8DF] border border-[#E2DDD3] dark:border-[#38342E] hover:bg-[#EFECE6] dark:hover:bg-[#2A2723] transition-colors"
+          className="absolute top-4 right-4 rounded-lg px-2 py-1 text-xs font-mono font-bold text-zinc-400 hover:text-zinc-100 border border-zinc-800 hover:bg-zinc-900 transition-colors"
           aria-label="Close dialog"
         >
           ✕
@@ -38,43 +38,48 @@ export function SignInModal({
         {hasClerkKey ? (
           <div className="pt-2 flex flex-col items-center">
             <SignIn />
-            <div className="mt-4 pt-3 border-t border-[#E2DDD3] dark:border-[#38342E] w-full text-center">
+            <div className="mt-4 pt-3 border-t border-zinc-800 w-full text-center">
               <button
                 type="button"
                 onClick={() => {
                   if (onSuccess) onSuccess()
                   onClose()
                 }}
-                className="text-xs text-[#736E65] dark:text-[#A39C8F] hover:text-[#242321] dark:hover:text-[#EDE8DF] font-sans underline underline-offset-4 cursor-pointer transition-colors"
+                className="text-xs text-zinc-400 hover:text-amber-400 font-mono underline underline-offset-4 cursor-pointer transition-colors"
               >
                 Or enter practice studio in guest acoustic mode →
               </button>
             </div>
           </div>
         ) : (
-          <div className="space-y-6 text-center">
+          <div className="space-y-6">
             {/* Brand Header */}
-            <div className="flex flex-col items-center gap-2">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#C5A059]/15 border border-[#C5A059]/35 text-[#C5A059] font-serif font-black text-2xl shadow-sm">
-                §
+            <div className="flex flex-col items-start gap-2">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded bg-amber-500/15 border border-amber-500/40 text-amber-500 font-mono font-bold text-sm">
+                  §
+                </div>
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+                  SONUS WORKSTATION AUTH
+                </span>
               </div>
-              <h3 className="font-serif text-2xl font-bold tracking-tight text-[#242321] dark:text-[#EDE8DF]">
+              <h3 className="font-sans text-xl font-bold tracking-tight text-zinc-100 pt-1">
                 Sign in to Sonus
               </h3>
-              <p className="text-xs text-[#736E65] dark:text-[#A39C8F] font-sans max-w-xs leading-relaxed">
-                Welcome back. Continue to your practice studio, saved chord progressions, and habit tracking.
+              <p className="text-xs text-zinc-400 font-sans leading-relaxed">
+                Launch the acoustic practice workstation, inspect measure-level timing and voicing errors, and run closed-loop habit drills.
               </p>
             </div>
 
             {/* Quick Demo Sign-In Action */}
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2.5">
               <button
                 type="button"
                 onClick={() => {
                   if (onSuccess) onSuccess()
                   onClose()
                 }}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#242321] text-[#FAF8F3] dark:bg-[#C5A059] dark:text-[#141312] py-3 px-4 text-xs font-sans font-semibold tracking-wide hover:bg-[#3D3A36] dark:hover:bg-[#DFC07A] transition-all shadow-md"
+                className="w-full flex items-center justify-between rounded-lg bg-amber-500 text-zinc-950 py-3 px-4 text-xs font-mono font-bold uppercase tracking-wider hover:bg-amber-400 transition-all cursor-pointer"
               >
                 <span>Continue as Demo Musician</span>
                 <span>→</span>
@@ -83,16 +88,16 @@ export function SignInModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full rounded-xl border border-[#E2DDD3] dark:border-[#38342E] py-2.5 px-4 text-xs font-sans text-[#736E65] dark:text-[#A39C8F] hover:bg-[#EFECE6] dark:hover:bg-[#2A2723] transition-colors"
+                className="w-full rounded-lg border border-zinc-800 bg-[#09090B] py-2.5 px-4 text-xs font-mono text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 transition-colors cursor-pointer"
               >
                 Explore Repertoire First
               </button>
             </div>
 
             {/* Config Notice for Live Clerk Key */}
-            <div className="rounded-xl border border-[#E2DDD3] dark:border-[#38342E] bg-[#FCFBF8] dark:bg-[#141312] p-3 text-[11px] font-mono text-[#736E65] dark:text-[#A39C8F] text-left">
-              <span className="font-bold text-[#C5A059] block mb-0.5">Clerk Auth Status:</span>
-              To connect your live Clerk instance, set <code className="text-[#C5A059]">VITE_CLERK_PUBLISHABLE_KEY</code> in <code className="text-[#C5A059]">apps/web/.env</code>.
+            <div className="rounded-lg border border-zinc-800/80 bg-[#09090B] p-3 text-[11px] font-mono text-zinc-500 text-left">
+              <span className="font-bold text-amber-500 block mb-0.5">Local Session Mode</span>
+              Set <code className="text-zinc-300">VITE_CLERK_PUBLISHABLE_KEY</code> in <code className="text-zinc-300">apps/web/.env</code> to sync longitudinal habit records with Clerk JWT identity.
             </div>
           </div>
         )}

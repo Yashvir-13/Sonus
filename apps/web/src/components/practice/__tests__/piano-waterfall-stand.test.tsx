@@ -60,14 +60,14 @@ describe('PianoWaterfallStand Component', () => {
     expect(handleKeyClick).toHaveBeenCalledWith(60)
   })
 
-  it('illuminates striking keys with hand-specific colors: LH Terracotta and RH Patina Jade', () => {
+  it('illuminates striking keys with hand-specific colors: LH Amber (#F59E0B) and RH Emerald (#10B981)', () => {
     const melodyProgression = [
       {
         ...resolveChordVoicing('Cm'),
         duration_beats: 3,
         melodyNotes: [
           { pitch: 'C3', beatOffset: 0, duration: 1, clef: 'bass' as const }, // MIDI 48 (white key, LH)
-          { pitch: 'Eb5', beatOffset: 0, duration: 1, clef: 'treble' as const }, // MIDI 75 > 72, or use Eb4 (63, black key, RH)
+          { pitch: 'Eb5', beatOffset: 0, duration: 1, clef: 'treble' as const }, // MIDI 75 > 72
           { pitch: 'D4', beatOffset: 0, duration: 1, clef: 'treble' as const }, // MIDI 62 (white key, RH)
         ],
       },
@@ -76,19 +76,19 @@ describe('PianoWaterfallStand Component', () => {
     render(
       <PianoWaterfallStand
         progression={melodyProgression}
-        currentBeat={0.2} // Within active duration of beat 0 notes
+        currentBeat={0.2}
         tempoBpm={80}
         isPlaying={true}
       />
     )
 
-    // C3 (MIDI 48) is a white key played by LH -> must illuminate in Terracotta (#9A2A2A)
+    // C3 (MIDI 48) is a white key played by LH -> must illuminate in Amber (#F59E0B)
     const keyC3 = screen.getByTestId('waterfall-key-48')
-    expect(keyC3.getAttribute('fill')).toBe('#9A2A2A')
+    expect(keyC3.getAttribute('fill')).toBe('#F59E0B')
 
-    // D4 (MIDI 62) is a white key played by RH -> must illuminate in Patina Jade (#3B6E57)
+    // D4 (MIDI 62) is a white key played by RH -> must illuminate in Emerald (#10B981)
     const keyD4 = screen.getByTestId('waterfall-key-62')
-    expect(keyD4.getAttribute('fill')).toBe('#3B6E57')
+    expect(keyD4.getAttribute('fill')).toBe('#10B981')
   })
 
   it('staggers falling note ribbons according to melodyNotes beatOffsets', () => {
@@ -116,8 +116,8 @@ describe('PianoWaterfallStand Component', () => {
     // At beat 0: C4 (60) is active at strike, D4 (62) is not active yet
     const keyC4AtBeat0 = screen.getByTestId('waterfall-key-60')
     const keyD4AtBeat0 = screen.getByTestId('waterfall-key-62')
-    expect(keyC4AtBeat0.getAttribute('fill')).toBe('#3B6E57')
-    expect(keyD4AtBeat0.getAttribute('fill')).toBe('#FAF8F3') // Inactive white key
+    expect(keyC4AtBeat0.getAttribute('fill')).toBe('#10B981')
+    expect(keyD4AtBeat0.getAttribute('fill')).toBe('#E4E4E7')
 
     // Advance to beat 1.2: D4 (62) becomes active, C4 (60) is no longer active
     rerender(
@@ -131,7 +131,7 @@ describe('PianoWaterfallStand Component', () => {
 
     const keyC4AtBeat1 = screen.getByTestId('waterfall-key-60')
     const keyD4AtBeat1 = screen.getByTestId('waterfall-key-62')
-    expect(keyC4AtBeat1.getAttribute('fill')).toBe('#FAF8F3')
-    expect(keyD4AtBeat1.getAttribute('fill')).toBe('#3B6E57')
+    expect(keyC4AtBeat1.getAttribute('fill')).toBe('#E4E4E7')
+    expect(keyD4AtBeat1.getAttribute('fill')).toBe('#10B981')
   })
 })

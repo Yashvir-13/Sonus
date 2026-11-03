@@ -1,20 +1,21 @@
 import React, { useMemo } from 'react'
 import type { VoicingDefinition } from '@/lib/music/chord-voicings'
 import type { PitchDetectionResult } from '@/lib/audio/realtime-pitch-tracker'
+import type { ChordMetricDto } from '@/api/sessions'
 import { PianoWaterfallStand } from './piano-waterfall-stand'
 
 export type GrandStaffNote = {
-  pitch: string // e.g. "C4", "E4", "G4", "C3", "G2"
-  beatOffset: number // 0, 1, 2, 3 within measure
-  duration: number // 1 (quarter), 2 (half), 4 (whole), 0.5 (eighth)
+  pitch: string
+  beatOffset: number
+  duration: number
   clef?: 'treble' | 'bass'
 }
 
 export type StrumEvent = {
-  beatOffset: number // 0, 1, 1.5, 2, 2.5, 3, 3.5
+  beatOffset: number
   direction: 'down' | 'up' | 'rest' | 'mute'
   accent?: boolean
-  label?: string // "D", "U"
+  label?: string
 }
 
 export type FlowingChordItem = VoicingDefinition & {
@@ -32,6 +33,7 @@ export type FlowingNotationStandProps = {
   isCountingIn?: boolean
   countInBeat?: number
   activeHitResult?: PitchDetectionResult | null
+  chordMetrics?: ChordMetricDto[]
   beatsPerMeasure?: number
   timeSignature?: string
   onSeekBeat?: (beat: number) => void
@@ -60,29 +62,20 @@ const DIATONIC_INDEX: Record<string, number> = {
   B: 6,
 }
 
-/**
- * Calculates absolute diatonic step scalar for pitch string (e.g. "C4" -> 28, "G4" -> 32, "C3" -> 21)
- */
 function getDiatonicStep(pitchStr: string): number {
   const match = pitchStr.match(/^([A-Ga-g])([#bB]?)(-?\d+)$/)
-  if (!match) return 32 // fallback G4
+  if (!match) return 32
   const letter = match[1].toUpperCase()
   const octave = parseInt(match[3], 10)
   return octave * 7 + (DIATONIC_INDEX[letter] ?? 0)
 }
 
-/**
- * Calculates Y coordinate and required ledger lines for a pitch on Treble or Bass staff.
- * Uses S = 9px line spacing (step = 4.5px).
- */
 function calculateStaffPitchY(
   pitchStr: string,
   preferredClef?: 'treble' | 'bass'
 ): { y: number; clef: 'treble' | 'bass'; ledgerYs: number[]; isMiddleC: boolean } {
   const step = getDiatonicStep(pitchStr)
-  // Treble Line 5 (F5) is step 38, placed at Y = 24
   const TREBLE_TOP_Y = 24
-  // Bass Line 5 (A3) is step 26, placed at Y = 96
   const BASS_TOP_Y = 96
   const STEP_PX = 4.5
 
@@ -94,14 +87,11 @@ function calculateStaffPitchY(
 
   if (clef === 'treble') {
     y = TREBLE_TOP_Y + (38 - step) * STEP_PX
-    // Treble lines are at steps 38, 36, 34, 32, 30.
-    // Below line 1 (step <= 28): ledger lines at 28 (C4), 26 (A3), 24 (F3)...
     if (step <= 28) {
       for (let s = 28; s >= step; s -= 2) {
         ledgerYs.push(TREBLE_TOP_Y + (38 - s) * STEP_PX)
       }
     }
-    // Above line 5 (step >= 40): ledger lines at 40 (A5), 42 (C6)...
     if (step >= 40) {
       for (let s = 40; s <= step; s += 2) {
         ledgerYs.push(TREBLE_TOP_Y + (38 - s) * STEP_PX)
@@ -109,14 +99,11 @@ function calculateStaffPitchY(
     }
   } else {
     y = BASS_TOP_Y + (26 - step) * STEP_PX
-    // Bass lines are at steps 26, 24, 22, 20, 18.
-    // Above line 5 (step >= 28): ledger lines at 28 (C4), 30 (E4)...
     if (step >= 28) {
       for (let s = 28; s <= step; s += 2) {
         ledgerYs.push(BASS_TOP_Y + (26 - s) * STEP_PX)
       }
     }
-    // Below line 1 (step <= 16): ledger lines at 16 (E2), 14 (C2)...
     if (step <= 16) {
       for (let s = 16; s >= step; s -= 2) {
         ledgerYs.push(BASS_TOP_Y + (26 - s) * STEP_PX)
@@ -136,6 +123,7 @@ export function FlowingNotationStand({
   isCountingIn,
   countInBeat,
   activeHitResult,
+  chordMetrics,
   beatsPerMeasure,
   timeSignature,
   onSeekBeat,
@@ -144,16 +132,13 @@ export function FlowingNotationStand({
   hideWatermark = false,
   className = '',
 }: FlowingNotationStandProps): React.JSX.Element {
-  // Pixels per beat on the notation timeline
   const BEAT_WIDTH = 90
-  // Left offset for the hit caliper inside the scroll viewport (140px gives 80%+ forward sight reading horizon)
   const HIT_CALIPER_LEFT = 140
 
   const firstChordDur = progression[0]?.duration_beats
   const effectiveBeatsPerMeasure = beatsPerMeasure ?? firstChordDur ?? 4
   const displayMeter = timeSignature || `${effectiveBeatsPerMeasure}/4`
 
-  // Calculate cumulative offsets and durations for each chord/measure
   const chordsWithOffsets = useMemo(() => {
     let currentOffset = 0
     const result: Array<FlowingChordItem & { duration_beats: number; startBeat: number; measureNumber: number }> = []
@@ -177,14 +162,13 @@ export function FlowingNotationStand({
         chordsWithOffsets[chordsWithOffsets.length - 1].duration_beats
       : effectiveBeatsPerMeasure
 
-  // Continuous playhead horizontal offset
   const playheadOffsetPx = currentBeat * BEAT_WIDTH
 
   if (instrument === 'piano' && pianoNotationMode === 'keys') {
     return (
       <div
         data-testid="flowing-notation-canvas"
-        className={`relative w-full h-[330px] bg-[#141312] border-y border-[#38342E] overflow-hidden select-none font-serif text-[#EDE8DF] ${className}`}
+        className={`relative w-full h-[280px] bg-[#F8F8F6] dark:bg-[#09090B] border-y border-zinc-200 dark:border-zinc-800 overflow-hidden select-none font-sans text-zinc-900 dark:text-zinc-100 transition-colors ${className}`}
       >
         <PianoWaterfallStand
           progression={progression}
@@ -203,21 +187,21 @@ export function FlowingNotationStand({
   return (
     <div
       data-testid="flowing-notation-canvas"
-      className={`relative w-full h-[330px] bg-[#FAF8F3] dark:bg-[#141312] border-y border-[#E2DDD3] dark:border-[#38342E] overflow-hidden select-none font-serif text-[#242321] dark:text-[#EDE8DF] ${className}`}
+      className={`relative w-full h-[280px] bg-[#F8F8F6] dark:bg-[#09090B] border-y border-zinc-200 dark:border-zinc-800 overflow-hidden select-none font-sans text-zinc-900 dark:text-zinc-100 transition-colors ${className}`}
     >
-      {/* Top Archival Ledger Strip */}
+      {/* Top Ledger Strip */}
       {!hideWatermark && (
-        <div className="absolute top-0 left-0 right-0 h-7 bg-[#EFECE6]/90 dark:bg-[#1A1816]/95 border-b border-[#E2DDD3] dark:border-[#38342E] px-6 flex items-center justify-between text-[11px] font-mono tracking-widest text-[#736E65] dark:text-[#A39C8F] z-20">
+        <div className="absolute top-0 left-0 right-0 h-7 bg-white/95 dark:bg-[#111114]/95 border-b border-zinc-200 dark:border-zinc-800 px-6 flex items-center justify-between text-[11px] font-mono tracking-widest text-zinc-500 dark:text-zinc-400 z-20">
           <div className="flex items-center gap-4">
-            <span className="font-semibold text-[#242321] dark:text-[#EDE8DF]">
-              {instrument === 'guitar' ? 'STANDARD TABLATURE (6-STR & STRUM PATTERN)' : 'GRAND STAFF NOTATION'}
+            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+              {instrument === 'guitar' ? 'GUITAR TABLATURE & STRUMMING' : 'GRAND STAFF SHEET MUSIC'}
             </span>
             <span>•</span>
             <span>TEMPO: {tempoBpm} BPM</span>
             <span>•</span>
             <span>METER: {displayMeter}</span>
             <span>•</span>
-            <span>LENGTH: {totalBeats} BEATS ({chordsWithOffsets.length} MEASURES)</span>
+            <span>{chordsWithOffsets.length} MEASURES</span>
           </div>
           <div className="flex items-center gap-3">
             <span className="text-[10px]">
@@ -225,25 +209,25 @@ export function FlowingNotationStand({
             </span>
             <span
               className={`w-2 h-2 rounded-full ${
-                isPlaying ? 'bg-[#4A6B5B] dark:bg-[#689F84] animate-pulse' : 'bg-[#A39E93] dark:bg-[#5C564C]'
+                isPlaying ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400 dark:bg-zinc-600'
               }`}
             />
           </div>
         </div>
       )}
 
-      {/* Main Staff Container with fixed left column and sliding notation track */}
+      {/* Main Staff Container */}
       <div className={`relative w-full h-full ${hideWatermark ? 'pt-0' : 'pt-7'} flex`}>
         {/* Fixed Left Header Column */}
-        <div className="w-32 shrink-0 h-full bg-[#EFECE6] dark:bg-[#1E1C1A] border-r border-[#D9D3C7] dark:border-[#38342E] z-30 flex flex-col justify-center py-2 px-3 shadow-[2px_0_8px_rgba(0,0,0,0.04)]">
+        <div className="w-32 shrink-0 h-full bg-white dark:bg-[#111114] border-r border-zinc-200 dark:border-zinc-800 z-30 flex flex-col justify-center py-2 px-3">
           {instrument === 'guitar' ? (
-            <div className="flex flex-col justify-between h-[180px] text-[10px] font-mono text-[#524D44] dark:text-[#A39C8F]">
+            <div className="flex flex-col justify-between h-[170px] text-[10px] font-mono text-zinc-500 dark:text-zinc-400">
               {GUITAR_STRINGS.map((str) => (
                 <div
                   key={str.num}
-                  className="flex items-center justify-between px-1 border-b border-[#E2DDD3]/60 dark:border-[#38342E]/60 pb-0.5"
+                  className="flex items-center justify-between px-1 border-b border-zinc-200/70 dark:border-zinc-800/70 pb-0.5"
                 >
-                  <span className="font-bold text-[#242321] dark:text-[#EDE8DF]">
+                  <span className="font-bold text-zinc-800 dark:text-zinc-200">
                     {str.num} ({str.name}) {str.hz}
                   </span>
                 </div>
@@ -252,15 +236,14 @@ export function FlowingNotationStand({
           ) : (
             <div
               data-testid="piano-grand-staff"
-              className="flex flex-col justify-between h-[180px] text-[10px] font-mono text-[#524D44] dark:text-[#A39C8F] px-1"
+              className="flex flex-col justify-between h-[170px] text-[10px] font-mono text-zinc-500 dark:text-zinc-400 px-1"
             >
-              <div className="border-b border-[#D9D3C7] dark:border-[#38342E] pb-2 flex items-center justify-between">
+              <div className="border-b border-zinc-200 dark:border-zinc-800 pb-2 flex items-center justify-between">
                 <div>
-                  <span className="font-bold text-[#242321] dark:text-[#EDE8DF] block text-xs">TREBLE</span>
-                  <span className="text-[9px] text-[#736E65] dark:text-[#A39C8F]">G Clef (RH)</span>
+                  <span className="font-bold text-zinc-900 dark:text-zinc-100 block text-xs">TREBLE</span>
+                  <span className="text-[9px] text-zinc-500">Right Hand</span>
                 </div>
-                {/* SVG Treble Clef Glyph */}
-                <svg width="22" height="42" viewBox="0 0 22 42" fill="none" className="text-[#242321] dark:text-[#EDE8DF]">
+                <svg width="22" height="42" viewBox="0 0 22 42" fill="none" className="text-zinc-700 dark:text-zinc-300">
                   <path
                     d="M12 3C11 1 8 1 7 4C6 7 8 11 10 14C12 17 14 20 14 25C14 29 11 32 7 31C4 30 3 26 4 23C5 20 8 20 9 22C10 24 9 26 7 26C8 28 11 28 12 26C13 23 11 20 9 17C7 14 4 10 5 6C6 2 10 0 13 2C15 4 15 7 13 12L11 38C11 40 9 41 8 40C7 39 7 38 8 37L10 28"
                     stroke="currentColor"
@@ -272,11 +255,10 @@ export function FlowingNotationStand({
               </div>
               <div className="pt-2 flex items-center justify-between">
                 <div>
-                  <span className="font-bold text-[#242321] dark:text-[#EDE8DF] block text-xs">BASS</span>
-                  <span className="text-[9px] text-[#736E65] dark:text-[#A39C8F]">F Clef (LH)</span>
+                  <span className="font-bold text-zinc-900 dark:text-zinc-100 block text-xs">BASS</span>
+                  <span className="text-[9px] text-zinc-500">Left Hand</span>
                 </div>
-                {/* SVG Bass Clef Glyph */}
-                <svg width="20" height="28" viewBox="0 0 20 28" fill="none" className="text-[#242321] dark:text-[#EDE8DF]">
+                <svg width="20" height="28" viewBox="0 0 20 28" fill="none" className="text-zinc-700 dark:text-zinc-300">
                   <path
                     d="M6 10C6 7 8 5 11 5C14 5 16 7 16 11C16 17 10 22 5 24"
                     stroke="currentColor"
@@ -294,25 +276,23 @@ export function FlowingNotationStand({
 
         {/* Viewport Ribbon for Flowing Measures */}
         <div className="relative flex-1 h-full overflow-hidden">
-          {/* Subtle History Fade Gradient on the left (0 to HIT_CALIPER_LEFT) */}
           <div
-            className="pointer-events-none absolute left-0 top-8 bottom-0 bg-gradient-to-r from-[#FAF8F3]/80 via-[#FAF8F3]/30 to-transparent dark:from-[#141312]/90 dark:via-[#141312]/40 dark:to-transparent z-35"
+            className="pointer-events-none absolute left-0 top-8 bottom-0 bg-gradient-to-r from-[#F8F8F6]/90 via-[#F8F8F6]/30 dark:from-[#09090B]/95 dark:via-[#09090B]/40 to-transparent z-35"
             style={{ width: `${HIT_CALIPER_LEFT}px` }}
           />
 
-          {/* Left-Aligned Sight-Reading Caliper Playhead */}
+          {/* Left-Aligned Sight-Reading Playhead */}
           <div
             data-testid="center-playhead"
-            className="absolute top-0 bottom-0 w-[2px] bg-[#9A2A2A] dark:bg-[#B83232] z-40 transform -translate-x-1/2 pointer-events-none flex flex-col items-center justify-between shadow-xs"
+            className="absolute top-0 bottom-0 w-[2px] bg-amber-500 z-40 transform -translate-x-1/2 pointer-events-none flex flex-col items-center justify-between"
             style={{ left: `${HIT_CALIPER_LEFT}px` }}
           >
-            {/* Top Playhead Caliper Badge */}
             <div
-              className={`text-[#FCFBF8] text-[9px] font-mono tracking-wider px-2 py-0.5 rounded-b shadow-sm uppercase font-semibold flex items-center gap-1 ${
-                isCountingIn ? 'bg-[#9A2A2A] dark:bg-[#B83232] animate-pulse ring-2 ring-[#9A2A2A]/40' : 'bg-[#9A2A2A] dark:bg-[#B83232]'
+              className={`text-zinc-950 text-[9px] font-mono tracking-wider px-2 py-0.5 rounded-b uppercase font-bold flex items-center gap-1 ${
+                isCountingIn ? 'bg-amber-400 animate-pulse ring-2 ring-amber-500/40' : 'bg-amber-500'
               }`}
             >
-              <span>{isCountingIn ? `COUNT-IN: ${countInBeat ?? 1}` : 'HIT POINT'}</span>
+              <span>{isCountingIn ? `COUNT-IN: ${countInBeat ?? 1}` : 'PLAY HERE'}</span>
               {!isCountingIn && activeHitResult?.isSoundDetected && activeHitResult.centsDeviation !== 0 && (
                 <span className="text-[8px] opacity-90">
                   {activeHitResult.centsDeviation > 0 ? '+' : ''}
@@ -321,13 +301,12 @@ export function FlowingNotationStand({
               )}
             </div>
 
-            {/* Bottom Caliper Tag */}
-            <div className="bg-[#9A2A2A] dark:bg-[#B83232] text-[#FCFBF8] text-[8px] font-mono px-1.5 py-0.5 rounded-t tracking-tighter">
-              NOW ±0ms
+            <div className="bg-amber-500 text-zinc-950 text-[8px] font-mono font-bold px-1.5 py-0.5 rounded-t tracking-tighter">
+              BEAT NOW
             </div>
           </div>
 
-          {/* Sliding Track: scrolls right-to-left from HIT_CALIPER_LEFT */}
+          {/* Sliding Track */}
           <div
             className={`absolute top-0 bottom-0 flex will-change-transform ${
               isPlaying ? 'transition-none' : 'transition-transform duration-100 ease-out'
@@ -342,39 +321,65 @@ export function FlowingNotationStand({
               const measureWidth = chordDuration * BEAT_WIDTH
               const isCurrentMeasure =
                 currentBeat >= startBeat && currentBeat < startBeat + chordDuration
+              const metric = chordMetrics?.[measureIdx]
+
+              const hasVoicingDrop = Boolean(metric && metric.missed_notes && metric.missed_notes.length > 0)
+              const hasTransitionLag = Boolean(metric && metric.onset_error_ms >= 80)
+              const hasTimingDrift = Boolean(metric && Math.abs(metric.onset_error_ms) >= 30)
 
               return (
                 <div
                   key={`${chord.chordName}-${measureIdx}`}
                   onClick={() => onSeekBeat?.(startBeat)}
-                  className={`relative shrink-0 h-full border-r-2 border-[#C9C3B5] dark:border-[#3E3A32] cursor-pointer transition-colors ${
-                    isCurrentMeasure ? 'bg-[#FCFBF8] dark:bg-[#1C1A18]' : 'hover:bg-[#F5F2EB] dark:hover:bg-[#201E1B]'
+                  className={`relative shrink-0 h-full border-r border-zinc-200 dark:border-zinc-800 cursor-pointer transition-colors ${
+                    isCurrentMeasure
+                      ? 'bg-amber-500/[0.06] dark:bg-[#141418]'
+                      : 'hover:bg-zinc-100/70 dark:hover:bg-[#111115]'
                   }`}
                   style={{ width: `${measureWidth}px` }}
                 >
-                  {/* Top Chord Badge & Measure Index */}
-                  <div className="h-8 border-b border-[#E2DDD3] dark:border-[#38342E] px-3 pl-7 flex items-center justify-between bg-[#FAF8F3] dark:bg-[#181614]">
+                  {/* Top Chord Badge & Feedback */}
+                  <div className="h-8 border-b border-zinc-200 dark:border-zinc-800 px-3 pl-7 flex items-center justify-between bg-white dark:bg-[#111114]">
                     <div className="flex items-center gap-2">
-                      <span className="text-[14px] font-serif font-bold text-[#242321] dark:text-[#EDE8DF]">
+                      <span className="text-[13px] font-mono font-bold text-zinc-900 dark:text-zinc-100">
                         {chord.chordName}
                       </span>
                       {instrument === 'guitar' && chord.guitarTab?.barreFret && (
-                        <span className="text-[9px] font-mono bg-[#E2DDD3] text-[#524D44] dark:bg-[#2A2723] dark:text-[#A39C8F] px-1 py-0.2 rounded">
+                        <span className="text-[9px] font-mono bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-1.5 py-0.5 rounded">
                           Barre {chord.guitarTab.barreFret}fr
                         </span>
                       )}
+                      {metric && (
+                        <span
+                          className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border ${
+                            hasVoicingDrop || hasTransitionLag
+                              ? 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/40'
+                              : hasTimingDrift
+                              ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/40'
+                              : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/40'
+                          }`}
+                        >
+                          {hasVoicingDrop
+                            ? `Missed ${metric.missed_notes.join(',')}`
+                            : hasTransitionLag
+                            ? `Late +${Math.round(metric.onset_error_ms)}ms`
+                            : metric.onset_error_ms <= -30
+                            ? `Early ${Math.round(metric.onset_error_ms)}ms`
+                            : metric.onset_error_ms >= 30
+                            ? `Late +${Math.round(metric.onset_error_ms)}ms`
+                            : `On Time (${metric.onset_error_ms >= 0 ? '+' : ''}${Math.round(metric.onset_error_ms)}ms)`}
+                        </span>
+                      )}
                     </div>
-                    <span className="text-[10px] font-mono text-[#736E65] dark:text-[#A39C8F]">
-                      M{chord.measureNumber} ({chordDuration}B)
+                    <span className="text-[10px] font-mono text-zinc-500">
+                      Bar {chord.measureNumber}
                     </span>
                   </div>
 
-                  {/* Staff Area: Guitar Tablature OR Piano Grand Staff */}
+                  {/* Staff Area */}
                   {instrument === 'guitar' ? (
-                    <div className="relative h-[190px] pt-1">
-                      {/* Top Strumming Direction Strip with Directional Arrows */}
-                      <div className="h-7 border-b border-[#E2DDD3]/70 dark:border-[#38342E]/70 flex items-center px-2 relative bg-[#F7F5F0]/70 dark:bg-[#1A1816]/70">
-                        {/* Strumming Events across the measure */}
+                    <div className="relative h-[180px] pt-1">
+                      <div className="h-7 border-b border-zinc-200/70 dark:border-zinc-800/70 flex items-center px-2 relative bg-zinc-50 dark:bg-[#0D0D10]">
                         {(() => {
                           const strumList: StrumEvent[] =
                             chord.strumEvents && chord.strumEvents.length > 0
@@ -400,13 +405,12 @@ export function FlowingNotationStand({
                                 style={{ left: `${strumX}px` }}
                               >
                                 <div
-                                  className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-mono font-bold shadow-2xs border ${
+                                  className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-mono font-bold border ${
                                     isDown
-                                      ? 'bg-[#9A2A2A]/10 text-[#9A2A2A] border-[#9A2A2A]/30 dark:bg-[#B83232]/20 dark:text-[#E57373] dark:border-[#B83232]/40'
-                                      : 'bg-[#4A6B5B]/10 text-[#4A6B5B] border-[#4A6B5B]/30 dark:bg-[#689F84]/20 dark:text-[#689F84] dark:border-[#689F84]/40'
-                                  } ${strum.accent ? 'ring-1 ring-[#9A2A2A]/50 dark:ring-[#B83232]/50' : ''}`}
+                                      ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/35'
+                                      : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/35'
+                                  } ${strum.accent ? 'ring-1 ring-amber-500/50' : ''}`}
                                 >
-                                  {/* Arrow Icon */}
                                   <svg width="8" height="10" viewBox="0 0 8 10" fill="none">
                                     {isDown ? (
                                       <path
@@ -435,36 +439,33 @@ export function FlowingNotationStand({
                         })()}
                       </div>
 
-                      {/* 6 String Lines with Fret Pills */}
-                      <div className="relative h-[150px] flex flex-col justify-between py-2">
+                      <div className="relative h-[140px] flex flex-col justify-between py-2">
                         {GUITAR_STRINGS.map((str, sIdx) => {
                           const voicingIdx = 5 - sIdx
                           const fret = chord.guitarTab?.frets?.[voicingIdx]
                           const fretLabel = fret === null || fret === undefined ? '✕' : fret.toString()
 
                           return (
-                            <div key={str.num} className="relative w-full h-[1px] bg-[#C9C3B5] dark:bg-[#3E3A32]">
-                              {/* Beat 1 Primary Fret Number Pill */}
+                            <div key={str.num} className="relative w-full h-[1px] bg-zinc-300 dark:bg-zinc-800">
                               <div className="absolute left-3.5 -top-2.5 z-10">
                                 <span
-                                  className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-mono font-bold leading-none shadow-2xs ${
+                                  className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-mono font-bold leading-none ${
                                     fret === null || fret === undefined
-                                      ? 'text-[#A39E93] dark:text-[#5C564C] bg-[#FAF8F3] dark:bg-[#181614]'
-                                      : 'text-[#242321] dark:text-[#EDE8DF] bg-[#FAF8F3] dark:bg-[#24221F] border border-[#D9D3C7] dark:border-[#38342E]'
+                                      ? 'text-zinc-400 dark:text-zinc-600 bg-[#F8F8F6] dark:bg-[#09090B]'
+                                      : 'text-zinc-900 dark:text-zinc-100 bg-white dark:bg-[#18181C] border border-zinc-300 dark:border-zinc-700'
                                   }`}
                                 >
                                   {fretLabel}
                                 </span>
                               </div>
 
-                              {/* Secondary rhythmic strum markers on subsequent beats */}
                               {Array.from({ length: chordDuration - 1 }).map((_, beatIdx) => (
                                 <div
                                   key={beatIdx}
                                   className="absolute -top-2.5 z-10"
                                   style={{ left: `${(beatIdx + 1) * BEAT_WIDTH + 14}px` }}
                                 >
-                                  <span className="inline-block px-1 py-0.5 rounded text-[10px] font-mono font-semibold text-[#736E65] dark:text-[#A39C8F] bg-[#FAF8F3]/90 dark:bg-[#24221F]/90 border border-[#E2DDD3]/60 dark:border-[#38342E]/60">
+                                  <span className="inline-block px-1 py-0.5 rounded text-[10px] font-mono font-semibold text-zinc-500 dark:text-zinc-400 bg-white/90 dark:bg-[#111114]/90 border border-zinc-200 dark:border-zinc-800">
                                     {fretLabel}
                                   </span>
                                 </div>
@@ -475,10 +476,8 @@ export function FlowingNotationStand({
                       </div>
                     </div>
                   ) : (
-                    /* Piano Grand Staff with authentic SVG noteheads, stems, and ledger lines */
-                    <div className="relative h-[190px] px-2 pt-1">
-                      <svg width={measureWidth} height="175" className="overflow-visible">
-                        {/* Treble Staff: 5 Lines (Y = 24, 33, 42, 51, 60) */}
+                    <div className="relative h-[180px] px-2 pt-1">
+                      <svg width={measureWidth} height="165" className="overflow-visible">
                         {[0, 1, 2, 3, 4].map((i) => {
                           const y = 24 + i * 9
                           return (
@@ -489,13 +488,12 @@ export function FlowingNotationStand({
                               x2={measureWidth}
                               y2={y}
                               stroke="currentColor"
-                              className="text-[#C9C3B5] dark:text-[#3E3A32]"
+                              className="text-zinc-300 dark:text-zinc-800"
                               strokeWidth="1"
                             />
                           )
                         })}
 
-                        {/* Bass Staff: 5 Lines (Y = 96, 105, 114, 123, 132) */}
                         {[0, 1, 2, 3, 4].map((i) => {
                           const y = 96 + i * 9
                           return (
@@ -506,38 +504,33 @@ export function FlowingNotationStand({
                               x2={measureWidth}
                               y2={y}
                               stroke="currentColor"
-                              className="text-[#C9C3B5] dark:text-[#3E3A32]"
+                              className="text-zinc-300 dark:text-zinc-800"
                               strokeWidth="1"
                             />
                           )
                         })}
 
-                        {/* Measure End Barline */}
                         <line
                           x1={measureWidth - 1}
                           y1={24}
                           x2={measureWidth - 1}
                           y2={132}
                           stroke="currentColor"
-                          className="text-[#C9C3B5] dark:text-[#3E3A32]"
+                          className="text-zinc-400 dark:text-zinc-700"
                           strokeWidth="1.5"
                         />
 
-                        {/* SVG Noteheads for Piano */}
                         {(() => {
-                          // Gather melody & bass notes for this measure
                           const noteItems: GrandStaffNote[] =
                             chord.melodyNotes && chord.melodyNotes.length > 0
                               ? chord.melodyNotes
                               : [
-                                  // Right-Hand Triad Notes
                                   ...(chord.pianoVoicing?.rhNotes || ['C4', 'E4', 'G4']).map((n) => ({
                                     pitch: n,
                                     beatOffset: 0,
                                     duration: chordDuration,
                                     clef: 'treble' as const,
                                   })),
-                                  // Left-Hand Bass Note
                                   ...(chord.pianoVoicing?.lhNotes || ['C3']).map((n) => ({
                                     pitch: n,
                                     beatOffset: 0,
@@ -550,17 +543,16 @@ export function FlowingNotationStand({
                             const { y, ledgerYs } = calculateStaffPitchY(note.pitch, note.clef)
                             const x = note.beatOffset * BEAT_WIDTH + 24
                             const step = getDiatonicStep(note.pitch)
-                            // Stem points up if below middle line (B4=34 in treble, D3=22 in bass)
                             const isTreble = note.clef === 'treble' || step >= 28
                             const middleStep = isTreble ? 34 : 22
                             const stemUp = step < middleStep
                             const stemX = stemUp ? x + 4.2 : x - 4.2
                             const stemLength = 26
                             const stemY2 = stemUp ? y - stemLength : y + stemLength
+                            const isMissedNote = metric?.missed_notes?.includes(note.pitch)
 
                             return (
                               <g key={nIdx} data-testid="grand-staff-notehead">
-                                {/* Ledger Lines */}
                                 {ledgerYs.map((ly, lIdx) => (
                                   <line
                                     key={lIdx}
@@ -569,12 +561,11 @@ export function FlowingNotationStand({
                                     x2={x + 8}
                                     y2={ly}
                                     stroke="currentColor"
-                                    className="text-[#524D44] dark:text-[#6E675C]"
+                                    className="text-zinc-500 dark:text-zinc-600"
                                     strokeWidth="1.2"
                                   />
                                 ))}
 
-                                {/* Accidental Glyph (♭ or ♯) */}
                                 {note.pitch.includes('b') && (
                                   <text
                                     x={x - 9}
@@ -583,7 +574,7 @@ export function FlowingNotationStand({
                                     fontFamily="serif"
                                     fontStyle="italic"
                                     fill="currentColor"
-                                    className="select-none pointer-events-none text-[#242321] dark:text-[#EDE8DF]"
+                                    className="select-none pointer-events-none text-zinc-700 dark:text-zinc-200"
                                   >
                                     ♭
                                   </text>
@@ -595,13 +586,12 @@ export function FlowingNotationStand({
                                     fontSize="10"
                                     fontFamily="sans-serif"
                                     fill="currentColor"
-                                    className="select-none pointer-events-none text-[#242321] dark:text-[#EDE8DF]"
+                                    className="select-none pointer-events-none text-zinc-700 dark:text-zinc-200"
                                   >
                                     ♯
                                   </text>
                                 )}
 
-                                {/* Oval Notehead (Tilted at -15 degrees per SMuFL standard) */}
                                 <ellipse
                                   cx={x}
                                   cy={y}
@@ -609,10 +599,15 @@ export function FlowingNotationStand({
                                   ry={3.6}
                                   transform={`rotate(-15 ${x} ${y})`}
                                   fill="currentColor"
-                                  className="text-[#242321] dark:text-[#EDE8DF]"
+                                  className={
+                                    isMissedNote
+                                      ? 'text-red-500'
+                                      : isTreble
+                                      ? 'text-emerald-600 dark:text-emerald-400'
+                                      : 'text-amber-600 dark:text-amber-400'
+                                  }
                                 />
 
-                                {/* Notehead Center Cutout for Half/Whole Notes */}
                                 {note.duration >= 2 && (
                                   <ellipse
                                     cx={x}
@@ -621,22 +616,20 @@ export function FlowingNotationStand({
                                     ry={1.8}
                                     transform={`rotate(-15 ${x} ${y})`}
                                     fill="currentColor"
-                                    className="text-[#FCFBF8] dark:text-[#181614]"
+                                    className="text-[#F8F8F6] dark:text-[#09090B]"
                                   />
                                 )}
 
-                                {/* Dotted Note Dot for 3-Beat Dotted Half Notes */}
                                 {note.duration === 3 && (
                                   <circle
                                     cx={x + 8.5}
                                     cy={y}
                                     r={1.8}
                                     fill="currentColor"
-                                    className="text-[#242321] dark:text-[#EDE8DF]"
+                                    className="text-zinc-700 dark:text-zinc-200"
                                   />
                                 )}
 
-                                {/* Vertical Stem (unless Whole Note duration 4) */}
                                 {note.duration < 4 && (
                                   <line
                                     x1={stemX}
@@ -644,13 +637,12 @@ export function FlowingNotationStand({
                                     x2={stemX}
                                     y2={stemY2}
                                     stroke="currentColor"
-                                    className="text-[#242321] dark:text-[#EDE8DF]"
+                                    className="text-zinc-600 dark:text-zinc-300"
                                     strokeWidth="1.4"
                                     strokeLinecap="round"
                                   />
                                 )}
 
-                                {/* Pitch Label Tooltip / Subtext */}
                                 <text
                                   x={x}
                                   y={y - 7}
@@ -658,7 +650,7 @@ export function FlowingNotationStand({
                                   fontSize="8"
                                   fontFamily="monospace"
                                   fill="currentColor"
-                                  className="pointer-events-none select-none text-[#736E65] dark:text-[#A39C8F] opacity-60"
+                                  className="pointer-events-none select-none text-zinc-500 dark:text-zinc-400 opacity-85"
                                 >
                                   {note.pitch}
                                 </text>
@@ -671,13 +663,13 @@ export function FlowingNotationStand({
                   )}
 
                   {/* Beat Subdivision Markers along bottom */}
-                  <div className="absolute bottom-2 left-0 right-0 h-4 border-t border-[#E2DDD3] dark:border-[#38342E] flex items-center text-[9px] font-mono text-[#8A857A] dark:text-[#6E675C]">
+                  <div className="absolute bottom-1.5 left-0 right-0 h-4 border-t border-zinc-200 dark:border-zinc-800 flex items-center text-[9px] font-mono text-zinc-500">
                     {Array.from({ length: chordDuration }).map((_, b) => (
                       <div
                         key={b}
-                        className="flex-1 text-center border-r border-[#E2DDD3]/40 dark:border-[#38342E]/40 last:border-r-0"
+                        className="flex-1 text-center border-r border-zinc-200/70 dark:border-zinc-800/60 last:border-r-0"
                       >
-                        {b + 1}
+                        Beat {b + 1}
                       </div>
                     ))}
                   </div>

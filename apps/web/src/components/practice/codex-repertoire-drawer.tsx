@@ -28,7 +28,6 @@ export function CodexRepertoireDrawer({
     fetchExercises()
       .then((data) => {
         if (isMounted && data && data.length > 0) {
-          // Merge backend database records with rich client score progression data
           const enriched = data.map((ex) => {
             const builtinMatch = BUILTIN_FULL_SONGS.find(
               (b) => b.id === ex.id || b.title.toLowerCase() === ex.title.toLowerCase()
@@ -39,7 +38,7 @@ export function CodexRepertoireDrawer({
         }
       })
       .catch(() => {
-        // Fallback to built-in full songs when backend is offline or starting
+        // Fallback to built-in full songs when backend is offline
       })
     return () => {
       isMounted = false
@@ -64,7 +63,6 @@ export function CodexRepertoireDrawer({
 
   return (
     <>
-      {/* Backdrop */}
       {isOpen && (
         <div
           data-testid="repertoire-drawer-backdrop"
@@ -73,24 +71,24 @@ export function CodexRepertoireDrawer({
         />
       )}
 
-      {/* Slide-over Drawer (Left) */}
       <div
         data-testid="codex-repertoire-drawer"
         aria-label="Repertoire Codex Library"
         role="dialog"
         aria-modal="true"
         aria-hidden={!isOpen}
-        className={`fixed inset-y-0 left-0 w-full max-w-md bg-[#FAF8F3] dark:bg-[#1A1816] text-[#242321] dark:text-[#EDE8DF] border-r border-[#E2DDD3] dark:border-[#38342E] shadow-2xl z-50 transform transition-transform duration-300 ease-out flex flex-col font-serif ${
+        className={`fixed inset-y-0 left-0 w-full max-w-md bg-white dark:bg-[#111114] text-zinc-900 dark:text-zinc-100 border-r border-zinc-200 dark:border-zinc-800 shadow-2xl z-50 transform transition-transform duration-300 ease-out flex flex-col font-sans ${
           isOpen ? 'translate-x-0' : '-translate-x-full pointer-events-none'
         } ${className}`}
       >
-        {/* Drawer Header */}
-        <div className="p-5 border-b border-[#E2DDD3] dark:border-[#38342E] flex items-center justify-between">
+        <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-[#F8F8F6] dark:bg-[#09090B]">
           <div className="space-y-0.5">
-            <span className="text-xs font-mono font-bold tracking-widest uppercase text-[#C5A059] block">
-              § ARCHIVAL CODEX
+            <span className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-amber-600 dark:text-amber-500 block">
+              SONG LIBRARY
             </span>
-            <h2 className="text-xl font-bold tracking-tight">Repertoire Library</h2>
+            <h2 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Choose a Piece to Practice
+            </h2>
           </div>
 
           <button
@@ -98,35 +96,34 @@ export function CodexRepertoireDrawer({
             data-testid="repertoire-drawer-close"
             onClick={onClose}
             aria-label="Close repertoire drawer"
-            className="p-2 rounded-xl text-[#736E65] hover:text-[#242321] hover:bg-[#EFECE6] dark:text-[#A39C8F] dark:hover:text-[#EDE8DF] dark:hover:bg-[#2A2723] transition-colors"
+            className="p-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 transition-colors cursor-pointer"
           >
-            <X className="size-5" />
+            <X className="size-4" />
           </button>
         </div>
 
-        {/* Search & Instrument Filter */}
-        <div className="p-4 border-b border-[#E2DDD3] dark:border-[#38342E] flex flex-col gap-3 font-sans">
+        <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex flex-col gap-3 bg-white dark:bg-[#111114]">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[#8A857A]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-500" />
             <input
               type="text"
               placeholder="Search piece, composer, or key..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-[#FCFBF8] dark:bg-[#141312] border border-[#E2DDD3] dark:border-[#38342E] text-[#242321] dark:text-[#EDE8DF] placeholder-[#8A857A] focus:outline-hidden focus:border-[#C5A059] transition-colors font-mono"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500 transition-colors font-mono"
             />
           </div>
 
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#EFECE6] dark:bg-[#141312] border border-[#E2DDD3] dark:border-[#38342E] text-xs font-mono">
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 text-xs font-mono">
             {(['all', 'piano', 'guitar'] as const).map((filter) => (
               <button
                 key={filter}
                 type="button"
                 onClick={() => setInstrumentFilter(filter)}
-                className={`flex-1 py-1 rounded-lg uppercase tracking-wider text-[10px] font-bold transition-all ${
+                className={`flex-1 py-1 rounded uppercase tracking-wider text-[10px] font-bold transition-all cursor-pointer ${
                   instrumentFilter === filter
-                    ? 'bg-[#FCFBF8] dark:bg-[#2A2723] text-[#242321] dark:text-[#EDE8DF] shadow-xs'
-                    : 'text-[#736E65] dark:text-[#8A857A] hover:text-[#242321]'
+                    ? 'bg-amber-500 text-zinc-950'
+                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
                 }`}
               >
                 {filter}
@@ -135,11 +132,10 @@ export function CodexRepertoireDrawer({
           </div>
         </div>
 
-        {/* Piece Catalog List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 font-sans">
+        <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
           {filteredSongs.length === 0 ? (
-            <div className="py-12 text-center text-xs font-mono text-[#8A857A]">
-              No exercises matching “{searchQuery}”
+            <div className="py-12 text-center text-xs font-mono text-zinc-500">
+              No pieces matching “{searchQuery}”
             </div>
           ) : (
             filteredSongs.map((song) => {
@@ -155,53 +151,53 @@ export function CodexRepertoireDrawer({
                     onSelectSong(song)
                     onClose()
                   }}
-                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer group flex flex-col gap-2 ${
+                  className={`p-3.5 rounded-xl border transition-all cursor-pointer group flex flex-col gap-2 ${
                     isSelected
-                      ? 'bg-[#C5A059]/10 border-[#C5A059] shadow-xs'
-                      : 'bg-[#FCFBF8] dark:bg-[#141312] border-[#E2DDD3] dark:border-[#38342E] hover:border-[#C5A059]/60'
+                      ? 'bg-amber-500/10 border-amber-500/60'
+                      : 'bg-[#F8F8F6] dark:bg-[#09090B] border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <div className="space-y-0.5 min-w-0">
+                    <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-1.5">
                         <span
-                          className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded ${
+                          className={`text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border ${
                             isPiano
-                              ? 'bg-[#3B6E57]/15 text-[#3B6E57] dark:text-[#689F84]'
-                              : 'bg-[#9A2A2A]/15 text-[#9A2A2A] dark:text-[#C25454]'
+                              ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30'
+                              : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30'
                           }`}
                         >
                           {song.instrument}
                         </span>
                         {song.progression?.key && (
-                          <span className="text-[10px] font-mono text-[#8A857A]">
-                            Key of {song.progression.key}
+                          <span className="text-[10px] font-mono text-zinc-500">
+                            Key: {song.progression.key}
                           </span>
                         )}
                       </div>
-                      <h3 className="font-serif font-bold text-sm text-[#242321] dark:text-[#EDE8DF] truncate group-hover:text-[#C5A059] transition-colors">
+                      <h3 className="font-sans font-bold text-sm text-zinc-900 dark:text-zinc-100 truncate group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                         {song.title}
                       </h3>
                     </div>
 
                     {isSelected ? (
-                      <span className="size-6 rounded-full bg-[#C5A059] text-[#141312] flex items-center justify-center shrink-0">
+                      <span className="size-6 rounded bg-amber-500 text-zinc-950 flex items-center justify-center shrink-0">
                         <Check className="size-3.5" />
                       </span>
                     ) : (
-                      <span className="size-6 rounded-full bg-[#EFECE6] dark:bg-[#2A2723] text-[#8A857A] flex items-center justify-center shrink-0 group-hover:bg-[#C5A059] group-hover:text-[#141312] transition-colors">
+                      <span className="size-6 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 flex items-center justify-center shrink-0 group-hover:bg-amber-500 group-hover:text-zinc-950 group-hover:border-amber-500 transition-colors">
                         <Play className="size-3 ml-0.5" />
                       </span>
                     )}
                   </div>
 
                   {song.description && (
-                    <p className="text-[11px] text-[#736E65] dark:text-[#A39C8F] line-clamp-2 leading-relaxed">
+                    <p className="text-[11px] text-zinc-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">
                       {song.description}
                     </p>
                   )}
 
-                  <div className="flex items-center justify-between pt-1 border-t border-[#E2DDD3]/50 dark:border-[#38342E]/50 text-[10px] font-mono text-[#8A857A]">
+                  <div className="flex items-center justify-between pt-1.5 border-t border-zinc-200/70 dark:border-zinc-800/70 text-[10px] font-mono text-zinc-500">
                     <span>{song.tempo_bpm} BPM</span>
                     <span>{chordsCount > 0 ? `${chordsCount} measures` : 'Continuous'}</span>
                   </div>

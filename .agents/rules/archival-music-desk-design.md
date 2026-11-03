@@ -1,109 +1,50 @@
-# Archival Music Desk Design System (`apps/web`)
+# Acoustic Studio & Musician's Practice Room Design System (`apps/web`)
 
 Activation: files under `apps/web/src/**/*.{ts,tsx,css}`
-Figma Origin: `https://www.figma.com/design/zY5UlhIZAQxmeBcW9MTq1q` (Direction 1: Archival Music Desk)
 
-## 1. Aesthetic Mandate & Cinematic Vision
+## 1. Aesthetic Mandate & Practice Intent
 
-- **Visual Theme**: 19th-Century Conservatory Music Desk & Urtext Engraving elevated with **Cinematic Camera Choreography**.
-- **Cinematic Motion & Spatial Staging**:
-  - Web experiences must feature **camera movement aligned with scrolling**: sticky full-viewport stages (`100vh` pinned windows over deep scroll tracks), 3D perspective camera dollying (`perspective: 1200px`, `translateZ`, `rotateX`, `rotateY`, `scale`), and spatial depth planes.
-  - Kinetic typography breathes with scroll: letter-spacing expands across the full viewport width, phrases emerge from masked clipping planes, and musical notation floats through the spatial field as the camera travels.
-  - Experimental negative space is encouraged: let words and scores command vast breathing room without cramming into generic bento grids or marketing card stacks.
-- **Strict Anti-Patterns**:
-  - NEVER use cyber/neon gradients, laser lines, dark-mode purple/cyan glows, or saturated tech-blue SaaS elements.
-  - NEVER output marketing hyperbole or AI buzzwords ("revolutionary neural music coach"). Describe audio engineering and MIR telemetry plainly.
-  - NEVER prompt or access user microphones unprompted on page load (ADR 0001 acoustic privacy).
-  - NEVER build static, boring document-like landing pages when asked for cinematic art direction. Use real scroll physics, camera dollies, and spatial transitions.
+- **Visual Theme**: Dual-Theme Acoustic Studio & Musician's Practice Room — combining high-contrast score legibility in Daylight Practice Room mode with anodized aluminum and warm amber LED clarity in Nocturnal Studio mode.
+- **Core Intent**:
+  - The application is a **Musician's Practice Room**, not an audio production DAW.
+  - Every visual element serves deliberate musical practice: sight-reading the score cleanly, preparing finger transitions ahead of the beat (`Current Chord → Next Chord`), spotting where you hesitated or missed a chord tone, and looping the exact transition at a comfortable tempo.
+- **Cinematic Landing Page**:
+  - Scroll-driven camera movement (`perspective: 1400px`, Z-zoom, horizontal pan, vertical plunge, smooth overlapping crossfades) paired with a live HTML5 `<canvas>` procedural volumetric smoke/haze simulation (`VolumetricSmokeCanvas`) that responds to scroll velocity.
+  - Zero fake camera rig telemetry (`CAM 07`, `SPLINE 100%`, `DOCKED 1.0x`) and zero AI marketing buzzwords. Honest, musician-focused terminology only.
 
 ---
 
-## 2. Color Tokens & Textures
+## 2. Dual Light & Dark Color Tokens
 
-### Light Mode (Pressed Cotton Ivory Parchment)
-- **Canvas / Background**: `#F7F5F0` (Pressed Cotton Ivory)
-- **Cards & Elevated Stands**: `#FAF8F3` (Linen Parchment), `#FCFBF8` (Elevated White), `#EFECE6` (Muted Linen)
-- **Primary Ink**: `#242321` (Iron Gall Charcoal Ink)
-- **Secondary Ink / Labels**: `#736E65` (Muted Driftwood), `#A09A8F` (Subtle Fog)
-- **Hairline Borders**: `#E2DDD3` (Ash Hairline), `#D9D3C7` (Subtle Ash)
-- **Canvas Stipple Texture**: `radial-gradient(#E8E3D9 1px, transparent 1px) 24px 24px`
+### Light Mode (Daylight Practice Room)
+- **Canvas / Background**: `#F8F8F6` (`bg-[#F8F8F6]`)
+- **Cards & Elevated Surfaces**: `#FFFFFF` (`bg-white`) and `#F1F1EE` (`bg-[#F1F1EE]`)
+- **Primary Ink**: `#18181B` (`text-zinc-900`)
+- **Secondary Ink / Labels**: `#52525B` (`text-zinc-600`), `#71717A` (`text-zinc-500`)
+- **Hairline Borders**: `#E4E4E0` (`border-zinc-200`)
 
-### Dark Mode (Smoked Ebony Conservatory Nocturne)
-- **Canvas / Background**: `#141312` (Smoked Ebony)
-- **Cards & Elevated Stands**: `#1E1C1A` (Walnut Charcoal), `#24221F` (Elevated Ebony)
-- **Primary Ink**: `#EDE8DF` (Ivory Pearl)
-- **Secondary Ink / Labels**: `#A39C8F` (Warm Driftwood), `#857F73` (Fog Grey)
-- **Hairline Borders**: `#38342E` (Charcoal Hairline)
-- **Canvas Stipple Texture**: `radial-gradient(#2A2723 1px, transparent 1px) 24px 24px`
+### Dark Mode (Nocturnal Studio)
+- **Canvas / Background**: `#09090B` (`dark:bg-[#09090B]`)
+- **Cards & Elevated Surfaces**: `#121215` (`dark:bg-[#121215]`) and `#18181C` (`dark:bg-[#18181C]`)
+- **Primary Ink**: `#F4F4F5` (`dark:text-zinc-100`)
+- **Secondary Ink / Labels**: `#A1A1AA` (`dark:text-zinc-400`), `#71717A` (`dark:text-zinc-500`)
+- **Hairline Borders**: `#27272A` (`dark:border-zinc-800`)
 
-### Functional Accents (Universal)
-- **Caliper Playhead / Zero-Latency Hit Point**: `#9A2A2A` / `#A04B32` (Bookbinder Terracotta)
-- **Left-Hand (LH) Piano Voicings**: `#A04B32` (Bookbinder Terracotta)
-- **Right-Hand (RH) Piano Voicings**: `#3B6E57` (Patina Jade / Muted Sage)
-- **Verified Intonation / On-Pitch Badges**: `#4A6B5B` (Muted Sage Green), text `#246A38`, badge bg `#EAF2EC`
-- **Timing Drag (+ms) / Caution Alerts**: `#A36B24` (Ochre Warning), text `#9A6214`, badge bg `#FFF4E5`
-- **Hardware / Knobs / Tuning Fork / Metronome Inlays**: `#C5A059` (Burnished Brass), light `#DFC07A`, dark `#8F7239`
-
-### Paper Vellum Texture Overlay
-- SVG inline fractal noise filter overlay with `feTurbulence` (`baseFrequency="0.75"`, `numOctaves="3"`, `stitchTiles="stitch"`), fixed full-bleed with `opacity-[0.032]` (light) and `opacity-[0.022]` (dark).
+### Functional Practice Accents (Both Modes)
+- **Playhead & Left-Hand (LH) Voicings**: Amber (`#D97706` light / `#F59E0B` dark)
+- **Right-Hand (RH) Voicings & Verified Intonation**: Emerald (`#059669` light / `#10B981` dark)
+- **Timing Hesitation (+ms) / Missed Chord Tone**: Crimson (`#DC2626` light / `#EF4444` dark)
 
 ---
 
-## 3. Typography Pairings
+## 3. Multi-Instrument & Cognitive Practice Architecture
 
-| Role | Family | Variable / Class | Visual Weight | Usage |
-| :--- | :--- | :--- | :--- | :--- |
-| **Scores & Headlines** | Cormorant Garamond | `--font-serif`, `font-serif` | 400 / 600 / 700 / Italic | Piece titles, epigraphs, section headlines |
-| **Telemetry & HUD** | Geist Mono | `--font-mono`, `font-mono` | 400 / 500 / 600 | BPM, pitch cents, frets, latency ms, chord formulas |
-| **Brand Wordmark** | Space Grotesk | `--font-brand`, `font-bold` | 700 Bold | Logo (`§ SONUS`), chapter numbers, step numerals |
-| **Body & UI Controls** | Inter & DM Sans | `--font-sans`, `--font-display` | 300 / 400 / 500 | Navigation links, descriptions, button labels |
-| **Musical Notation** | SMuFL standard | Vector SVG | Engraved | Clefs, braces, noteheads, accidentals |
-
----
-
-## 4. Multi-Instrument Rendering Invariants
-
-### Guitar Tablature & Fretboard Diagrams
-1. **Fret Coordinates vs. Finger Separation**:
-   - Never combine frets with finger numbering into one ambiguous string (e.g. G chord frets are `3-2-0-0-0-3`, fingers are `2-1-0-0-0-3`).
-   - Store and handle `frets: Array<number | null>` and `fingers: Array<number | 'T' | null>` independently.
-2. **Vector Indicators Above Nut**:
-   - Open strings: Vector circle `O` above nut line.
-   - Muted strings: Vector cross `X` above nut line.
-3. **Fret Dots & Barre Spans**:
-   - Embed finger digit (`1`, `2`, `3`, `4`, `T`) centered inside circular fret dot.
-   - Barre chords: Render continuous rounded capsule pill spanning fretted strings.
-4. **Base Fret Ordinals**:
-   - When base fret > 1, show English ordinal suffix (e.g. `1st`, `2nd`, `3rd`, `4th`).
-
-### Piano Keyboard & Grand Staff Notation
-1. **Instrument Isolation**:
-   - NEVER display a guitar fretboard diagram in Piano mode. Route through `<ActiveVoicingDisplay />`.
-2. **2-Pass SVG Keyboard Stacking**:
-   - Pass 1: Render all 15 white keys with Ivory fill (`#F7F5F0`).
-   - Pass 2: Render all 10 black keys with Ebony fill (`#1E1C1A`) over white keys to guarantee black keys layer on top without clipping.
-3. **Polyphonic Hand Distinction**:
-   - Left Hand (LH): Terracotta fill (`#A04B32`) with white badge/label.
-   - Right Hand (RH): Patina Jade fill (`#3B6E57`) with white badge/label.
-4. **Middle C Anchor**:
-   - Render distinctive white indicator dot on Middle C (MIDI 60 / $C_4$).
-5. **Grand Staff Rendering**:
-   - Render Treble Clef and Bass Clef staves joined by calligraphic brace.
-   - Calculate notehead coordinates ($y = 218 - 5 \times \text{step}$) with dynamic ledger line synthesis.
-   - Provide sub-tab toggles: `[KEYBOARD | STAFF | BOTH]`.
-
----
-
-## 5. Interaction & Physical Modeling Audio Invariants
-
-1. **Staff Scroll Progress Bar**:
-   - Fixed at top of viewport; 5 delicate staff lines carry a gliding burnished brass G-clef tracking scroll progress with spring physics.
-2. **Smooth Scrolling**:
-   - Driven by Lenis smooth scroll with 60fps rAF and `useReducedMotion()` accessibility support.
-3. **Physical Modeling Synthesis**:
-   - Guitar: Karplus-Strong string synthesis (fractional delay lines, windowed excitation bursts, frequency damping).
-   - Piano: Multi-partial additive synthesis with Fletcher-Rossing inharmonicity dispersion ($f_k = k f_0 \sqrt{1 + B k^2}$) across up to 8 partials, velocity strike curves, and dual-stage decay.
-   - Metronome Click: Dual-cavity wooden block resonance ($1150\text{ Hz} / 850\text{ Hz}$, $Q=12$).
-   - A440 Tuning Fork: Pure sine wave oscillator with physical exponential vibrational decay.
-4. **Safety & Permission**:
-   - Web Audio AudioContext is suspended until first user gesture (`audioEngine.unlock()`).
+1. **Musician's Practice Room Layout**:
+   - Top bar with global navigation (`Practice Room`, `Progress & Coach`, `Peer Benchmarks`), Piece Selector, `Piano` / `Guitar` toggle, `Falling Keys` / `Sheet Music` toggle, and `Light / Dark` theme toggle.
+   - Main Sight-Reading & Loop Stage with interactive **Measure Loop Brackets** and inline mistake badges.
+   - **Current Chord → Next Chord Hand Preparation Dock** showing side-by-side fretboard/keyboard diagrams for the active measure and the upcoming measure.
+   - Focused **Practice Transport & Mistake Coach Bar** with practice speed presets (`70% Slow`, `85% Medium`, `100% Tempo`), Record Practice Take, Simulate Practice Take, and one-click `Loop This Transition`.
+2. **Research-Backed Exercise Recommendation Engine**:
+   - Combines **Bayesian Knowledge Tracing (BKT)** latent skill mastery $P(L_t)$, **SuperMemo SM-2 Spaced Repetition** review intervals & ease factors, and a **Thompson Sampling Multi-Armed Bandit** over remedial drill strategies (`isolated_transition`, `subdivision_click`, `voicing_arpeggio`, `gradual_tempo_ramp`).
+3. **Peer Benchmarks & Leaderboards**:
+   - Displays interactive percentile bell curves (`Transition Speed ms`, `Voicing Completeness %`, `Tempo Stability ±ms`) alongside piece-by-piece leaderboards filtered by instrument and tempo tier.

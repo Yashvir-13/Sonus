@@ -9,6 +9,13 @@ type AuthShellProps = {
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 
 export function AuthShell({ children, hideHeader = false }: AuthShellProps) {
+  const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+  const hasValidClerkKey = Boolean(
+    publishableKey &&
+    publishableKey !== '<YOUR_CLERK_PUBLISHABLE_KEY>' &&
+    import.meta.env.VITE_DEV_OFFLINE !== 'true'
+  )
+
   return (
     <div className="flex min-h-svh flex-col bg-background text-foreground">
       {!hideHeader && (
@@ -18,7 +25,7 @@ export function AuthShell({ children, hideHeader = false }: AuthShellProps) {
           </span>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <UserButton />
+            {hasValidClerkKey && <UserButton />}
           </div>
         </header>
       )}

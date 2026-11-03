@@ -1,9 +1,14 @@
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { PracticeStudioCockpit } from '../practice-studio-cockpit'
+import { ProgressDashboardPage } from '@/components/progress/progress-dashboard-page'
+import { PeerComparisonPage } from '@/components/community/peer-comparison-page'
+import {
+  INITIAL_TRANSITION_MASTERY,
+  INITIAL_SESSION_HISTORY,
+} from '@/lib/adaptive/recommendation-engine'
 
 beforeAll(() => {
-  // Prevent Happy-DOM unhandled animation cancel abort errors
   if (typeof window !== 'undefined' && window.Element && window.Element.prototype.animate) {
     const origAnimate = window.Element.prototype.animate
     window.Element.prototype.animate = function (...args: any[]) {
@@ -29,7 +34,7 @@ vi.mock('@/api/sessions', () => ({
     chord_metrics: [],
     coaching_report: {
       session_id: 'sess_test_123',
-      headline: 'Virtuosic Synchrony',
+      headline: 'Clean Take',
       score: 96,
       letter_grade: 'A',
       status: 'completed',
@@ -45,8 +50,8 @@ vi.mock('@/api/sessions', () => ({
   }),
 }))
 
-describe('PracticeStudioCockpit Component', () => {
-  it('renders root cockpit container, header, stand, and bottom deck', () => {
+describe('PracticeStudioCockpit, ProgressDashboardPage & PeerComparisonPage', () => {
+  it('renders root practice room container, header, stand, and Current -> Next chord preparation dock', () => {
     render(<PracticeStudioCockpit />)
 
     expect(screen.getByTestId('practice-studio-cockpit')).toBeDefined()
@@ -54,17 +59,16 @@ describe('PracticeStudioCockpit Component', () => {
     expect(screen.getByTestId('toggle-inst-guitar')).toBeDefined()
     expect(screen.getByTestId('toggle-inst-piano')).toBeDefined()
     expect(screen.getByTestId('stand-play-toggle')).toBeDefined()
+    expect(screen.getByTestId('hand-preparation-dock')).toBeDefined()
   })
 
   it('switches between guitar and piano modes', () => {
     render(<PracticeStudioCockpit />)
 
-    // Switch to guitar
     const guitarBtn = screen.getByTestId('toggle-inst-guitar')
     fireEvent.click(guitarBtn)
     expect(screen.getByText(/GUITAR • 6-STRING/i)).toBeDefined()
 
-    // Switch back to piano
     const pianoBtn = screen.getByTestId('toggle-inst-piano')
     fireEvent.click(pianoBtn)
     expect(screen.getByText(/PIANO •/i)).toBeDefined()
@@ -74,26 +78,20 @@ describe('PracticeStudioCockpit Component', () => {
     render(<PracticeStudioCockpit />)
 
     const drawer = screen.getByTestId('codex-repertoire-drawer')
-
-    // Initially drawer is closed: must have pointer-events-none and aria-hidden="true"
     expect(drawer.className).toContain('-translate-x-full')
     expect(drawer.className).toContain('pointer-events-none')
     expect(drawer.getAttribute('aria-hidden')).toBe('true')
 
-    // Click open drawer
     const openBtn = screen.getByTestId('open-repertoire-drawer')
     fireEvent.click(openBtn)
 
-    // Drawer is now open: aria-hidden="false" and no pointer-events-none
     expect(drawer.className).toContain('translate-x-0')
     expect(drawer.className).not.toContain('pointer-events-none')
     expect(drawer.getAttribute('aria-hidden')).toBe('false')
 
-    // Click close button
     const closeBtn = screen.getByTestId('repertoire-drawer-close')
     fireEvent.click(closeBtn)
 
-    // Drawer is closed again
     expect(drawer.className).toContain('-translate-x-full')
     expect(drawer.className).toContain('pointer-events-none')
     expect(drawer.getAttribute('aria-hidden')).toBe('true')
@@ -106,12 +104,10 @@ describe('PracticeStudioCockpit Component', () => {
     const cleanBtn = screen.getByTestId('simulate-clean-take')
     fireEvent.click(cleanBtn)
 
-    // Fast-forward simulation timer
     act(() => {
       vi.advanceTimersByTime(500)
     })
 
-    // Take evaluation drawer should be visible and accessible
     const takeDrawer = screen.getByTestId('take-evaluation-drawer')
     expect(takeDrawer).toBeDefined()
     expect(takeDrawer.getAttribute('aria-hidden')).toBe('false')
@@ -121,14 +117,30 @@ describe('PracticeStudioCockpit Component', () => {
     vi.useRealTimers()
   })
 
-  it('enforces cockpit deck height of h-44 and burnished brass console button styling', () => {
-    render(<PracticeStudioCockpit />)
+  it('renders ProgressDashboardPage with BKT + SM-2 + Thompson Sampling recommendations', () => {
+    const onLaunch = vi.fn()
+    render(
+      <ProgressDashboardPage
+        transitions={INITIAL_TRANSITION_MASTERY}
+        sessionHistory={INITIAL_SESSION_HISTORY}
+        onOpenStudioWithRecommendation={onLaunch}
+      />
+    )
 
-    const recordBtn = screen.getByTestId('record-take-btn')
-    expect(recordBtn.className).toContain('bg-[#C5A059]')
-    expect(recordBtn.className).toContain('text-[#141312]')
+    expect(screen.getByTestId('progress-dashboard-page')).toBeDefined()
+    expect(screen.getByTestId('recommendation-card-1')).toBeDefined()
+    const launchBtn = screen.getByTestId('launch-recommended-drill-1')
+    fireEvent.click(launchBtn)
+    expect(onLaunch).toHaveBeenCalledTimes(1)
+  })
 
-    const footer = screen.getByRole('contentinfo')
-    expect(footer.className).toContain('h-44')
+  it('renders PeerComparisonPage with percentile bell curves and piece leaderboards', () => {
+    const onPracticePiece = vi.fn()
+    render(<PeerComparisonPage onPracticePiece={onPracticePiece} />)
+
+    expect(screen.getByTestId('peer-comparison-page')).toBeDefined()
+    expect(screen.getByTestId('dist-timing')).toBeDefined()
+    expect(screen.getByTestId('dist-voicing')).toBeDefined()
+    expect(screen.getByTestId('leaderboard-current-user-row')).toBeDefined()
   })
 })

@@ -7,18 +7,20 @@
   "author": "",
   "type": "commonjs",
   "scripts": {
-    "dev": "concurrently -n api,web -c cyan,magenta \"pnpm run service:api\" \"pnpm run app:web -- dev\"",
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspace=apps/web",
     "db:create": "python scripts/run.py db:create",
     "db:clean": "python scripts/run.py db:clean",
     "db:make": "python scripts/run.py db:make",
     "db:upgrade": "python scripts/run.py db:upgrade",
-    "app:web": "python scripts/run.py app:web",
+    "app:web": "npm --workspace=apps/web run",
     "service:api": "python scripts/run.py service:api",
     "auth:token": "python scripts/get_token.py",
-    "app:clean:all": "pnpm dlx rimraf node_modules apps/web/node_modules apps/web/dist",
-    "app:clean:install": "pnpm run app:clean:all && pnpm install"
+    "app:clean:all": "npx rimraf node_modules apps/web/node_modules apps/web/dist",
+    "app:clean:install": "npm run app:clean:all && npm install"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
-  }
+  },
+  "workspaces": ["apps/*"]
 }

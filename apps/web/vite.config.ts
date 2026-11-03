@@ -9,6 +9,16 @@ const rootDir = path.dirname(fileURLToPath(import.meta.url))
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    host: '0.0.0.0',
+    port: 3000,
+    allowedHosts: true,
+    hmr: process.env.DISABLE_HMR !== 'true',
+    watch: process.env.DISABLE_HMR === 'true' ? null : {},
+  },
+  preview: {
+    allowedHosts: true,
+  },
   resolve: {
     alias: {
       '@': path.resolve(rootDir, 'src'),

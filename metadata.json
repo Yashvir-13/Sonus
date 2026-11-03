@@ -1,0 +1,7 @@
+{
+  "name": "Sonus — Adaptive Musical Practice System",
+  "description": "Sonus — Adaptive Musical Practice System with real-time polyphonic audio analysis and AI coaching",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

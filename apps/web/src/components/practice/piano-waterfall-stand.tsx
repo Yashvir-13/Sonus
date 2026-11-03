@@ -1,6 +1,7 @@
 import React, { useMemo, useRef } from 'react'
 import type { FlowingChordItem } from './flowing-notation-stand'
 import { midiToPitchName } from './grand-staff-diagram'
+import { useTheme } from '@/hooks/use-theme'
 
 export interface PianoWaterfallStandProps {
   progression: FlowingChordItem[]
@@ -42,8 +43,9 @@ export function PianoWaterfallStand({
   className = '',
 }: PianoWaterfallStandProps): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null)
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
 
-  // Map 25 keys to their X coordinates and dimensions
   const keyMap = useMemo(() => {
     const keys: Array<{
       midi: number
@@ -94,14 +96,12 @@ export function PianoWaterfallStand({
     return keys
   }, [])
 
-  // Quick lookup from MIDI to key coordinate
   const keyCoordByMidi = useMemo(() => {
     const map = new Map<number, { x: number; width: number; isWhite: boolean }>()
     keyMap.forEach((k) => map.set(k.midi, { x: k.x, width: k.width, isWhite: k.isWhite }))
     return map
   }, [keyMap])
 
-  // Extract all timeline events/notes with startBeat and durationBeats
   const waterfallNotes = useMemo(() => {
     const notes: Array<{
       id: string
@@ -168,11 +168,9 @@ export function PianoWaterfallStand({
     return notes
   }, [progression, beatsPerMeasure])
 
-  // Pixels per beat calibration (vertical speed)
   const PX_PER_BEAT = 75
-  const STRIKE_LINE_Y = 180 // Y coordinate of strike threshold
+  const STRIKE_LINE_Y = 180
 
-  // Map of active MIDI pitch -> hand ('lh' | 'rh') at the strike line
   const activeKeysAtStrike = useMemo(() => {
     const activeMap = new Map<number, 'lh' | 'rh'>()
     waterfallNotes.forEach((n) => {
@@ -188,17 +186,15 @@ export function PianoWaterfallStand({
   return (
     <div
       data-testid="piano-waterfall-stand"
-      className={`relative w-full h-full flex flex-col justify-between overflow-hidden select-none bg-[#141312] ${className}`}
+      className={`relative w-full h-full flex flex-col justify-between overflow-hidden select-none bg-[#F8F8F6] dark:bg-[#09090B] transition-colors ${className}`}
     >
       <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col justify-between overflow-hidden relative px-2">
-        {/* ─────────────────────────────────────────────────────────────
-            1. VERTICAL FALLING NOTE CANVAS TRACK
-           ───────────────────────────────────────────────────────────── */}
+        {/* 1. VERTICAL FALLING NOTE CANVAS TRACK */}
         <div
           ref={containerRef}
           data-testid="waterfall-canvas-track"
           className="relative w-full flex-1 overflow-hidden"
-          style={{ minHeight: '180px' }}
+          style={{ minHeight: '160px' }}
         >
           <svg
             viewBox="0 0 600 200"
@@ -215,32 +211,28 @@ export function PianoWaterfallStand({
                   y1={0}
                   x2={k.x}
                   y2={200}
-                  stroke="#24221F"
+                  stroke={isDark ? '#18181C' : '#E4E4E0'}
                   strokeWidth={1}
                   strokeDasharray="4 4"
                 />
               ))}
 
-            {/* Falling Note Ribbons (Slender & Translucent) */}
+            {/* Falling Note Ribbons (LH Amber #F59E0B, RH Emerald #10B981) */}
             {waterfallNotes.map((note) => {
               const coord = keyCoordByMidi.get(note.midi)
               if (!coord) return null
 
-              // Y position calculation:
-              // When currentBeat === note.startBeat, note bottom hits STRIKE_LINE_Y
               const noteHeight = Math.max(16, note.durationBeats * PX_PER_BEAT)
               const beatsUntilHit = note.startBeat - currentBeat
               const noteBottomY = STRIKE_LINE_Y - beatsUntilHit * PX_PER_BEAT
               const noteTopY = noteBottomY - noteHeight
 
-              // Only render notes within viewport window
               if (noteBottomY < -50 || noteTopY > 250) return null
 
               const isLh = note.hand === 'lh'
-              const fillColor = isLh ? '#9A2A2A' : '#3B6E57'
-              const strokeColor = isLh ? '#C25454' : '#558B70'
+              const fillColor = isLh ? '#F59E0B' : '#10B981'
+              const strokeColor = isLh ? '#D97706' : '#059669'
 
-              // Slender ribbon dimensions centered precisely above the key
               const ribbonWidth = coord.isWhite ? coord.width * 0.68 : coord.width * 0.76
               const ribbonX = coord.x + (coord.width - ribbonWidth) / 2
 
@@ -251,21 +243,20 @@ export function PianoWaterfallStand({
                     y={noteTopY}
                     width={ribbonWidth}
                     height={noteHeight}
-                    rx={2}
-                    ry={2}
+                    rx={2.5}
+                    ry={2.5}
                     fill={fillColor}
-                    fillOpacity={0.48}
+                    fillOpacity={isDark ? 0.38 : 0.78}
                     stroke={strokeColor}
-                    strokeWidth={1}
-                    className="shadow-2xs"
+                    strokeWidth={1.2}
                   />
                   {noteHeight >= 22 && (
                     <text
                       x={coord.x + coord.width / 2}
                       y={noteBottomY - 5}
                       textAnchor="middle"
-                      fill="#EDE8DF"
-                      fillOpacity={0.85}
+                      fill={isDark ? '#F4F4F5' : '#18181B'}
+                      fillOpacity={0.95}
                       fontSize="8"
                       fontFamily="monospace"
                       fontWeight="bold"
@@ -279,18 +270,16 @@ export function PianoWaterfallStand({
               )
             })}
 
-            {/* Precision Vernier Caliper Sightline */}
+            {/* Strike Zone Line */}
             <g data-testid="waterfall-strike-zone">
               <line
                 x1={0}
                 y1={STRIKE_LINE_Y}
                 x2={600}
                 y2={STRIKE_LINE_Y}
-                stroke="#C5A059"
+                stroke="#F59E0B"
                 strokeWidth={1.5}
-                className="drop-shadow-[0_0_6px_#C5A059]"
               />
-              {/* Millimeter graduation ticks along caliper rule */}
               {Array.from({ length: 41 }).map((_, i) => (
                 <line
                   key={`tick-${i}`}
@@ -298,48 +287,44 @@ export function PianoWaterfallStand({
                   y1={STRIKE_LINE_Y - (i % 5 === 0 ? 4 : 2)}
                   x2={i * 15}
                   y2={STRIKE_LINE_Y + (i % 5 === 0 ? 4 : 2)}
-                  stroke="#C5A059"
+                  stroke="#F59E0B"
                   strokeWidth={0.75}
                   strokeOpacity={0.7}
                 />
               ))}
-              {/* Refined Engraver's Badge */}
               <rect
                 x={8}
                 y={STRIKE_LINE_Y - 8}
-                width={104}
+                width={108}
                 height={16}
                 rx={2}
-                fill="#1E1C1A"
-                stroke="#C5A059"
+                fill={isDark ? '#111114' : '#FFFFFF'}
+                stroke="#F59E0B"
                 strokeWidth={1}
-                className="shadow-sm"
               />
               <text
-                x={60}
+                x={62}
                 y={STRIKE_LINE_Y + 3}
                 textAnchor="middle"
-                fill="#C5A059"
+                fill="#D97706"
                 fontSize="7.5"
                 fontFamily="monospace"
                 fontWeight="bold"
                 letterSpacing="0.12em"
                 className="select-none pointer-events-none uppercase"
               >
-                CALIPER SIGHTLINE
+                PLAY ON THIS LINE
               </text>
             </g>
           </svg>
         </div>
 
-        {/* ─────────────────────────────────────────────────────────────
-            2. AUTHENTIC 25-KEY STRIKE KEYBOARD AT BASELINE
-           ───────────────────────────────────────────────────────────── */}
-        <div className="relative w-full h-16 bg-[#141312] border-t border-[#38342E] flex justify-center items-end pb-1 z-30 shrink-0">
+        {/* 2. AUTHENTIC 25-KEY STRIKE KEYBOARD AT BASELINE */}
+        <div className="relative w-full h-16 bg-[#F8F8F6] dark:bg-[#09090B] border-t border-zinc-200 dark:border-zinc-800 flex justify-center items-end pb-1 z-30 shrink-0">
           <svg
             viewBox="0 0 600 65"
             preserveAspectRatio="none"
-            className="w-full h-full drop-shadow-md select-none"
+            className="w-full h-full drop-shadow-sm select-none"
           >
             {/* Pass 1: White Keys */}
             <g data-testid="waterfall-white-keys">
@@ -348,7 +333,7 @@ export function PianoWaterfallStand({
                 .map((k) => {
                   const activeHand = activeKeysAtStrike.get(k.midi)
                   const isActive = Boolean(activeHand)
-                  const activeFill = activeHand === 'lh' ? '#9A2A2A' : '#3B6E57'
+                  const activeFill = activeHand === 'lh' ? '#F59E0B' : '#10B981'
                   return (
                     <g key={`wk-${k.midi}`}>
                       <rect
@@ -359,29 +344,19 @@ export function PianoWaterfallStand({
                         height={65}
                         rx={2}
                         ry={2}
-                        fill={isActive ? activeFill : '#FAF8F3'}
-                        stroke={isActive ? '#C5A059' : '#242321'}
+                        fill={isActive ? activeFill : isDark ? '#E4E4E7' : '#FFFFFF'}
+                        stroke={isActive ? '#F59E0B' : isDark ? '#18181B' : '#A1A1AA'}
                         strokeWidth={isActive ? 1.5 : 1}
                         onClick={() => onKeyClick?.(k.midi)}
                         className="cursor-pointer transition-colors"
                       />
                       {isActive && (
-                        <>
-                          <rect
-                            x={k.x + 2}
-                            y={1}
-                            width={k.width - 5}
-                            height={4}
-                            rx={1}
-                            fill={activeFill}
-                          />
-                          <circle
-                            cx={k.x + (k.width - 1) / 2}
-                            cy={54}
-                            r={3}
-                            fill={activeFill}
-                          />
-                        </>
+                        <circle
+                          cx={k.x + (k.width - 1) / 2}
+                          cy={54}
+                          r={3}
+                          fill="#09090B"
+                        />
                       )}
                     </g>
                   )
@@ -395,7 +370,7 @@ export function PianoWaterfallStand({
                 .map((k) => {
                   const activeHand = activeKeysAtStrike.get(k.midi)
                   const isActive = Boolean(activeHand)
-                  const activeFill = activeHand === 'lh' ? '#9A2A2A' : '#3B6E57'
+                  const activeFill = activeHand === 'lh' ? '#F59E0B' : '#10B981'
                   return (
                     <g key={`bk-${k.midi}`}>
                       <rect
@@ -406,8 +381,8 @@ export function PianoWaterfallStand({
                         height={40}
                         rx={1.5}
                         ry={1.5}
-                        fill={isActive ? activeFill : '#1E1C1A'}
-                        stroke={isActive ? '#C5A059' : '#141312'}
+                        fill={isActive ? activeFill : '#18181B'}
+                        stroke={isActive ? '#F59E0B' : '#09090B'}
                         strokeWidth={isActive ? 1.5 : 1}
                         onClick={() => onKeyClick?.(k.midi)}
                         className="cursor-pointer transition-colors"
@@ -417,7 +392,7 @@ export function PianoWaterfallStand({
                           cx={k.x + k.width / 2}
                           cy={30}
                           r={2.5}
-                          fill={activeFill}
+                          fill="#09090B"
                         />
                       )}
                     </g>

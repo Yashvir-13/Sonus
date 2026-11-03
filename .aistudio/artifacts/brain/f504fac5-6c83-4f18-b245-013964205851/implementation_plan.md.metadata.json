@@ -1,0 +1,6 @@
+{
+  "summary": "Comprehensive plan to: (1) fix the Landing Page by removing camera/spline debug text, adding an HTML5 Canvas procedural volumetric smoke/fog renderer, and smoothing the final scroll transitions; (2) implement full Light Mode & Dark Mode support across every page and update repository rule files (.agents/rules/ and AGENTS.md); (3) redesign the Practice Studio from a cramped DAW-style cockpit into a spacious, musician-focused Practice Room with Current -> Next Chord hand preparation, measure loop brackets, and plain-spoken mistake coaching; (4) build the Profile, Session History & Research-Backed Exercise Recommendation page (using Bayesian Knowledge Tracing, SuperMemo SM-2 Spaced Repetition, and Thompson Sampling Multi-Armed Bandit); and (5) build the Peer Comparison & Interactive Leaderboard dashboard with percentile distribution curves and piece-by-piece rankings.",
+  "updatedAt": "2026-11-03T14:56:21.962280877Z",
+  "requestFeedback": true,
+  "userFacing": true
+}

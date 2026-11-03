@@ -4,70 +4,70 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --header-height: 4rem;
+  --header-height: 3.5rem;
   --mobile-header-height: 3.5rem;
   --content-padding: 1rem;
   --content-margin: 1rem;
   --content-full-height: calc(100vh - var(--header-height));
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 
-  /* Archival Ivory Conservatory Theme (Direction 1) */
-  --background: #F7F5F0;
-  --foreground: #242321;
-  --card: #FAF8F3;
-  --card-foreground: #242321;
-  --popover: #FAF8F3;
-  --popover-foreground: #242321;
-  --primary: #C5A059;
-  --primary-foreground: #141312;
-  --secondary: #EFECE6;
-  --secondary-foreground: #242321;
-  --muted: #EFECE6;
-  --muted-foreground: #736E65;
-  --accent: #E8E3D9;
-  --accent-foreground: #242321;
-  --destructive: #9A2A2A;
-  --border: #E2DDD3;
-  --input: #E2DDD3;
-  --ring: #C5A059;
-  --sidebar: #FAF8F3;
-  --sidebar-foreground: #242321;
-  --sidebar-primary: #C5A059;
-  --sidebar-primary-foreground: #141312;
-  --sidebar-accent: #EFECE6;
-  --sidebar-accent-foreground: #242321;
-  --sidebar-border: #E2DDD3;
-  --sidebar-ring: #C5A059;
+  /* Light Hardware Mode: Machined Silver & Anodized Slate */
+  --background: #F4F4F5;
+  --foreground: #09090B;
+  --card: #FFFFFF;
+  --card-foreground: #09090B;
+  --popover: #FFFFFF;
+  --popover-foreground: #09090B;
+  --primary: #F59E0B;
+  --primary-foreground: #09090B;
+  --secondary: #E4E4E7;
+  --secondary-foreground: #09090B;
+  --muted: #E4E4E7;
+  --muted-foreground: #52525B;
+  --accent: #E4E4E7;
+  --accent-foreground: #09090B;
+  --destructive: #EF4444;
+  --border: #D4D4D8;
+  --input: #D4D4D8;
+  --ring: #F59E0B;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #09090B;
+  --sidebar-primary: #F59E0B;
+  --sidebar-primary-foreground: #09090B;
+  --sidebar-accent: #E4E4E7;
+  --sidebar-accent-foreground: #09090B;
+  --sidebar-border: #D4D4D8;
+  --sidebar-ring: #F59E0B;
 }
 
 .dark {
-  /* Classy Conservatory Dark Theme: Smoked Ebony, Burnished Brass & Radiant Pearl Ivory */
-  --background: #141312;
-  --foreground: #EDE8DF;
-  --card: #1E1C1A;
-  --card-foreground: #EDE8DF;
-  --popover: #1E1C1A;
-  --popover-foreground: #EDE8DF;
-  --primary: #C5A059;
-  --primary-foreground: #141312;
-  --secondary: #24221F;
-  --secondary-foreground: #EDE8DF;
-  --muted: #24221F;
-  --muted-foreground: #A39C8F;
-  --accent: #2E2A24;
-  --accent-foreground: #EDE8DF;
-  --destructive: #9A2A2A;
-  --border: #38342E;
-  --input: #38342E;
-  --ring: #C5A059;
-  --sidebar: #141312;
-  --sidebar-foreground: #EDE8DF;
-  --sidebar-primary: #C5A059;
-  --sidebar-primary-foreground: #141312;
-  --sidebar-accent: #24221F;
-  --sidebar-accent-foreground: #EDE8DF;
-  --sidebar-border: #38342E;
-  --sidebar-ring: #C5A059;
+  /* Obsidian Monochrome & Anodized Aluminum with Amber LEDs */
+  --background: #09090B;
+  --foreground: #F4F4F5;
+  --card: #111114;
+  --card-foreground: #F4F4F5;
+  --popover: #111114;
+  --popover-foreground: #F4F4F5;
+  --primary: #F59E0B;
+  --primary-foreground: #09090B;
+  --secondary: #18181C;
+  --secondary-foreground: #F4F4F5;
+  --muted: #18181C;
+  --muted-foreground: #8E8E96;
+  --accent: #202026;
+  --accent-foreground: #F4F4F5;
+  --destructive: #EF4444;
+  --border: #27272A;
+  --input: #27272A;
+  --ring: #F59E0B;
+  --sidebar: #09090B;
+  --sidebar-foreground: #F4F4F5;
+  --sidebar-primary: #F59E0B;
+  --sidebar-primary-foreground: #09090B;
+  --sidebar-accent: #18181C;
+  --sidebar-accent-foreground: #F4F4F5;
+  --sidebar-border: #27272A;
+  --sidebar-ring: #F59E0B;
 }
 
 @layer base {
@@ -105,13 +105,41 @@
   }
 }
 
-/* Engraver's score canvas background pattern in light and dark modes */
+/* Precision anodized grid background for notation canvas */
 [data-testid="flowing-notation-canvas"] {
-  background-image: radial-gradient(#E8E3D9 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image:
+    linear-gradient(to right, rgba(39, 39, 42, 0.35) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(39, 39, 42, 0.25) 1px, transparent 1px);
+  background-size: 45px 24px;
 }
 
-.dark [data-testid="flowing-notation-canvas"] {
-  background-image: radial-gradient(#2A2723 1px, transparent 1px);
-  background-size: 24px 24px;
+/* Volumetric Smoke Drift Animations */
+@keyframes smoke-drift-slow {
+  0%, 100% {
+    transform: translate3d(-4%, -2%, 0) scale(1) rotate(0deg);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate3d(5%, 3%, 0) scale(1.12) rotate(3deg);
+    opacity: 0.55;
+  }
+}
+
+@keyframes smoke-drift-reverse {
+  0%, 100% {
+    transform: translate3d(4%, 2%, 0) scale(1.05) rotate(0deg);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translate3d(-5%, -4%, 0) scale(1.18) rotate(-4deg);
+    opacity: 0.45;
+  }
+}
+
+.animate-smoke-slow {
+  animation: smoke-drift-slow 18s ease-in-out infinite;
+}
+
+.animate-smoke-reverse {
+  animation: smoke-drift-reverse 24s ease-in-out infinite;
 }
