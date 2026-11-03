@@ -21,7 +21,7 @@ describe('FlowingNotationStand', () => {
     expect(screen.getByText(/6 \(E\) 82Hz/i)).toBeDefined()
   })
 
-  it('renders left-aligned sight-reading caliper hit point indicator', () => {
+  it('renders left-aligned sight-reading caliper playhead indicator', () => {
     render(
       <FlowingNotationStand
         instrument="guitar"
@@ -33,7 +33,7 @@ describe('FlowingNotationStand', () => {
     )
     const playhead = screen.getByTestId('center-playhead')
     expect(playhead).toBeDefined()
-    expect(screen.getByText(/HIT POINT/i)).toBeDefined()
+    expect(screen.getByText(/PLAY HERE/i)).toBeDefined()
     // Verifies the playhead is positioned at 140px for comfortable forward sight reading
     expect(playhead.style.left).toBe('140px')
   })
@@ -146,7 +146,8 @@ describe('FlowingNotationStand', () => {
     // Check meter banner
     expect(screen.getByText(/METER: 3\/4/i)).toBeDefined()
     // Check total beats header (3 beats for 1 measure)
-    expect(screen.getByText(/3 BEATS \(1 MEASURES\)/i)).toBeDefined()
+    expect(screen.getByText(/1 MEASURES/i)).toBeDefined()
+    expect(screen.getByText(/BEAT 1 \/ 3/i)).toBeDefined()
     // Check melody noteheads
     const noteheads = screen.getAllByTestId('grand-staff-notehead')
     expect(noteheads.length).toBe(8)

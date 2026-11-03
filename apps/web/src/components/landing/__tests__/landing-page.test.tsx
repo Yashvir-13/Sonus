@@ -1,11 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
 import { LandingPage } from '../landing-page'
-import { TuningForkChamber } from '../tuning-fork-chamber'
-import { RepertoireExplorer } from '../repertoire-explorer'
-import { StaffScrollProgress } from '../staff-scroll-progress'
-import { MagneticCaliperButton } from '../magnetic-caliper-button'
-import { KineticRevealText } from '../kinetic-reveal-text'
+import { VolumetricSmokeCanvas } from '../volumetric-smoke-canvas'
 
 class MockAudioContext {
   state = 'running'
@@ -42,7 +38,7 @@ class MockAudioContext {
   }
 }
 
-describe('Landing Page Components', () => {
+describe('Landing Page & Volumetric Smoke Stage', () => {
   beforeAll(() => {
     if (typeof Element !== 'undefined' && Element.prototype.animate) {
       const originalAnimate = Element.prototype.animate
@@ -98,70 +94,30 @@ describe('Landing Page Components', () => {
     expect(screen.getByTestId('mechanics-piano-partials')).toBeDefined()
   })
 
-  it('renders the TuningForkChamber and strikes A440 fork cleanly via Web Audio', () => {
-    render(<TuningForkChamber />)
-
-    expect(screen.getByText(/The Pitch Standard:/i)).toBeDefined()
-    expect(screen.getByText(/440.00/i)).toBeDefined()
-
-    const strikeBtn = screen.getByRole('button', { name: /STRIKE BRASS FORK/i })
-    expect(strikeBtn).toBeDefined()
-    fireEvent.click(strikeBtn)
-
-    expect(screen.getByRole('button', { name: /DAMPEN TUNING FORK/i })).toBeDefined()
-
-    const dampenBtn = screen.getByRole('button', { name: /DAMPEN TUNING FORK/i })
-    fireEvent.click(dampenBtn)
-    expect(screen.getByRole('button', { name: /STRIKE BRASS FORK/i })).toBeDefined()
+  it('mounts VolumetricSmokeCanvas cleanly', () => {
+    const { getByTestId } = render(<VolumetricSmokeCanvas className="opacity-90" />)
+    const canvas = getByTestId('volumetric-smoke-canvas')
+    expect(canvas.tagName).toBe('CANVAS')
   })
 
-  it('renders RepertoireExplorer and toggles between piano and guitar catalogs', () => {
-    render(<RepertoireExplorer />)
+  it('navigates to Progress & Coach and Peer Benchmarks from landing navigation and stage cards', () => {
+    const onOpenProgress = vi.fn()
+    const onOpenCommunity = vi.fn()
 
-    expect(screen.getAllByText(/Nocturne in E-flat Major/i).length).toBeGreaterThan(0)
-    expect(screen.getByText(/Canon in D/i)).toBeDefined()
-
-    const guitarTab = screen.getByRole('button', { name: /GUITAR STANDARDS/i })
-    fireEvent.click(guitarTab)
-
-    expect(screen.getAllByText(/Knockin' Cadence/i).length).toBeGreaterThan(0)
-    expect(screen.getByText(/Romance Anónimo/i)).toBeDefined()
-  })
-
-  it('renders StaffScrollProgress and KineticRevealText without crashing', () => {
-    render(<StaffScrollProgress />)
-    render(<KineticRevealText text="Deliberate Practice" as="h2" />)
-    expect(screen.getByText(/Deliberate/i)).toBeDefined()
-    expect(screen.getByText(/Practice/i)).toBeDefined()
-  })
-
-  it('renders MagneticCaliperButton with hover physics and click event', () => {
-    const onClick = vi.fn()
     render(
-      <MagneticCaliperButton onClick={onClick}>
-        Click Me
-      </MagneticCaliperButton>
+      <LandingPage
+        onOpenProgress={onOpenProgress}
+        onOpenCommunity={onOpenCommunity}
+      />
     )
 
-    const btn = screen.getByRole('button', { name: /Click Me/i })
-    fireEvent.mouseMove(btn, { clientX: 100, clientY: 50 })
-    fireEvent.mouseLeave(btn)
-    fireEvent.click(btn)
-    expect(onClick).toHaveBeenCalledTimes(1)
-  })
+    const progressBtn = screen.getAllByRole('button', { name: /Progress & Coach/i })[0]
+    fireEvent.click(progressBtn)
+    expect(onOpenProgress).toHaveBeenCalled()
 
-  it('supports striking tuning fork via accessible vector graphic and keyboard', () => {
-    render(<TuningForkChamber />)
-
-    const graphicBtn = screen.getByRole('button', { name: /Strike brass tuning fork graphic/i })
-    expect(graphicBtn).toBeDefined()
-
-    fireEvent.keyDown(graphicBtn, { key: 'Enter' })
-    expect(screen.getByRole('button', { name: /DAMPEN TUNING FORK/i })).toBeDefined()
-
-    const dampenBtn = screen.getByRole('button', { name: /DAMPEN TUNING FORK/i })
-    fireEvent.click(dampenBtn)
-    expect(screen.getByRole('button', { name: /STRIKE BRASS FORK/i })).toBeDefined()
+    const communityBtn = screen.getAllByRole('button', { name: /Peer Benchmarks/i })[0]
+    fireEvent.click(communityBtn)
+    expect(onOpenCommunity).toHaveBeenCalled()
   })
 
   it('updates repertoire deck selection when a piece is clicked', () => {

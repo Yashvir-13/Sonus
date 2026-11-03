@@ -162,32 +162,51 @@ graph TB
 
 ---
 
-## 5. Testing the System
+## 5. Running & Testing the System
 
-### A. Interactive Testing Studio (Web UI)
-The web application includes a built-in testing studio:
-1. Start the dev servers:
-   ```bash
-   pnpm run dev
-   ```
-2. Navigate to `http://localhost:5173`.
-3. Toggle between:
-   - **Practice & Drill Studio**: Select an exercise, start a session, record live audio or submit 1-click pedagogical bottleneck presets ("Transition Lag", "Dragging", "Voicing Drop"), view the chord HUD, read AI coaching feedback, generate remedial drills, and test longitudinal outcome tracking.
-   - **Acoustic & FFT Bench**: Live mic input with real-time 12-pitch chromagram visualizer and Spotify Basic Pitch transcription.
+### A. Interactive Web Application (`apps/web`)
+Start the development server using either `pnpm` or `npm`:
+```bash
+# Start the web application (port 3000)
+pnpm run dev
+# or
+npm run dev
+
+# Start both the FastAPI backend (:8000) and Vite web app (:3000) concurrently
+pnpm run dev:full
+```
+
+The web application features **Light Mode (Studio Alabaster `#F8F8F6`)** and **Dark Mode (Deep Obsidian `#09090B`)** across four primary views:
+1. **Cinematic Landing Stage**: 60fps HTML5 `<canvas>` procedural volumetric smoke and stage lighting, scroll-linked Z-space choreography, interactive repertoire preview, and DSP telemetry cards.
+2. **Musician's Practice Room (`PracticeStudioCockpit`)**:
+   - **Current Chord → Next Chord Hand Preparation Dock**: Side-by-side Guitar Fretboard or 25-Key Piano Diagrams showing both the active chord and upcoming chord so you can prepare anchor fingers before the beat.
+   - **2-Bar Loop & Speed Trainer**: Isolate any hard transition with `70% Slow`, `85% Med`, and `100% Tempo` presets.
+   - **1-Click Diagnostic Simulation & Live Mic Evaluation**: Test clean takes or bottleneck presets (*Transition Lag*, *Tempo Dragging*, *Dropped Notes*) and inspect plain-English mistake breakdowns.
+3. **Progress, History & Exercise Coach (`ProgressDashboardPage`)**:
+   - **Hybrid BKT + SM-2 + Thompson Sampling Prescription Queue**: Ranks what to practice next by combining Bayesian Knowledge Tracing mastery deficit, SuperMemo SM-2 review urgency, and Multi-Armed Bandit posterior sampling ($\theta_k \sim \text{Beta}(\alpha_k, \beta_k)$).
+   - **Longitudinal Trajectory & CUSUM Change-Points**: Interactive multi-session chart with Page's Two-Sided CUSUM markers showing where habits formed or clean breakthroughs locked in.
+   - **Chord Transition Mastery Matrix**: Per-transition BKT mastery bars, EWMA latency, and SM-2 schedule badges.
+4. **Peer Benchmarks & Piece Leaderboards (`PeerComparisonPage`)**:
+   - **Interactive Percentile Distribution Bell Curves**: Compare your *Chord Transition Speed (ms)*, *Voicing Completeness (%)*, and *Needleman-Wunsch Score (%)* against global musician percentiles (`P50`, `P75`, `P90`, `P99`).
+   - **Filterable Piece Leaderboards**: Repertoire-specific rankings across Piano and Guitar standards with 1-click launch into the Practice Room.
 
 ### B. Automated Test Suites
 ```bash
-# Run all 72 backend tests (unit, integration, and cognitive adaptive models)
+# Run all backend tests (unit, integration, and cognitive adaptive models)
 pytest tests/ -v
 
 # Run strict backend static type checking
 mypy src/ tests/
 
-# Run frontend Vitest tests
+# Run frontend Vitest unit & component tests
 pnpm --filter web test
+# or
+npm run test
 
 # Run frontend typecheck and production build
 pnpm --filter web build
+# or
+npm run build
 ```
 
 ### C. End-to-End Simulation Script
@@ -202,4 +221,4 @@ python scripts/simulate_practice_flow.py
 
 The GitHub Actions pipeline ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) validates every commit on `main` and `master`:
 - **Backend Job**: Sets up Python 3.12, installs dependencies via `uv`, runs `mypy src/ tests/`, and executes `pytest tests/ -v`.
-- **Frontend Job**: Sets up Node.js 22, installs packages via `pnpm`, executes `vitest run`, and validates `tsc -b && vite build`.
+- **Frontend Job**: Sets up Node.js 22 and `pnpm` v10 with `pnpm-lock.yaml` caching, installs workspace packages, executes `pnpm --filter web test` (Vitest), and validates `pnpm --filter web build` (`tsc -b && vite build`).

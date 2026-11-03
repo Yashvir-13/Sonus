@@ -19,6 +19,7 @@ Usage (directly):
 from __future__ import annotations
 
 import os
+import shutil
 import signal
 import subprocess
 import sys
@@ -41,7 +42,9 @@ ROOT = Path(__file__).parent.parent
 
 VENV_BIN = ROOT / ".venv" / ("Scripts" if sys.platform == "win32" else "bin")
 ALEMBIC = str(VENV_BIN / "alembic")
-PNPM = "pnpm.cmd" if sys.platform == "win32" else "pnpm"
+_PNPM_BIN = "pnpm.cmd" if sys.platform == "win32" else "pnpm"
+_NPM_BIN = "npm.cmd" if sys.platform == "win32" else "npm"
+PNPM = _PNPM_BIN if shutil.which(_PNPM_BIN) else _NPM_BIN
 
 
 def load_env() -> dict[str, str]:
@@ -362,9 +365,10 @@ def cmd_db_upgrade(_args: list[str]) -> None:
 
 
 def _cmd_pnpm_app(app_relative_dir: str, args: list[str], usage: str) -> None:
-    """Run ``pnpm run`` for a workspace app under ``apps/``."""
+    """Run ``pnpm run`` (or ``npm run`` fallback) for a workspace app under ``apps/``."""
     require_args(args, 1, usage)
-    run([PNPM, "--dir", app_relative_dir, "run", *args], extra_env=load_env_optional())
+    dir_flag = "--dir" if "pnpm" in PNPM else "--prefix"
+    run([PNPM, dir_flag, app_relative_dir, "run", *args], extra_env=load_env_optional())
 
 
 def cmd_app_web(args: list[str]) -> None:

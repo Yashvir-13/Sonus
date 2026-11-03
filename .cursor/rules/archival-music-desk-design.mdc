@@ -1,17 +1,19 @@
 ---
-description: Archival Music Desk visual properties, design tokens, typography, and multi-instrument rendering rules for apps/web
+description: Dual-Theme Musician's Practice Room & Acoustic Studio design system, tokens, and multi-instrument rendering rules for apps/web
 globs: apps/web/src/**/*.{ts,tsx,css}
 alwaysApply: false
 ---
 
-# Archival Music Desk Design System (`apps/web`)
+# Dual-Theme Musician's Practice Room Design System (`apps/web`)
 
 Full reference: [`.agents/rules/archival-music-desk-design.md`](../../.agents/rules/archival-music-desk-design.md) and [`AGENTS.md`](../../AGENTS.md).
-Figma origin: `https://www.figma.com/design/zY5UlhIZAQxmeBcW9MTq1q` (Direction 1: Archival Music Desk)
 
 ## Key Invariants
-- **Palette**: Ivory Parchment (`#F7F5F0` / `#FAF8F3`), Smoked Ebony (`#141312` / `#1E1C1A`), Iron Gall Charcoal (`#242321` / `#EDE8DF`), Terracotta (`#9A2A2A` / `#A04B32`), Patina Jade (`#3B6E57`), Burnished Brass (`#C5A059`). Zero neon or cyber gradients.
-- **Typography**: Cormorant Garamond (headlines/scores), Geist Mono (telemetry/HUD/pitch/frets), Space Grotesk (brand logo), Inter & DM Sans (UI body).
-- **Guitar Diagrams**: Separate frets from fingers; embed finger digits in dots; render vector `O` and `X` above nut; show base fret ordinals ("1st", "2nd").
-- **Piano Visualizer**: Zero guitar fretboard leakage; 2-pass SVG key stacking (white then black); color-code LH (Terracotta) and RH (Patina Jade); render Middle C anchor; Grand Staff with Treble + Bass clefs and dynamic ledger lines.
-- **Audio & Motion**: Karplus-Strong guitar, multi-partial acoustic piano, wooden metronome click; Lenis smooth scroll; zero unprompted microphone access.
+- **Aesthetic & Intent**: Dual-Theme Acoustic Studio & Musician's Practice Room (`#F8F8F6` Studio Alabaster in Light Mode, `#09090B` Obsidian in Dark Mode). Focused on musical practice, hand preparation (`Current Chord → Next Chord`), mistake pinpointing, longitudinal BKT + SM-2 + Thompson Sampling recommendations, and peer percentile benchmarks. Zero fake camera rig telemetry (`CAM 07`, `SPLINE 100%`) and zero AI buzzwords.
+- **Color Tokens**:
+  - *Light Mode*: Studio Alabaster canvas (`#F8F8F6`), Crisp Sheet Ivory cards (`#FFFFFF`, `#F1F1EE`), Deep Charcoal ink (`#18181B`), Warm Stone hairlines (`#E4E4E0`).
+  - *Dark Mode*: Deep Obsidian canvas (`#09090B`), Anodized Slate cards (`#121215`, `#18181C`), Crisp Zinc ink (`#F4F4F5`), Hairline Zinc borders (`#27272A`).
+  - *Accents*: Warm Amber playhead & LH notes (`#D97706` / `#F59E0B`), Studio Emerald RH notes & verified timing (`#059669` / `#10B981`), Crimson fault callouts (`#DC2626` / `#EF4444`).
+- **Guitar Diagrams**: Separate fret coordinates from fretting fingers (`frets: Array<number | null>`, `fingers: Array<number | 'T' | null>`); embed finger digits inside fret dots; render vector `O` (open) and `X` (muted) above nut; format base frets with ordinals (`1st`, `2nd`).
+- **Piano Visualizer**: Never display guitar fretboard in piano mode; render 25-key keyboard with 2-pass SVG key stacking (white keys first, black keys second); color-code LH (Amber) and RH (Emerald); render Middle C anchor at MIDI 60 (C4); Grand Staff spans Treble + Bass clefs.
+- **Audio & Motion**: Karplus-Strong guitar, multi-partial acoustic piano, wooden metronome click (1150 Hz / 850 Hz); Lenis smooth scroll; 60fps HTML5 `<canvas>` volumetric smoke on landing stage; zero unprompted microphone access.

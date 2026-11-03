@@ -1,141 +1,34 @@
-# SONUS: Precision Landing Page Specification & Google Stitch Design System
+# SONUS: Dual-Theme Musician's Practice Room, Cinematic Stage & Adaptive Coaching Specification
 
-**Project**: SONUS (`projects/4513414872048669454`)  
-**Document**: Landing Page UI Design Specification & Screen Artifacts  
-**Date**: 2026-10-31  
-**Aesthetic**: Archival Conservatory (Ivory Parchment, Iron Gall Charcoal, Bookbinder Terracotta, Muted Sage)  
-**Strict Mandate**: Zero AI hype / verbosity. Zero neon or cyberpunky colors. Pure instrumental craftsmanship with smooth animations.
+**Project**: SONUS (`Adaptive Musical Practice System`)  
+**Document**: UI & Product Architecture Specification  
+**Aesthetic**: Dual-Theme Acoustic Studio & Musician's Practice Room (`#F8F8F6` Studio Alabaster in Light Mode, `#09090B` Deep Obsidian in Dark Mode)  
+**Strict Mandate**: Built for practicing musicians (not a recording DAW or fake camera telemetry simulator). Zero AI buzzwords, zero fake camera rig jargon (`CAM 07`, `SPLINE 100%`).
 
 ---
 
 ## 1. Executive Intent & Design Philosophy
 
-The SONUS landing page is designed for serious instrumentalists (acoustic/electric guitarists and pianists) who demand austere, distraction-free practice tools. Traditional music education values focus, precision, and tactile authenticity; typical modern SaaS landing pages are crowded with marketing hyperbole, badges, and cyber gradients.
+SONUS is built for practicing guitarists and pianists who want to see **how to shape their hands now**, **what chord comes next**, **where a transition broke down**, **what remedial drill to practice next**, and **how their timing and voicing compare against peers**.
 
-SONUS rejects this:
-- **No Overhyped AI Bullshit**: No claims of "revolutionary neural genius" or paragraphs of robotic marketing text. We state the instrument engineering plainly: real-time acoustic pitch detection, synchronized flowing tablature and grand staff, and habit telemetry.
-- **Traditional Palette & Paper Texture**:
-  - Pressed Cotton Ivory (`#F7F5F0`) as the primary paper surface.
-  - Linen Panels (`#FAF8F3`, `#FCFBF8`, `#EFECE6`) for elevated score cards.
-  - Deep Iron Gall Charcoal Ink (`#242321`) for high-contrast legible engraving.
-  - Bookbinder Terracotta (`#9A2A2A`) for playhead calipers and tactile emphasis.
-  - Muted Sage (`#4A6B5B`) for verified intonation and on-pitch hit indicators.
-  - Soft hairline borders (`#E2DDD3`, `#D9D3C7`) with 1px engraved stipple canvas dotting.
-- **Conservatory Nocturne (Dark Mode)**:
-  - Smoked Ebony (`#141312`) and Walnut Charcoal (`#1E1C1A`).
-  - Warm antique brass and ivory pearl typography (`#EDE8DF`).
-  - Never neon, never cyan/magenta lasers.
-- **Smooth Analog Mechanics**:
-  - Horizontally flowing score teaser gliding beneath a center caliper playhead.
-  - Analog VU needle responding to acoustic input.
-  - Tactile segmented buttons for instrument mode (`GUITAR TAB` / `PIANO STAFF`).
-  - Clerk-ready authentication triggers ("Open Music Stand", "Enter Conservatory").
-
----
-
-## 2. Google Stitch Project & Screen Specifications
-
-### 2.1 Stitch Project Identification
-- **Stitch Project ID**: `projects/4513414872048669454` (`SONUS`)
-- **Stitch Workspace Channel**: `Landing Page v1 - Archival Parchment`
-
-### 2.2 Generated Screen Artifacts
-
-| Screen Name | File Path | Aspect Ratio | Focus |
-| :--- | :--- | :--- | :--- |
-| **Hero & Flowing Stand Preview** | `docs/design/screens/sonus_landing_hero_ivory.jpg` | 16:9 | Archival ivory hero, monospace navigation, flowing score ribbon teaser, center terracotta playhead caliper, analog VU meter, ±4ms intonation badge. |
-| **Craftsmanship & Telemetry Pillars** | `docs/design/screens/sonus_landing_craftsmanship.jpg` | 16:9 | Triad cards: Continuous Ribbon (score engraving), Live Acoustic Detection (microtonal tuning & latency), Habit Pattern Telemetry, woodcut Bm barre fretboard. |
-| **Conservatory Nocturne (Dark Mode)** | `docs/design/screens/sonus_landing_dark_nocturne.jpg` | 16:9 | Evening chamber atmosphere, warm reading lamp, smoked ebony background, warm brass hardware knobs, gold-ivory flowing grand staff and tabs. |
-
-*Web static copies are also placed at `apps/web/public/screens/`.*
-
----
-
-## 3. Stitch Design Tokens (`DESIGN.md` Reference)
-
-```yaml
-tokens:
-  color:
-    surface:
-      canvas: "#F7F5F0"
-      panel_primary: "#FAF8F3"
-      panel_elevated: "#FCFBF8"
-      panel_muted: "#EFECE6"
-      border_hairline: "#E2DDD3"
-      border_subtle: "#D9D3C7"
-    dark_surface:
-      canvas: "#141312"
-      panel_primary: "#1E1C1A"
-      panel_elevated: "#24221F"
-      border_hairline: "#38342E"
-    ink:
-      primary: "#242321"
-      muted: "#736E65"
-      subtle: "#A09A8F"
-      dark_primary: "#EDE8DF"
-      dark_muted: "#A39C8F"
-    accent:
-      terracotta: "#9A2A2A"
-      sage_green: "#4A6B5B"
-      antique_brass: "#C2A675"
-      ochre_warning: "#A36B24"
-  typography:
-    brand: "Space Grotesk, sans-serif"
-    display: "DM Sans, serif"
-    ui: "Inter, sans-serif"
-    telemetry: "Geist Mono, monospace"
-  texture:
-    canvas_stipple: "radial-gradient(#E8E3D9 1px, transparent 1px) 24px 24px"
-    dark_stipple: "radial-gradient(#2A2723 1px, transparent 1px) 24px 24px"
-```
-
----
-
-## 4. Page Architecture & Section Decomposition
-
-### 4.1 Austere Top Navigation Bar
-- **Wordmark**: `§ SONUS` in letterspaced bold monospace.
-- **Section Links**: `Music Stand`, `Library & Repertoire`, `Telemetry & MIR`, `Method`.
-- **Theme Switcher**: Tactile Ivory / Smoked Ebony toggle.
-- **Action CTA**: Tactile terracotta button `Enter Conservatory` (connected to Clerk authentication).
-
-### 4.2 Hero Section: The Music Stand for Serious Instrumentalists
-- **Eyebrow Tag**: `§ SONUS CONSERVATORY • PRECISION ADAPTIVE PRACTICE`
-- **Headline**: *The Music Stand for Serious Instrumentalists*
-- **Subhead**: *Continuous flowing notation with real-time acoustic pitch and timing verification. Zero distractions, zero marketing clutter.*
-- **Interactive Teaser Stand**:
-  - Horizontal musical ribbon with live animated glide effect.
-  - Dual instrument preview: 6-line Guitar Tablature and Piano Grand Staff.
-  - Center caliper playhead in bookbinder terracotta (`#9A2A2A`).
-  - Active hit registration badge: `✓ +3ms VERIFIED` in muted sage (`#4A6B5B`).
-  - Analog VU meter showing microtonal intonation (`D4 293.7Hz ±0c`, `±4ms Heritage Steady`).
-- **Tactile CTAs**:
-  - Primary: `Open Music Stand` (Clerk auth or direct studio launch).
-  - Secondary: `Explore Repertoire Library` (browses Bach, Satie, Shostakovich, Pachelbel).
-
-### 4.3 Three Pillars of Precision Craftsmanship
-1. **01 Continuous Flowing Ribbon**:
-   - Both 6-line guitar tablature with string-by-string fret indices and piano grand staff with dual clefs.
-   - Synchronized to true audio context clocks and BPM without stutter.
-2. **02 Live Acoustic Microtonal MIR**:
-   - Zero-latency (<20ms) microphone analysis.
-   - Real-time intonation delta ($\pm\text{cents}$) and temporal attack latency ($\pm\text{ms}$).
-   - Ephemeral in-memory audio processing with strict acoustic privacy (ADR 0001).
-3. **03 Longitudinal Habit Telemetry**:
-   - Bayesian Knowledge Tracing of chord voicings.
-   - Diagnoses tempo rushing, dragging, and transitional string drops.
-
-### 4.4 Woodcut Chord & Fretboard Anatomy
-- High-contrast engraved chord diagram (`Bm Barre 2nd Fret`).
-- String-by-string fingering notation (`1-3-4-2-1`), muting glyphs (`x`), and pitch spelling (`Formula: 1 - b3 - 5`).
-
-### 4.5 Repertoire Showcase
-- Real classical and jazz progressions:
-  - *Gymnopédie No. 1* — Erik Satie (Piano Grand Staff)
-  - *Shostakovich Waltz No. 2* — Dmitri Shostakovich (Piano Grand Staff)
-  - *Autumn Leaves* — Jazz Standard (Guitar Tablature)
-  - *Knockin' Cadence* — Folk Anthem (Guitar Tablature)
-
-### 4.6 Quiet Conservatory Footer
-- Monospace edition markings: `§ SONUS DIGITAL STAND • BUILT FOR INSTRUMENTAL MASTERY`.
-- Privacy note: `Acoustic audio is processed ephemerally in-memory and never retained on servers.`
+### Core Design Pillars
+1. **True Dual-Theme Practice Room (Light & Dark Modes)**:
+   - **Light Mode (Daylight Practice Sheet)**: Warm Studio Alabaster (`#F8F8F6`), Crisp Sheet Ivory cards (`#FFFFFF`), Deep Charcoal engraving (`#18181B`), Warm Stone hairlines (`#E4E4E0`).
+   - **Dark Mode (Evening Obsidian Studio)**: Deep Obsidian (`#09090B`), Anodized Slate panels (`#121215`, `#18181C`), Crisp Zinc typography (`#F4F4F5`), Hairline Zinc borders (`#27272A`).
+   - **Semantic Accents**: Warm Amber (`#D97706` / `#F59E0B`) for Left-Hand (LH) notes, active playheads, and loop brackets; Studio Emerald (`#059669` / `#10B981`) for Right-Hand (RH) notes and verified on-beat hits; Crimson (`#DC2626` / `#EF4444`) for transition lag, tempo rushing/dragging, and dropped voicings.
+2. **60fps Volumetric Smoke & Stage Light Landing Experience (`VolumetricSmokeCanvas`)**:
+   - Multi-layered procedural turbulence smoke plumes and warm amber/ivory stage light cones rendered on an HTML5 `<canvas>`.
+   - Smooth scroll-linked Z-space stage choreography without abrupt opacity cutoffs or fake camera telemetry labels.
+3. **Musician's Practice Room (`PracticeStudioCockpit`)**:
+   - **Current Chord → Next Chord Hand Preparation Dock**: Side-by-side interactive diagrams showing both the active chord and the upcoming chord so the musician can prepare anchor fingers and hand shifts ahead of the beat.
+   - **Interactive 2-Bar Loop & Speed Trainer**: One-click `Loop Hard Transition` bracket with `70% Slow`, `85% Med`, and `100% Tempo` presets.
+   - **Plain-English Coaching**: Immediate human-readable feedback after every take explaining which transition lagged or which chord tone was muted.
+4. **Progress, History & Cognitive Exercise Coach (`ProgressDashboardPage`)**:
+   - **3-Pillar Recommendation Engine (`recommendation-engine.ts`)**:
+     - **Bayesian Knowledge Tracing (Corbett & Anderson, 1995)**: Tracks posterior mastery $P(L_t)$ per chord transition.
+     - **SuperMemo SM-2 Spaced Repetition**: Schedules optimal review intervals and Ease Factors ($EF \ge 1.3$) from continuous timing and voicing metrics.
+     - **Thompson Sampling Multi-Armed Bandit**: Selects the pedagogical drill strategy (*Anchor Finger Pivot*, *2-Bar Slow Loop*, *Voicing Isolation*, *Progressive Tempo Ramp*) with the highest empirical expected improvement $\theta_k \sim \text{Beta}(\alpha_k, \beta_k)$.
+   - **Longitudinal Trajectory & CUSUM Change-Points**: Interactive multi-session SVG chart with Page's Two-Sided CUSUM markers pinpointing when a motor habit formed or a clean breakthrough locked in.
+5. **Peer Benchmarks & Piece Leaderboards (`PeerComparisonPage`)**:
+   - **Percentile Distribution Bell Curves**: Interactive SVG normal/skewed distribution curves for *Chord Transition Speed (ms)*, *Voicing Completeness (%)*, and *Overall Alignment Score (%)* with a glowing `YOU` marker (`P50`, `P75`, `P90`, `P99`).
+   - **Filterable Piece Leaderboards**: Repertoire-specific rankings across Piano and Guitar standards with direct one-click launch into the Practice Room.
