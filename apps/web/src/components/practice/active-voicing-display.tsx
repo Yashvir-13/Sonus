@@ -21,6 +21,8 @@ export interface ActiveVoicingDisplayProps {
   onKeyClick?: (midi: number) => void
   /** Initial sub-tab selection in piano mode. Defaults to 'both' */
   defaultViewMode?: PianoViewMode
+  /** Whether to render sub-tab mode selector buttons. Defaults to true */
+  showModeSelector?: boolean
   /** Optional container CSS class name */
   className?: string
 }
@@ -32,7 +34,8 @@ export function ActiveVoicingDisplay({
   pianoVoicing,
   activePitches,
   onKeyClick,
-  defaultViewMode = 'both',
+  defaultViewMode = 'keyboard',
+  showModeSelector = true,
   className = '',
 }: ActiveVoicingDisplayProps): React.JSX.Element {
   const [viewMode, setViewMode] = useState<PianoViewMode>(defaultViewMode)
@@ -95,59 +98,61 @@ export function ActiveVoicingDisplay({
       className={`w-full flex flex-col items-center select-none ${className}`}
     >
       {/* Piano Dual Display Sub-Tabs */}
-      <div className="flex items-center justify-center mb-3 w-full">
-        <div
-          role="tablist"
-          aria-label="Piano visualization sub-tabs"
-          className="inline-flex rounded border border-[#D9D3C7] dark:border-[#38342E] bg-[#EFECE6] dark:bg-[#141312] p-0.5 text-[10px] font-mono shadow-inner"
-        >
-          <button
-            role="tab"
-            aria-selected={viewMode === 'keyboard'}
-            type="button"
-            onClick={() => setViewMode('keyboard')}
-            className={`px-2.5 py-0.5 rounded transition-colors ${
-              viewMode === 'keyboard'
-                ? 'bg-[#FCFBF8] dark:bg-[#2A2723] text-[#242321] dark:text-[#EDE8DF] font-bold shadow-sm'
-                : 'text-[#736E65] dark:text-[#A39C8F] hover:text-[#242321] dark:hover:text-[#EDE8DF]'
-            }`}
+      {showModeSelector && (
+        <div className="flex items-center justify-center mb-1.5 w-full">
+          <div
+            role="tablist"
+            aria-label="Piano visualization sub-tabs"
+            className="inline-flex rounded border border-[#D9D3C7] dark:border-[#38342E] bg-[#EFECE6] dark:bg-[#141312] p-0.5 text-[10px] font-mono shadow-inner"
           >
-            KEYBOARD
-          </button>
-          <button
-            role="tab"
-            aria-selected={viewMode === 'staff'}
-            type="button"
-            onClick={() => setViewMode('staff')}
-            className={`px-2.5 py-0.5 rounded transition-colors ${
-              viewMode === 'staff'
-                ? 'bg-[#FCFBF8] dark:bg-[#2A2723] text-[#242321] dark:text-[#EDE8DF] font-bold shadow-sm'
-                : 'text-[#736E65] dark:text-[#A39C8F] hover:text-[#242321] dark:hover:text-[#EDE8DF]'
-            }`}
-          >
-            STAFF
-          </button>
-          <button
-            role="tab"
-            aria-selected={viewMode === 'both'}
-            type="button"
-            onClick={() => setViewMode('both')}
-            className={`px-2.5 py-0.5 rounded transition-colors ${
-              viewMode === 'both'
-                ? 'bg-[#FCFBF8] dark:bg-[#2A2723] text-[#242321] dark:text-[#EDE8DF] font-bold shadow-sm'
-                : 'text-[#736E65] dark:text-[#A39C8F] hover:text-[#242321] dark:hover:text-[#EDE8DF]'
-            }`}
-          >
-            BOTH
-          </button>
+            <button
+              role="tab"
+              aria-selected={viewMode === 'keyboard'}
+              type="button"
+              onClick={() => setViewMode('keyboard')}
+              className={`px-2 py-0.5 rounded transition-colors ${
+                viewMode === 'keyboard'
+                  ? 'bg-[#FCFBF8] dark:bg-[#2A2723] text-[#242321] dark:text-[#EDE8DF] font-bold shadow-sm'
+                  : 'text-[#736E65] dark:text-[#A39C8F] hover:text-[#242321] dark:hover:text-[#EDE8DF]'
+              }`}
+            >
+              KEYBOARD
+            </button>
+            <button
+              role="tab"
+              aria-selected={viewMode === 'staff'}
+              type="button"
+              onClick={() => setViewMode('staff')}
+              className={`px-2 py-0.5 rounded transition-colors ${
+                viewMode === 'staff'
+                  ? 'bg-[#FCFBF8] dark:bg-[#2A2723] text-[#242321] dark:text-[#EDE8DF] font-bold shadow-sm'
+                  : 'text-[#736E65] dark:text-[#A39C8F] hover:text-[#242321] dark:hover:text-[#EDE8DF]'
+              }`}
+            >
+              STAFF
+            </button>
+            <button
+              role="tab"
+              aria-selected={viewMode === 'both'}
+              type="button"
+              onClick={() => setViewMode('both')}
+              className={`px-2 py-0.5 rounded transition-colors ${
+                viewMode === 'both'
+                  ? 'bg-[#FCFBF8] dark:bg-[#2A2723] text-[#242321] dark:text-[#EDE8DF] font-bold shadow-sm'
+                  : 'text-[#736E65] dark:text-[#A39C8F] hover:text-[#242321] dark:hover:text-[#EDE8DF]'
+              }`}
+            >
+              BOTH
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Visual Modalities */}
-      <div className="w-full flex flex-col items-center gap-3">
+      <div className="w-full flex flex-col items-center gap-1.5">
         {/* Grand Staff Diagram (in 'both' or 'staff' mode) */}
         {(viewMode === 'both' || viewMode === 'staff') && (
-          <div className="w-full flex justify-center py-1">
+          <div className="w-full flex justify-center py-0.5">
             <GrandStaffDiagram
               chordName={chordName}
               lhPitches={resolvedLhPitches}
@@ -160,7 +165,7 @@ export function ActiveVoicingDisplay({
 
         {/* Piano Keyboard Diagram (in 'both' or 'keyboard' mode) */}
         {(viewMode === 'both' || viewMode === 'keyboard') && (
-          <div className="w-full flex justify-center py-1">
+          <div className="w-full flex justify-center py-0.5">
             <PianoKeyboardDiagram
               lhPitches={resolvedLhPitches}
               rhPitches={resolvedRhPitches}
@@ -173,7 +178,7 @@ export function ActiveVoicingDisplay({
       </div>
 
       {/* Hand & Pitch Legend Summary */}
-      <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[10px] font-mono text-[#736E65] dark:text-[#A39C8F]">
+      <div className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-0.5 text-[10px] font-mono text-[#736E65] dark:text-[#A39C8F]">
         {pianoVoicing?.lhNotes && pianoVoicing.lhNotes.length > 0 && (
           <div className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-[#9A2A2A] dark:bg-[#B83232]" />

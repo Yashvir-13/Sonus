@@ -164,7 +164,7 @@ describe('PracticeTelemetryHUD', () => {
     // 1. ActiveVoicingDisplay is present with dual visualizations
     expect(screen.getByTestId('active-voicing-display')).toBeDefined()
     expect(screen.getByTestId('piano-keyboard-diagram')).toBeDefined()
-    expect(screen.getByTestId('grand-staff-diagram')).toBeDefined()
+    expect(screen.queryByTestId('grand-staff-diagram')).toBeNull()
 
     // 2. Piano badge rendered; NO guitar barre or open position
     expect(screen.getByText('Piano Voicing — LH & RH')).toBeDefined()

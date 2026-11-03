@@ -76,16 +76,27 @@ describe('Landing Page Components', () => {
     expect(screen.getAllByText(/Simplicity is the final achievement/i).length).toBeGreaterThan(0)
 
     // Primary CTA
-    const enterBtns = screen.getAllByRole('button', { name: /Start practicing free/i })
+    const enterBtns = screen.getAllByRole('button', { name: /Enter Practice Studio/i })
     expect(enterBtns.length).toBeGreaterThan(0)
     fireEvent.click(enterBtns[0])
     expect(onEnterStudio).toHaveBeenCalled()
   })
 
-  it('renders the live notation stand in hero without unprompted mic access', () => {
+  it('renders the kinetic expanding wordmark and mechanics of time editorial cards', () => {
     render(<LandingPage />)
-    expect(screen.getByTestId('flowing-notation-canvas')).toBeDefined()
-    expect(screen.getByText(/LIVE NOTATION STAND PREVIEW/i)).toBeDefined()
+    // Three.js canvas and tuning fork chamber must be completely absent from LandingPage
+    expect(screen.queryByTestId('cinematic-archival-canvas')).toBeNull()
+    expect(screen.queryByText(/The Pitch Standard:/i)).toBeNull()
+    expect(screen.queryByRole('button', { name: /STRIKE BRASS FORK/i })).toBeNull()
+
+    // Expanding wordmark must be present
+    expect(screen.getByTestId('expanding-wordmark')).toBeDefined()
+
+    // Chapter II: The Mechanics of Time cards
+    expect(screen.getByTestId('mechanics-needleman-wunsch')).toBeDefined()
+    expect(screen.getByTestId('mechanics-karplus-strong')).toBeDefined()
+    expect(screen.getByTestId('mechanics-piano-partials')).toBeDefined()
+    expect(screen.getByText(/Dynamic Grand Staff & Synthesia Waterfall Keys/i)).toBeDefined()
   })
 
   it('renders the TuningForkChamber and strikes A440 fork cleanly via Web Audio', () => {
@@ -167,7 +178,7 @@ describe('Landing Page Components', () => {
     expect(screen.getAllByText(/Chopin Nocturne in E-flat/i).length).toBeGreaterThan(0)
 
     // Find and click "LOAD INTO STAND" for Canon in D or select another piece
-    const satieBtn = screen.getByRole('button', { name: /Gymnopédie No\. 1/i })
+    const satieBtn = screen.getAllByRole('button', { name: /Gymnopédie No\. 1/i })[0]
     fireEvent.click(satieBtn)
 
     // The hero piece title should update to Gymnopédie No. 1

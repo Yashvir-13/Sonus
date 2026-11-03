@@ -36,8 +36,20 @@ export function SignInModal({
         </button>
 
         {hasClerkKey ? (
-          <div className="pt-2 flex justify-center">
+          <div className="pt-2 flex flex-col items-center">
             <SignIn />
+            <div className="mt-4 pt-3 border-t border-[#E2DDD3] dark:border-[#38342E] w-full text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  if (onSuccess) onSuccess()
+                  onClose()
+                }}
+                className="text-xs text-[#736E65] dark:text-[#A39C8F] hover:text-[#242321] dark:hover:text-[#EDE8DF] font-sans underline underline-offset-4 cursor-pointer transition-colors"
+              >
+                Or enter practice studio in guest acoustic mode →
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-6 text-center">

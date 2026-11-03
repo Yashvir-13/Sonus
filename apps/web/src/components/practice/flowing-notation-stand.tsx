@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import type { VoicingDefinition } from '@/lib/music/chord-voicings'
 import type { PitchDetectionResult } from '@/lib/audio/realtime-pitch-tracker'
+import { PianoWaterfallStand } from './piano-waterfall-stand'
 
 export type GrandStaffNote = {
   pitch: string // e.g. "C4", "E4", "G4", "C3", "G2"
@@ -34,6 +35,9 @@ export type FlowingNotationStandProps = {
   beatsPerMeasure?: number
   timeSignature?: string
   onSeekBeat?: (beat: number) => void
+  pianoNotationMode?: 'staff' | 'keys'
+  onKeyClick?: (midi: number) => void
+  hideWatermark?: boolean
   className?: string
 }
 
@@ -135,6 +139,9 @@ export function FlowingNotationStand({
   beatsPerMeasure,
   timeSignature,
   onSeekBeat,
+  pianoNotationMode = 'staff',
+  onKeyClick,
+  hideWatermark = false,
   className = '',
 }: FlowingNotationStandProps): React.JSX.Element {
   // Pixels per beat on the notation timeline
@@ -173,38 +180,60 @@ export function FlowingNotationStand({
   // Continuous playhead horizontal offset
   const playheadOffsetPx = currentBeat * BEAT_WIDTH
 
+  if (instrument === 'piano' && pianoNotationMode === 'keys') {
+    return (
+      <div
+        data-testid="flowing-notation-canvas"
+        className={`relative w-full h-[330px] bg-[#141312] border-y border-[#38342E] overflow-hidden select-none font-serif text-[#EDE8DF] ${className}`}
+      >
+        <PianoWaterfallStand
+          progression={progression}
+          currentBeat={currentBeat}
+          tempoBpm={tempoBpm}
+          isPlaying={isPlaying}
+          beatsPerMeasure={effectiveBeatsPerMeasure}
+          onKeyClick={onKeyClick}
+          onSeekBeat={onSeekBeat}
+          className="w-full h-full"
+        />
+      </div>
+    )
+  }
+
   return (
     <div
       data-testid="flowing-notation-canvas"
       className={`relative w-full h-[330px] bg-[#FAF8F3] dark:bg-[#141312] border-y border-[#E2DDD3] dark:border-[#38342E] overflow-hidden select-none font-serif text-[#242321] dark:text-[#EDE8DF] ${className}`}
     >
       {/* Top Archival Ledger Strip */}
-      <div className="absolute top-0 left-0 right-0 h-7 bg-[#EFECE6]/90 dark:bg-[#1A1816]/95 border-b border-[#E2DDD3] dark:border-[#38342E] px-6 flex items-center justify-between text-[11px] font-mono tracking-widest text-[#736E65] dark:text-[#A39C8F] z-20">
-        <div className="flex items-center gap-4">
-          <span className="font-semibold text-[#242321] dark:text-[#EDE8DF]">
-            {instrument === 'guitar' ? 'STANDARD TABLATURE (6-STR & STRUM PATTERN)' : 'GRAND STAFF NOTATION'}
-          </span>
-          <span>•</span>
-          <span>TEMPO: {tempoBpm} BPM</span>
-          <span>•</span>
-          <span>METER: {displayMeter}</span>
-          <span>•</span>
-          <span>LENGTH: {totalBeats} BEATS ({chordsWithOffsets.length} MEASURES)</span>
+      {!hideWatermark && (
+        <div className="absolute top-0 left-0 right-0 h-7 bg-[#EFECE6]/90 dark:bg-[#1A1816]/95 border-b border-[#E2DDD3] dark:border-[#38342E] px-6 flex items-center justify-between text-[11px] font-mono tracking-widest text-[#736E65] dark:text-[#A39C8F] z-20">
+          <div className="flex items-center gap-4">
+            <span className="font-semibold text-[#242321] dark:text-[#EDE8DF]">
+              {instrument === 'guitar' ? 'STANDARD TABLATURE (6-STR & STRUM PATTERN)' : 'GRAND STAFF NOTATION'}
+            </span>
+            <span>•</span>
+            <span>TEMPO: {tempoBpm} BPM</span>
+            <span>•</span>
+            <span>METER: {displayMeter}</span>
+            <span>•</span>
+            <span>LENGTH: {totalBeats} BEATS ({chordsWithOffsets.length} MEASURES)</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px]">
+              BEAT {Math.max(1, Math.floor(currentBeat) + 1)} / {totalBeats}
+            </span>
+            <span
+              className={`w-2 h-2 rounded-full ${
+                isPlaying ? 'bg-[#4A6B5B] dark:bg-[#689F84] animate-pulse' : 'bg-[#A39E93] dark:bg-[#5C564C]'
+              }`}
+            />
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-[10px]">
-            BEAT {Math.max(1, Math.floor(currentBeat) + 1)} / {totalBeats}
-          </span>
-          <span
-            className={`w-2 h-2 rounded-full ${
-              isPlaying ? 'bg-[#4A6B5B] dark:bg-[#689F84] animate-pulse' : 'bg-[#A39E93] dark:bg-[#5C564C]'
-            }`}
-          />
-        </div>
-      </div>
+      )}
 
       {/* Main Staff Container with fixed left column and sliding notation track */}
-      <div className="relative w-full h-full pt-7 flex">
+      <div className={`relative w-full h-full ${hideWatermark ? 'pt-0' : 'pt-7'} flex`}>
         {/* Fixed Left Header Column */}
         <div className="w-32 shrink-0 h-full bg-[#EFECE6] dark:bg-[#1E1C1A] border-r border-[#D9D3C7] dark:border-[#38342E] z-30 flex flex-col justify-center py-2 px-3 shadow-[2px_0_8px_rgba(0,0,0,0.04)]">
           {instrument === 'guitar' ? (

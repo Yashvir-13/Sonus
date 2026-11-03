@@ -28,6 +28,8 @@ export type PracticeTelemetryHUDProps = {
   onToggleBackingAudio?: () => void
   isMetronomeEnabled?: boolean
   onToggleMetronome?: () => void
+  pianoNotationMode?: 'staff' | 'keys'
+  onPianoNotationModeChange?: (mode: 'staff' | 'keys') => void
   className?: string
 }
 
@@ -54,6 +56,8 @@ export function PracticeTelemetryHUD({
   onToggleBackingAudio,
   isMetronomeEnabled = true,
   onToggleMetronome,
+  pianoNotationMode = 'staff',
+  onPianoNotationModeChange,
   className = '',
 }: PracticeTelemetryHUDProps): React.JSX.Element {
   // Normalize VU meter level to percentage [0, 100] from dB [-60, 0]
@@ -103,6 +107,36 @@ export function PracticeTelemetryHUD({
               PIANO
             </button>
           </div>
+
+          {instrument === 'piano' && onPianoNotationModeChange && (
+            <div
+              data-testid="piano-notation-mode-toggle"
+              className="flex items-center rounded border border-[#D9D3C7] dark:border-[#38342E] bg-[#EFECE6] dark:bg-[#141312] p-0.5 text-xs font-mono"
+            >
+              <button
+                type="button"
+                onClick={() => onPianoNotationModeChange('staff')}
+                className={`px-2.5 py-0.5 rounded transition-colors ${
+                  pianoNotationMode === 'staff'
+                    ? 'bg-[#FCFBF8] dark:bg-[#2A2723] text-[#242321] dark:text-[#EDE8DF] font-bold shadow-sm'
+                    : 'text-[#736E65] dark:text-[#A39C8F] hover:text-[#242321] dark:hover:text-[#EDE8DF]'
+                }`}
+              >
+                STAFF
+              </button>
+              <button
+                type="button"
+                onClick={() => onPianoNotationModeChange('keys')}
+                className={`px-2.5 py-0.5 rounded transition-colors ${
+                  pianoNotationMode === 'keys'
+                    ? 'bg-[#FCFBF8] dark:bg-[#2A2723] text-[#242321] dark:text-[#EDE8DF] font-bold shadow-sm'
+                    : 'text-[#736E65] dark:text-[#A39C8F] hover:text-[#242321] dark:hover:text-[#EDE8DF]'
+                }`}
+              >
+                KEYS
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Center: Score Title & Key */}

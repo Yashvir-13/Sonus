@@ -3,14 +3,18 @@
 Activation: files under `apps/web/src/**/*.{ts,tsx,css}`
 Figma Origin: `https://www.figma.com/design/zY5UlhIZAQxmeBcW9MTq1q` (Direction 1: Archival Music Desk)
 
-## 1. Aesthetic Mandate
+## 1. Aesthetic Mandate & Cinematic Vision
 
-- **Visual Theme**: 19th-Century Conservatory Music Desk & Urtext Engraving.
-- **Core Mood**: Austere instrumental craftsmanship, tactile paper & brass, quiet practice discipline.
+- **Visual Theme**: 19th-Century Conservatory Music Desk & Urtext Engraving elevated with **Cinematic Camera Choreography**.
+- **Cinematic Motion & Spatial Staging**:
+  - Web experiences must feature **camera movement aligned with scrolling**: sticky full-viewport stages (`100vh` pinned windows over deep scroll tracks), 3D perspective camera dollying (`perspective: 1200px`, `translateZ`, `rotateX`, `rotateY`, `scale`), and spatial depth planes.
+  - Kinetic typography breathes with scroll: letter-spacing expands across the full viewport width, phrases emerge from masked clipping planes, and musical notation floats through the spatial field as the camera travels.
+  - Experimental negative space is encouraged: let words and scores command vast breathing room without cramming into generic bento grids or marketing card stacks.
 - **Strict Anti-Patterns**:
   - NEVER use cyber/neon gradients, laser lines, dark-mode purple/cyan glows, or saturated tech-blue SaaS elements.
   - NEVER output marketing hyperbole or AI buzzwords ("revolutionary neural music coach"). Describe audio engineering and MIR telemetry plainly.
   - NEVER prompt or access user microphones unprompted on page load (ADR 0001 acoustic privacy).
+  - NEVER build static, boring document-like landing pages when asked for cinematic art direction. Use real scroll physics, camera dollies, and spatial transitions.
 
 ---
 

@@ -116,7 +116,7 @@ describe('FlowingPracticeStand', () => {
     expect(screen.getByText(/MEASURE 1 OF 4/i)).toBeDefined()
   })
 
-  it('switches to piano mode and renders dual piano keyboard and grand staff diagrams without guitar fretboard leakage', () => {
+  it('switches to piano mode and renders piano keyboard diagram without guitar fretboard leakage', () => {
     render(<FlowingPracticeStand mode="studio" autoPlay={false} />)
 
     // In default guitar mode, fretboard diagram is rendered
@@ -130,7 +130,7 @@ describe('FlowingPracticeStand', () => {
 
     // In piano mode, dual keyboard and grand staff render, and fretboard unmounts
     expect(screen.getByTestId('piano-keyboard-diagram')).toBeDefined()
-    expect(screen.getByTestId('grand-staff-diagram')).toBeDefined()
+    expect(screen.queryByTestId('grand-staff-diagram')).toBeNull()
     expect(screen.queryByTestId('fretboard-diagram')).toBeNull()
   })
 

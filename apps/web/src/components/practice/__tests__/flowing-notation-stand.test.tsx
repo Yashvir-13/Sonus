@@ -155,5 +155,21 @@ describe('FlowingNotationStand', () => {
     // Check flat accidental symbol
     expect(screen.getAllByText('♭').length).toBeGreaterThanOrEqual(1)
   })
+
+  it('renders piano waterfall visualizer when pianoNotationMode="keys"', () => {
+    render(
+      <FlowingNotationStand
+        instrument="piano"
+        progression={prog}
+        currentBeat={0}
+        tempoBpm={80}
+        isPlaying={false}
+        pianoNotationMode="keys"
+      />
+    )
+
+    expect(screen.getByTestId('piano-waterfall-stand')).toBeDefined()
+    expect(screen.getByTestId('waterfall-strike-zone')).toBeDefined()
+  })
 })
 

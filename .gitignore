@@ -103,7 +103,16 @@ bench_*.py
 postman/flows/
 
 # =========================
-# Playwright test artifacts
+# Playwright test artifacts & reports
 # =========================
 .playwright-mcp/
+playwright-report/
+test-results/
+
+# =========================
+# Agent & IDE scratch
+# =========================
+.superpowers/
+.idea/
+*.orig
 

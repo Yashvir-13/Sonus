@@ -12,7 +12,6 @@ import '@fontsource/cormorant-garamond/700.css'
 import '@fontsource/cormorant-garamond/400-italic.css'
 import * as Sentry from '@sentry/react'
 import App from '@/app'
-import { AuthShell } from '@/components/auth/auth-shell'
 import { SignInPage } from '@/components/auth/sign-in-page'
 import { DevOfflineShell } from '@/components/dev/dev-offline-shell'
 import '@/styles/index.css'
@@ -44,9 +43,7 @@ createRoot(document.getElementById('root')!).render(
           <SignInPage />
         </Show>
         <Show when="signed-in">
-          <AuthShell>
-            <App defaultSignedIn={true} userButtonSlot={<UserButton />} />
-          </AuthShell>
+          <App defaultSignedIn={true} userButtonSlot={<UserButton />} />
         </Show>
       </ClerkProvider>
     )}

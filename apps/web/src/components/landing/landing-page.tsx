@@ -1,19 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import Lenis from 'lenis'
 import { useReducedMotion } from 'motion/react'
 import { PaperGrainOverlay } from './paper-grain-overlay'
 import { StaffScrollProgress } from './staff-scroll-progress'
 import { MastheadNav } from './masthead-nav'
-import { KineticRevealText } from './kinetic-reveal-text'
-import { MagneticCaliperButton } from './magnetic-caliper-button'
-import { FlowingPracticeStand } from '@/components/practice/flowing-practice-stand'
-import { HowItWorksGuide } from './how-it-works-guide'
-import { DiagnosticsBento } from './diagnostics-bento'
+import { CinematicCameraStage } from './cinematic-camera-stage'
+import { MechanicsOfTime } from './mechanics-of-time'
 import { RepertoireExplorer, type RepertoireItem } from './repertoire-explorer'
-import { TuningForkChamber } from './tuning-fork-chamber'
 import { ColophonFooter } from './colophon-footer'
-import { resolveChordVoicing, type VoicingDefinition } from '@/lib/music/chord-voicings'
-import { ArrowRight, Volume2 } from 'lucide-react'
+import { Piano, Guitar, ArrowRight } from 'lucide-react'
 
 export type LandingPageProps = {
   onEnterStudio?: () => void
@@ -29,20 +24,10 @@ export function LandingPage({
   userButtonSlot,
 }: LandingPageProps): React.JSX.Element {
   const prefersReduced = useReducedMotion()
-
-  // Selected piece for hero stand
-  const [heroPieceTitle, setHeroPieceTitle] = useState('Chopin Nocturne in E-flat')
-  const [heroKeySignature, setHeroKeySignature] = useState('Eb Major')
-  const [heroInstrument, setHeroInstrument] = useState<'guitar' | 'piano'>('piano')
-  const [heroProgression, setHeroProgression] = useState<VoicingDefinition[]>([
-    resolveChordVoicing('Eb'),
-    resolveChordVoicing('Cm'),
-    resolveChordVoicing('Fm'),
-    resolveChordVoicing('Bb7'),
-  ])
+  const [activeRepertoireTitle, setActiveRepertoireTitle] = useState('Chopin Nocturne in E-flat')
 
   // Initialize Lenis smooth scroll
-  const lenisRef = React.useRef<Lenis | null>(null)
+  const lenisRef = useRef<Lenis | null>(null)
   useEffect(() => {
     if (prefersReduced) return
 
@@ -69,18 +54,17 @@ export function LandingPage({
   }, [prefersReduced])
 
   const handleSelectRepertoire = (piece: RepertoireItem) => {
-    setHeroPieceTitle(piece.title)
-    setHeroKeySignature(piece.key)
-    setHeroInstrument(piece.instrument)
-    const voicings = piece.chords.map((c) => resolveChordVoicing(c))
-    setHeroProgression(voicings)
+    setActiveRepertoireTitle(piece.title)
+    if (onEnterStudio) {
+      onEnterStudio()
+    }
+  }
 
-    // Smooth scroll up to hero stand with proper offset
-    const el = document.getElementById('hero-stand')
-    if (lenisRef.current && el) {
-      lenisRef.current.scrollTo(el, { offset: -90 })
-    } else if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
+  const handleEnter = () => {
+    if (onEnterStudio) {
+      onEnterStudio()
+    } else if (onSignIn) {
+      onSignIn()
     }
   }
 
@@ -92,7 +76,7 @@ export function LandingPage({
       {/* 2. 5-Line Musical Staff Scroll Progress Bar with Moving G-Clef */}
       <StaffScrollProgress />
 
-      {/* 3. Archival Masthead Navigation */}
+      {/* 3. Archival Masthead Navigation with Clerk UserButton */}
       <MastheadNav
         onEnterStudio={onEnterStudio}
         onSignIn={onSignIn}
@@ -100,124 +84,95 @@ export function LandingPage({
         userButtonSlot={userButtonSlot}
       />
 
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-20 px-4 sm:px-6 lg:px-8 pt-8 pb-20">
-        {/* ─────────────────────────────────────────────────────────────
-            HERO SECTION: EPIGRAPH, KINETIC REVEAL, & LIVE NOTATION STAND
-           ───────────────────────────────────────────────────────────── */}
-        <section aria-label="Sonus Hero" className="flex flex-col gap-8 pt-2">
-          {/* Top Chopin Epigraph */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 text-xs font-sans text-[#736E65] dark:text-[#A39C8F] border-b border-[#E2DDD3] dark:border-[#38342E] pb-3.5">
-            <span className="font-bold text-[#C5A059] flex items-center gap-1.5 font-mono">
-              <span>§</span>
-              <span>FRÉDÉRIC CHOPIN</span>
-            </span>
-            <span className="hidden sm:inline text-[#D9D3C7] dark:text-[#38342E]">•</span>
-            <span className="italic font-serif text-xs sm:text-sm text-[#524D44] dark:text-[#C4BEB1]">
-              “Simplicity is the final achievement. After one has played a vast quantity of notes and more notes, it is simplicity that emerges as the crowning reward of art.”
-            </span>
-          </div>
+      {/* ─────────────────────────────────────────────────────────────
+          CINEMATIC CAMERA STAGE (SCROLL-DRIVEN 3D DOLLY & SPATIAL FLY-THROUGH)
+         ───────────────────────────────────────────────────────────── */}
+      <CinematicCameraStage
+        onEnterStudio={handleEnter}
+        onSelectPiece={(title) => setActiveRepertoireTitle(title)}
+        activePieceTitle={activeRepertoireTitle}
+      />
 
-          {/* Main Kinetic Headline & Mission */}
-          <div className="max-w-4xl space-y-4">
-            <KineticRevealText
-              text="Practice piano and guitar with real-time feedback."
-              as="h1"
-              className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold tracking-tight text-[#242321] dark:text-[#EDE8DF] leading-[1.12]"
-              italicLastWord={true}
-            />
-
-            <p className="max-w-2xl text-sm sm:text-base text-[#736E65] dark:text-[#A39C8F] font-sans leading-relaxed">
-              Your laptop or phone microphone listens as you play. Watch notes and tablature scroll in real time with millisecond timing accuracy. No extra hardware or cables required.
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-wrap items-center gap-3.5 pt-2">
-              <MagneticCaliperButton
-                onClick={onSignIn || onEnterStudio}
-                variant="primary"
-              >
-                <span>Start practicing free</span>
-                <ArrowRight className="h-4 w-4" />
-              </MagneticCaliperButton>
-
-              <MagneticCaliperButton
-                onClick={() => {
-                  const el = document.getElementById('tuning-chamber')
-                  if (lenisRef.current && el) {
-                    lenisRef.current.scrollTo(el, { offset: -90 })
-                  } else {
-                    el?.scrollIntoView({ behavior: 'smooth' })
-                  }
-                }}
-                variant="secondary"
-              >
-                <Volume2 className="h-4 w-4 text-[#C5A059]" />
-                <span>Audition A440 Fork</span>
-              </MagneticCaliperButton>
-            </div>
-          </div>
-
-          {/* ─────────────────────────────────────────────────────────
-              ZERO-DUPLICATION LIVE NOTATION STAND COMPONENT
-              Direct reuse of FlowingPracticeStand in mode="hero"
-             ───────────────────────────────────────────────────────── */}
+      {/* ─────────────────────────────────────────────────────────────
+          EDITORIAL CRAFTSMANSHIP & REPERTOIRE
+         ───────────────────────────────────────────────────────────── */}
+      <main className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-24 px-4 sm:px-6 lg:px-8 py-16">
+        {/* Editorial Discipline Cards */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Piano Discipline Card */}
           <div
-            id="hero-stand"
-            className="flex flex-col gap-3 rounded-2xl border border-[#E2DDD3] dark:border-[#38342E] bg-[#FAF8F3] dark:bg-[#1E1C1A] p-4 sm:p-6 shadow-sm transition-colors duration-200"
+            onClick={handleEnter}
+            className="group cursor-pointer rounded-2xl border border-[#E2DDD3] dark:border-[#38342E] bg-[#FAF8F3] dark:bg-[#1E1C1A] p-6 sm:p-8 flex flex-col justify-between gap-6 hover:border-[#C5A059] dark:hover:border-[#C5A059] transition-all shadow-sm"
           >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2DDD3] dark:border-[#38342E] pb-3 text-xs font-mono text-[#736E65] dark:text-[#A39C8F]">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#3B6E57] dark:bg-[#689F84] animate-pulse" />
-                <span className="font-bold text-[#242321] dark:text-[#EDE8DF]">
-                  LIVE NOTATION STAND PREVIEW
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-[#3B6E57] dark:text-[#529375]">
+                  <Piano className="size-4" />
+                  <span>Acoustic &amp; Digital Piano</span>
+                </div>
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#EFECE6] dark:bg-[#2A2723] text-[#736E65] dark:text-[#A39C8F]">
+                  Waterfall &amp; Grand Staff
                 </span>
-                <span className="text-[#D9D3C7] dark:text-[#38342E]">•</span>
-                <span>Sub-30ms local pitch detection</span>
               </div>
-              <div className="text-[11px] text-[#A09A8F]">
-                Switch instrument or pick from repertoire below
-              </div>
+
+              <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#242321] dark:text-[#EDE8DF]">
+                Dynamic Grand Staff &amp; Synthesia Waterfall Keys
+              </h3>
+
+              <p className="text-xs sm:text-sm text-[#736E65] dark:text-[#A39C8F] leading-relaxed">
+                Switch instantly between traditional Urtext notation with Treble and Bass clefs, or falling note ribbons with illuminated Left-Hand (Terracotta) and Right-Hand (Patina Jade) guidance.
+              </p>
             </div>
 
-            <FlowingPracticeStand
-              mode="hero"
-              instrument={heroInstrument}
-              onInstrumentChange={setHeroInstrument}
-              tempoBpm={76}
-              pieceTitle={heroPieceTitle}
-              keySignature={heroKeySignature}
-              progression={heroProgression}
-            />
+            <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#C5A059] group-hover:translate-x-1 transition-transform">
+              <span>Open Piano Studio Cockpit</span>
+              <ArrowRight className="size-4" />
+            </div>
+          </div>
+
+          {/* Guitar Discipline Card */}
+          <div
+            onClick={handleEnter}
+            className="group cursor-pointer rounded-2xl border border-[#E2DDD3] dark:border-[#38342E] bg-[#FAF8F3] dark:bg-[#1E1C1A] p-6 sm:p-8 flex flex-col justify-between gap-6 hover:border-[#C5A059] dark:hover:border-[#C5A059] transition-all shadow-sm"
+          >
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-[#9A2A2A] dark:text-[#C45E5E]">
+                  <Guitar className="size-4" />
+                  <span>Classical &amp; Steel-String</span>
+                </div>
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#EFECE6] dark:bg-[#2A2723] text-[#736E65] dark:text-[#A39C8F]">
+                  6-String Tabs
+                </span>
+              </div>
+
+              <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#242321] dark:text-[#EDE8DF]">
+                Continuous Caliper Sightline &amp; Strum Vectors
+              </h3>
+
+              <p className="text-xs sm:text-sm text-[#736E65] dark:text-[#A39C8F] leading-relaxed">
+                Sight-read tablatures with forward-scrolling chord measures, directional pick vectors, and woodcut fretboard fingerings with sub-30ms neural pitch alignment.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#C5A059] group-hover:translate-x-1 transition-transform">
+              <span>Open Guitar Studio Cockpit</span>
+              <ArrowRight className="size-4" />
+            </div>
           </div>
         </section>
 
-        {/* ─────────────────────────────────────────────────────────────
-            HOW IT WORKS: 3 PLAIN STEPS
-           ───────────────────────────────────────────────────────────── */}
-        <HowItWorksGuide />
+        {/* The Mechanics of Time */}
+        <MechanicsOfTime />
 
-        {/* ─────────────────────────────────────────────────────────────
-            PRACTICE DIAGNOSTICS BENTO
-           ───────────────────────────────────────────────────────────── */}
-        <DiagnosticsBento />
-
-        {/* ─────────────────────────────────────────────────────────────
-            REPERTOIRE EXPLORER
-           ───────────────────────────────────────────────────────────── */}
+        {/* Repertoire Explorer */}
         <RepertoireExplorer
           onSelectPiece={handleSelectRepertoire}
-          activePieceTitle={heroPieceTitle}
+          activePieceTitle={activeRepertoireTitle}
         />
-
-        {/* ─────────────────────────────────────────────────────────────
-            ACOUSTIC TUNING CHAMBER (A4 = 440 HZ)
-           ───────────────────────────────────────────────────────────── */}
-        <TuningForkChamber />
       </main>
 
-      {/* ─────────────────────────────────────────────────────────────
-          COLOPHON & FOOTER
-         ───────────────────────────────────────────────────────────── */}
+      {/* Colophon & Archival Footer */}
       <ColophonFooter />
     </div>
   )

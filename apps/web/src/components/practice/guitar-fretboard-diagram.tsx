@@ -180,7 +180,7 @@ export const GuitarFretboardDiagram: React.FC<GuitarFretboardDiagramProps> = ({
         width="180"
         height="100"
         viewBox="0 0 180 100"
-        className="bg-[#FCFBF8] dark:bg-[#1A1816] border border-[#D9D3C7] dark:border-[#38342E] rounded"
+        className="bg-[#FCFBF8] dark:bg-[#141312] border border-[#D9D3C7] dark:border-[#38342E] rounded"
       >
         {/* ── Position Offset Label (when baseFret > 1) ── */}
         {!isNutVisible && (

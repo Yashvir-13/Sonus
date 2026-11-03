@@ -1,9 +1,15 @@
 import { useState } from 'react'
 import { LandingPage } from '@/components/landing/landing-page'
 import { SignInModal } from '@/components/auth/sign-in-modal'
+import App from '@/app'
 
 export function SignInPage() {
   const [showSignInModal, setShowSignInModal] = useState(false)
+  const [isGuestMode, setIsGuestMode] = useState(false)
+
+  if (isGuestMode) {
+    return <App defaultSignedIn={false} initialView="practice" />
+  }
 
   return (
     <div className="relative min-h-screen w-full bg-background text-foreground">
@@ -17,7 +23,7 @@ export function SignInPage() {
         onClose={() => setShowSignInModal(false)}
         onSuccess={() => {
           setShowSignInModal(false)
-          // If in offline dev mode, reloading or navigating can transition
+          setIsGuestMode(true)
         }}
       />
     </div>
