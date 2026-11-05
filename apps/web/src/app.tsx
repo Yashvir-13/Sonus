@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { UserButton } from '@clerk/react'
 import { AudioTestBench } from '@/components/dev/audio-test-bench'
 import { PracticeStudioCockpit } from '@/components/practice/practice-studio-cockpit'
@@ -8,8 +8,6 @@ import { PeerComparisonPage } from '@/components/community/peer-comparison-page'
 import { SignInModal } from '@/components/auth/sign-in-modal'
 import { AuthShell } from '@/components/auth/auth-shell'
 import {
-
-
   updateBktMastery,
   metricsToSm2Quality,
   updateSm2State,
@@ -38,15 +36,120 @@ export type AppProps = {
   defaultSignedIn?: boolean
 }
 
+/**
+ * Maps an internal exercise ID to a clean, canonical URL slug.
+ */
+export function exerciseIdToSlug(id: string): string {
+  switch (id) {
+    case 'ex_guitar_rising_sun':
+      return 'house-of-the-rising-sun'
+    case 'ex_piano_shostakovich_waltz_2':
+      return 'waltz-no-2'
+    case 'ex_piano_canon':
+      return 'pachelbels-canon'
+    case 'ex_guitar_four_chord':
+      return 'four-chord-anthem'
+    case 'ex_guitar_knockin':
+      return 'knockin-cadence'
+    default:
+      return id.replace(/^ex_/, '').replace(/_/g, '-')
+  }
+}
+
+/**
+ * Resolves a URL slug to an internal exercise ID from available catalogue items.
+ */
+export function slugToExerciseId(slug: string, available: ExerciseDto[] = BUILTIN_FULL_SONGS): string | undefined {
+  const normalized = slug.toLowerCase().trim()
+  if (normalized === 'house-of-the-rising-sun' || normalized === 'rising-sun' || normalized === 'the-house-of-the-rising-sun') {
+    return 'ex_guitar_rising_sun'
+  }
+  if (normalized === 'waltz-no-2' || normalized === 'shostakovich-waltz' || normalized === 'shostakovich-waltz-2' || normalized === 'waltz2') {
+    return 'ex_piano_shostakovich_waltz_2'
+  }
+  if (normalized === 'pachelbels-canon' || normalized === 'pachelbel-canon' || normalized === 'pachelbel' || normalized === 'canon') {
+    return 'ex_piano_canon'
+  }
+  if (normalized === 'four-chord-anthem' || normalized === 'anthem-in-d' || normalized === 'four-chord') {
+    return 'ex_guitar_four_chord'
+  }
+  if (normalized === 'knockin-cadence' || normalized === 'knockin' || normalized === 'knockin-on-heavens-door') {
+    return 'ex_guitar_knockin'
+  }
+  const direct = available.find((e) => e.id.toLowerCase() === normalized || e.id.toLowerCase() === `ex_${normalized.replace(/-/g, '_')}`)
+  if (direct) return direct.id
+  const byTitle = available.find((e) => e.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(normalized))
+  if (byTitle) return byTitle.id
+  return undefined
+}
+
+/**
+ * Parses browser pathname into the matching AppViewMode and optional song ID.
+ */
+export function parseRouteFromPath(
+  pathname: string,
+  available: ExerciseDto[] = BUILTIN_FULL_SONGS
+): { view: AppViewMode; songId?: string } {
+  const clean = pathname.replace(/\/+$/, '').toLowerCase()
+  if (!clean || clean === '' || clean === '/home') {
+    return { view: 'landing' }
+  }
+  if (clean.startsWith('/practice')) {
+    const parts = clean.split('/').filter(Boolean)
+    const slug = parts[1]
+    if (slug) {
+      const matched = slugToExerciseId(slug, available)
+      return { view: 'practice', songId: matched }
+    }
+    return { view: 'practice' }
+  }
+  if (clean === '/progress' || clean === '/dashboard' || clean === '/coach') {
+    return { view: 'progress' }
+  }
+  if (clean === '/leaderboard' || clean === '/peers' || clean === '/community') {
+    return { view: 'community' }
+  }
+  if (clean === '/audio' || clean === '/bench') {
+    return { view: 'audio' }
+  }
+  return { view: 'landing' }
+}
+
+/**
+ * Generates canonical browser URL pathname for a view and optional song ID.
+ */
+export function viewToPath(view: AppViewMode, songId?: string): string {
+  switch (view) {
+    case 'landing':
+      return '/'
+    case 'practice':
+      return songId ? `/practice/${exerciseIdToSlug(songId)}` : '/practice'
+    case 'progress':
+      return '/progress'
+    case 'community':
+      return '/leaderboard'
+    case 'audio':
+      return '/audio'
+  }
+}
+
 export default function App({
   initialView = 'landing',
   userButtonSlot,
   defaultSignedIn = false,
 }: AppProps) {
-  const [activeView, setActiveView] = useState<AppViewMode>(initialView)
+  // Read initial route from browser URL location (supports direct links and reloads)
+  const initialRoute = useMemo(() => {
+    if (typeof window !== 'undefined' && window.location.pathname && window.location.pathname !== '/') {
+      return parseRouteFromPath(window.location.pathname, BUILTIN_FULL_SONGS)
+    }
+    return { view: initialView, songId: undefined }
+  }, [initialView])
+
+  const [activeView, setActiveView] = useState<AppViewMode>(initialRoute.view)
   const [isSignedIn, setIsSignedIn] = useState(defaultSignedIn || Boolean(userButtonSlot))
   const [showSignInModal, setShowSignInModal] = useState(false)
-  const [selectedSongId, setSelectedSongId] = useState<string>('ex_guitar_knockin')
+  const [selectedSongId, setSelectedSongId] = useState<string>(initialRoute.songId || 'ex_guitar_knockin')
   const [pendingLoopDrill, setPendingLoopDrill] = useState<{
     fromChord: string
     toChord: string
@@ -105,6 +208,20 @@ export default function App({
     void loadBackendData()
   }, [loadBackendData])
 
+  // Synchronize browser history navigation (Back / Forward buttons)
+  useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window === 'undefined') return
+      const { view, songId } = parseRouteFromPath(window.location.pathname, availableExercises)
+      setActiveView(view)
+      if (songId) {
+        setSelectedSongId(songId)
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [availableExercises])
 
   const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
   const hasValidClerkKey = Boolean(
@@ -124,9 +241,11 @@ export default function App({
       instrument: 'piano' | 'guitar',
       tempoBpm: number
     ) => {
-      const acc = evaluation.overall_accuracy
+      const rawAcc = evaluation.overall_accuracy
+      const acc = rawAcc <= 1.0 ? rawAcc * 100 : rawAcc
       const absLag = Math.abs(evaluation.avg_timing_error_ms)
-      const vox = evaluation.voicing_score
+      const rawVox = evaluation.voicing_score
+      const vox = rawVox <= 1.0 ? Math.round(rawVox * 100) : Math.round(rawVox)
 
       setSessionHistory((prev) => {
         const nextIdx = prev.length + 1
@@ -136,9 +255,9 @@ export default function App({
           songId: selectedSongId,
           songTitle,
           instrument,
-          accuracyPct: acc,
+          accuracyPct: Number(acc.toFixed(1)),
           avgLatencyMs: Math.round(absLag),
-          voicingPct: Math.round(vox),
+          voicingPct: vox,
           tempoBpm,
           cusumEvent:
             acc >= 94
@@ -182,7 +301,15 @@ export default function App({
     [selectedSongId, loadBackendData]
   )
 
-  const navigateToView = useCallback((view: AppViewMode) => {
+  const navigateToView = useCallback((view: AppViewMode, targetSongId?: string) => {
+    const songToUse = targetSongId || selectedSongId
+    if (typeof window !== 'undefined') {
+      const targetPath = viewToPath(view, songToUse)
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState({ view, songId: songToUse }, '', targetPath)
+      }
+    }
+
     let headline = 'Setting Up Practice Room'
     let subtext = 'Harmonizing interactive score, voicings, and visual stands...'
     if (view === 'progress') {
@@ -199,11 +326,24 @@ export default function App({
     setNavTransition({ headline, subtext })
     setTimeout(() => {
       setActiveView(view)
+      if (targetSongId) {
+        setSelectedSongId(targetSongId)
+      }
       setTimeout(() => {
         setNavTransition(null)
       }, 150)
     }, 280)
-  }, [])
+  }, [selectedSongId])
+
+  const handleSelectSong = useCallback((songId: string) => {
+    setSelectedSongId(songId)
+    if (typeof window !== 'undefined' && activeView === 'practice') {
+      const nextPath = `/practice/${exerciseIdToSlug(songId)}`
+      if (window.location.pathname !== nextPath) {
+        window.history.pushState({ view: 'practice', songId }, '', nextPath)
+      }
+    }
+  }, [activeView])
 
   const handleLaunchRecommendedDrill = (rec: AdaptiveExerciseRecommendation) => {
     setSelectedSongId(rec.songId)
@@ -213,7 +353,7 @@ export default function App({
       targetBpm: rec.recommendedBpm,
       description: rec.practiceInstructions,
     })
-    navigateToView('practice')
+    navigateToView('practice', rec.songId)
   }
 
   const latestSession = sessionHistory[sessionHistory.length - 1]
@@ -228,14 +368,7 @@ export default function App({
   }
 
   return (
-    <AuthShell
-      hideHeader={
-        activeView === 'landing' ||
-        activeView === 'practice' ||
-        activeView === 'progress' ||
-        activeView === 'community'
-      }
-    >
+    <AuthShell>
       {navTransition && (
         <MusicianLoadingScreen
           headline={navTransition.headline}
@@ -247,11 +380,12 @@ export default function App({
         <>
           <LandingPage
             onEnterStudio={(songId) => {
+              const chosen = songId || selectedSongId
               if (songId) {
                 setSelectedSongId(songId)
               }
               setPendingLoopDrill(null)
-              navigateToView('practice')
+              navigateToView('practice', chosen)
             }}
             onOpenProgress={() => navigateToView('progress')}
             onOpenCommunity={() => navigateToView('community')}
@@ -276,7 +410,7 @@ export default function App({
           initialSongId={selectedSongId}
           initialLoopDrill={pendingLoopDrill}
           availableExercises={availableExercises}
-          onSelectSong={(songId) => setSelectedSongId(songId)}
+          onSelectSong={handleSelectSong}
           onBackToDesk={() => navigateToView('landing')}
           onOpenProgress={() => navigateToView('progress')}
           onOpenCommunity={() => navigateToView('community')}
@@ -307,7 +441,7 @@ export default function App({
           onPracticePiece={(songId) => {
             setSelectedSongId(songId)
             setPendingLoopDrill(null)
-            navigateToView('practice')
+            navigateToView('practice', songId)
           }}
           userButtonSlot={effectiveUserButtonSlot}
         />
@@ -332,15 +466,15 @@ export default function App({
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setActiveView('landing')}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-mono font-semibold tracking-wide text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 transition-all"
+                onClick={() => navigateToView('landing')}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-mono font-semibold tracking-wide text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 transition-all cursor-pointer"
               >
                 ← Back to Home
               </button>
               <button
                 type="button"
-                onClick={() => setActiveView('practice')}
-                className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-mono font-semibold tracking-wide bg-amber-500 text-zinc-950 hover:bg-amber-400 transition-all"
+                onClick={() => navigateToView('practice')}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-mono font-semibold tracking-wide bg-amber-500 text-zinc-950 hover:bg-amber-400 transition-all cursor-pointer"
               >
                 Open Practice Room →
               </button>

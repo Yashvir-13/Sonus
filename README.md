@@ -167,13 +167,13 @@ graph TB
 ### A. Interactive Web Application (`apps/web`)
 Start the development server using either `pnpm` or `npm`:
 ```bash
-# Start the web application (port 3000)
+# Start both the FastAPI backend (:8000) and Vite web app (:5173) concurrently
 pnpm run dev
 # or
 npm run dev
 
-# Start both the FastAPI backend (:8000) and Vite web app (:3000) concurrently
-pnpm run dev:full
+# Or start the web frontend standalone (:5173)
+pnpm run app:web dev
 ```
 
 The web application features **Light Mode (Studio Alabaster `#F8F8F6`)** and **Dark Mode (Deep Obsidian `#09090B`)** across four primary views:
@@ -222,3 +222,47 @@ python scripts/simulate_practice_flow.py
 The GitHub Actions pipeline ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) validates every commit on `main` and `master`:
 - **Backend Job**: Sets up Python 3.12, installs dependencies via `uv`, runs `mypy src/ tests/`, and executes `pytest tests/ -v`.
 - **Frontend Job**: Sets up Node.js 22 and `pnpm` v10 with `pnpm-lock.yaml` caching, installs workspace packages, executes `pnpm --filter web test` (Vitest), and validates `pnpm --filter web build` (`tsc -b && vite build`).
+
+---
+
+## 7. Academic Citations & Musicological Sources
+
+### A. Machine Learning, Signal Processing & Physical Acoustics
+1. **Polyphonic Multipitch Transcription**:
+   - Bittner, R. M., Bosch, J. J., Rubinstein, D., Meseguer-Brocal, G., & Ewert, S. (2022). *A Lightweight Instrument-Agnostic Model for Polyphonic Pitch Tracking and Melodic Extraction*. In Proceedings of the IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). [arXiv:2203.09893](https://arxiv.org/abs/2203.09893).
+2. **Karplus-Strong String Synthesis**:
+   - Karplus, K., & Strong, A. (1983). *Digital Synthesis of Plucked-String and Drum Timbres*. Computer Music Journal, 7(2), 43–55. [doi:10.2307/3680062](https://doi.org/10.2307/3680062).
+3. **Piano String Inharmonicity Dispersion**:
+   - Fletcher, N. H., & Rossing, T. D. (1998). *The Physics of Musical Instruments* (2nd ed.). Springer-Verlag. (Inharmonic overtone stiffness dispersion: f_n = n * f_0 * sqrt(1 + B * n^2)).
+
+### B. Dynamic Programming & Sequence Alignment
+1. **Global Sequence Alignment**:
+   - Needleman, S. B., & Wunsch, C. D. (1970). *A general method applicable to the search for similarities in the amino acid sequence of two proteins*. Journal of Molecular Biology, 48(3), 443–453. [doi:10.1016/0022-2836(70)90057-4](https://doi.org/10.1016/0022-2836(70)90057-4).
+2. **Dynamic Time Warping (DTW)**:
+   - Sakoe, H., & Chiba, S. (1978). *Dynamic programming algorithm optimization for spoken word recognition*. IEEE Transactions on Acoustics, Speech, and Signal Processing, 26(1), 43–49.
+
+### C. Cognitive Science, Spaced Repetition & Quality Control
+1. **Bayesian Knowledge Tracing (BKT)**:
+   - Corbett, A. T., & Anderson, J. R. (1995). *Knowledge tracing: Modeling the acquisition of procedural knowledge*. User Modeling and User-Adapted Interaction, 4(4), 253–278. [doi:10.1007/BF01099821](https://doi.org/10.1007/BF01099821).
+2. **Spaced Repetition Memory Consolidation (SuperMemo SM-2)**:
+   - Wozniak, P. A. (1990). *Optimization of learning: A new approach to spaced repetition*. Master's thesis, University of Technology in Poznan.
+3. **Change-Point Detection (Two-Sided CUSUM)**:
+   - Page, E. S. (1954). *Continuous Inspection Schemes*. Biometrika, 41(1/2), 100–115. [doi:10.1093/biomet/41.1-2.100](https://doi.org/10.1093/biomet/41.1-2.100).
+4. **Multi-Armed Bandits & Thompson Sampling**:
+   - Thompson, W. R. (1933). *On the likelihood that one unknown probability exceeds another in view of the evidence of two samples*. Biometrika, 25(3/4), 285–294.
+   - Agrawal, S., & Goyal, N. (2012). *Analysis of Thompson Sampling for the multi-armed bandit problem*. Conference on Learning Theory (COLT), JMLR W&CP 23:39.1–39.26.
+
+### D. Musicological Repertoire & Historical Score Provenance
+1. **Pachelbel's Canon Harmonic Flow**:
+   - Composer: Johann Pachelbel (1653–1706).
+   - Work: *Canon and Gigue in D major for 3 violins and basso continuo* (PWC 37, T. 337, PC 358).
+   - Provenance: Urtext edition preserved via the **International Music Score Library Project (IMSLP / Petrucci Music Library)**, Public Domain. Transposed to C Major with 4 authentic contrapuntal variations (Theme Exposition, Counterpoint, Running Polyphony, Grand Cadence).
+2. **Waltz No. 2 (Suite for Variety Orchestra)**:
+   - Composer: Dmitri Shostakovich (1906–1975).
+   - Work: *Suite for Variety Orchestra (Waltz No. 2)* (1956).
+   - Provenance: 32-measure authentic melodic line (C5, D5, Eb5, G5) and LH waltz accompaniment (Cm -> Fm -> G7) transcribed for educational keyboard study.
+3. **House of the Rising Sun**:
+   - Provenance: Traditional English/American folk ballad (Roud Folk Song Index No. 270) in 6/8 compound meter (Am -> C -> D -> F -> Am -> E), standard rolling arpeggiated fingerpicking pattern.
+4. **Knockin' Cadence**:
+   - Composer: Bob Dylan (1973).
+   - Work: *Knockin' on Heaven's Door* (Ram's Horn Music / Columbia Records). Standard 4-chord open-position pedagogical progression (G -> D -> Am -> Am -> G -> D -> C -> C).
