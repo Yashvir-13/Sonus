@@ -782,9 +782,11 @@ export function mapBackendSessionsToLongitudinal(
   }
 
   return completed.map((s, idx) => {
-    const acc = s.overall_accuracy ?? 85.0
+    const rawAcc = s.overall_accuracy ?? 85.0
+    const acc = rawAcc <= 1.0 ? rawAcc * 100 : rawAcc
     const lat = Math.round(Math.abs(s.avg_timing_error_ms ?? 24.0))
-    const vox = Math.round(s.voicing_score ?? 90.0)
+    const rawVox = s.voicing_score ?? 90.0
+    const vox = rawVox <= 1.0 ? Math.round(rawVox * 100) : Math.round(rawVox)
     const inst = (s.instrument === 'guitar' ? 'guitar' : 'piano') as 'piano' | 'guitar'
 
     let dateLabel = `Take ${idx + 1}`

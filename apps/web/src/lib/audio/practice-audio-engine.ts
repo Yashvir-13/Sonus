@@ -416,7 +416,7 @@ export class PracticeAudioEngine {
   }
 
   /**
-   * Synthesize a single plucked guitar string using warm acoustic Web Audio synthesis.
+   * Synthesize a single plucked guitar string using Karplus-Strong physical modeling.
    * @param pitch MIDI number or scientific pitch string (e.g. 60 or "E4").
    * @param durationSec Duration in seconds for string sustain.
    * @param velocity Relative volume scale [0..1].
@@ -430,47 +430,65 @@ export class PracticeAudioEngine {
     if (!ctx) return
 
     try {
-      const now = ctx.currentTime
       const midi = parsePitchToMidi(pitch)
       const freq = midiToFreq(midi)
+      const sampleRate = ctx.sampleRate || 44100
 
-      if (typeof ctx.createOscillator === 'function') {
-        const masterGain = ctx.createGain()
-        const filter = ctx.createBiquadFilter()
+      // Synthesize string physical model into Float32Array
+      const samples = generateKarplusStrongBuffer(freq, durationSec, sampleRate, velocity)
 
-        // Warm acoustic guitar body lowpass filter
-        filter.type = 'lowpass'
-        filter.frequency.setValueAtTime(Math.min(3200, freq * 5), now)
-        filter.frequency.exponentialRampToValueAtTime(Math.max(400, freq * 1.5), now + durationSec)
-
-        const peakLevel = Math.min(0.8, velocity * 0.4)
-        masterGain.gain.setValueAtTime(0.0001, now)
-        masterGain.gain.linearRampToValueAtTime(peakLevel, now + 0.008) // 8ms pluck attack
-        masterGain.gain.exponentialRampToValueAtTime(0.0001, now + durationSec)
-
-        masterGain.connect(filter)
-        filter.connect(ctx.destination)
-
-        const osc = ctx.createOscillator()
-        osc.type = 'triangle'
-        osc.frequency.setValueAtTime(freq, now)
-        osc.connect(masterGain)
-        osc.start(now)
-        osc.stop(now + durationSec + 0.05)
+      // Guard against incomplete test mocks in headless environments
+      if (
+        typeof ctx.createBuffer !== 'function' ||
+        typeof ctx.createBufferSource !== 'function'
+      ) {
         return
       }
 
-      // Fallback for headless test environments without createOscillator
-      const sampleRate = ctx.sampleRate || 44100
-      const samples = generateKarplusStrongBuffer(freq, durationSec, sampleRate, velocity)
-      if (typeof ctx.createBuffer === 'function' && typeof ctx.createBufferSource === 'function') {
-        const audioBuffer = ctx.createBuffer(1, samples.length, sampleRate)
-        audioBuffer.getChannelData(0).set(samples)
-        const source = ctx.createBufferSource()
-        source.buffer = audioBuffer
-        source.connect(ctx.destination)
-        source.start(now)
+      const audioBuffer = ctx.createBuffer(1, samples.length, sampleRate)
+      audioBuffer.getChannelData(0).set(samples)
+
+      const source = ctx.createBufferSource()
+      source.buffer = audioBuffer
+
+      // Gain node for pluck volume
+      const gainNode = typeof ctx.createGain === 'function' ? ctx.createGain() : null
+      if (gainNode) {
+        gainNode.gain.setValueAtTime(1.0, ctx.currentTime)
       }
+
+      // Acoustic body resonance filter (Helmholtz air cavity at 110Hz)
+      const bodyFilter = typeof ctx.createBiquadFilter === 'function' ? ctx.createBiquadFilter() : null
+      if (bodyFilter) {
+        bodyFilter.type = 'peaking'
+        bodyFilter.frequency.setValueAtTime(110, ctx.currentTime)
+        bodyFilter.Q.setValueAtTime(2.0, ctx.currentTime)
+        bodyFilter.gain.setValueAtTime(3.0, ctx.currentTime)
+      }
+
+      // High frequency rolloff simulating soundboard absorption
+      const highFilter = typeof ctx.createBiquadFilter === 'function' ? ctx.createBiquadFilter() : null
+      if (highFilter) {
+        highFilter.type = 'lowpass'
+        highFilter.frequency.setValueAtTime(Math.min(6000, Math.max(2500, freq * 6)), ctx.currentTime)
+      }
+
+      let lastNode: any = source
+      if (gainNode) {
+        lastNode.connect(gainNode)
+        lastNode = gainNode
+      }
+      if (bodyFilter) {
+        lastNode.connect(bodyFilter)
+        lastNode = bodyFilter
+      }
+      if (highFilter) {
+        lastNode.connect(highFilter)
+        lastNode = highFilter
+      }
+      lastNode.connect(ctx.destination)
+
+      source.start(ctx.currentTime)
     } catch {
       // AudioContext unavailable
     }
@@ -478,7 +496,7 @@ export class PracticeAudioEngine {
 
   /**
    * Synthesize a realistic guitar strum across multiple strings with directional sweep
-   * and warm acoustic string harmonics.
+   * and Karplus-Strong physical modeling on each string.
    *
    * @param pitches Array of MIDI numbers or pitch strings.
    * @param direction 'down' (low to high string sweep) or 'up' (high to low sweep).
@@ -499,65 +517,56 @@ export class PracticeAudioEngine {
 
     try {
       const now = ctx.currentTime
+      const sampleRate = ctx.sampleRate || 44100
+      // Order strings based on strum direction
       const strumPitches = direction === 'down' ? parsedMidis : [...parsedMidis].reverse()
-      const sweepStep = isAccented ? 0.014 : 0.018 // 14-18ms realistic acoustic sweep delay
+      const sweepStep = isAccented ? 0.004 : 0.006 // 4ms (accented) or 6ms (normal)
+      const velocity = isAccented ? 0.85 : 0.65
 
-      if (typeof ctx.createOscillator === 'function') {
-        const masterGain = ctx.createGain()
-        const filter = ctx.createBiquadFilter()
-
-        filter.type = 'lowpass'
-        filter.frequency.setValueAtTime(isAccented ? 2600 : 1800, now)
-        filter.frequency.exponentialRampToValueAtTime(800, now + durationSec)
-
-        const baseVolume = (isAccented ? 0.35 : 0.25) / Math.sqrt(strumPitches.length)
-        masterGain.gain.setValueAtTime(baseVolume, now)
-        masterGain.gain.exponentialRampToValueAtTime(0.0001, now + durationSec)
-
-        masterGain.connect(filter)
-        filter.connect(ctx.destination)
-
-        strumPitches.forEach((midi, idx) => {
-          const stringDelay = idx * sweepStep
-          const noteStart = now + stringDelay
-          const noteDur = Math.max(0.2, durationSec - stringDelay)
-          const freq = midiToFreq(midi)
-
-          const osc = ctx.createOscillator()
-          const voiceGain = ctx.createGain()
-
-          osc.type = 'triangle'
-          osc.frequency.setValueAtTime(freq, noteStart)
-
-          voiceGain.gain.setValueAtTime(0.0001, noteStart)
-          voiceGain.gain.linearRampToValueAtTime(0.7, noteStart + 0.012)
-          voiceGain.gain.exponentialRampToValueAtTime(0.001, noteStart + noteDur)
-
-          osc.connect(voiceGain)
-          voiceGain.connect(masterGain)
-
-          osc.start(noteStart)
-          osc.stop(noteStart + noteDur + 0.05)
-        })
+      if (
+        typeof ctx.createBuffer !== 'function' ||
+        typeof ctx.createBufferSource !== 'function'
+      ) {
         return
       }
 
-      // Fallback for headless environments
-      const sampleRate = ctx.sampleRate || 44100
+      // Master gain node to prevent clipping across polyphonic strings (0.85 / sqrt(M))
       const masterGain = ctx.createGain()
-      masterGain.connect(ctx.destination)
+      masterGain.gain.setValueAtTime(0.85 / Math.sqrt(strumPitches.length), now)
+
+      // Shared acoustic guitar body resonance filter
+      const bodyFilter = typeof ctx.createBiquadFilter === 'function' ? ctx.createBiquadFilter() : null
+      if (bodyFilter) {
+        bodyFilter.type = 'lowpass'
+        bodyFilter.frequency.setValueAtTime(isAccented ? 4500 : 3500, now)
+        bodyFilter.frequency.exponentialRampToValueAtTime(1200, now + durationSec)
+        masterGain.connect(bodyFilter)
+        bodyFilter.connect(ctx.destination)
+      } else {
+        masterGain.connect(ctx.destination)
+      }
+
       strumPitches.forEach((midi, idx) => {
         const stringDelay = idx * sweepStep
         const noteStart = now + stringDelay
-        const samples = generateKarplusStrongBuffer(midi, durationSec - stringDelay, sampleRate, 0.7)
-        if (typeof ctx.createBuffer === 'function' && typeof ctx.createBufferSource === 'function') {
-          const buf = ctx.createBuffer(1, samples.length, sampleRate)
-          buf.getChannelData(0).set(samples)
-          const src = ctx.createBufferSource()
-          src.buffer = buf
-          src.connect(masterGain)
-          src.start(noteStart)
-        }
+        const ringDuration = Math.max(0.2, durationSec - stringDelay)
+        const freq = midiToFreq(midi)
+
+        // Synthesize individual physical string buffer
+        const samples = generateKarplusStrongBuffer(freq, ringDuration, sampleRate, velocity)
+        const audioBuffer = ctx.createBuffer(1, samples.length, sampleRate)
+        audioBuffer.getChannelData(0).set(samples)
+
+        const source = ctx.createBufferSource()
+        source.buffer = audioBuffer
+
+        const stringGain = ctx.createGain()
+        stringGain.gain.setValueAtTime(1.0, noteStart)
+
+        source.connect(stringGain)
+        stringGain.connect(masterGain)
+
+        source.start(noteStart)
       })
     } catch {
       // AudioContext unavailable
@@ -565,7 +574,7 @@ export class PracticeAudioEngine {
   }
 
   /**
-   * Synthesize an acoustic piano note using warm inharmonic multi-partial additive synthesis,
+   * Synthesize an acoustic piano note using inharmonic multi-partial additive synthesis,
    * felt hammer strike attack transient, dual-stage exponential decay, and smooth damper release.
    *
    * @param pitch MIDI number or scientific pitch string (e.g. 60 or "C4").
@@ -585,81 +594,52 @@ export class PracticeAudioEngine {
     try {
       const now = ctx.currentTime
       const midi = parsePitchToMidi(pitch)
-      const freq = midiToFreq(midi)
+      const sampleRate = ctx.sampleRate || 44100
 
-      if (typeof ctx.createOscillator === 'function') {
-        const noteGain = ctx.createGain()
-        const noteFilter = ctx.createBiquadFilter()
+      // 1. Generate Float32Array PCM buffer with multi-partial inharmonic synthesis
+      const pcmData = generatePianoNoteBuffer(midi, durationSec, velocity, isBass, sampleRate)
 
-        noteFilter.type = 'lowpass'
-        noteFilter.frequency.setValueAtTime(isBass ? 1400 : Math.min(5000, freq * 6), now)
-        noteFilter.frequency.exponentialRampToValueAtTime(Math.max(300, freq * 1.5), now + durationSec)
-
-        const peakLevel = Math.min(0.8, velocity * (isBass ? 0.45 : 0.35))
-        noteGain.gain.setValueAtTime(0.0001, now)
-        noteGain.gain.linearRampToValueAtTime(peakLevel, now + 0.005) // 5ms hammer strike
-
-        // Two-stage natural decay: prompt sound followed by aftersound
-        const halfLife = Math.max(0.2, durationSec * 0.6)
-        noteGain.gain.exponentialRampToValueAtTime(Math.max(0.0001, peakLevel * 0.4), now + halfLife)
-
-        // Damper release at durationSec: damp string to 0.0001 in 70ms
-        const damperTime = now + durationSec
-        noteGain.gain.setValueAtTime(Math.max(0.0001, peakLevel * 0.4 * Math.exp(-durationSec / (halfLife * 2))), damperTime)
-        noteGain.gain.exponentialRampToValueAtTime(0.0001, damperTime + 0.07)
-
-        noteGain.connect(noteFilter)
-        noteFilter.connect(ctx.destination)
-
-        // Partial 1: Fundamental (Sine)
-        const osc1 = ctx.createOscillator()
-        osc1.type = 'sine'
-        osc1.frequency.setValueAtTime(freq, now)
-        osc1.connect(noteGain)
-        osc1.start(now)
-        osc1.stop(damperTime + 0.08)
-
-        // Partial 2: 2nd Harmonic (Octave overtone)
-        if (freq * 2 < 12000) {
-          const osc2 = ctx.createOscillator()
-          const g2 = ctx.createGain()
-          osc2.type = 'sine'
-          osc2.frequency.setValueAtTime(freq * 2, now)
-          g2.gain.setValueAtTime(0.25 * velocity, now)
-          g2.gain.exponentialRampToValueAtTime(0.0001, now + Math.min(durationSec, 0.8))
-          osc2.connect(g2)
-          g2.connect(noteGain)
-          osc2.start(now)
-          osc2.stop(damperTime + 0.08)
-        }
-
-        // Partial 3: 3rd Harmonic (Twelfth overtone for acoustic presence)
-        if (!isBass && freq * 3 < 14000) {
-          const osc3 = ctx.createOscillator()
-          const g3 = ctx.createGain()
-          osc3.type = 'sine'
-          osc3.frequency.setValueAtTime(freq * 3, now)
-          g3.gain.setValueAtTime(0.10 * velocity, now)
-          g3.gain.exponentialRampToValueAtTime(0.0001, now + Math.min(durationSec, 0.5))
-          osc3.connect(g3)
-          g3.connect(noteGain)
-          osc3.start(now)
-          osc3.stop(damperTime + 0.08)
-        }
+      // 2. Guard against incomplete test mocks in headless environments
+      if (
+        typeof ctx.createBuffer !== 'function' ||
+        typeof ctx.createBufferSource !== 'function'
+      ) {
         return
       }
 
-      // Fallback for headless environments
-      const sampleRate = ctx.sampleRate || 44100
-      const pcmData = generatePianoNoteBuffer(midi, durationSec, velocity, isBass, sampleRate)
-      if (typeof ctx.createBuffer === 'function' && typeof ctx.createBufferSource === 'function') {
-        const audioBuffer = ctx.createBuffer(1, pcmData.length, sampleRate)
-        audioBuffer.getChannelData(0).set(pcmData)
-        const source = ctx.createBufferSource()
-        source.buffer = audioBuffer
-        source.connect(ctx.destination)
-        source.start(now)
+      const audioBuffer = ctx.createBuffer(1, pcmData.length, sampleRate)
+      const channelData = audioBuffer.getChannelData(0)
+      channelData.set(pcmData)
+
+      // 3. Connect to AudioBufferSourceNode
+      const source = ctx.createBufferSource()
+      source.buffer = audioBuffer
+
+      // Gain node
+      const noteGain = typeof ctx.createGain === 'function' ? ctx.createGain() : null
+      if (noteGain) {
+        noteGain.gain.setValueAtTime(1.0, now)
       }
+
+      // 4. Subtle acoustic soundboard lowpass warmth filter
+      const soundboardFilter = typeof ctx.createBiquadFilter === 'function' ? ctx.createBiquadFilter() : null
+      if (soundboardFilter) {
+        soundboardFilter.type = 'lowpass'
+        soundboardFilter.frequency.setValueAtTime(isBass ? 2800 : 8000, now)
+      }
+
+      let lastNode: any = source
+      if (noteGain) {
+        lastNode.connect(noteGain)
+        lastNode = noteGain
+      }
+      if (soundboardFilter) {
+        lastNode.connect(soundboardFilter)
+        lastNode = soundboardFilter
+      }
+      lastNode.connect(ctx.destination)
+
+      source.start(now)
     } catch {
       // AudioContext unavailable or suspended
     }

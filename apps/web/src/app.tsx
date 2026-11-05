@@ -298,9 +298,9 @@ export default function App({
 
       {activeView === 'community' && (
         <PeerComparisonPage
-          userAccuracyPct={userStats ? userStats.overall_accuracy_pct : latestSession?.accuracyPct}
+          userAccuracyPct={userStats ? (userStats.overall_accuracy_pct <= 1.0 ? userStats.overall_accuracy_pct * 100 : userStats.overall_accuracy_pct) : latestSession?.accuracyPct}
           userMeanLatencyMs={userStats ? Math.round(Math.abs(userStats.avg_timing_error_ms)) : latestSession?.avgLatencyMs}
-          userVoicingPct={userStats ? Math.round(userStats.avg_voicing_score) : latestSession?.voicingPct}
+          userVoicingPct={userStats ? (userStats.avg_voicing_score <= 1.0 ? Math.round(userStats.avg_voicing_score * 100) : Math.round(userStats.avg_voicing_score)) : latestSession?.voicingPct}
           hasRecordedTakes={Boolean((userStats && userStats.total_sessions_completed > 0) || sessionHistory.length > 0)}
           onBackToLanding={() => navigateToView('landing')}
           onOpenProgress={() => navigateToView('progress')}

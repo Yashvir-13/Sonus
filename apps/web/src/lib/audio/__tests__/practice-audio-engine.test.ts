@@ -313,22 +313,22 @@ describe('PracticeAudioEngine Comprehensive Suite', () => {
       engine = new PracticeAudioEngine()
     })
 
-    it('synthesizes a single guitar pluck with warm acoustic oscillator modeling', () => {
+    it('synthesizes a single guitar pluck with physical AudioBuffer modeling', () => {
       engine.playGuitarPluck('E2', 1.5, 0.8)
-      expect(mockOscs.length).toBeGreaterThan(0)
-      expect(mockGains.length).toBeGreaterThan(0)
+      expect(mockBuffers.length).toBeGreaterThan(0)
+      expect(mockBufferSources.length).toBeGreaterThan(0)
     })
 
     it('synthesizes directional strums with staggering offsets between successive strings', () => {
       const gChord = [43, 47, 50, 55, 59, 67]
       engine.playGuitarStrum(gChord, 'down', true, 2.0)
-      expect(mockOscs.length).toBeGreaterThanOrEqual(6)
-      expect(mockGains.length).toBeGreaterThanOrEqual(6)
+      expect(mockBuffers.length).toBeGreaterThanOrEqual(6)
+      expect(mockBufferSources.length).toBeGreaterThanOrEqual(6)
     })
 
-    it('synthesizes piano note with multi-partial inharmonic oscillator nodes and gain node', () => {
+    it('synthesizes piano note with multi-partial inharmonic AudioBuffer and gain node', () => {
       engine.playPianoNote('C4', 1.0, 0.7, false)
-      expect(mockOscs.length).toBeGreaterThan(0)
+      expect(mockBuffers.length).toBeGreaterThan(0)
       expect(mockGains.length).toBeGreaterThan(0)
     })
 
@@ -337,7 +337,7 @@ describe('PracticeAudioEngine Comprehensive Suite', () => {
       const rh = ['E4', 'G4', 'C5']
       engine.playPianoVoicing(lh, rh, 2.0)
       expect(mockGains.length).toBeGreaterThanOrEqual(4)
-      expect(mockOscs.length).toBeGreaterThanOrEqual(4)
+      expect(mockBuffers.length).toBeGreaterThanOrEqual(4)
     })
 
     it('delegates playClick(true) to authentic downbeat wooden click at ~1150Hz', () => {
