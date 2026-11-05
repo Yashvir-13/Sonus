@@ -4,7 +4,7 @@ export type DrillStrategyArm =
   | 'voicing_arpeggio'
   | 'gradual_tempo_ramp'
 
-export interface TransitionMasteryState {
+export type TransitionMasteryState = {
   id: string
   transitionLabel: string
   fromChord: string
@@ -35,7 +35,7 @@ export interface TransitionMasteryState {
   banditPosteriors: Record<DrillStrategyArm, { alpha: number; beta: number }>
 }
 
-export interface AdaptiveExerciseRecommendation {
+export type AdaptiveExerciseRecommendation = {
   id: string
   rank: number
   transitionLabel: string
@@ -69,7 +69,7 @@ export interface AdaptiveExerciseRecommendation {
   practiceInstructions: string
 }
 
-export interface LongitudinalSessionPoint {
+export type LongitudinalSessionPoint = {
   sessionIndex: number
   dateLabel: string
   songId: string
@@ -86,7 +86,7 @@ export interface LongitudinalSessionPoint {
   }
 }
 
-export interface PeerLeaderboardEntry {
+export type PeerLeaderboardEntry = {
   rank: number
   performerName: string
   handle: string
@@ -338,8 +338,8 @@ export const INITIAL_TRANSITION_MASTERY: TransitionMasteryState[] = [
     transitionLabel: 'Am → C',
     fromChord: 'Am',
     toChord: 'C',
-    songId: 'ex_guitar_house_rising_sun',
-    songTitle: 'The House of the Rising Sun',
+    songId: 'ex_guitar_rising_sun',
+    songTitle: 'House of the Rising Sun',
     instrument: 'guitar',
     pKnown: 0.34,
     isMastered: false,
@@ -394,8 +394,8 @@ export const INITIAL_TRANSITION_MASTERY: TransitionMasteryState[] = [
     transitionLabel: 'F#m → Bm',
     fromChord: 'F#m',
     toChord: 'Bm',
-    songId: 'ex_piano_pachelbel_canon_d',
-    songTitle: "Pachelbel's Canon in D",
+    songId: 'ex_piano_canon',
+    songTitle: "Pachelbel's Canon Harmonic Flow",
     instrument: 'piano',
     pKnown: 0.58,
     isMastered: false,
@@ -422,8 +422,8 @@ export const INITIAL_TRANSITION_MASTERY: TransitionMasteryState[] = [
     transitionLabel: 'C → D',
     fromChord: 'C',
     toChord: 'D',
-    songId: 'ex_guitar_knocking_heaven',
-    songTitle: "Knockin' on Heaven's Door Cadence",
+    songId: 'ex_guitar_knockin',
+    songTitle: "Knockin' Cadence",
     instrument: 'guitar',
     pKnown: 0.78,
     isMastered: false,
@@ -450,8 +450,8 @@ export const INITIAL_TRANSITION_MASTERY: TransitionMasteryState[] = [
     transitionLabel: 'G → D',
     fromChord: 'G',
     toChord: 'D',
-    songId: 'ex_guitar_knocking_heaven',
-    songTitle: "Knockin' on Heaven's Door Cadence",
+    songId: 'ex_guitar_knockin',
+    songTitle: "Knockin' Cadence",
     instrument: 'guitar',
     pKnown: 0.96,
     isMastered: true,
@@ -478,8 +478,8 @@ export const INITIAL_TRANSITION_MASTERY: TransitionMasteryState[] = [
     transitionLabel: 'D → A',
     fromChord: 'D',
     toChord: 'A',
-    songId: 'ex_piano_pachelbel_canon_d',
-    songTitle: "Pachelbel's Canon in D",
+    songId: 'ex_piano_canon',
+    songTitle: "Pachelbel's Canon Harmonic Flow",
     instrument: 'piano',
     pKnown: 0.97,
     isMastered: true,
@@ -518,8 +518,8 @@ export const INITIAL_SESSION_HISTORY: LongitudinalSessionPoint[] = [
   {
     sessionIndex: 2,
     dateLabel: 'Oct 20',
-    songId: 'ex_guitar_house_rising_sun',
-    songTitle: 'The House of the Rising Sun',
+    songId: 'ex_guitar_rising_sun',
+    songTitle: 'House of the Rising Sun',
     instrument: 'guitar',
     accuracyPct: 74.2,
     avgLatencyMs: 156,
@@ -529,8 +529,8 @@ export const INITIAL_SESSION_HISTORY: LongitudinalSessionPoint[] = [
   {
     sessionIndex: 3,
     dateLabel: 'Oct 22',
-    songId: 'ex_guitar_house_rising_sun',
-    songTitle: 'The House of the Rising Sun',
+    songId: 'ex_guitar_rising_sun',
+    songTitle: 'House of the Rising Sun',
     instrument: 'guitar',
     accuracyPct: 73.8,
     avgLatencyMs: 162,
@@ -545,8 +545,8 @@ export const INITIAL_SESSION_HISTORY: LongitudinalSessionPoint[] = [
   {
     sessionIndex: 4,
     dateLabel: 'Oct 24',
-    songId: 'ex_piano_pachelbel_canon_d',
-    songTitle: "Pachelbel's Canon in D",
+    songId: 'ex_piano_canon',
+    songTitle: "Pachelbel's Canon Harmonic Flow",
     instrument: 'piano',
     accuracyPct: 79.5,
     avgLatencyMs: 124,
@@ -556,8 +556,8 @@ export const INITIAL_SESSION_HISTORY: LongitudinalSessionPoint[] = [
   {
     sessionIndex: 5,
     dateLabel: 'Oct 26',
-    songId: 'ex_guitar_knocking_heaven',
-    songTitle: "Knockin' on Heaven's Door Cadence",
+    songId: 'ex_guitar_knockin',
+    songTitle: "Knockin' Cadence",
     instrument: 'guitar',
     accuracyPct: 83.1,
     avgLatencyMs: 96,
@@ -567,8 +567,8 @@ export const INITIAL_SESSION_HISTORY: LongitudinalSessionPoint[] = [
   {
     sessionIndex: 6,
     dateLabel: 'Oct 28',
-    songId: 'ex_guitar_knocking_heaven',
-    songTitle: "Knockin' on Heaven's Door Cadence",
+    songId: 'ex_guitar_knockin',
+    songTitle: "Knockin' Cadence",
     instrument: 'guitar',
     accuracyPct: 88.4,
     avgLatencyMs: 54,
@@ -594,8 +594,8 @@ export const INITIAL_SESSION_HISTORY: LongitudinalSessionPoint[] = [
   {
     sessionIndex: 8,
     dateLabel: 'Nov 01',
-    songId: 'ex_piano_pachelbel_canon_d',
-    songTitle: "Pachelbel's Canon in D",
+    songId: 'ex_piano_canon',
+    songTitle: "Pachelbel's Canon Harmonic Flow",
     instrument: 'piano',
     accuracyPct: 90.8,
     avgLatencyMs: 38,
@@ -641,8 +641,8 @@ export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
     performerName: 'Mateo R.',
     handle: '@mateo_acoustic',
     instrument: 'guitar',
-    songId: 'ex_guitar_house_rising_sun',
-    songTitle: 'The House of the Rising Sun',
+    songId: 'ex_guitar_rising_sun',
+    songTitle: 'House of the Rising Sun',
     tempoTier: '100%',
     tempoBpm: 76,
     alignmentScorePct: 97.2,
@@ -656,8 +656,8 @@ export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
     performerName: 'Sora T.',
     handle: '@sora_nocturne',
     instrument: 'piano',
-    songId: 'ex_piano_pachelbel_canon_d',
-    songTitle: "Pachelbel's Canon in D",
+    songId: 'ex_piano_canon',
+    songTitle: "Pachelbel's Canon Harmonic Flow",
     tempoTier: '100%',
     tempoBpm: 72,
     alignmentScorePct: 95.8,
@@ -687,8 +687,8 @@ export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
     performerName: 'Julian K.',
     handle: '@julian_fretwork',
     instrument: 'guitar',
-    songId: 'ex_guitar_knocking_heaven',
-    songTitle: "Knockin' on Heaven's Door Cadence",
+    songId: 'ex_guitar_knockin',
+    songTitle: "Knockin' Cadence",
     tempoTier: '100%',
     tempoBpm: 68,
     alignmentScorePct: 90.1,
@@ -717,8 +717,8 @@ export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
     performerName: 'Devon H.',
     handle: '@devon_sixstring',
     instrument: 'guitar',
-    songId: 'ex_guitar_house_rising_sun',
-    songTitle: 'The House of the Rising Sun',
+    songId: 'ex_guitar_rising_sun',
+    songTitle: 'House of the Rising Sun',
     tempoTier: '70%',
     tempoBpm: 53,
     alignmentScorePct: 85.4,
@@ -732,8 +732,8 @@ export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
     performerName: 'Nadia P.',
     handle: '@nadia_chords',
     instrument: 'piano',
-    songId: 'ex_piano_pachelbel_canon_d',
-    songTitle: "Pachelbel's Canon in D",
+    songId: 'ex_piano_canon',
+    songTitle: "Pachelbel's Canon Harmonic Flow",
     tempoTier: '100%',
     tempoBpm: 72,
     alignmentScorePct: 82.9,
@@ -743,3 +743,158 @@ export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
     verifiedTakesCount: 11,
   },
 ]
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. BACKEND ADAPTER: Map Live DB Sessions to Longitudinal State
+// ─────────────────────────────────────────────────────────────────────────────
+export type BackendSessionItem = {
+  id: string
+  exercise_id: string
+  exercise_title: string
+  instrument: string
+  tempo_bpm: number
+  state: string
+  overall_accuracy?: number | null
+  avg_timing_error_ms?: number | null
+  voicing_score?: number | null
+  created_at?: string | null
+}
+
+export function mapBackendSessionsToLongitudinal(
+  sessions: BackendSessionItem[]
+): LongitudinalSessionPoint[] {
+  if (!sessions || sessions.length === 0) {
+    return []
+  }
+
+  // Filter completed sessions with metrics and sort chronologically (oldest to newest)
+  const completed = sessions
+    .filter((s) => s.state === 'completed' || s.overall_accuracy !== null)
+    .sort((a, b) => {
+      const ta = a.created_at ? new Date(a.created_at).getTime() : 0
+      const tb = b.created_at ? new Date(b.created_at).getTime() : 0
+      return ta - tb
+    })
+
+  if (completed.length === 0) {
+    return []
+  }
+
+  return completed.map((s, idx) => {
+    const acc = s.overall_accuracy ?? 85.0
+    const lat = Math.round(Math.abs(s.avg_timing_error_ms ?? 24.0))
+    const vox = Math.round(s.voicing_score ?? 90.0)
+    const inst = (s.instrument === 'guitar' ? 'guitar' : 'piano') as 'piano' | 'guitar'
+
+    let dateLabel = `Take ${idx + 1}`
+    if (s.created_at) {
+      try {
+        const d = new Date(s.created_at)
+        dateLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      } catch {
+        dateLabel = `Take ${idx + 1}`
+      }
+    }
+
+    return {
+      sessionIndex: idx + 1,
+      dateLabel,
+      songId: s.exercise_id,
+      songTitle: s.exercise_title || 'Practice Session',
+      instrument: inst,
+      accuracyPct: Number(acc.toFixed(1)),
+      avgLatencyMs: lat,
+      voicingPct: vox,
+      tempoBpm: s.tempo_bpm || 76,
+      cusumEvent:
+        acc >= 94
+          ? {
+              type: 'breakthrough_locked',
+              label: 'Verified Clean Take',
+              detail: `Aligned at ${acc.toFixed(1)}% accuracy with ±${lat}ms timing offset.`,
+            }
+          : undefined,
+    }
+  })
+}
+
+export type BackendHabitItem = {
+  id: string
+  pattern_type: string
+  trigger_context: string
+  evidence_count: number
+  status: string
+  severity?: number
+  confidence?: number
+}
+
+export function mapBackendHabitsToTransitions(
+  habits: BackendHabitItem[],
+  exercises: Array<{ id: string; title: string; instrument: string; tempo_bpm?: number }> = []
+): TransitionMasteryState[] {
+  if (!habits || habits.length === 0) return []
+
+  const results: TransitionMasteryState[] = []
+  const seenTransitions = new Set<string>()
+
+  for (const h of habits) {
+    if (h.trigger_context && h.trigger_context.includes(' -> ')) {
+      const parts = h.trigger_context.split(' -> ').map((s) => s.trim())
+      const fromChord = parts[0]
+      const toChord = parts[1]
+      const key = fromChord + '_' + toChord
+      if (seenTransitions.has(key)) continue
+      seenTransitions.add(key)
+
+      const matchingEx = exercises.find((e) =>
+        e.title.toLowerCase().includes(fromChord.toLowerCase()) ||
+        (fromChord === 'Am' && e.id.includes('rising_sun')) ||
+        (fromChord === 'G' && e.id.includes('knockin')) ||
+        (fromChord === 'Cm' && e.id.includes('waltz'))
+      ) || exercises[0] || {
+        id: 'ex_guitar_knockin',
+        title: "Knockin' Cadence",
+        instrument: 'guitar',
+        tempo_bpm: 70,
+      }
+
+      const pKnown = Math.max(0.25, Math.min(0.9, 0.85 - (h.evidence_count * 0.04)))
+      const latMs = Math.min(180, 50 + h.evidence_count * 10)
+      const isMastered = pKnown >= 0.95
+      const dueStatus: 'overdue' | 'due_today' | 'scheduled' =
+        h.status === 'active' ? 'overdue' : h.status === 'emerging' ? 'due_today' : 'scheduled'
+
+      results.push({
+        id: h.id,
+        transitionLabel: fromChord + " → " + toChord,
+        fromChord,
+        toChord,
+        songId: matchingEx.id,
+        songTitle: matchingEx.title,
+        instrument: matchingEx.instrument.toLowerCase() === 'guitar' ? 'guitar' : 'piano',
+        pKnown: Number(pKnown.toFixed(2)),
+        isMastered,
+        observationsCount: Math.max(1, h.evidence_count),
+        ewmaLatencyMs: latMs,
+        voicingCompletenessPct: 88,
+        frequentlyMissedNote: null,
+        sm2IntervalDays: h.status === 'active' ? 1 : 2,
+        sm2EaseFactor: 2.3,
+        sm2Repetitions: Math.max(1, Math.round(h.evidence_count / 3)),
+        daysSinceLastPractice: 0,
+        dueStatus,
+        recommendedBpm: Math.max(40, Math.round((matchingEx.tempo_bpm || 76) * 0.7)),
+        targetSongBpm: matchingEx.tempo_bpm || 76,
+        banditPosteriors: {
+          isolated_transition: { alpha: 5.5, beta: 1.5 },
+          subdivision_click: { alpha: 4.8, beta: 2.0 },
+          voicing_arpeggio: { alpha: 5.0, beta: 1.8 },
+          gradual_tempo_ramp: { alpha: 6.2, beta: 1.2 },
+        },
+      })
+    }
+  }
+
+  return results
+}

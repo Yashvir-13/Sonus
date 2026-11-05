@@ -21,17 +21,26 @@ beforeAll(() => {
   }
 })
 
-vi.mock('@/api/sessions', () => ({
-  fetchExercises: vi.fn().mockResolvedValue([]),
-  createPracticeSession: vi.fn().mockResolvedValue({ id: 'sess_test_123' }),
-  uploadSessionTake: vi.fn().mockResolvedValue({
+vi.mock('@/api/sessions', () => {
+  const mockTake = {
     session_id: 'sess_test_123',
     state: 'evaluated',
     analysis_status: 'complete',
     overall_accuracy: 95.5,
     avg_timing_error_ms: -3.8,
     voicing_score: 97.2,
-    chord_metrics: [],
+    chord_metrics: [
+      {
+        chord_index: 0,
+        expected_chord: 'Am',
+        detected_chord: 'Am',
+        onset_error_ms: -3.8,
+        voicing_completeness: 1.0,
+        missed_notes: [],
+        extra_notes: [],
+        is_matched: true,
+      },
+    ],
     coaching_report: {
       session_id: 'sess_test_123',
       headline: 'Clean Take',
@@ -47,8 +56,14 @@ vi.mock('@/api/sessions', () => ({
       recommended_tempo_adjustment_bpm: 0,
       tailored_drills: [],
     },
-  }),
-}))
+  }
+  return {
+    fetchExercises: vi.fn().mockResolvedValue([]),
+    createPracticeSession: vi.fn().mockResolvedValue({ id: 'sess_test_123' }),
+    uploadSessionTake: vi.fn().mockResolvedValue(mockTake),
+    submitChordsTake: vi.fn().mockResolvedValue(mockTake),
+  }
+})
 
 describe('PracticeStudioCockpit, ProgressDashboardPage & PeerComparisonPage', () => {
   it('renders root practice room container, header, stand, and Current -> Next chord preparation dock', () => {
@@ -98,23 +113,18 @@ describe('PracticeStudioCockpit, ProgressDashboardPage & PeerComparisonPage', ()
   })
 
   it('triggers simulated clean take and opens Take Evaluation Drawer with accessibility', async () => {
-    vi.useFakeTimers()
     render(<PracticeStudioCockpit />)
 
     const cleanBtn = screen.getByTestId('simulate-clean-take')
-    fireEvent.click(cleanBtn)
-
-    act(() => {
-      vi.advanceTimersByTime(500)
+    await act(async () => {
+      fireEvent.click(cleanBtn)
     })
 
-    const takeDrawer = screen.getByTestId('take-evaluation-drawer')
+    const takeDrawer = await screen.findByTestId('take-evaluation-drawer')
     expect(takeDrawer).toBeDefined()
     expect(takeDrawer.getAttribute('aria-hidden')).toBe('false')
     expect(takeDrawer.className).not.toContain('pointer-events-none')
     expect(screen.getByText(/TAKE EVALUATION COMPLETE/i)).toBeDefined()
-
-    vi.useRealTimers()
   })
 
   it('renders ProgressDashboardPage with BKT + SM-2 + Thompson Sampling recommendations', () => {

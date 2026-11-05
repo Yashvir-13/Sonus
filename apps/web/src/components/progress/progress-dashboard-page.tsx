@@ -19,7 +19,7 @@ import {
   Activity,
 } from 'lucide-react'
 
-export interface ProgressDashboardPageProps {
+export type ProgressDashboardPageProps = {
   transitions: TransitionMasteryState[]
   sessionHistory: LongitudinalSessionPoint[]
   onBackToLanding?: () => void
@@ -54,7 +54,7 @@ export function ProgressDashboardPage({
   const firstSession = sessionHistory[0]
   const latencyImprovementMs = firstSession && latestSession
     ? Math.max(0, firstSession.avgLatencyMs - latestSession.avgLatencyMs)
-    : 140
+    : 0
   const masteredCount = transitions.filter((t) => t.isMastered || t.pKnown >= 0.95).length
   const dueOrOverdueCount = transitions.filter((t) => t.dueStatus !== 'scheduled').length
 
@@ -152,14 +152,23 @@ export function ProgressDashboardPage({
               </div>
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-3xl font-mono font-bold text-zinc-900 dark:text-zinc-100">
-                  {latestSession ? `${latestSession.accuracyPct.toFixed(1)}%` : '92.4%'}
+                  {latestSession ? `${latestSession.accuracyPct.toFixed(1)}%` : '—'}
                 </span>
-                <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-                  +21.0% since S1
-                </span>
+                {latestSession && firstSession && sessionHistory.length > 1 ? (
+                  <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
+                    {latestSession.accuracyPct >= firstSession.accuracyPct ? '+' : ''}
+                    {(latestSession.accuracyPct - firstSession.accuracyPct).toFixed(1)}% since S1
+                  </span>
+                ) : (
+                  <span className="text-xs font-mono text-zinc-400">
+                    {sessionHistory.length === 1 ? 'Baseline Set' : 'Awaiting Take 1'}
+                  </span>
+                )}
               </div>
               <p className="mt-1 text-xs text-zinc-500">
-                Across {sessionHistory.length} recorded practice sessions
+                {sessionHistory.length === 0
+                  ? 'No recorded practice sessions yet'
+                  : `Across ${sessionHistory.length} recorded practice sessions`}
               </p>
             </div>
 
@@ -170,14 +179,22 @@ export function ProgressDashboardPage({
               </div>
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-3xl font-mono font-bold text-zinc-900 dark:text-zinc-100">
-                  +{latestSession ? latestSession.avgLatencyMs : 28}ms
+                  {latestSession ? `+${latestSession.avgLatencyMs}ms` : '—'}
                 </span>
-                <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-                  -{latencyImprovementMs}ms faster
-                </span>
+                {latencyImprovementMs > 0 ? (
+                  <span className="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
+                    -{latencyImprovementMs}ms faster
+                  </span>
+                ) : (
+                  <span className="text-xs font-mono text-zinc-400">
+                    {latestSession ? 'Initial Reference' : 'Baseline Needed'}
+                  </span>
+                )}
               </div>
               <p className="mt-1 text-xs text-zinc-500">
-                Down from +168ms baseline in Session 1
+                {firstSession
+                  ? `From +${firstSession.avgLatencyMs}ms baseline in Take 1`
+                  : 'Record a take to establish motor timing'}
               </p>
             </div>
 
@@ -237,7 +254,18 @@ export function ProgressDashboardPage({
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-            {topThreeRecommendations.map((rec, idx) => (
+            {topThreeRecommendations.length === 0 ? (
+              <div className="col-span-full rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-800 p-8 text-center bg-white/50 dark:bg-[#121215]/50 space-y-3">
+                <Sparkles className="size-7 text-amber-500 mx-auto" />
+                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                  No Motor Bottlenecks Identified Yet
+                </h3>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 max-w-md mx-auto leading-relaxed">
+                  Complete your first full practice take in the Practice Studio. The Bayesian Knowledge Tracing engine will analyze your chord transition timing, detect bottlenecks, and prescribe focused drill loops here.
+                </p>
+              </div>
+            ) : (
+              topThreeRecommendations.map((rec, idx) => (
               <div
                 key={rec.id}
                 data-testid={`recommendation-card-${idx + 1}`}
@@ -357,7 +385,8 @@ export function ProgressDashboardPage({
                   </button>
                 </div>
               </div>
-            ))}
+            ))
+            )}
           </div>
         </section>
 
@@ -447,6 +476,20 @@ export function ProgressDashboardPage({
 
               {/* Polyline connecting sessions */}
               {(() => {
+                if (sessionHistory.length === 0) {
+                  return (
+                    <text
+                      x={375}
+                      y={105}
+                      textAnchor="middle"
+                      fill="#71717A"
+                      fontSize={11}
+                      fontFamily="monospace"
+                    >
+                      Awaiting initial practice take to plot CUSUM learning curve...
+                    </text>
+                  )
+                }
                 const count = Math.max(2, sessionHistory.length)
                 const points = sessionHistory.map((s, i) => {
                   const x = 75 + (i / (count - 1)) * 675
@@ -616,7 +659,17 @@ export function ProgressDashboardPage({
             </div>
 
             <div className="divide-y divide-zinc-200 dark:divide-zinc-800 max-h-[420px] overflow-y-auto font-mono text-xs">
-              {[...sessionHistory].reverse().map((sess) => (
+              {sessionHistory.length === 0 ? (
+                <div className="p-8 text-center text-zinc-500 font-sans space-y-2">
+                  <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                    No recorded takes in PostgreSQL yet
+                  </p>
+                  <p className="text-xs text-zinc-400">
+                    Complete a take in the Practice Room to view sequence alignments, latency improvements, and habit alerts.
+                  </p>
+                </div>
+              ) : (
+                [...sessionHistory].reverse().map((sess) => (
                 <div key={sess.sessionIndex} className="p-4 space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-zinc-900 dark:text-zinc-100">
@@ -646,7 +699,7 @@ export function ProgressDashboardPage({
                     </div>
                   )}
                 </div>
-              ))}
+              )))}
             </div>
           </div>
         </div>

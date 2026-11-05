@@ -3,11 +3,12 @@ import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
 import { fetchExercises, type ExerciseDto } from '@/api/sessions'
 import { X, Search, Play, Check } from 'lucide-react'
 
-export interface CodexRepertoireDrawerProps {
+export type CodexRepertoireDrawerProps = {
   isOpen: boolean
   onClose: () => void
   onSelectSong: (song: ExerciseDto) => void
   activeSongId?: string
+  availableExercises?: ExerciseDto[]
   className?: string
 }
 
@@ -16,11 +17,18 @@ export function CodexRepertoireDrawer({
   onClose,
   onSelectSong,
   activeSongId,
+  availableExercises,
   className = '',
 }: CodexRepertoireDrawerProps): React.JSX.Element | null {
   const [searchQuery, setSearchQuery] = useState('')
   const [instrumentFilter, setInstrumentFilter] = useState<'all' | 'piano' | 'guitar'>('all')
-  const [dbExercises, setDbExercises] = useState<ExerciseDto[]>([])
+  const [dbExercises, setDbExercises] = useState<ExerciseDto[]>(availableExercises || [])
+
+  useEffect(() => {
+    if (availableExercises && availableExercises.length > 0) {
+      setDbExercises(availableExercises)
+    }
+  }, [availableExercises])
 
   useEffect(() => {
     if (!isOpen) return

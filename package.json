@@ -7,10 +7,9 @@
   "author": "",
   "type": "commonjs",
   "scripts": {
-    "dev": "npm run dev --workspace=apps/web",
-    "dev:full": "concurrently --kill-others-on-fail -n api,web -c blue,green \"python scripts/run.py service:api\" \"npm run dev --workspace=apps/web\"",
-    "build": "npm run build --workspace=apps/web",
-    "test": "npm run test --workspace=apps/web",
+    "dev": "concurrently -n api,web -c cyan,magenta \"pnpm run service:api\" \"pnpm run app:web -- dev\"",
+    "build": "pnpm --filter web build",
+    "test": "pnpm --filter web test",
     "db:create": "python scripts/run.py db:create",
     "db:clean": "python scripts/run.py db:clean",
     "db:make": "python scripts/run.py db:make",
@@ -24,5 +23,7 @@
   "devDependencies": {
     "concurrently": "^9.2.1"
   },
-  "workspaces": ["apps/*"]
+  "workspaces": [
+    "apps/*"
+  ]
 }

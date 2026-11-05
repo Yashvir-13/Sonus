@@ -46,6 +46,8 @@ export interface PracticeStudioCockpitProps {
     tempoBpm: number
   ) => void
   initialSongId?: string
+  onSelectSong?: (songId: string) => void
+  availableExercises?: ExerciseDto[]
   initialLoopDrill?: {
     fromChord: string
     toChord: string
@@ -63,8 +65,10 @@ export function PracticeStudioCockpit({
   onOpenProgress,
   onOpenCommunity,
   onTakeCompleted,
-  initialSongId = 'ex_piano_shostakovich_waltz_2',
+  initialSongId = 'ex_guitar_knockin',
+  onSelectSong,
   initialLoopDrill = null,
+  availableExercises,
   userButtonSlot,
   className = '',
 }: PracticeStudioCockpitProps): React.JSX.Element {
@@ -79,19 +83,24 @@ export function PracticeStudioCockpit({
     )
   })
 
+  const prevInitialSongIdRef = useRef<string | undefined>(initialSongId)
   useEffect(() => {
-    const found = BUILTIN_FULL_SONGS.find((s) => s.id === initialSongId)
-    if (found && found.id !== selectedSong.id) {
-      setSelectedSong(found)
-      setInstrument(found.instrument.toLowerCase() === 'guitar' ? 'guitar' : 'piano')
-      setTempoBpm(found.tempo_bpm || 76)
-      setCurrentBeat(0)
-      setIsPlaying(false)
-      if (!initialLoopDrill) {
-        setActiveDrillSlice(null)
+    if (initialSongId && initialSongId !== prevInitialSongIdRef.current) {
+      prevInitialSongIdRef.current = initialSongId
+      const list = availableExercises && availableExercises.length > 0 ? availableExercises : BUILTIN_FULL_SONGS
+      const found = list.find((s: ExerciseDto) => s.id === initialSongId)
+      if (found) {
+        setSelectedSong(found)
+        setInstrument(found.instrument.toLowerCase() === 'guitar' ? 'guitar' : 'piano')
+        setTempoBpm(found.tempo_bpm || 76)
+        setCurrentBeat(0)
+        setIsPlaying(false)
+        if (!initialLoopDrill) {
+          setActiveDrillSlice(null)
+        }
       }
     }
-  }, [initialSongId, selectedSong.id, initialLoopDrill])
+  }, [initialSongId, availableExercises, initialLoopDrill])
 
   const [instrument, setInstrument] = useState<'guitar' | 'piano'>(
     selectedSong.instrument.toLowerCase() === 'guitar' ? 'guitar' : 'piano'
@@ -728,12 +737,14 @@ export function PracticeStudioCockpit({
   }, [flowingProgression, livePitchResult, selectedSong.title, instrument, tempoBpm, onTakeCompleted])
 
   const handleSelectSong = (song: ExerciseDto) => {
+    prevInitialSongIdRef.current = song.id
     setSelectedSong(song)
     setInstrument(song.instrument.toLowerCase() === 'guitar' ? 'guitar' : 'piano')
     setTempoBpm(song.tempo_bpm || 76)
     setCurrentBeat(0)
     setIsPlaying(false)
     setActiveDrillSlice(null)
+    onSelectSong?.(song.id)
   }
 
   const handleLaunchDrillLoop = (drill: AdaptiveInterventionDto) => {
@@ -1349,49 +1360,54 @@ export function PracticeStudioCockpit({
             )}
           </div>
 
-          {/* Simulate Practice Take & Instant Coaching Feedback */}
           <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800 flex flex-col gap-2">
-            <div className="flex flex-wrap items-center justify-between gap-1.5">
-              <span className="text-[10px] font-mono uppercase text-zinc-500 font-semibold">
-                TEST TAKE FEEDBACK:
-              </span>
-              <div className="flex flex-wrap items-center gap-1 font-mono text-[10px]">
-                <button
-                  type="button"
-                  data-testid="simulate-clean-take"
-                  onClick={() => runDiagnosticPreset('clean', true)}
-                  className="px-2 py-1 rounded border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 font-bold cursor-pointer"
-                >
-                  Clean Take
-                </button>
-                <button
-                  type="button"
-                  data-testid="inject-transition-lag"
-                  onClick={() => runDiagnosticPreset('transition_lag', false)}
-                  className="px-2 py-1 rounded border border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300 hover:bg-red-500/20 font-bold cursor-pointer"
-                >
-                  Late Change (+142ms)
-                </button>
-                <button
-                  type="button"
-                  data-testid="inject-voicing-drop"
-                  onClick={() => runDiagnosticPreset('voicing_drop', false)}
-                  className="px-2 py-1 rounded border border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 font-bold cursor-pointer"
-                >
-                  Missed 3rd
-                </button>
-                <button
-                  type="button"
-                  data-testid="inject-tempo-rushing"
-                  onClick={() => runDiagnosticPreset('tempo_rushing', false)}
-                  className="px-2 py-1 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#18181C] text-zinc-700 dark:text-zinc-300 hover:border-amber-500 cursor-pointer"
-                >
-                  Rushing (-38ms)
-                </button>
+            <details className="text-[10px] font-mono text-zinc-400 group">
+              <summary className="cursor-pointer hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors list-none flex items-center justify-between py-0.5">
+                <span className="uppercase tracking-wider font-semibold text-[9px] text-zinc-500">Developer Diagnostic Signal Harness</span>
+                <span className="text-[8px] text-zinc-400 group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <div className="pt-1.5 flex flex-wrap items-center justify-between gap-1.5">
+                <span className="text-[10px] font-mono uppercase text-zinc-500 font-semibold">
+                  PRESET TAKE INJECTION:
+                </span>
+                <div className="flex flex-wrap items-center gap-1 font-mono text-[10px]">
+                  <button
+                    type="button"
+                    data-testid="simulate-clean-take"
+                    onClick={() => runDiagnosticPreset('clean', true)}
+                    className="px-2 py-1 rounded border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 font-bold cursor-pointer"
+                  >
+                    Clean Take
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="inject-transition-lag"
+                    onClick={() => runDiagnosticPreset('transition_lag', false)}
+                    className="px-2 py-1 rounded border border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300 hover:bg-red-500/20 font-bold cursor-pointer"
+                  >
+                    Late Change (+142ms)
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="inject-voicing-drop"
+                    onClick={() => runDiagnosticPreset('voicing_drop', false)}
+                    className="px-2 py-1 rounded border border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 font-bold cursor-pointer"
+                  >
+                    Missed 3rd
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="inject-tempo-rushing"
+                    onClick={() => runDiagnosticPreset('tempo_rushing', false)}
+                    className="px-2 py-1 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#18181C] text-zinc-700 dark:text-zinc-300 hover:border-amber-500 cursor-pointer"
+                  >
+                    Rushing (-38ms)
+                  </button>
+                </div>
               </div>
-            </div>
+            </details>
 
-            {/* Live Mistake Coach Banner */}
+          {/* Live Mistake Coach Banner */}
             {evaluationError ? (
               <div className="px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-600 dark:text-red-400 flex items-center gap-2">
                 <AlertCircle className="size-4 shrink-0" />

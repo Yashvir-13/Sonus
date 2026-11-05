@@ -1,4 +1,5 @@
 import { apiBaseUrl } from '@/lib/api/config'
+import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
 
 export type ExerciseDto = {
   id: string
@@ -181,7 +182,25 @@ export async function fetchExercises(
   if (!res.ok) {
     throw new Error(`GET /api/exercises failed: ${res.status}`)
   }
-  return res.json() as Promise<ExerciseDto[]>
+  const rawList = (await res.json()) as ExerciseDto[]
+  return rawList.map((ex) => {
+    let parsedProgression = ex.progression
+    if (!parsedProgression && ex.progression_json) {
+      try {
+        parsedProgression = JSON.parse(ex.progression_json)
+      } catch {
+        // fallback
+      }
+    }
+    const builtinMatch = BUILTIN_FULL_SONGS.find(
+      (b) => b.id === ex.id || b.title.toLowerCase() === ex.title.toLowerCase()
+    )
+    return {
+      ...(builtinMatch || {}),
+      ...ex,
+      progression: parsedProgression || builtinMatch?.progression,
+    }
+  })
 }
 
 /**
@@ -360,4 +379,35 @@ export async function fetchUserInterventions(token?: string): Promise<AdaptiveIn
     throw new Error(`GET /api/me/interventions failed: ${res.status}`)
   }
   return res.json() as Promise<AdaptiveInterventionDto[]>
+}
+
+
+export type UserSessionDto = {
+  id: string
+  exercise_id: string
+  exercise_title: string
+  instrument: string
+  tempo_bpm: number
+  state: string
+  overall_accuracy: number | null
+  avg_timing_error_ms: number | null
+  voicing_score: number | null
+  created_at: string | null
+}
+
+/**
+ * Fetch authenticated user's practice session history from PostgreSQL.
+ */
+export async function fetchUserSessions(
+  token?: string,
+  limit = 50,
+  offset = 0
+): Promise<UserSessionDto[]> {
+  const res = await fetch(`${apiBaseUrl()}/api/me/sessions?limit=${limit}&offset=${offset}`, {
+    headers: { ...getAuthHeader(token) },
+  })
+  if (!res.ok) {
+    throw new Error(`GET /api/me/sessions failed: ${res.status}`)
+  }
+  return res.json() as Promise<UserSessionDto[]>
 }

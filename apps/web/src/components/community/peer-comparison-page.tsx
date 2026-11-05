@@ -15,10 +15,11 @@ import {
   Gauge,
 } from 'lucide-react'
 
-export interface PeerComparisonPageProps {
+export type PeerComparisonPageProps = {
   userAccuracyPct?: number
   userMeanLatencyMs?: number
   userVoicingPct?: number
+  hasRecordedTakes?: boolean
   onBackToLanding?: () => void
   onOpenProgress?: () => void
   onPracticePiece?: (songId: string) => void
@@ -29,6 +30,7 @@ export function PeerComparisonPage({
   userAccuracyPct = 92.4,
   userMeanLatencyMs = 28.0,
   userVoicingPct = 95.0,
+  hasRecordedTakes = true,
   onBackToLanding,
   onOpenProgress,
   onPracticePiece,
@@ -39,7 +41,7 @@ export function PeerComparisonPage({
   const [tempoTierFilter, setTempoTierFilter] = useState<'all' | '70%' | '100%' | '105%'>('all')
 
   const entries = useMemo(() => {
-    const updated = PEER_LEADERBOARD_ENTRIES.map((entry) =>
+    const updated = PEER_LEADERBOARD_ENTRIES.filter((e) => hasRecordedTakes || !e.isCurrentUser).map((entry) =>
       entry.isCurrentUser
         ? {
             ...entry,
@@ -129,7 +131,11 @@ export function PeerComparisonPage({
             <div className="px-4 py-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 font-mono text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2 self-start">
               <Trophy className="size-4 text-emerald-500" />
               <span>
-                Your Overall Standing: <b>{overallPercentile}th Percentile</b> (Top {100 - overallPercentile}%)
+                {hasRecordedTakes ? (
+                <>Your Overall Standing: <b>{overallPercentile}th Percentile</b> (Top {100 - overallPercentile}%)</>
+              ) : (
+                <>Your Overall Standing: <b>Baseline Needed</b> (Complete Take in Studio)</>
+              )}
               </span>
             </div>
           </div>
@@ -139,33 +145,33 @@ export function PeerComparisonPage({
               {
                 id: 'dist-timing',
                 title: 'Chord Transition Speed (ms)',
-                userValLabel: `+${Math.round(Math.abs(userMeanLatencyMs))}ms`,
+                userValLabel: hasRecordedTakes ? `+${Math.round(Math.abs(userMeanLatencyMs))}ms` : '—',
                 medianLabel: 'Peer Median: +62ms',
                 top10Label: 'Top 10%: ±14ms',
-                percentile: timingPercentile,
-                markerX: Math.max(40, Math.min(260, 250 - Math.abs(userMeanLatencyMs) * 1.1)),
+                percentile: hasRecordedTakes ? timingPercentile : null,
+                markerX: hasRecordedTakes ? Math.max(40, Math.min(260, 250 - Math.abs(userMeanLatencyMs) * 1.1)) : null,
                 color: '#F59E0B',
                 desc: 'Measures how quickly your fingers settle on the new chord after crossing the barline.',
               },
               {
                 id: 'dist-voicing',
                 title: 'Chord Voicing Completeness (%)',
-                userValLabel: `${userVoicingPct.toFixed(1)}%`,
+                userValLabel: hasRecordedTakes ? `${userVoicingPct.toFixed(1)}%` : '—',
                 medianLabel: 'Peer Median: 84.0%',
                 top10Label: 'Top 10%: 98.0%',
-                percentile: voicingPercentile,
-                markerX: Math.max(40, Math.min(265, (userVoicingPct / 100) * 255)),
+                percentile: hasRecordedTakes ? voicingPercentile : null,
+                markerX: hasRecordedTakes ? Math.max(40, Math.min(265, (userVoicingPct / 100) * 255)) : null,
                 color: '#10B981',
                 desc: 'Percentage of expected chord notes (especially roots and 3rds) that ring out cleanly.',
               },
               {
                 id: 'dist-alignment',
                 title: 'Needleman-Wunsch Score (%)',
-                userValLabel: `${userAccuracyPct.toFixed(1)}%`,
+                userValLabel: hasRecordedTakes ? `${userAccuracyPct.toFixed(1)}%` : '—',
                 medianLabel: 'Peer Median: 81.5%',
                 top10Label: 'Top 10%: 96.2%',
-                percentile: overallPercentile,
-                markerX: Math.max(40, Math.min(265, (userAccuracyPct / 100) * 255)),
+                percentile: hasRecordedTakes ? overallPercentile : null,
+                markerX: hasRecordedTakes ? Math.max(40, Math.min(265, (userAccuracyPct / 100) * 255)) : null,
                 color: '#F59E0B',
                 desc: 'Combined sequence alignment score across full-length repertoire takes.',
               },
@@ -237,24 +243,28 @@ export function PeerComparisonPage({
                   </text>
 
                   {/* User Position Pin */}
-                  <line
-                    x1={dist.markerX}
-                    y1={12}
-                    x2={dist.markerX}
-                    y2={90}
-                    stroke="#10B981"
-                    strokeWidth={2}
-                  />
-                  <circle cx={dist.markerX} cy={28} r={4.5} fill="#10B981" />
-                  <text
-                    x={dist.markerX}
-                    y={10}
-                    textAnchor="middle"
-                    fill="#10B981"
-                    className="text-[9px] font-mono font-bold"
-                  >
-                    YOU ({dist.userValLabel})
-                  </text>
+                  {dist.markerX !== null && dist.markerX !== undefined && (
+                    <>
+                      <line
+                        x1={dist.markerX}
+                        y1={12}
+                        x2={dist.markerX}
+                        y2={90}
+                        stroke="#10B981"
+                        strokeWidth={2}
+                      />
+                      <circle cx={dist.markerX} cy={28} r={4.5} fill="#10B981" />
+                      <text
+                        x={dist.markerX}
+                        y={10}
+                        textAnchor="middle"
+                        fill="#10B981"
+                        className="text-[9px] font-mono font-bold"
+                      >
+                        YOU ({dist.userValLabel})
+                      </text>
+                    </>
+                  )}
                 </svg>
 
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
@@ -307,9 +317,9 @@ export function PeerComparisonPage({
               >
                 <option value="all">All Pieces</option>
                 <option value="ex_piano_shostakovich_waltz_2">Waltz No. 2 in C Minor</option>
-                <option value="ex_piano_pachelbel_canon_d">Pachelbel&apos;s Canon in D</option>
-                <option value="ex_guitar_house_rising_sun">The House of the Rising Sun</option>
-                <option value="ex_guitar_knocking_heaven">Knockin&apos; on Heaven&apos;s Door</option>
+                <option value="ex_piano_canon">Pachelbel&apos;s Canon in D</option>
+                <option value="ex_guitar_rising_sun">The House of the Rising Sun</option>
+                <option value="ex_guitar_knockin">Knockin&apos; on Heaven&apos;s Door</option>
               </select>
 
               {/* Tempo Tier Filter */}

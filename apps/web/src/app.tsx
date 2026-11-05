@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { UserButton } from '@clerk/react'
 import { AudioTestBench } from '@/components/dev/audio-test-bench'
 import { PracticeStudioCockpit } from '@/components/practice/practice-studio-cockpit'
@@ -8,8 +8,8 @@ import { PeerComparisonPage } from '@/components/community/peer-comparison-page'
 import { SignInModal } from '@/components/auth/sign-in-modal'
 import { AuthShell } from '@/components/auth/auth-shell'
 import {
-  INITIAL_TRANSITION_MASTERY,
-  INITIAL_SESSION_HISTORY,
+
+
   updateBktMastery,
   metricsToSm2Quality,
   updateSm2State,
@@ -17,6 +17,17 @@ import {
   type LongitudinalSessionPoint,
   type AdaptiveExerciseRecommendation,
 } from '@/lib/adaptive/recommendation-engine'
+import { MusicianLoadingScreen } from '@/components/ui/loading-screen'
+import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
+import {
+  fetchExercises,
+  fetchUserSessions,
+  fetchUserStats,
+  fetchUserHabits,
+  type ExerciseDto,
+  type UserStatsDto,
+} from '@/api/sessions'
+import { mapBackendSessionsToLongitudinal, mapBackendHabitsToTransitions } from '@/lib/adaptive/recommendation-engine'
 import type { TakeEvaluationResponse } from '@/api/sessions'
 
 export type AppViewMode = 'landing' | 'practice' | 'progress' | 'community' | 'audio'
@@ -35,7 +46,7 @@ export default function App({
   const [activeView, setActiveView] = useState<AppViewMode>(initialView)
   const [isSignedIn, setIsSignedIn] = useState(defaultSignedIn || Boolean(userButtonSlot))
   const [showSignInModal, setShowSignInModal] = useState(false)
-  const [selectedSongId, setSelectedSongId] = useState<string>('ex_piano_shostakovich_waltz_2')
+  const [selectedSongId, setSelectedSongId] = useState<string>('ex_guitar_knockin')
   const [pendingLoopDrill, setPendingLoopDrill] = useState<{
     fromChord: string
     toChord: string
@@ -44,12 +55,56 @@ export default function App({
   } | null>(null)
 
   // Shared Longitudinal State across Practice Room, Progress & Coach, and Peer Benchmarks
-  const [transitions, setTransitions] = useState<TransitionMasteryState[]>(
-    INITIAL_TRANSITION_MASTERY
-  )
-  const [sessionHistory, setSessionHistory] = useState<LongitudinalSessionPoint[]>(
-    INITIAL_SESSION_HISTORY
-  )
+  const [transitions, setTransitions] = useState<TransitionMasteryState[]>([])
+  const [sessionHistory, setSessionHistory] = useState<LongitudinalSessionPoint[]>([])
+  const [availableExercises, setAvailableExercises] = useState<ExerciseDto[]>(BUILTIN_FULL_SONGS)
+  const [userStats, setUserStats] = useState<UserStatsDto | null>(null)
+  const [isInitialHydrating, setIsInitialHydrating] = useState(true)
+  const [navTransition, setNavTransition] = useState<{
+    headline: string
+    subtext: string
+  } | null>(null)
+
+  // Hydrate authentic repertoire catalogue and user history from PostgreSQL backend
+  const loadBackendData = useCallback(async () => {
+    try {
+      const [exercisesRes, sessionsRes, statsRes, habitsRes] = await Promise.allSettled([
+        fetchExercises(),
+        fetchUserSessions(),
+        fetchUserStats(),
+        fetchUserHabits(),
+      ])
+
+      const loadedExercises =
+        exercisesRes.status === 'fulfilled' && exercisesRes.value.length > 0
+          ? exercisesRes.value
+          : BUILTIN_FULL_SONGS
+      setAvailableExercises(loadedExercises)
+
+      if (sessionsRes.status === 'fulfilled' && sessionsRes.value.length > 0) {
+        const longitudinal = mapBackendSessionsToLongitudinal(sessionsRes.value)
+        setSessionHistory(longitudinal)
+      }
+
+      if (statsRes.status === 'fulfilled') {
+        setUserStats(statsRes.value)
+      }
+
+      if (habitsRes.status === 'fulfilled' && habitsRes.value.length > 0) {
+        const mappedTransitions = mapBackendHabitsToTransitions(habitsRes.value, loadedExercises)
+        setTransitions(mappedTransitions)
+      }
+    } catch {
+      // Fall back gracefully to local catalog and baseline state
+    } finally {
+      setIsInitialHydrating(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadBackendData()
+  }, [loadBackendData])
+
 
   const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
   const hasValidClerkKey = Boolean(
@@ -120,9 +175,35 @@ export default function App({
           }
         })
       )
+
+      // Refresh live backend session history and stats
+      void loadBackendData()
     },
-    [selectedSongId]
+    [selectedSongId, loadBackendData]
   )
+
+  const navigateToView = useCallback((view: AppViewMode) => {
+    let headline = 'Setting Up Practice Room'
+    let subtext = 'Harmonizing interactive score, voicings, and visual stands...'
+    if (view === 'progress') {
+      headline = 'Curating Musician Archives'
+      subtext = 'Synthesizing longitudinal trajectories, habit alerts, and spaced review queues...'
+    } else if (view === 'community') {
+      headline = 'Auditioning Cohort Benchmarks'
+      subtext = 'Compiling percentile curves and repertoire leaderboards across active musicians...'
+    } else if (view === 'landing') {
+      headline = 'Returning to Studio Stage'
+      subtext = 'Preserving active score and practice telemetry...'
+    }
+
+    setNavTransition({ headline, subtext })
+    setTimeout(() => {
+      setActiveView(view)
+      setTimeout(() => {
+        setNavTransition(null)
+      }, 150)
+    }, 280)
+  }, [])
 
   const handleLaunchRecommendedDrill = (rec: AdaptiveExerciseRecommendation) => {
     setSelectedSongId(rec.songId)
@@ -132,10 +213,19 @@ export default function App({
       targetBpm: rec.recommendedBpm,
       description: rec.practiceInstructions,
     })
-    setActiveView('practice')
+    navigateToView('practice')
   }
 
   const latestSession = sessionHistory[sessionHistory.length - 1]
+
+  if (isInitialHydrating) {
+    return (
+      <MusicianLoadingScreen
+        headline="Calibrating Studio Acoustics"
+        subtext="Preparing interactive score, chord voicings, and practice stands..."
+      />
+    )
+  }
 
   return (
     <AuthShell
@@ -146,6 +236,13 @@ export default function App({
         activeView === 'community'
       }
     >
+      {navTransition && (
+        <MusicianLoadingScreen
+          headline={navTransition.headline}
+          subtext={navTransition.subtext}
+          fullscreen={true}
+        />
+      )}
       {activeView === 'landing' && (
         <>
           <LandingPage
@@ -154,14 +251,10 @@ export default function App({
                 setSelectedSongId(songId)
               }
               setPendingLoopDrill(null)
-              if (isSignedIn) {
-                setActiveView('practice')
-              } else {
-                setShowSignInModal(true)
-              }
+              navigateToView('practice')
             }}
-            onOpenProgress={() => setActiveView('progress')}
-            onOpenCommunity={() => setActiveView('community')}
+            onOpenProgress={() => navigateToView('progress')}
+            onOpenCommunity={() => navigateToView('community')}
             onSignIn={() => setShowSignInModal(true)}
             isSignedIn={isSignedIn}
             userButtonSlot={effectiveUserButtonSlot}
@@ -172,7 +265,7 @@ export default function App({
             onSuccess={() => {
               setIsSignedIn(true)
               setShowSignInModal(false)
-              setActiveView('practice')
+              navigateToView('practice')
             }}
           />
         </>
@@ -182,9 +275,11 @@ export default function App({
         <PracticeStudioCockpit
           initialSongId={selectedSongId}
           initialLoopDrill={pendingLoopDrill}
-          onBackToDesk={() => setActiveView('landing')}
-          onOpenProgress={() => setActiveView('progress')}
-          onOpenCommunity={() => setActiveView('community')}
+          availableExercises={availableExercises}
+          onSelectSong={(songId) => setSelectedSongId(songId)}
+          onBackToDesk={() => navigateToView('landing')}
+          onOpenProgress={() => navigateToView('progress')}
+          onOpenCommunity={() => navigateToView('community')}
           onTakeCompleted={handleTakeCompleted}
           userButtonSlot={effectiveUserButtonSlot}
         />
@@ -194,24 +289,25 @@ export default function App({
         <ProgressDashboardPage
           transitions={transitions}
           sessionHistory={sessionHistory}
-          onBackToLanding={() => setActiveView('landing')}
+          onBackToLanding={() => navigateToView('landing')}
           onOpenStudioWithRecommendation={handleLaunchRecommendedDrill}
-          onOpenCommunity={() => setActiveView('community')}
+          onOpenCommunity={() => navigateToView('community')}
           userButtonSlot={effectiveUserButtonSlot}
         />
       )}
 
       {activeView === 'community' && (
         <PeerComparisonPage
-          userAccuracyPct={latestSession?.accuracyPct ?? 92.4}
-          userMeanLatencyMs={latestSession?.avgLatencyMs ?? 28.0}
-          userVoicingPct={latestSession?.voicingPct ?? 95.0}
-          onBackToLanding={() => setActiveView('landing')}
-          onOpenProgress={() => setActiveView('progress')}
+          userAccuracyPct={userStats ? userStats.overall_accuracy_pct : latestSession?.accuracyPct}
+          userMeanLatencyMs={userStats ? Math.round(Math.abs(userStats.avg_timing_error_ms)) : latestSession?.avgLatencyMs}
+          userVoicingPct={userStats ? Math.round(userStats.avg_voicing_score) : latestSession?.voicingPct}
+          hasRecordedTakes={Boolean((userStats && userStats.total_sessions_completed > 0) || sessionHistory.length > 0)}
+          onBackToLanding={() => navigateToView('landing')}
+          onOpenProgress={() => navigateToView('progress')}
           onPracticePiece={(songId) => {
             setSelectedSongId(songId)
             setPendingLoopDrill(null)
-            setActiveView('practice')
+            navigateToView('practice')
           }}
           userButtonSlot={effectiveUserButtonSlot}
         />

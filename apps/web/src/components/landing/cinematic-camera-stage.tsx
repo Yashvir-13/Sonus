@@ -12,7 +12,7 @@ import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
 import type { ExerciseDto } from '@/api/sessions'
 import { VolumetricSmokeCanvas } from './volumetric-smoke-canvas'
 
-export interface CinematicCameraStageProps {
+export type CinematicCameraStageProps = {
   onEnterStudio?: (songId?: string) => void
   onOpenProgress?: () => void
   onOpenCommunity?: () => void
