@@ -59,6 +59,36 @@ class MeCreateRequest(SQLModel):
         return normalized
 
 
+class MeUpdateRequest(SQLModel):
+    """Fields that can be updated by the user."""
+
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    username: str | None = Field(default=None, min_length=3, max_length=30)
+    onboarding_done: bool | None = None
+
+    @field_validator("name")
+    @classmethod
+    def strip_name(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        stripped = value.strip()
+        if not stripped:
+            msg = "Name must not be blank"
+            raise ValueError(msg)
+        return stripped
+
+    @field_validator("username")
+    @classmethod
+    def normalize_username(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip().lower()
+        if not _USERNAME_PATTERN.fullmatch(normalized):
+            msg = "Username must be 3-30 characters: letters, numbers, underscore"
+            raise ValueError(msg)
+        return normalized
+
+
 class MeSessionHistoryItem(BaseModel):
     """User practice session summary item."""
 
@@ -136,6 +166,38 @@ async def create_me(
         verified_at=now,
         onboarding_done=True,
     )
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+    return user
+
+
+@router.patch("/me", response_model=User)
+async def update_me(
+    body: MeUpdateRequest,
+    identity: ClerkIdentityDep,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> User:
+    """Update profile attributes for the signed-in user."""
+    user = await session.get(User, identity.user_id)
+    if user is None:
+        raise NotFound("User not found")
+
+    if body.username is not None and body.username != user.username:
+        taken = await session.execute(
+            select(User.id).where(User.username == body.username, User.id != user.id)
+        )
+        if taken.scalar_one_or_none() is not None:
+            raise Unprocessable("Username is already taken")
+        user.username = body.username
+
+    if body.name is not None:
+        user.name = body.name
+
+    if body.onboarding_done is not None:
+        user.onboarding_done = body.onboarding_done
+
+    user.updated_at = datetime.now(UTC)
     session.add(user)
     await session.commit()
     await session.refresh(user)

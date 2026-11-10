@@ -56,11 +56,15 @@ export function CodexRepertoireDrawer({
   const baseSongList = dbExercises.length > 0 ? dbExercises : BUILTIN_FULL_SONGS
 
   const filteredSongs = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim()
     return baseSongList.filter((song) => {
-      const titleMatches = song.title.toLowerCase().includes(searchQuery.toLowerCase())
-      const descMatches = (song.description || '').toLowerCase().includes(searchQuery.toLowerCase())
-      const keyMatches = song.progression?.key?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
-      const matchesSearch = searchQuery.trim() === '' || titleMatches || descMatches || keyMatches
+      const titleMatches = song.title.toLowerCase().includes(q)
+      const artistMatches = (song.artist || '').toLowerCase().includes(q)
+      const composerMatches = (song.composer || '').toLowerCase().includes(q)
+      const descMatches = (song.description || '').toLowerCase().includes(q)
+      const keyMatches = song.progression?.key?.toLowerCase().includes(q) ?? false
+      const matchesSearch =
+        q === '' || titleMatches || artistMatches || composerMatches || descMatches || keyMatches
 
       const matchesInst =
         instrumentFilter === 'all' || song.instrument.toLowerCase() === instrumentFilter
@@ -186,6 +190,11 @@ export function CodexRepertoireDrawer({
                       <h3 className="font-sans font-bold text-sm text-zinc-900 dark:text-zinc-100 truncate group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                         {song.title}
                       </h3>
+                      {(song.artist || song.composer) && (
+                        <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 truncate">
+                          {song.artist || song.composer}
+                        </p>
+                      )}
                     </div>
 
                     {isSelected ? (

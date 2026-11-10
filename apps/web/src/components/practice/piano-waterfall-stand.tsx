@@ -193,7 +193,7 @@ export function PianoWaterfallStand({
         <div
           ref={containerRef}
           data-testid="waterfall-canvas-track"
-          className="relative w-full flex-1 overflow-hidden"
+          className="relative w-full flex-1 overflow-hidden bg-[#050508] rounded-t-xl"
           style={{ minHeight: '160px' }}
         >
           <svg
@@ -201,6 +201,35 @@ export function PianoWaterfallStand({
             preserveAspectRatio="none"
             className="absolute inset-0 w-full h-full"
           >
+            <defs>
+              {/* Neon Glow Filters */}
+              <filter id="neon-glow-lh" x="-50%" y="-50%" width="200%" height="200%">
+                <feDropShadow dx="0" dy="0" stdDeviation="3.5" floodColor="#EC4899" floodOpacity="0.8" />
+              </filter>
+              <filter id="neon-glow-rh" x="-50%" y="-50%" width="200%" height="200%">
+                <feDropShadow dx="0" dy="0" stdDeviation="3.5" floodColor="#FACC15" floodOpacity="0.8" />
+              </filter>
+              <filter id="laser-glow" x="-20%" y="-200%" width="140%" height="500%">
+                <feGaussianBlur stdDeviation="2.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+
+              {/* Vertical Spotlight Beams */}
+              <linearGradient id="beam-gradient-lh" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#EC4899" stopOpacity="0.65" />
+                <stop offset="40%" stopColor="#EC4899" stopOpacity="0.25" />
+                <stop offset="100%" stopColor="#EC4899" stopOpacity="0.0" />
+              </linearGradient>
+              <linearGradient id="beam-gradient-rh" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#FACC15" stopOpacity="0.65" />
+                <stop offset="40%" stopColor="#FACC15" stopOpacity="0.25" />
+                <stop offset="100%" stopColor="#FACC15" stopOpacity="0.0" />
+              </linearGradient>
+            </defs>
+
             {/* Subtle lane separators */}
             {keyMap
               .filter((k) => k.isWhite)
@@ -211,9 +240,10 @@ export function PianoWaterfallStand({
                   y1={0}
                   x2={k.x}
                   y2={200}
-                  stroke={isDark ? '#18181C' : '#E4E4E0'}
+                  stroke="#18181C"
                   strokeWidth={1}
                   strokeDasharray="4 4"
+                  opacity={0.6}
                 />
               ))}
 
@@ -230,32 +260,46 @@ export function PianoWaterfallStand({
               if (noteBottomY < -50 || noteTopY > 250) return null
 
               const isLh = note.hand === 'lh'
-              const fillColor = isLh ? '#F59E0B' : '#10B981'
-              const strokeColor = isLh ? '#D97706' : '#059669'
+              const fillColor = isLh ? '#EC4899' : '#FACC15'
+              const strokeColor = isLh ? '#F472B6' : '#FEF08A'
+              const glowFilter = isLh ? 'url(#neon-glow-lh)' : 'url(#neon-glow-rh)'
 
-              const ribbonWidth = coord.isWhite ? coord.width * 0.68 : coord.width * 0.76
+              const ribbonWidth = coord.isWhite ? coord.width * 0.74 : coord.width * 0.82
               const ribbonX = coord.x + (coord.width - ribbonWidth) / 2
 
               return (
                 <g key={note.id} className="transition-transform duration-75">
+                  {/* Neon Capsule Body */}
                   <rect
                     x={ribbonX}
                     y={noteTopY}
                     width={ribbonWidth}
                     height={noteHeight}
-                    rx={2.5}
-                    ry={2.5}
+                    rx={5}
+                    ry={5}
                     fill={fillColor}
-                    fillOpacity={isDark ? 0.38 : 0.78}
+                    fillOpacity={0.65}
                     stroke={strokeColor}
-                    strokeWidth={1.2}
+                    strokeWidth={1.8}
+                    filter={glowFilter}
+                  />
+                  {/* Inner Specular Core Tube */}
+                  <rect
+                    x={ribbonX + 2}
+                    y={noteTopY + 2}
+                    width={Math.max(1, ribbonWidth - 4)}
+                    height={Math.max(1, noteHeight - 4)}
+                    rx={3.5}
+                    ry={3.5}
+                    fill="#FFFFFF"
+                    fillOpacity={0.25}
                   />
                   {noteHeight >= 22 && (
                     <text
                       x={coord.x + coord.width / 2}
                       y={noteBottomY - 5}
                       textAnchor="middle"
-                      fill={isDark ? '#F4F4F5' : '#18181B'}
+                      fill="#FFFFFF"
                       fillOpacity={0.95}
                       fontSize="8"
                       fontFamily="monospace"
@@ -270,15 +314,43 @@ export function PianoWaterfallStand({
               )
             })}
 
-            {/* Strike Zone Line */}
+            {/* Vertical Spotlight Beams on Struck Keys */}
+            {Array.from(activeKeysAtStrike.entries()).map(([midi, hand]) => {
+              const coord = keyCoordByMidi.get(midi)
+              if (!coord) return null
+              const cx = coord.x + coord.width / 2
+              const beamSpread = coord.width * 0.9
+              return (
+                <polygon
+                  key={`spotlight-${midi}`}
+                  points={`${cx - beamSpread * 0.45},0 ${cx + beamSpread * 0.45},0 ${cx + beamSpread * 0.8},${STRIKE_LINE_Y} ${cx - beamSpread * 0.8},${STRIKE_LINE_Y}`}
+                  fill={`url(#beam-gradient-${hand})`}
+                  className="pointer-events-none"
+                />
+              )
+            })}
+
+            {/* Strike Zone Laser Baseline & Particle Sparks Fountain */}
             <g data-testid="waterfall-strike-zone">
+              {/* Laser Core and Outer Glow */}
               <line
                 x1={0}
                 y1={STRIKE_LINE_Y}
                 x2={600}
                 y2={STRIKE_LINE_Y}
-                stroke="#F59E0B"
+                stroke="#EC4899"
+                strokeWidth={5}
+                strokeOpacity={0.35}
+                filter="url(#laser-glow)"
+              />
+              <line
+                x1={0}
+                y1={STRIKE_LINE_Y}
+                x2={600}
+                y2={STRIKE_LINE_Y}
+                stroke="#FFFFFF"
                 strokeWidth={1.5}
+                strokeOpacity={0.9}
               />
               {Array.from({ length: 41 }).map((_, i) => (
                 <line
@@ -287,26 +359,73 @@ export function PianoWaterfallStand({
                   y1={STRIKE_LINE_Y - (i % 5 === 0 ? 4 : 2)}
                   x2={i * 15}
                   y2={STRIKE_LINE_Y + (i % 5 === 0 ? 4 : 2)}
-                  stroke="#F59E0B"
+                  stroke="#FACC15"
                   strokeWidth={0.75}
-                  strokeOpacity={0.7}
+                  strokeOpacity={0.6}
                 />
               ))}
+
+              {/* Dynamic Particle Sparks Fountain when Notes Strike the Hit Line */}
+              {Array.from(activeKeysAtStrike.entries()).map(([midi, hand]) => {
+                const coord = keyCoordByMidi.get(midi)
+                if (!coord) return null
+                const cx = coord.x + coord.width / 2
+                const isLh = hand === 'lh'
+                const sparkColor = isLh ? '#F472B6' : '#FEF08A'
+                const particles = [
+                  { dx: -12, dy: -18, r: 1.5, op: 0.9 },
+                  { dx: 14, dy: -24, r: 1.2, op: 0.8 },
+                  { dx: -6, dy: -32, r: 1.8, op: 0.95 },
+                  { dx: 8, dy: -15, r: 1.0, op: 0.7 },
+                  { dx: -18, dy: -10, r: 1.4, op: 0.6 },
+                  { dx: 16, dy: -36, r: 1.2, op: 0.85 },
+                  { dx: -2, dy: -42, r: 1.6, op: 0.9 },
+                  { dx: 4, dy: -28, r: 1.0, op: 0.75 },
+                  { dx: -10, dy: -22, r: 1.3, op: 0.8 },
+                  { dx: 10, dy: -12, r: 1.5, op: 0.65 },
+                  { dx: -15, dy: -30, r: 1.1, op: 0.7 },
+                  { dx: 12, dy: -40, r: 1.4, op: 0.8 },
+                ]
+                return (
+                  <g key={`sparks-${midi}`} className="pointer-events-none">
+                    {/* Blazing Strike Hotspot */}
+                    <circle
+                      cx={cx}
+                      cy={STRIKE_LINE_Y}
+                      r={5}
+                      fill="#FFFFFF"
+                      opacity={0.95}
+                      filter="url(#laser-glow)"
+                    />
+                    {particles.map((p, pIdx) => (
+                      <circle
+                        key={`spk-${pIdx}`}
+                        cx={cx + p.dx}
+                        cy={STRIKE_LINE_Y + p.dy}
+                        r={p.r}
+                        fill={sparkColor}
+                        opacity={p.op}
+                      />
+                    ))}
+                  </g>
+                )
+              })}
+
               <rect
                 x={8}
                 y={STRIKE_LINE_Y - 8}
                 width={108}
                 height={16}
                 rx={2}
-                fill={isDark ? '#111114' : '#FFFFFF'}
-                stroke="#F59E0B"
+                fill="#111114"
+                stroke="#FACC15"
                 strokeWidth={1}
               />
               <text
                 x={62}
                 y={STRIKE_LINE_Y + 3}
                 textAnchor="middle"
-                fill="#D97706"
+                fill="#FACC15"
                 fontSize="7.5"
                 fontFamily="monospace"
                 fontWeight="bold"
@@ -320,7 +439,7 @@ export function PianoWaterfallStand({
         </div>
 
         {/* 2. AUTHENTIC 25-KEY STRIKE KEYBOARD AT BASELINE */}
-        <div className="relative w-full h-16 bg-[#F8F8F6] dark:bg-[#09090B] border-t border-zinc-200 dark:border-zinc-800 flex justify-center items-end pb-1 z-30 shrink-0">
+        <div className="relative w-full h-16 bg-[#09090B] border-t border-zinc-800 flex justify-center items-end pb-1 z-30 shrink-0">
           <svg
             viewBox="0 0 600 65"
             preserveAspectRatio="none"
@@ -333,7 +452,7 @@ export function PianoWaterfallStand({
                 .map((k) => {
                   const activeHand = activeKeysAtStrike.get(k.midi)
                   const isActive = Boolean(activeHand)
-                  const activeFill = activeHand === 'lh' ? '#F59E0B' : '#10B981'
+                  const activeFill = activeHand === 'lh' ? '#EC4899' : '#FACC15'
                   return (
                     <g key={`wk-${k.midi}`}>
                       <rect
@@ -345,8 +464,8 @@ export function PianoWaterfallStand({
                         rx={2}
                         ry={2}
                         fill={isActive ? activeFill : isDark ? '#E4E4E7' : '#FFFFFF'}
-                        stroke={isActive ? '#F59E0B' : isDark ? '#18181B' : '#A1A1AA'}
-                        strokeWidth={isActive ? 1.5 : 1}
+                        stroke={isActive ? (activeHand === 'lh' ? '#F472B6' : '#FEF08A') : isDark ? '#18181B' : '#A1A1AA'}
+                        strokeWidth={isActive ? 2 : 1}
                         onClick={() => onKeyClick?.(k.midi)}
                         className="cursor-pointer transition-colors"
                       />
@@ -370,7 +489,7 @@ export function PianoWaterfallStand({
                 .map((k) => {
                   const activeHand = activeKeysAtStrike.get(k.midi)
                   const isActive = Boolean(activeHand)
-                  const activeFill = activeHand === 'lh' ? '#F59E0B' : '#10B981'
+                  const activeFill = activeHand === 'lh' ? '#EC4899' : '#FACC15'
                   return (
                     <g key={`bk-${k.midi}`}>
                       <rect
@@ -382,8 +501,8 @@ export function PianoWaterfallStand({
                         rx={1.5}
                         ry={1.5}
                         fill={isActive ? activeFill : '#18181B'}
-                        stroke={isActive ? '#F59E0B' : '#09090B'}
-                        strokeWidth={isActive ? 1.5 : 1}
+                        stroke={isActive ? (activeHand === 'lh' ? '#F472B6' : '#FEF08A') : '#09090B'}
+                        strokeWidth={isActive ? 2 : 1}
                         onClick={() => onKeyClick?.(k.midi)}
                         className="cursor-pointer transition-colors"
                       />

@@ -60,7 +60,7 @@ describe('PianoWaterfallStand Component', () => {
     expect(handleKeyClick).toHaveBeenCalledWith(60)
   })
 
-  it('illuminates striking keys with hand-specific colors: LH Amber (#F59E0B) and RH Emerald (#10B981)', () => {
+  it('illuminates striking keys with hand-specific Piano-VFX neon colors: LH Neon Rose (#EC4899) and RH Electric Gold (#FACC15)', () => {
     const melodyProgression = [
       {
         ...resolveChordVoicing('Cm'),
@@ -82,13 +82,13 @@ describe('PianoWaterfallStand Component', () => {
       />
     )
 
-    // C3 (MIDI 48) is a white key played by LH -> must illuminate in Amber (#F59E0B)
+    // C3 (MIDI 48) is a white key played by LH -> must illuminate in Neon Rose (#EC4899)
     const keyC3 = screen.getByTestId('waterfall-key-48')
-    expect(keyC3.getAttribute('fill')).toBe('#F59E0B')
+    expect(keyC3.getAttribute('fill')).toBe('#EC4899')
 
-    // D4 (MIDI 62) is a white key played by RH -> must illuminate in Emerald (#10B981)
+    // D4 (MIDI 62) is a white key played by RH -> must illuminate in Electric Gold (#FACC15)
     const keyD4 = screen.getByTestId('waterfall-key-62')
-    expect(keyD4.getAttribute('fill')).toBe('#10B981')
+    expect(keyD4.getAttribute('fill')).toBe('#FACC15')
   })
 
   it('staggers falling note ribbons according to melodyNotes beatOffsets', () => {
@@ -116,7 +116,7 @@ describe('PianoWaterfallStand Component', () => {
     // At beat 0: C4 (60) is active at strike, D4 (62) is not active yet
     const keyC4AtBeat0 = screen.getByTestId('waterfall-key-60')
     const keyD4AtBeat0 = screen.getByTestId('waterfall-key-62')
-    expect(keyC4AtBeat0.getAttribute('fill')).toBe('#10B981')
+    expect(keyC4AtBeat0.getAttribute('fill')).toBe('#FACC15')
     expect(keyD4AtBeat0.getAttribute('fill')).toBe('#E4E4E7')
 
     // Advance to beat 1.2: D4 (62) becomes active, C4 (60) is no longer active
@@ -132,6 +132,6 @@ describe('PianoWaterfallStand Component', () => {
     const keyC4AtBeat1 = screen.getByTestId('waterfall-key-60')
     const keyD4AtBeat1 = screen.getByTestId('waterfall-key-62')
     expect(keyC4AtBeat1.getAttribute('fill')).toBe('#E4E4E7')
-    expect(keyD4AtBeat1.getAttribute('fill')).toBe('#10B981')
+    expect(keyD4AtBeat1.getAttribute('fill')).toBe('#FACC15')
   })
 })

@@ -33,7 +33,21 @@ import {
 } from '@/lib/adaptive/recommendation-engine'
 import type { TakeEvaluationResponse } from '@/api/sessions'
 
-export type AppViewMode = 'landing' | 'practice' | 'progress' | 'community' | 'audio'
+import { ChordsScalesPage } from '@/components/theory/chords-scales-page'
+import { GuitarTunerPage } from '@/components/tuner/guitar-tuner-page'
+import { SettingsModal, loadStoredPreferences, type StudioPreferences } from '@/components/settings/settings-modal'
+import { StudioSessionSelector } from '@/components/practice/studio-session-selector'
+import { ThemeToggle } from '@/components/theme/theme-toggle'
+import { Music, BookOpen, Disc, TrendingUp, Users, Sliders } from 'lucide-react'
+
+export type AppViewMode =
+  | 'landing'
+  | 'practice'
+  | 'progress'
+  | 'community'
+  | 'audio'
+  | 'theory'
+  | 'tuner'
 
 export type AppProps = {
   initialView?: AppViewMode
@@ -114,6 +128,12 @@ export function parseRouteFromPath(
   if (clean === '/leaderboard' || clean === '/peers' || clean === '/community') {
     return { view: 'community' }
   }
+  if (clean === '/chords-and-scales' || clean === '/chords' || clean === '/scales' || clean === '/theory') {
+    return { view: 'theory' }
+  }
+  if (clean === '/tuner' || clean === '/guitar-tuner') {
+    return { view: 'tuner' }
+  }
   if (clean === '/audio' || clean === '/bench') {
     return { view: 'audio' }
   }
@@ -129,6 +149,10 @@ export function viewToPath(view: AppViewMode, songId?: string): string {
       return '/'
     case 'practice':
       return songId ? `/practice/${exerciseIdToSlug(songId)}` : '/practice'
+    case 'theory':
+      return '/chords-and-scales'
+    case 'tuner':
+      return '/tuner'
     case 'progress':
       return '/progress'
     case 'community':
@@ -168,6 +192,14 @@ export default function App({
   const [availableExercises, setAvailableExercises] = useState<ExerciseDto[]>(BUILTIN_FULL_SONGS)
   const [userStats, setUserStats] = useState<UserStatsDto | null>(null)
   const [isInitialHydrating, setIsInitialHydrating] = useState(true)
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
+  const [isSessionSelectorOpen, setIsSessionSelectorOpen] = useState(false)
+  const [_studioPrefs, setStudioPrefs] = useState<StudioPreferences>(loadStoredPreferences)
+  const [userProfile, setUserProfile] = useState<{ name: string; username: string; email: string }>({
+    name: 'Studio Musician',
+    username: 'musician',
+    email: 'musician@sonus.studio',
+  })
   const [navTransition, setNavTransition] = useState<{
     headline: string
     subtext: string
@@ -327,6 +359,12 @@ export default function App({
     } else if (view === 'community') {
       headline = 'Auditioning Cohort Benchmarks'
       subtext = 'Compiling percentile curves and repertoire leaderboards across active musicians...'
+    } else if (view === 'theory') {
+      headline = 'Harmony & Theory Compendium'
+      subtext = 'Harmonizing diatonic, modal, and extended chord vocabularies...'
+    } else if (view === 'tuner') {
+      headline = 'Calibrating Acoustic Tuner'
+      subtext = 'Engaging precision autocorrelation pitch sensor...'
     } else if (view === 'landing') {
       headline = 'Returning to Studio Stage'
       subtext = 'Preserving active score and practice telemetry...'
@@ -385,6 +423,115 @@ export default function App({
           fullscreen={true}
         />
       )}
+      {activeView !== 'landing' && (
+        <header
+          data-testid="global-navigation-header"
+          className="sticky top-0 z-40 w-full h-14 bg-white/95 dark:bg-[#111114]/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-4 sm:px-6 flex items-center justify-between gap-4 font-sans shrink-0"
+        >
+          {/* Left: Brand */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigateToView('landing')}
+              className="flex items-center gap-2 text-zinc-900 dark:text-zinc-100 hover:text-amber-500 transition-colors cursor-pointer"
+            >
+              <span className="font-brand font-bold tracking-[0.2em] text-amber-600 dark:text-amber-500 text-sm">
+                § SONUS
+              </span>
+            </button>
+            <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800 hidden sm:block" />
+          </div>
+
+          {/* Center: Navigation Pills */}
+          <nav className="flex items-center gap-1 overflow-x-auto scrollbar-none text-xs font-mono">
+            <button
+              type="button"
+              data-testid="nav-pill-practice"
+              onClick={() => navigateToView('practice')}
+              className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                activeView === 'practice'
+                  ? 'bg-amber-500 text-zinc-950 shadow-xs'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+              }`}
+            >
+              <Music className="size-3.5" />
+              <span>Practice</span>
+            </button>
+
+            <button
+              type="button"
+              data-testid="nav-pill-theory"
+              onClick={() => navigateToView('theory')}
+              className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                activeView === 'theory'
+                  ? 'bg-amber-500 text-zinc-950 shadow-xs'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+              }`}
+            >
+              <BookOpen className="size-3.5" />
+              <span>Chords &amp; Scales</span>
+            </button>
+
+            <button
+              type="button"
+              data-testid="nav-pill-tuner"
+              onClick={() => navigateToView('tuner')}
+              className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                activeView === 'tuner'
+                  ? 'bg-amber-500 text-zinc-950 shadow-xs'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+              }`}
+            >
+              <Disc className="size-3.5" />
+              <span>Guitar Tuner</span>
+            </button>
+
+            <button
+              type="button"
+              data-testid="nav-pill-progress"
+              onClick={() => navigateToView('progress')}
+              className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                activeView === 'progress'
+                  ? 'bg-amber-500 text-zinc-950 shadow-xs'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+              }`}
+            >
+              <TrendingUp className="size-3.5" />
+              <span>Progress</span>
+            </button>
+
+            <button
+              type="button"
+              data-testid="nav-pill-community"
+              onClick={() => navigateToView('community')}
+              className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                activeView === 'community'
+                  ? 'bg-amber-500 text-zinc-950 shadow-xs'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+              }`}
+            >
+              <Users className="size-3.5" />
+              <span>Peers</span>
+            </button>
+          </nav>
+
+          {/* Right: Studio Settings, Theme & User */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              data-testid="open-settings-modal-btn"
+              onClick={() => setIsSettingsModalOpen(true)}
+              className="p-2 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
+              title="Studio Settings"
+            >
+              <Sliders className="size-4" />
+            </button>
+            <ThemeToggle />
+            {effectiveUserButtonSlot}
+          </div>
+        </header>
+      )}
+
       {activeView === 'landing' && (
         <>
           <LandingPage
@@ -392,9 +539,12 @@ export default function App({
               const chosen = songId || selectedSongId
               if (songId) {
                 setSelectedSongId(songId)
+                setPendingLoopDrill(null)
+                navigateToView('practice', chosen)
+              } else {
+                setIsSessionSelectorOpen(true)
+                navigateToView('practice')
               }
-              setPendingLoopDrill(null)
-              navigateToView('practice', chosen)
             }}
             onOpenProgress={() => navigateToView('progress')}
             onOpenCommunity={() => navigateToView('community')}
@@ -428,6 +578,22 @@ export default function App({
         />
       )}
 
+      {activeView === 'theory' && (
+        <ChordsScalesPage
+          onBackToLanding={() => navigateToView('landing')}
+          onOpenPracticeWithChord={(_chord) => {
+            navigateToView('practice')
+          }}
+        />
+      )}
+
+      {activeView === 'tuner' && (
+        <GuitarTunerPage
+          onBackToLanding={() => navigateToView('landing')}
+          onOpenStudio={() => navigateToView('practice')}
+        />
+      )}
+
       {activeView === 'progress' && (
         <ProgressDashboardPage
           transitions={transitions}
@@ -447,7 +613,7 @@ export default function App({
           hasRecordedTakes={Boolean((userStats && userStats.total_sessions_completed > 0) || sessionHistory.length > 0)}
           onBackToLanding={() => navigateToView('landing')}
           onOpenProgress={() => navigateToView('progress')}
-          onPracticePiece={(songId) => {
+          onPracticePiece={(songId, _targetBpm) => {
             setSelectedSongId(songId)
             setPendingLoopDrill(null)
             navigateToView('practice', songId)
@@ -455,6 +621,32 @@ export default function App({
           userButtonSlot={effectiveUserButtonSlot}
         />
       )}
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        currentName={userProfile.name}
+        currentUsername={userProfile.username}
+        currentEmail={userProfile.email}
+        onSaveProfile={async (name, username) => {
+          setUserProfile((prev) => ({ ...prev, name, username }))
+        }}
+        onSavePreferences={(prefs) => {
+          setStudioPrefs(prefs)
+        }}
+      />
+
+      <StudioSessionSelector
+        isOpen={isSessionSelectorOpen}
+        onClose={() => setIsSessionSelectorOpen(false)}
+        availableExercises={availableExercises}
+        currentSongId={selectedSongId}
+        onLaunchSession={(song, _instrument) => {
+          setSelectedSongId(song.id)
+          setIsSessionSelectorOpen(false)
+          navigateToView('practice', song.id)
+        }}
+      />
 
       {activeView === 'audio' && (
         <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8 font-sans bg-[#F8F8F6] dark:bg-[#09090B] text-zinc-900 dark:text-zinc-100">

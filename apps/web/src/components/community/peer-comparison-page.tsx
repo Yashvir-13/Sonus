@@ -22,7 +22,7 @@ export type PeerComparisonPageProps = {
   hasRecordedTakes?: boolean
   onBackToLanding?: () => void
   onOpenProgress?: () => void
-  onPracticePiece?: (songId: string) => void
+  onPracticePiece?: (songId: string, targetBpm?: number) => void
   userButtonSlot?: React.ReactNode
 }
 
@@ -419,7 +419,7 @@ export function PeerComparisonPage({
                     <td className="py-3.5 px-4 text-right">
                       <button
                         type="button"
-                        onClick={() => onPracticePiece?.(row.songId)}
+                        onClick={() => onPracticePiece?.(row.songId, row.tempoBpm)}
                         className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 hover:border-amber-500 text-zinc-800 dark:text-zinc-200 text-[11px] font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
                       >
                         <Play className="size-3 text-amber-500 fill-current" />

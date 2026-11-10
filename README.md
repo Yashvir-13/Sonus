@@ -14,6 +14,15 @@ Unlike rhythm games or passive metronomes, Sonus focuses on real instrument mech
   - Realistic built-in audio synthesis for guitar strumming patterns (Karplus-Strong) and multi-partial piano accompaniment so you can practice with authentic audio references.
   - In-browser low-latency chromagram HUD (<30ms) for instant visual feedback.
 
+- **Chords & Scales Compendium**:
+  - Comprehensive reference for all 12 chromatic roots covering diatonic triads, sevenths, extended/altered chords, and scales/modes. Includes synchronized guitar fretboard and piano voicing diagrams with live strummed and arpeggiated audio previews.
+
+- **Acoustic Guitar Tuner**:
+  - Precision autocorrelation pitch tracker with an analog needle gauge (±50 cents), target frequency lock, and Karplus-Strong reference string plucks for standard E-A-D-G-B-E tuning.
+
+- **Studio & Account Preferences**:
+  - Account profile customization (name, username), studio defaults (Flowing Grand Staff vs. Piano-VFX neon falling keys, wooden vs. digital metronome, 440 vs. 432 Hz concert pitch), and a live VU meter calibration tool.
+
 - **Objective Mistake Pinpointing**:
   - Neural polyphonic multipitch transcription (powered by Spotify Basic Pitch) and sequence alignment.
   - Measures onset timing error in milliseconds (spotting whether you're rushing early by 25ms or dragging behind by 40ms) and checks chord voicing completeness note-by-note.
@@ -114,13 +123,13 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 Both frontend and backend are covered by comprehensive automated test suites:
 
 ```bash
-# Run backend tests (87 passing tests covering audio alignment, BKT, API routes)
+# Run backend tests (89 passing tests covering audio alignment, BKT, API routes)
 pytest tests/
 
 # Run backend strict typecheck
 mypy src/ tests/
 
-# Run frontend unit & component tests (251 passing tests)
+# Run frontend unit & component tests (262 passing tests)
 pnpm --filter web test -- --run
 
 # Run frontend build check

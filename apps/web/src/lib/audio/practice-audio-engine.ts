@@ -376,6 +376,57 @@ export function generatePianoNoteBuffer(
 export class PracticeAudioEngine {
   private ctx: AudioContext | null = null
   private isUnlocked = false
+  private activeGains: Set<GainNode> = new Set()
+  private activeSources: Set<AudioBufferSourceNode> = new Set()
+
+  private registerGain(gain: GainNode | null): GainNode | null {
+    if (!gain) return null
+    this.activeGains.add(gain)
+    return gain
+  }
+
+  private registerSource(source: AudioBufferSourceNode): AudioBufferSourceNode {
+    this.activeSources.add(source)
+    try {
+      source.addEventListener(
+        'ended',
+        () => {
+          this.activeSources.delete(source)
+        },
+        { once: true }
+      )
+    } catch {
+      // headless test mock fallback
+    }
+    return source
+  }
+
+  /**
+   * Immediately silences and cleans up all actively sounding and scheduled audio nodes.
+   * Uses a smooth 15ms gain fade to eliminate zero-crossing pops and clicks.
+   */
+  public stopAllSounds(): void {
+    if (!this.ctx) return
+    const now = this.ctx.currentTime
+    for (const gain of this.activeGains) {
+      try {
+        gain.gain.cancelScheduledValues(now)
+        gain.gain.setValueAtTime(gain.gain.value, now)
+        gain.gain.linearRampToValueAtTime(0.0001, now + 0.015)
+      } catch {
+        // Gain already disconnected or ramp failed
+      }
+    }
+    for (const src of this.activeSources) {
+      try {
+        src.stop(now + 0.02)
+      } catch {
+        // Source already ended or stopped
+      }
+    }
+    this.activeGains.clear()
+    this.activeSources.clear()
+  }
 
   private getContext(): AudioContext | null {
     if (typeof window === 'undefined') return null
@@ -453,11 +504,13 @@ export class PracticeAudioEngine {
       audioBuffer.getChannelData(0).set(samples)
 
       const source = ctx.createBufferSource()
+      this.registerSource(source)
       source.buffer = audioBuffer
 
       // Gain node for pluck volume
       const gainNode = typeof ctx.createGain === 'function' ? ctx.createGain() : null
       if (gainNode) {
+        this.registerGain(gainNode)
         gainNode.gain.setValueAtTime(1.0, ctx.currentTime)
       }
 
@@ -538,6 +591,7 @@ export class PracticeAudioEngine {
 
       // Master gain node to prevent clipping across polyphonic strings (0.85 / sqrt(M))
       const masterGain = ctx.createGain()
+      this.registerGain(masterGain)
       masterGain.gain.setValueAtTime(0.85 / Math.sqrt(strumPitches.length), now)
 
       // Shared acoustic guitar body resonance filter
@@ -564,9 +618,11 @@ export class PracticeAudioEngine {
         audioBuffer.getChannelData(0).set(samples)
 
         const source = ctx.createBufferSource()
+        this.registerSource(source)
         source.buffer = audioBuffer
 
         const stringGain = ctx.createGain()
+        this.registerGain(stringGain)
         stringGain.gain.setValueAtTime(1.0, noteStart)
 
         source.connect(stringGain)
@@ -621,11 +677,13 @@ export class PracticeAudioEngine {
 
       // 3. Connect to AudioBufferSourceNode
       const source = ctx.createBufferSource()
+      this.registerSource(source)
       source.buffer = audioBuffer
 
       // Gain node
       const noteGain = typeof ctx.createGain === 'function' ? ctx.createGain() : null
       if (noteGain) {
+        this.registerGain(noteGain)
         noteGain.gain.setValueAtTime(1.0, now)
       }
 
@@ -770,6 +828,7 @@ export class PracticeAudioEngine {
   }
 
   public dispose(): void {
+    this.stopAllSounds()
     if (this.ctx && this.ctx.state !== 'closed') {
       this.ctx.close().catch(() => {})
       this.ctx = null

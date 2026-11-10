@@ -737,6 +737,8 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
   {
     id: 'ex_guitar_knockin',
     title: "Knockin' Cadence (Full Song - Verse, Chorus, Outro)",
+    artist: 'Bob Dylan',
+    composer: 'Bob Dylan',
     description:
       'Complete 24-measure acoustic folk-rock standard. Features authentic verse-chorus form, explicit ballad and anthem strumming arrows (D - D U - U D U), and full tab frets.',
     instrument: 'guitar',
@@ -757,6 +759,8 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
   {
     id: 'ex_piano_shostakovich_waltz_2',
     title: 'Waltz No. 2 – Dmitri Shostakovich (Full 32-Measure Classical Score)',
+    artist: 'Dmitri Shostakovich',
+    composer: 'Dmitri Shostakovich',
     description:
       'Complete 32-measure orchestral waltz score from Suite for Variety Orchestra in 3/4 time. Features the haunting C minor melodic line (C5, D5, Eb5, F5, G5, Ab5) in Treble Clef and classical waltz boom-chick-chick accompaniment (bass root on beat 1, harmony chords on beats 2 & 3) in Bass Clef.',
     instrument: 'piano',
@@ -777,6 +781,8 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
   {
     id: 'ex_piano_canon',
     title: "Pachelbel's Canon Harmonic Flow (Full 32-Measure Classical Score)",
+    artist: 'Johann Pachelbel',
+    composer: 'Johann Pachelbel',
     description:
       'Complete 32-measure authentic classical score from IMSLP. Features 4 distinct variations (Theme Exposition, Counterpoint, Running Polyphony, Grand Cadence) with measure-by-measure right-hand melody noteheads and steady left-hand basso ostinato.',
     instrument: 'piano',
@@ -797,6 +803,8 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
   {
     id: 'ex_guitar_four_chord',
     title: 'Four-Chord Anthem in D (Full 32-Measure Pop Score)',
+    artist: 'Axis of Awesome / Various',
+    composer: 'Pop Standard Progression',
     description:
       'Complete 32-measure universal pop/rock anthem (I–V–vi–IV) covering Intro, Verse, Pre-Chorus, Chorus, and Grand Outro with complete strumming directionality.',
     instrument: 'guitar',
@@ -817,6 +825,8 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
   {
     id: 'ex_guitar_rising_sun',
     title: 'House of the Rising Sun (Full 24-Measure 6/8 Folk Classic)',
+    artist: 'The Animals',
+    composer: 'Traditional Folk Ballad',
     description:
       'Complete 24-measure traditional folk masterwork in 6/8 compound time. Features authentic rolling arpeggio strumming vectors and chord fingerings.',
     instrument: 'guitar',

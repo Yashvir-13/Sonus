@@ -4,6 +4,8 @@ import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
 export type ExerciseDto = {
   id: string
   title: string
+  artist?: string
+  composer?: string
   description?: string | null
   instrument: string
   tempo_bpm: number

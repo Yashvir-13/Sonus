@@ -73,6 +73,17 @@ describe('Application URL Routing & Slugs', () => {
       expect(parseRouteFromPath('/community')).toEqual({ view: 'community' })
     })
 
+    it('resolves /chords-and-scales and /theory to theory view', () => {
+      expect(parseRouteFromPath('/chords-and-scales')).toEqual({ view: 'theory' })
+      expect(parseRouteFromPath('/theory')).toEqual({ view: 'theory' })
+      expect(parseRouteFromPath('/chords')).toEqual({ view: 'theory' })
+    })
+
+    it('resolves /tuner and /guitar-tuner to tuner view', () => {
+      expect(parseRouteFromPath('/tuner')).toEqual({ view: 'tuner' })
+      expect(parseRouteFromPath('/guitar-tuner')).toEqual({ view: 'tuner' })
+    })
+
     it('resolves /audio and /bench to audio test bench', () => {
       expect(parseRouteFromPath('/audio')).toEqual({ view: 'audio' })
       expect(parseRouteFromPath('/bench')).toEqual({ view: 'audio' })
@@ -82,6 +93,8 @@ describe('Application URL Routing & Slugs', () => {
   describe('viewToPath', () => {
     it('generates correct paths for each view', () => {
       expect(viewToPath('landing')).toBe('/')
+      expect(viewToPath('theory')).toBe('/chords-and-scales')
+      expect(viewToPath('tuner')).toBe('/tuner')
       expect(viewToPath('progress')).toBe('/progress')
       expect(viewToPath('community')).toBe('/leaderboard')
       expect(viewToPath('audio')).toBe('/audio')

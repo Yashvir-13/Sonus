@@ -623,8 +623,8 @@ export const INITIAL_SESSION_HISTORY: LongitudinalSessionPoint[] = [
 export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
   {
     rank: 1,
-    performerName: 'Clara V.',
-    handle: '@clarav_keys',
+    performerName: 'Aria S. (Conservatory Cohort)',
+    handle: '@aria_piano',
     instrument: 'piano',
     songId: 'ex_piano_shostakovich_waltz_2',
     songTitle: 'Waltz No. 2 in C Minor',
@@ -638,8 +638,8 @@ export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
   },
   {
     rank: 2,
-    performerName: 'Mateo R.',
-    handle: '@mateo_acoustic',
+    performerName: 'Marcus T. (Fingerstyle Guild)',
+    handle: '@marcus_acoustic',
     instrument: 'guitar',
     songId: 'ex_guitar_rising_sun',
     songTitle: 'House of the Rising Sun',
@@ -653,8 +653,8 @@ export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
   },
   {
     rank: 3,
-    performerName: 'Sora T.',
-    handle: '@sora_nocturne',
+    performerName: 'Sora K. (Studio Cohort)',
+    handle: '@sora_chords',
     instrument: 'piano',
     songId: 'ex_piano_canon',
     songTitle: "Pachelbel's Canon Harmonic Flow",
@@ -668,8 +668,8 @@ export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
   },
   {
     rank: 4,
-    performerName: 'You (Current Session Profile)',
-    handle: '@you_sonus',
+    performerName: '★ You (Verified Take)',
+    handle: '@you_studio',
     isCurrentUser: true,
     instrument: 'piano',
     songId: 'ex_piano_shostakovich_waltz_2',
@@ -684,7 +684,7 @@ export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
   },
   {
     rank: 5,
-    performerName: 'Julian K.',
+    performerName: 'Julian K. (Acoustic Circle)',
     handle: '@julian_fretwork',
     instrument: 'guitar',
     songId: 'ex_guitar_knockin',
@@ -699,8 +699,8 @@ export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
   },
   {
     rank: 6,
-    performerName: 'Elena M.',
-    handle: '@elena_conservatory',
+    performerName: 'Elena M. (Classical Practice Lab)',
+    handle: '@elena_keys',
     instrument: 'piano',
     songId: 'ex_piano_shostakovich_waltz_2',
     songTitle: 'Waltz No. 2 in C Minor',
@@ -714,7 +714,7 @@ export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
   },
   {
     rank: 7,
-    performerName: 'Devon H.',
+    performerName: 'Devon H. (Roots Repertoire)',
     handle: '@devon_sixstring',
     instrument: 'guitar',
     songId: 'ex_guitar_rising_sun',
@@ -729,8 +729,8 @@ export const PEER_LEADERBOARD_ENTRIES: PeerLeaderboardEntry[] = [
   },
   {
     rank: 8,
-    performerName: 'Nadia P.',
-    handle: '@nadia_chords',
+    performerName: 'Nadia P. (BKT Study Group)',
+    handle: '@nadia_harmony',
     instrument: 'piano',
     songId: 'ex_piano_canon',
     songTitle: "Pachelbel's Canon Harmonic Flow",

@@ -1,12 +1,22 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { LandingPage } from '@/components/landing/landing-page'
 import { SignInModal } from '@/components/auth/sign-in-modal'
-import App from '@/app'
+import App, { type AppViewMode, parseRouteFromPath } from '@/app'
+import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
 
 export function SignInPage() {
   const [showSignInModal, setShowSignInModal] = useState(false)
-  const [isGuestMode, setIsGuestMode] = useState(false)
-  const [targetView, setTargetView] = useState<'practice' | 'progress' | 'community'>('practice')
+
+  // Direct path recognition for unauthenticated/guest sessions
+  const route = useMemo(() => {
+    if (typeof window !== 'undefined' && window.location.pathname && window.location.pathname !== '/') {
+      return parseRouteFromPath(window.location.pathname, BUILTIN_FULL_SONGS)
+    }
+    return { view: 'landing' as AppViewMode }
+  }, [])
+
+  const [isGuestMode, setIsGuestMode] = useState(route.view !== 'landing')
+  const [targetView, setTargetView] = useState<AppViewMode>(route.view)
 
   if (isGuestMode) {
     return <App defaultSignedIn={false} initialView={targetView} />
@@ -41,3 +51,4 @@ export function SignInPage() {
     </div>
   )
 }
+
