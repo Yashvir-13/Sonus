@@ -22,10 +22,15 @@ import {
   fetchUserSessions,
   fetchUserStats,
   fetchUserHabits,
+  fetchUserMastery,
   type ExerciseDto,
   type UserStatsDto,
 } from '@/api/sessions'
-import { mapBackendSessionsToLongitudinal, mapBackendHabitsToTransitions } from '@/lib/adaptive/recommendation-engine'
+import {
+  mapBackendSessionsToLongitudinal,
+  mapBackendHabitsToTransitions,
+  mapBackendMasteryToTransitions,
+} from '@/lib/adaptive/recommendation-engine'
 import type { TakeEvaluationResponse } from '@/api/sessions'
 
 export type AppViewMode = 'landing' | 'practice' | 'progress' | 'community' | 'audio'
@@ -171,11 +176,12 @@ export default function App({
   // Hydrate authentic repertoire catalogue and user history from PostgreSQL backend
   const loadBackendData = useCallback(async () => {
     try {
-      const [exercisesRes, sessionsRes, statsRes, habitsRes] = await Promise.allSettled([
+      const [exercisesRes, sessionsRes, statsRes, habitsRes, masteryRes] = await Promise.allSettled([
         fetchExercises(),
         fetchUserSessions(),
         fetchUserStats(),
         fetchUserHabits(),
+        fetchUserMastery(),
       ])
 
       const loadedExercises =
@@ -193,7 +199,10 @@ export default function App({
         setUserStats(statsRes.value)
       }
 
-      if (habitsRes.status === 'fulfilled' && habitsRes.value.length > 0) {
+      if (masteryRes.status === 'fulfilled' && masteryRes.value?.records?.length > 0) {
+        const mappedTransitions = mapBackendMasteryToTransitions(masteryRes.value.records, loadedExercises)
+        setTransitions(mappedTransitions)
+      } else if (habitsRes.status === 'fulfilled' && habitsRes.value.length > 0) {
         const mappedTransitions = mapBackendHabitsToTransitions(habitsRes.value, loadedExercises)
         setTransitions(mappedTransitions)
       }

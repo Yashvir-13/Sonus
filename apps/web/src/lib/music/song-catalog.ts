@@ -49,7 +49,9 @@ function buildKnockinFullSong(): FullSongChordItem[] {
       { name: 'G', dur: 4, pitches: [43, 47, 50, 55, 59, 67], frets: [3, 2, 0, 0, 0, 3], fing: '2-1-0-0-0-3', str: 'E-A-D-G-B-e' },
       { name: 'D', dur: 4, pitches: [50, 57, 62, 66], frets: [null, null, 0, 2, 3, 2], fing: 'x-x-0-1-3-2', str: 'x-x-D-G-B-e' },
       { name: 'C', dur: 4, pitches: [48, 52, 55, 60, 64], frets: [null, 3, 2, 0, 1, 0], fing: 'x-3-2-0-1-0', str: 'x-A-D-G-B-e' },
-      { name: sec.name === 'Verse 2 / Outro' ? 'G' : 'C', dur: 4, pitches: [48, 52, 55, 60, 64], frets: [null, 3, 2, 0, 1, 0], fing: 'x-3-2-0-1-0', str: 'x-A-D-G-B-e' },
+      sec.name === 'Verse 2 / Outro'
+        ? { name: 'G', dur: 4, pitches: [43, 47, 50, 55, 59, 67], frets: [3, 2, 0, 0, 0, 3], fing: '2-1-0-0-0-3', str: 'E-A-D-G-B-e' }
+        : { name: 'C', dur: 4, pitches: [48, 52, 55, 60, 64], frets: [null, 3, 2, 0, 1, 0], fing: 'x-3-2-0-1-0', str: 'x-A-D-G-B-e' },
     ]
 
     for (const item of sequence) {
@@ -171,17 +173,26 @@ function buildPachelbelCanonFullSong(): FullSongChordItem[] {
     for (let mIdx = 0; mIdx < progBase.length; mIdx++) {
       const base = progBase[mIdx]
       const notes = variationMeasures[mIdx]
+      const isFinaleC = varIdx === 3 && mIdx === 7
+      const chordName = isFinaleC ? 'C' : base.name
+      const expectedPitches = isFinaleC ? [48, 55, 60, 64] : [...base.lhPitches, ...base.rhPitches]
+      const lhNote = isFinaleC ? 'C3' : base.lhNote
+      const rhNotes = isFinaleC ? ['G3', 'C4', 'E4'] : base.rhNotes
+      const lhPitches = isFinaleC ? [48] : base.lhPitches
+      const rhPitches = isFinaleC ? [55, 60, 64] : base.rhPitches
+      const inversionStr = isFinaleC || mIdx % 2 === 0 ? 'root position' : '1st inversion'
+
       chords.push({
-        name: varIdx === 3 && mIdx === 7 ? 'C' : base.name,
+        name: chordName,
         beat: beatCursor,
         duration_beats: 4.0,
-        expected_pitches: [...base.lhPitches, ...base.rhPitches],
+        expected_pitches: expectedPitches,
         piano_voicings: {
-          lh_note: base.lhNote,
-          rh_notes: base.rhNotes,
-          lh_pitches: base.lhPitches,
-          rh_pitches: base.rhPitches,
-          inversion: mIdx % 2 === 0 ? 'root position' : '1st inversion',
+          lh_note: lhNote,
+          rh_notes: rhNotes,
+          lh_pitches: lhPitches,
+          rh_pitches: rhPitches,
+          inversion: inversionStr,
         },
         melody_notes: notes,
         variation: `Variation ${varIdx + 1}`,
@@ -707,7 +718,7 @@ function buildShostakovichWaltz2(): FullSongChordItem[] {
       expected_pitches: expectedPitches,
       piano_voicings: {
         lh_note: m.lhRoot,
-        rh_notes: [m.rhMelody[0].pitch],
+        rh_notes: m.rhMelody.map((n) => n.pitch),
         lh_pitches: [m.lhPitches[0]],
         rh_pitches: rhPitches,
         inversion: 'root position',

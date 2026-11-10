@@ -900,3 +900,102 @@ export function mapBackendHabitsToTransitions(
 
   return results
 }
+
+
+export function mapBackendMasteryToTransitions(
+  records: Array<{
+    id: string
+    chord_from: string
+    chord_to: string
+    instrument: string
+    p_known: number
+    is_mastered: boolean
+    opportunities: number
+    ewma_latency_ms: number
+    voicing_completeness: number
+    sm2_interval_days: number
+    sm2_ease_factor: number
+    sm2_repetitions: number
+    last_practiced_at: string
+    bandit_alpha_isolated: number
+    bandit_beta_isolated: number
+    bandit_alpha_subdivision: number
+    bandit_beta_subdivision: number
+    bandit_alpha_voicing: number
+    bandit_beta_voicing: number
+    bandit_alpha_ramp: number
+    bandit_beta_ramp: number
+  }>,
+  exercises: Array<{ id: string; title: string; instrument: string; tempo_bpm?: number }> = []
+): TransitionMasteryState[] {
+  if (!records || records.length === 0) return []
+
+  const results: TransitionMasteryState[] = []
+  for (const r of records) {
+    const fromChord = r.chord_from
+    const toChord = r.chord_to
+    const matchingEx =
+      exercises.find(
+        (e) =>
+          e.instrument.toLowerCase() === r.instrument.toLowerCase() &&
+          (e.title.toLowerCase().includes(fromChord.toLowerCase()) ||
+            (fromChord === 'Am' && e.id.includes('rising_sun')) ||
+            (fromChord === 'G' && e.id.includes('knockin')) ||
+            (fromChord === 'Cm' && e.id.includes('waltz')))
+      ) ||
+      exercises.find((e) => e.instrument.toLowerCase() === r.instrument.toLowerCase()) || {
+        id: r.instrument.toLowerCase() === 'piano' ? 'ex_piano_shostakovich_waltz_2' : 'ex_guitar_knockin',
+        title: r.instrument.toLowerCase() === 'piano' ? 'Waltz No. 2' : "Knockin' Cadence",
+        instrument: r.instrument,
+        tempo_bpm: r.instrument.toLowerCase() === 'piano' ? 160 : 70,
+      }
+
+    const lastDate = new Date(r.last_practiced_at).getTime()
+    const daysSince = isNaN(lastDate)
+      ? 0
+      : Math.max(0, Math.floor((Date.now() - lastDate) / (1000 * 60 * 60 * 24)))
+
+    const dueStatus: 'overdue' | 'due_today' | 'scheduled' =
+      daysSince >= r.sm2_interval_days
+        ? 'overdue'
+        : daysSince === r.sm2_interval_days - 1
+        ? 'due_today'
+        : 'scheduled'
+
+    const targetBpm = matchingEx.tempo_bpm || (r.instrument.toLowerCase() === 'piano' ? 160 : 70)
+    const recommendedBpm = Math.max(40, Math.round(targetBpm * 0.7))
+
+    results.push({
+      id: r.id,
+      transitionLabel: `${fromChord} → ${toChord}`,
+      fromChord,
+      toChord,
+      songId: matchingEx.id,
+      songTitle: matchingEx.title,
+      instrument: r.instrument.toLowerCase() === 'piano' ? 'piano' : 'guitar',
+      pKnown: Number(r.p_known.toFixed(4)),
+      isMastered: r.is_mastered,
+      observationsCount: r.opportunities,
+      ewmaLatencyMs: Number(r.ewma_latency_ms.toFixed(1)),
+      voicingCompletenessPct: Math.round(
+        r.voicing_completeness <= 1.0 ? r.voicing_completeness * 100 : r.voicing_completeness
+      ),
+      frequentlyMissedNote: null,
+      sm2IntervalDays: r.sm2_interval_days,
+      sm2EaseFactor: Number(r.sm2_ease_factor.toFixed(2)),
+      sm2Repetitions: r.sm2_repetitions,
+      daysSinceLastPractice: daysSince,
+      dueStatus,
+      recommendedBpm,
+      targetSongBpm: targetBpm,
+      banditPosteriors: {
+        isolated_transition: { alpha: r.bandit_alpha_isolated, beta: r.bandit_beta_isolated },
+        subdivision_click: { alpha: r.bandit_alpha_subdivision, beta: r.bandit_beta_subdivision },
+        voicing_arpeggio: { alpha: r.bandit_alpha_voicing, beta: r.bandit_beta_voicing },
+        gradual_tempo_ramp: { alpha: r.bandit_alpha_ramp, beta: r.bandit_beta_ramp },
+      },
+    })
+  }
+
+  return results
+}

@@ -10,6 +10,7 @@ from src.models.practice import (  # noqa: F401
     HabitPattern,
     PracticeSession,
     SessionChordMetric,
+    TransitionMastery,
 )
 from src.models.user import User  # noqa: F401
 
@@ -19,6 +20,7 @@ PracticeSession.model_rebuild()
 SessionChordMetric.model_rebuild()
 HabitPattern.model_rebuild()
 AdaptiveIntervention.model_rebuild()
+TransitionMastery.model_rebuild()
 
 __all__ = [
     "AdaptiveIntervention",
@@ -27,6 +29,7 @@ __all__ = [
     "HabitPattern",
     "PracticeSession",
     "SessionChordMetric",
+    "TransitionMastery",
     "User",
 ]
 

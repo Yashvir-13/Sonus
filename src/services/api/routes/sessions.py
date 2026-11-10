@@ -3,14 +3,15 @@ from __future__ import annotations
 from typing import Annotated, Any
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Query, Request, status
 from pydantic import BaseModel
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from starlette.datastructures import UploadFile as StarletteUploadFile
 
 from src.lib.adaptive.mastery import StudentMasteryEngine
-from src.lib.adaptive.llm_coach import generate_coaching_report
+from src.lib.adaptive.llm_coach import generate_coaching_report, generate_coaching_report_async
 from src.lib.auth.clerk import ClerkIdentityDep
 from src.lib.db import get_session
 from src.lib.exception import NotFound, Unprocessable
@@ -96,6 +97,7 @@ async def submit_take(
 
     audio_bytes: bytes | None = None
     played_chords: list[dict[str, Any]] | None = None
+    submitted_tempo: int | None = None
 
     content_type = request.headers.get("content-type", "").lower()
     if "multipart/form-data" in content_type:
@@ -105,6 +107,12 @@ async def submit_take(
             audio_bytes = await uploaded_file.read()
         else:
             raise Unprocessable("Missing audio_file or file in multipart form")
+        raw_tempo = form.get("tempo_bpm")
+        if raw_tempo is not None:
+            try:
+                submitted_tempo = int(str(raw_tempo))
+            except ValueError:
+                pass
     elif "application/json" in content_type:
         raw_body = await request.json()
         chords_list = raw_body.get("played_chords") if isinstance(raw_body, dict) else None
@@ -115,8 +123,19 @@ async def submit_take(
             played_chords = chords_list
         else:
             raise Unprocessable("JSON body must contain 'played_chords' or 'chords' list")
+
+        raw_tempo = raw_body.get("tempo_bpm") if isinstance(raw_body, dict) else None
+        if raw_tempo is not None:
+            try:
+                submitted_tempo = int(raw_tempo)
+            except (ValueError, TypeError):
+                pass
     else:
         raise Unprocessable("Content-Type must be application/json or multipart/form-data")
+
+    if submitted_tempo is not None and submitted_tempo > 0:
+        practice_session.tempo_bpm = submitted_tempo
+        session.add(practice_session)
 
     # Delegate full evaluation pipeline to deep TakeEvaluator module
     return await TakeEvaluator.evaluate_take(
@@ -133,15 +152,28 @@ async def get_session_analysis(
     session_id: str,
     identity: ClerkIdentityDep,
     session: Annotated[AsyncSession, Depends(get_session)],
+    take_number: Annotated[int | None, Query(ge=1)] = None,
 ) -> dict[str, Any]:
-    """Retrieve full session results and per-chord metrics."""
+    """Retrieve full session results and per-chord metrics (defaults to latest take)."""
     practice_session = await session.get(PracticeSession, session_id)
     if practice_session is None or practice_session.user_id != identity.user_id:
         raise NotFound("Practice session not found")
 
+    target_take = take_number
+    if target_take is None:
+        max_take_query = await session.execute(
+            select(func.max(SessionChordMetric.take_number)).where(
+                SessionChordMetric.session_id == session_id
+            )
+        )
+        target_take = max_take_query.scalar() or 1
+
     result = await session.execute(
         select(SessionChordMetric)
-        .where(SessionChordMetric.session_id == session_id)
+        .where(
+            SessionChordMetric.session_id == session_id,
+            SessionChordMetric.take_number == target_take,
+        )
         .order_by(SessionChordMetric.chord_index)  # type: ignore[arg-type]
     )
     chord_metrics = list(result.scalars().all())
@@ -196,7 +228,7 @@ async def get_session_coaching(
         for h in habits_res.scalars().all()
     ]
 
-    return generate_coaching_report(
+    return await generate_coaching_report_async(
         session_id=session_id,
         chord_metrics=metrics,
         habits=habits,

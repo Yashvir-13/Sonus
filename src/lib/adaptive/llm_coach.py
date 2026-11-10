@@ -145,6 +145,107 @@ def _enrich_report_fields(
     }
 
 
+def _prepare_gemini_request(
+    grounded_data: dict[str, Any],
+    habit_list: list[dict[str, Any]],
+    instrument: str,
+    gemini_key: str,
+) -> tuple[str, dict[str, Any]]:
+    """Build the request URL and payload for Gemini 1.5 Flash."""
+    prompt = {
+        "system_instruction": (
+            "You are an encouraging, world-class conservatory music instructor for piano and guitar. "
+            "You are given pre-computed, deterministic facts about a student's practice take. "
+            "Never invent notes or contradict the facts. Respond ONLY with valid JSON."
+        ),
+        "facts": grounded_data.get("facts", {}),
+        "detected_habits": habit_list,
+        "instrument": instrument,
+        "instructions": (
+            "Return a JSON object with: 'primary_bottleneck' (string), 'ergonomic_advice' (string), "
+            "and 'coaching_letter' (a 2-3 paragraph pedagogical feedback note referring directly to the facts)."
+        ),
+    }
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": json.dumps(prompt)}
+                ]
+            }
+        ],
+        "generationConfig": {
+            "response_mime_type": "application/json",
+            "temperature": 0.2,
+        },
+    }
+    return url, payload
+
+
+def _process_gemini_response(
+    response: httpx.Response,
+    session_id: str,
+    grounded_data: dict[str, Any],
+    habit_list: list[dict[str, Any]],
+    instrument: str,
+) -> dict[str, Any] | None:
+    """Extract and validate pedagogical fields from Gemini response."""
+    if response.status_code == 200:
+        data = response.json()
+        candidates = data.get("candidates", [])
+        if candidates:
+            raw_text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+            parsed = json.loads(raw_text)
+
+            fallback = generate_deterministic_fallback(session_id, grounded_data, habit_list, instrument)
+            ai_base = {
+                "status": "ai_grounded",
+                "summary": grounded_data.get("summary", ""),
+            }
+            return _enrich_report_fields(
+                base=ai_base,
+                session_id=session_id,
+                instrument=instrument,
+                facts=grounded_data.get("facts", {}),
+                habits=habit_list,
+                primary_bottleneck=parsed.get("primary_bottleneck", fallback["primary_bottleneck"]),
+                ergonomic_advice=parsed.get("ergonomic_advice", fallback["ergonomic_advice"]),
+                coaching_letter=parsed.get("coaching_letter", fallback["coaching_letter"]),
+                tailored_drills=fallback["tailored_drills"],
+            )
+    logger.warning("Gemini API returned status %d; using fallback.", response.status_code)
+    return None
+
+
+async def generate_coaching_report_async(
+    session_id: str,
+    chord_metrics: list[dict[str, Any]],
+    habits: list[dict[str, Any]] | None = None,
+    instrument: str = "piano",
+) -> dict[str, Any]:
+    """Generate hybrid AI coaching report asynchronously without blocking the event loop."""
+    habit_list = habits or []
+    grounded_data = generate_grounded_report(session_id, chord_metrics)
+
+    gemini_key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if not gemini_key or not gemini_key.startswith("AIzaSy"):
+        logger.info("Valid GEMINI_API_KEY not configured; returning deterministic fallback coaching report.")
+        return generate_deterministic_fallback(session_id, grounded_data, habit_list, instrument)
+
+    url, payload = _prepare_gemini_request(grounded_data, habit_list, instrument, gemini_key)
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            response = await client.post(url, json=payload)
+        result = _process_gemini_response(response, session_id, grounded_data, habit_list, instrument)
+        if result is not None:
+            return result
+    except Exception as exc:
+        logger.warning("Error querying Gemini API asynchronously (%s); using fallback.", exc)
+
+    return generate_deterministic_fallback(session_id, grounded_data, habit_list, instrument)
+
+
 def generate_coaching_report(
     session_id: str,
     chord_metrics: list[dict[str, Any]],
@@ -160,65 +261,13 @@ def generate_coaching_report(
         logger.info("Valid GEMINI_API_KEY not configured; returning deterministic fallback coaching report.")
         return generate_deterministic_fallback(session_id, grounded_data, habit_list, instrument)
 
-    prompt = {
-        "system_instruction": (
-            "You are an encouraging, world-class conservatory music instructor for piano and guitar. "
-            "You are given pre-computed, deterministic facts about a student's practice take. "
-            "Never invent notes or contradict the facts. Respond ONLY with valid JSON."
-        ),
-        "facts": grounded_data.get("facts", {}),
-        "detected_habits": habit_list,
-        "instrument": instrument,
-        "instructions": (
-            "Return a JSON object with: 'primary_bottleneck' (string), 'ergonomic_advice' (string), "
-            "and 'coaching_letter' (a 2-3 paragraph pedagogical feedback note referring directly to the facts)."
-        ),
-    }
-
+    url, payload = _prepare_gemini_request(grounded_data, habit_list, instrument, gemini_key)
     try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
-        payload = {
-            "contents": [
-                {
-                    "parts": [
-                        {"text": json.dumps(prompt)}
-                    ]
-                }
-            ],
-            "generationConfig": {
-                "response_mime_type": "application/json",
-                "temperature": 0.2,
-            },
-        }
-
         with httpx.Client(timeout=8.0) as client:
             response = client.post(url, json=payload)
-
-        if response.status_code == 200:
-            data = response.json()
-            candidates = data.get("candidates", [])
-            if candidates:
-                raw_text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
-                parsed = json.loads(raw_text)
-
-                fallback = generate_deterministic_fallback(session_id, grounded_data, habit_list, instrument)
-                ai_base = {
-                    "status": "ai_grounded",
-                    "summary": grounded_data.get("summary", ""),
-                }
-                return _enrich_report_fields(
-                    base=ai_base,
-                    session_id=session_id,
-                    instrument=instrument,
-                    facts=grounded_data.get("facts", {}),
-                    habits=habit_list,
-                    primary_bottleneck=parsed.get("primary_bottleneck", fallback["primary_bottleneck"]),
-                    ergonomic_advice=parsed.get("ergonomic_advice", fallback["ergonomic_advice"]),
-                    coaching_letter=parsed.get("coaching_letter", fallback["coaching_letter"]),
-                    tailored_drills=fallback["tailored_drills"],
-                )
-
-        logger.warning("Gemini API returned status %d; using fallback.", response.status_code)
+        result = _process_gemini_response(response, session_id, grounded_data, habit_list, instrument)
+        if result is not None:
+            return result
     except Exception as exc:
         logger.warning("Error querying Gemini API (%s); using fallback.", exc)
 

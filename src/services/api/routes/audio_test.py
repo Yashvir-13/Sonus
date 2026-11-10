@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from typing import Any
 
 from fastapi import APIRouter, Request, status
@@ -10,7 +11,7 @@ from fastapi import APIRouter, Request, status
 from starlette.datastructures import UploadFile as StarletteUploadFile
 
 from src.lib.audio.decoder import PolyphonicAudioDecoder
-from src.lib.exception import Unprocessable
+from src.lib.exception import NotFound, Unprocessable
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +21,9 @@ router = APIRouter(prefix="/audio", tags=["Audio Developer Testing"])
 @router.post("/test-transcribe", status_code=status.HTTP_200_OK)
 async def transcribe_test_audio(request: Request) -> dict[str, Any]:
     """Developer test endpoint to transcribe WAV audio without authentication."""
+    env = os.environ.get("ENV", "").strip().lower()
+    if env == "production":
+        raise NotFound("Audio developer test endpoints are disabled in production.")
     content_type = request.headers.get("content-type", "").lower()
     if "multipart/form-data" not in content_type:
         msg = "Content-Type must be multipart/form-data"

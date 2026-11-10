@@ -360,5 +360,43 @@ describe('PracticeAudioEngine Comprehensive Suite', () => {
       engine.playClick(true, 5.25)
       expect(mockFilters[0].frequency.setValueAtTime).toHaveBeenCalledWith(1150, 5.25)
     })
+
+    it('supports scheduled timestamp in playGuitarStrum and schedules successive string sweeps', () => {
+      const gChord = [43, 47, 50, 55, 59, 67]
+      engine.playGuitarStrum(gChord, 'down', true, 2.0, 3.5)
+      expect(mockBufferSources.length).toBeGreaterThanOrEqual(6)
+      const firstStartTime = mockBufferSources[0].start.mock.calls[0][0]
+      expect(firstStartTime).toBeGreaterThanOrEqual(3.5)
+    })
+
+    it('supports scheduled timestamp in playPianoNote', () => {
+      engine.playPianoNote('C4', 1.0, 0.7, false, 4.2)
+      expect(mockBufferSources.length).toBeGreaterThan(0)
+      expect(mockBufferSources[0].start).toHaveBeenCalledWith(4.2)
+    })
+
+    it('schedules multi-event rhythmic strumming patterns at exact beat offsets', () => {
+      const gChord = [43, 47, 50, 55, 59, 67]
+      const strumEvents = [
+        { beatOffset: 0.0, direction: 'down' as const, accent: true },
+        { beatOffset: 1.0, direction: 'down' as const, accent: false },
+        { beatOffset: 1.5, direction: 'up' as const, accent: false },
+        { beatOffset: 2.5, direction: 'up' as const, accent: false },
+      ]
+      // Base time 2.0s, 120 BPM -> 0.5s per beat
+      engine.scheduleStrumPattern(gChord, strumEvents, 2.0, 0.5)
+      expect(mockBufferSources.length).toBeGreaterThanOrEqual(24) // 4 strums * 6 strings
+    })
+
+    it('schedules piano melodies and accompaniment at exact beat offsets', () => {
+      const melodyNotes = [
+        { pitch: 'C5', beatOffset: 0.0, duration: 1.0 },
+        { pitch: 'D5', beatOffset: 1.0, duration: 1.0 },
+        { pitch: 'Eb5', beatOffset: 2.0, duration: 1.0 },
+      ]
+      // Base time 1.0s, 160 BPM -> 0.375s per beat
+      engine.schedulePianoNotes(melodyNotes, 1.0, 0.375)
+      expect(mockBufferSources.length).toBeGreaterThanOrEqual(3)
+    })
   })
 })

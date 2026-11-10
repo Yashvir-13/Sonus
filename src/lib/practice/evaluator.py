@@ -45,7 +45,7 @@ class TakeEvaluationResult:
             "session_id": session_id,
             "state": state,
             "analysis_status": "complete",
-            "overall_accuracy": round(self.overall_accuracy, 3),
+            "overall_accuracy": round(self.overall_accuracy * 100.0, 1),
             "avg_timing_error_ms": round(self.avg_timing_error_ms, 2),
             "voicing_score": round(self.voicing_score, 3),
             "chord_metrics": self.alignment,
@@ -232,6 +232,7 @@ class TakeEvaluator:
             detected_habits=evaluation.detected_habits,
             drill_outcome=evaluation.drill_outcome,
             intervention=intervention,
+            instrument=exercise.instrument,
         )
 
         return evaluation.to_payload(practice_session.id, practice_session.state)

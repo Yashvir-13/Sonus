@@ -39,7 +39,7 @@ def test_pure_evaluator_perfect_take() -> None:
     payload = result.to_payload("sess_pure_test_123")
     assert payload["session_id"] == "sess_pure_test_123"
     assert payload["analysis_status"] == "complete"
-    assert payload["overall_accuracy"] == 1.0
+    assert payload["overall_accuracy"] == 100.0
 
 
 def test_pure_evaluator_detects_transition_lag_and_evaluates_delta() -> None:

@@ -23,9 +23,11 @@ export function TakeEvaluationDrawer({
 }: TakeEvaluationDrawerProps): React.JSX.Element | null {
   if (!evaluation && !isOpen) return null
 
-  const overallScore = evaluation?.overall_accuracy ?? 92
+  const raw = evaluation?.overall_accuracy ?? 92
+  const overallScore = raw <= 1.0 ? raw * 100 : raw
   const meanTimingOffset = evaluation?.avg_timing_error_ms ?? -4.2
-  const voicingScore = evaluation?.voicing_score ?? 95.8
+  const rawVoicing = evaluation?.voicing_score ?? 95.8
+  const voicingScore = rawVoicing <= 1.0 ? rawVoicing * 100 : rawVoicing
   const chordMetrics = evaluation?.chord_metrics ?? []
   const primaryBottleneck = evaluation?.coaching_report?.primary_bottleneck ?? 'None'
   const summaryText =

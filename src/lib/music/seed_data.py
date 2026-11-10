@@ -26,7 +26,11 @@ def _build_knockin_full_song() -> list[dict[str, Any]]:
             ("G", 4.0, [43, 47, 50, 55, 59, 67], [3, 2, 0, 0, 0, 3], "2-1-0-0-0-3", "E-A-D-G-B-e"),
             ("D", 4.0, [50, 57, 62, 66], [None, None, 0, 2, 3, 2], "x-x-0-1-3-2", "x-x-D-G-B-e"),
             ("C", 4.0, [48, 52, 55, 60, 64], [None, 3, 2, 0, 1, 0], "x-3-2-0-1-0", "x-A-D-G-B-e"),
-            ("C" if section_name != "Verse 2 / Outro" else "G", 4.0, [48, 52, 55, 60, 64], [None, 3, 2, 0, 1, 0], "x-3-2-0-1-0", "x-A-D-G-B-e"),
+            (
+                ("G", 4.0, [43, 47, 50, 55, 59, 67], [3, 2, 0, 0, 0, 3], "2-1-0-0-0-3", "E-A-D-G-B-e")
+                if section_name == "Verse 2 / Outro"
+                else ("C", 4.0, [48, 52, 55, 60, 64], [None, 3, 2, 0, 1, 0], "x-3-2-0-1-0", "x-A-D-G-B-e")
+            ),
         ]
 
         for name, dur, pitches, frets, fingering, strings in m_sequence:
@@ -146,17 +150,26 @@ def _build_pachelbel_canon_full_song() -> list[dict[str, Any]]:
     for var_idx, melody_measures in enumerate(melody_variations):
         for m_idx, (chord_name, lh_note, rh_notes, lh_pitches, rh_pitches) in enumerate(prog_base):
             melody_notes = melody_measures[m_idx]
+            is_finale_c = var_idx == 3 and m_idx == 7
+            c_name = "C" if is_finale_c else chord_name
+            exp_pitches = [48, 55, 60, 64] if is_finale_c else (lh_pitches + rh_pitches)
+            lh_n = "C3" if is_finale_c else lh_note
+            rh_n = ["G3", "C4", "E4"] if is_finale_c else rh_notes
+            lh_p = [48] if is_finale_c else lh_pitches
+            rh_p = [55, 60, 64] if is_finale_c else rh_pitches
+            inversion_str = "root position" if (is_finale_c or m_idx % 2 == 0) else "1st inversion"
+
             chords.append({
-                "name": chord_name if (var_idx != 3 or m_idx != 7) else "C",
+                "name": c_name,
                 "beat": beat_cursor,
                 "duration_beats": 4.0,
-                "expected_pitches": lh_pitches + rh_pitches,
+                "expected_pitches": exp_pitches,
                 "piano_voicings": {
-                    "lh_note": lh_note,
-                    "rh_notes": rh_notes,
-                    "lh_pitches": lh_pitches,
-                    "rh_pitches": rh_pitches,
-                    "inversion": "root position" if m_idx % 2 == 0 else "1st inversion",
+                    "lh_note": lh_n,
+                    "rh_notes": rh_n,
+                    "lh_pitches": lh_p,
+                    "rh_pitches": rh_p,
+                    "inversion": inversion_str,
                 },
                 "melody_notes": melody_notes,
                 "variation": f"Variation {var_idx + 1}",
@@ -359,7 +372,7 @@ def _build_shostakovich_waltz_2() -> list[dict[str, Any]]:
             "expected_pitches": expected_pitches,
             "piano_voicings": {
                 "lh_note": lh_root,
-                "rh_notes": [rh_melody[0][0]],
+                "rh_notes": [pitch_str for pitch_str, _, _ in rh_melody],
                 "lh_pitches": [lh_pitches[0]],
                 "rh_pitches": rh_pitches,
                 "inversion": "root position",

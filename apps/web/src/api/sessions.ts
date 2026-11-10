@@ -273,15 +273,20 @@ export async function uploadSessionTake(
 export async function submitChordsTake(
   sessionId: string,
   playedChords: Array<Record<string, unknown>>,
-  token?: string
+  token?: string,
+  tempoBpm?: number
 ): Promise<TakeEvaluationResponse> {
+  const body: Record<string, unknown> = { played_chords: playedChords }
+  if (tempoBpm !== undefined) {
+    body.tempo_bpm = tempoBpm
+  }
   const res = await fetch(`${apiBaseUrl()}/api/sessions/${sessionId}/take`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       ...getAuthHeader(token),
     },
-    body: JSON.stringify({ played_chords: playedChords }),
+    body: JSON.stringify(body),
   })
   if (!res.ok) {
     throw new Error(`POST /api/sessions/${sessionId}/take failed: ${res.status}`)
@@ -294,9 +299,11 @@ export async function submitChordsTake(
  */
 export async function fetchSessionAnalysis(
   sessionId: string,
-  token?: string
+  token?: string,
+  takeNumber?: number
 ): Promise<SessionAnalysisDto> {
-  const res = await fetch(`${apiBaseUrl()}/api/sessions/${sessionId}/analysis`, {
+  const query = takeNumber !== undefined ? `?take_number=${takeNumber}` : ''
+  const res = await fetch(`${apiBaseUrl()}/api/sessions/${sessionId}/analysis${query}`, {
     headers: { ...getAuthHeader(token) },
   })
   if (!res.ok) {
@@ -410,4 +417,65 @@ export async function fetchUserSessions(
     throw new Error(`GET /api/me/sessions failed: ${res.status}`)
   }
   return res.json() as Promise<UserSessionDto[]>
+}
+
+
+export type TransitionMasteryDto = {
+  id: string
+  user_id: string
+  chord_from: string
+  chord_to: string
+  instrument: string
+  p_known: number
+  is_mastered: boolean
+  opportunities: number
+  ewma_latency_ms: number
+  voicing_completeness: number
+  sm2_interval_days: number
+  sm2_ease_factor: number
+  sm2_repetitions: number
+  last_practiced_at: string
+  bandit_alpha_isolated: number
+  bandit_beta_isolated: number
+  bandit_alpha_subdivision: number
+  bandit_beta_subdivision: number
+  bandit_alpha_voicing: number
+  bandit_beta_voicing: number
+  bandit_alpha_ramp: number
+  bandit_beta_ramp: number
+}
+
+export type MasteryRecommendationDto = {
+  id: string
+  rank: number
+  transition_label: string
+  chord_from: string
+  chord_to: string
+  instrument: string
+  priority_score: number
+  p_known: number
+  learning_gap_pct: number
+  ewma_latency_ms: number
+  voicing_completeness_pct: number
+  selected_drill_strategy: string
+  recommended_bpm: number
+  mathematical_breakdown: string
+}
+
+export type UserMasteryResponseDto = {
+  records: TransitionMasteryDto[]
+  recommendations: MasteryRecommendationDto[]
+}
+
+/**
+ * Fetch authenticated user's transition mastery states and ranked recommendations.
+ */
+export async function fetchUserMastery(token?: string): Promise<UserMasteryResponseDto> {
+  const res = await fetch(`${apiBaseUrl()}/api/me/mastery`, {
+    headers: { ...getAuthHeader(token) },
+  })
+  if (!res.ok) {
+    throw new Error(`GET /api/me/mastery failed: ${res.status}`)
+  }
+  return res.json() as Promise<UserMasteryResponseDto>
 }

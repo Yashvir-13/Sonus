@@ -1,5 +1,6 @@
 from unittest.mock import patch
-from src.lib.adaptive.llm_coach import generate_coaching_report
+import pytest
+from src.lib.adaptive.llm_coach import generate_coaching_report, generate_coaching_report_async
 
 
 def test_generate_coaching_report_deterministic_fallback() -> None:
@@ -47,3 +48,24 @@ def test_generate_coaching_report_deterministic_fallback() -> None:
 
         report_piano = generate_coaching_report("sess_test_789", metrics, habits=[], instrument="piano")
         assert "wrist" in report_piano["ergonomic_advice"].lower()
+
+
+@pytest.mark.anyio
+async def test_generate_coaching_report_async_fallback() -> None:
+    metrics = [
+        {
+            "chord_index": 0,
+            "expected_chord": "C",
+            "detected_chord": "C",
+            "is_matched": True,
+            "onset_error_ms": 12.0,
+            "voicing_completeness": 1.0,
+        },
+    ]
+    with patch.dict("os.environ", {}, clear=True):
+        report = await generate_coaching_report_async(
+            "sess_async_123", metrics, habits=[], instrument="piano"
+        )
+        assert report["status"] == "deterministic_fallback"
+        assert report["session_id"] == "sess_async_123"
+        assert "wrist" in report["ergonomic_advice"].lower()

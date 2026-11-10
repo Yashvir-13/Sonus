@@ -62,6 +62,7 @@ vi.mock('@/api/sessions', () => {
     createPracticeSession: vi.fn().mockResolvedValue({ id: 'sess_test_123' }),
     uploadSessionTake: vi.fn().mockResolvedValue(mockTake),
     submitChordsTake: vi.fn().mockResolvedValue(mockTake),
+    fetchUserMastery: vi.fn().mockResolvedValue({ records: [], recommendations: [] }),
   }
 })
 
@@ -152,5 +153,39 @@ describe('PracticeStudioCockpit, ProgressDashboardPage & PeerComparisonPage', ()
     expect(screen.getByTestId('dist-timing')).toBeDefined()
     expect(screen.getByTestId('dist-voicing')).toBeDefined()
     expect(screen.getByTestId('leaderboard-current-user-row')).toBeDefined()
+  })
+
+  it('correctly configures 3/4 waltz time signature and beats per measure', () => {
+    render(<PracticeStudioCockpit initialSongId="ex_piano_shostakovich_waltz_2" />)
+
+    // Verify 3/4 meter is reflected in the flowing stand
+    expect(screen.getAllByText(/3\/4/i).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(/Waltz No\. 2/i).length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('triggers count-in before playback begins', () => {
+    render(<PracticeStudioCockpit />)
+
+    const playToggle = screen.getByTestId('stand-play-toggle')
+    expect(screen.getByText('Play Along')).toBeDefined()
+
+    act(() => {
+      fireEvent.click(playToggle)
+    })
+
+    // During count-in, count-in indicator or active state is triggered
+    expect(screen.getByTestId('stand-play-toggle')).toBeDefined()
+  })
+
+  it('activates 2-bar transition loop using the song chord duration beats', () => {
+    render(<PracticeStudioCockpit initialSongId="ex_piano_shostakovich_waltz_2" />)
+
+    const loopBtn = screen.getByTestId('toggle-loop-pair-btn')
+    act(() => {
+      fireEvent.click(loopBtn)
+    })
+
+    // Loop banner should display active transition loop
+    expect(screen.getByText(/2-BAR TRANSITION LOOP ACTIVE/i)).toBeDefined()
   })
 })

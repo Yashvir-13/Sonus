@@ -1,10 +1,13 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
   rankAdaptiveRecommendations,
+  mapBackendMasteryToTransitions,
+  INITIAL_TRANSITION_MASTERY,
   type TransitionMasteryState,
   type LongitudinalSessionPoint,
   type AdaptiveExerciseRecommendation,
 } from '@/lib/adaptive/recommendation-engine'
+import { fetchUserMastery } from '@/api/sessions'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 import {
   Play,
@@ -20,8 +23,8 @@ import {
 } from 'lucide-react'
 
 export type ProgressDashboardPageProps = {
-  transitions: TransitionMasteryState[]
-  sessionHistory: LongitudinalSessionPoint[]
+  transitions?: TransitionMasteryState[]
+  sessionHistory?: LongitudinalSessionPoint[]
   onBackToLanding?: () => void
   onOpenStudioWithRecommendation?: (rec: AdaptiveExerciseRecommendation) => void
   onOpenCommunity?: () => void
@@ -29,20 +32,45 @@ export type ProgressDashboardPageProps = {
 }
 
 export function ProgressDashboardPage({
-  transitions,
-  sessionHistory,
+  transitions = [],
+  sessionHistory = [],
   onBackToLanding,
   onOpenStudioWithRecommendation,
   onOpenCommunity,
   userButtonSlot,
 }: ProgressDashboardPageProps): React.JSX.Element {
+  const [liveTransitions, setLiveTransitions] = useState<TransitionMasteryState[] | null>(null)
   const [instrumentFilter, setInstrumentFilter] = useState<'all' | 'piano' | 'guitar'>('all')
   const [selectedMetricTab, setSelectedMetricTab] = useState<'latency' | 'accuracy'>('latency')
 
+  useEffect(() => {
+    let isMounted = true
+    fetchUserMastery()
+      .then((data) => {
+        if (!isMounted) return
+        if (data && Array.isArray(data.records) && data.records.length > 0) {
+          const mapped = mapBackendMasteryToTransitions(data.records)
+          setLiveTransitions(mapped)
+        }
+      })
+      .catch(() => {
+        // Fall back gracefully to local props or catalog baseline if API is offline
+      })
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const effectiveTransitions = useMemo(() => {
+    if (liveTransitions && liveTransitions.length > 0) return liveTransitions
+    if (transitions && transitions.length > 0) return transitions
+    return INITIAL_TRANSITION_MASTERY
+  }, [liveTransitions, transitions])
+
   const filteredTransitions = useMemo(() => {
-    if (instrumentFilter === 'all') return transitions
-    return transitions.filter((t) => t.instrument === instrumentFilter)
-  }, [transitions, instrumentFilter])
+    if (instrumentFilter === 'all') return effectiveTransitions
+    return effectiveTransitions.filter((t) => t.instrument === instrumentFilter)
+  }, [effectiveTransitions, instrumentFilter])
 
   const recommendations = useMemo(() => {
     return rankAdaptiveRecommendations(filteredTransitions)
@@ -55,8 +83,8 @@ export function ProgressDashboardPage({
   const latencyImprovementMs = firstSession && latestSession
     ? Math.max(0, firstSession.avgLatencyMs - latestSession.avgLatencyMs)
     : 0
-  const masteredCount = transitions.filter((t) => t.isMastered || t.pKnown >= 0.95).length
-  const dueOrOverdueCount = transitions.filter((t) => t.dueStatus !== 'scheduled').length
+  const masteredCount = effectiveTransitions.filter((t) => t.isMastered || t.pKnown >= 0.95).length
+  const dueOrOverdueCount = effectiveTransitions.filter((t) => t.dueStatus !== 'scheduled').length
 
   return (
     <div

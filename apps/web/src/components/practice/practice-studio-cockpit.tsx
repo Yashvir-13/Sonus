@@ -19,6 +19,7 @@ import {
 import { resolveChordVoicing } from '@/lib/music/chord-voicings'
 import { PracticeAudioEngine } from '@/lib/audio/practice-audio-engine'
 import { RealtimePitchTracker, type PitchDetectionResult } from '@/lib/audio/realtime-pitch-tracker'
+import { chromaToChord } from '@/lib/audio/chord-detector'
 import { encodeMonoWav } from '@/lib/audio/wav-encoder'
 import {
   Play,
@@ -251,25 +252,47 @@ export function PracticeStudioCockpit({
     })
   }, [selectedSong, activeDrillSlice])
 
+  const beatsPerMeasure = useMemo(() => {
+    try {
+      if (selectedSong.progression_json) {
+        const parsed = JSON.parse(selectedSong.progression_json)
+        if (parsed.time_signature) {
+          const [num] = parsed.time_signature.split('/').map(Number)
+          if (num && !isNaN(num) && num > 0) return num
+        }
+      }
+    } catch {
+      // JSON parse fallback
+    }
+    const firstDur = flowingProgression[0]?.duration_beats
+    if (firstDur && firstDur > 0) return firstDur
+    return 4
+  }, [selectedSong.progression_json, flowingProgression])
+
   const totalBeats = useMemo(() => {
-    return flowingProgression.reduce((acc, c) => acc + (c.duration_beats ?? 4), 0)
-  }, [flowingProgression])
+    return flowingProgression.reduce((acc, c) => acc + (c.duration_beats ?? beatsPerMeasure), 0)
+  }, [flowingProgression, beatsPerMeasure])
 
   const currentMeasureIdx = useMemo(() => {
     let accum = 0
     for (let i = 0; i < flowingProgression.length; i++) {
-      const dur = flowingProgression[i]?.duration_beats ?? 4
+      const dur = flowingProgression[i]?.duration_beats ?? beatsPerMeasure
       if (currentBeat >= accum && currentBeat < accum + dur) {
         return i
       }
       accum += dur
     }
     return Math.max(0, flowingProgression.length - 1)
-  }, [flowingProgression, currentBeat])
+  }, [flowingProgression, currentBeat, beatsPerMeasure])
 
   const activeChord = useMemo(() => {
     return flowingProgression[currentMeasureIdx] ?? resolveChordVoicing('C')
   }, [flowingProgression, currentMeasureIdx])
+
+  const activeChordRef = useRef(activeChord)
+  useEffect(() => {
+    activeChordRef.current = activeChord
+  }, [activeChord])
 
   const nextMeasureIdx = useMemo(() => {
     if (flowingProgression.length <= 1) return 0
@@ -279,6 +302,9 @@ export function PracticeStudioCockpit({
   const nextChord = useMemo(() => {
     return flowingProgression[nextMeasureIdx] ?? activeChord
   }, [flowingProgression, nextMeasureIdx, activeChord])
+
+  const [isCountingIn, setIsCountingIn] = useState(false)
+  const [countInBeat, setCountInBeat] = useState(1)
 
   useEffect(() => {
     const engine = new PracticeAudioEngine()
@@ -291,10 +317,45 @@ export function PracticeStudioCockpit({
   }, [])
 
   // ───────────────────────────────────────────────────────────────────────────
-  // 3. PLAYBACK TICKER
+  // 3. PLAYBACK TICKER & LOOKAHEAD RHYTHMIC AUDIO SCHEDULING
   // ───────────────────────────────────────────────────────────────────────────
   const lastTickBeatRef = useRef<number>(-1)
   const lastChordIdxRef = useRef<number>(-1)
+
+  const startCountInThenPlay = useCallback(() => {
+    if (audioEngineRef.current) {
+      audioEngineRef.current.unlock()
+    }
+    if (isPlaying) {
+      setIsPlaying(false)
+      setIsCountingIn(false)
+      return
+    }
+
+    setIsCountingIn(true)
+    setCountInBeat(1)
+    let currentCount = 1
+
+    const msPerBeat = (60 / tempoBpm) * 1000
+    if (audioEngineRef.current && isMetronomeEnabled) {
+      audioEngineRef.current.playClick(true)
+    }
+
+    const countTimer = window.setInterval(() => {
+      currentCount += 1
+      if (currentCount <= beatsPerMeasure) {
+        setCountInBeat(currentCount)
+        if (audioEngineRef.current && isMetronomeEnabled) {
+          audioEngineRef.current.playClick(false)
+        }
+      } else {
+        clearInterval(countTimer)
+        setIsCountingIn(false)
+        setCurrentBeat(0)
+        setIsPlaying(true)
+      }
+    }, msPerBeat)
+  }, [isPlaying, tempoBpm, beatsPerMeasure, isMetronomeEnabled])
 
   useEffect(() => {
     if (!isPlaying) return
@@ -324,7 +385,7 @@ export function PracticeStudioCockpit({
       lastTickBeatRef.current = wholeBeat
 
       if (isMetronomeEnabled && audioEngineRef.current) {
-        const isDownbeat = wholeBeat % 4 === 0
+        const isDownbeat = wholeBeat % beatsPerMeasure === 0
         audioEngineRef.current.playClick(isDownbeat)
       }
     }
@@ -332,22 +393,68 @@ export function PracticeStudioCockpit({
     if (currentMeasureIdx !== lastChordIdxRef.current) {
       lastChordIdxRef.current = currentMeasureIdx
       if (isBackingAudioEnabled && audioEngineRef.current && activeChord) {
-        audioEngineRef.current.playChord(
-          activeChord.chordName,
-          activeChord.expectedPitches,
-          1.2,
-          instrument
-        )
+        const now = audioEngineRef.current.getCurrentTime()
+        const secondsPerBeat = 60 / tempoBpm
+
+        if (instrument === 'guitar') {
+          // Play full rhythmic strumming pattern across subdivisions if available
+          if (activeChord.strumEvents && activeChord.strumEvents.length > 0) {
+            audioEngineRef.current.scheduleStrumPattern(
+              activeChord.expectedPitches,
+              activeChord.strumEvents,
+              now,
+              secondsPerBeat,
+              secondsPerBeat * 1.5
+            )
+          } else {
+            audioEngineRef.current.playGuitarStrum(
+              activeChord.expectedPitches,
+              'down',
+              true,
+              secondsPerBeat * beatsPerMeasure,
+              now
+            )
+          }
+        } else if (instrument === 'piano') {
+          // Play authentic piano accompaniment (Beat 1 bass root, subsequent beats chords)
+          if (activeChord.pianoVoicing) {
+            audioEngineRef.current.schedulePianoAccompaniment(
+              activeChord.pianoVoicing.lhPitches,
+              activeChord.pianoVoicing.rhPitches,
+              beatsPerMeasure,
+              now,
+              secondsPerBeat
+            )
+          } else {
+            audioEngineRef.current.playChord(
+              activeChord.chordName,
+              activeChord.expectedPitches,
+              secondsPerBeat * beatsPerMeasure,
+              'piano'
+            )
+          }
+
+          // If melodic note events exist, schedule them at exact beat offsets
+          if (activeChord.melodyNotes && activeChord.melodyNotes.length > 0) {
+            audioEngineRef.current.schedulePianoNotes(
+              activeChord.melodyNotes,
+              now,
+              secondsPerBeat
+            )
+          }
+        }
       }
     }
   }, [
     isPlaying,
     currentBeat,
     currentMeasureIdx,
+    beatsPerMeasure,
     isMetronomeEnabled,
     isBackingAudioEnabled,
     activeChord,
     instrument,
+    tempoBpm,
   ])
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -479,8 +586,8 @@ export function PracticeStudioCockpit({
           completed: false,
           measured_improvement: null,
           progression: [
-            { name: secondChord, beats: 4 },
-            { name: thirdChord, beats: 4 },
+            { name: secondChord, beats: beatsPerMeasure },
+            { name: thirdChord, beats: beatsPerMeasure },
           ],
           tempo_stages: {
             isolation_bpm: isolationBpm,
@@ -585,33 +692,96 @@ export function PracticeStudioCockpit({
         (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
       const ctx = new AudioCtx({ sampleRate: 22050 })
       const source = ctx.createMediaStreamSource(stream)
+
+      const analyser = ctx.createAnalyser()
+      analyser.fftSize = 2048
+      source.connect(analyser)
+
       const processor = ctx.createScriptProcessor(4096, 1, 1)
+      analyser.connect(processor)
+
+      // Safe muted output: keeps Web Audio graph running without routing mic to speakers
+      const muteGain = ctx.createGain()
+      muteGain.gain.setValueAtTime(0, ctx.currentTime)
+      processor.connect(muteGain)
+      muteGain.connect(ctx.destination)
 
       const tracker = new RealtimePitchTracker(22050)
+      const bufferLength = analyser.frequencyBinCount
+      const freqData = new Float32Array(bufferLength)
+      const binHz = 22050 / 2 / bufferLength
       recordedSamplesRef.current = []
+
       processor.onaudioprocess = (e) => {
         const inputData = e.inputBuffer.getChannelData(0)
         recordedSamplesRef.current.push(new Float32Array(inputData))
+        analyser.getFloatFrequencyData(freqData)
+
+        // Monophonic pitch tracking
         const pitchRes = tracker.detectPitch(inputData)
-        if (pitchRes) {
-          const rms = tracker.computeRmsDb(inputData)
+        const rms = tracker.computeRmsDb(inputData)
+
+        // 12-semitone polyphonic chromagram extraction
+        const instantChroma = new Array(12).fill(0)
+        const minBin = Math.max(2, Math.floor(65 / binHz))
+        const maxBin = Math.min(bufferLength - 2, Math.ceil(1400 / binHz))
+
+        let maxDbInZone = -100
+        for (let b = minBin; b <= maxBin; b++) {
+          const db = freqData[b] ?? -100
+          if (db > maxDbInZone) maxDbInZone = db
+        }
+        const peakThreshold = Math.max(-60, maxDbInZone - 28)
+
+        for (let b = minBin; b <= maxBin; b++) {
+          const prev = freqData[b - 1] ?? -100
+          const curr = freqData[b] ?? -100
+          const next = freqData[b + 1] ?? -100
+
+          if (curr > prev && curr > next && curr > peakThreshold) {
+            const alpha = Math.pow(10, (prev + 100) / 20)
+            const beta = Math.pow(10, (curr + 100) / 20)
+            const gamma = Math.pow(10, (next + 100) / 20)
+            const denom = alpha - 2 * beta + gamma
+            const delta = denom !== 0 ? (0.5 * (alpha - gamma)) / denom : 0
+            const trueFreq = (b + delta) * binHz
+
+            if (trueFreq >= 65 && trueFreq <= 1400) {
+              const midi = 69 + 12 * Math.log2(trueFreq / 440)
+              const pc = ((Math.round(midi) % 12) + 12) % 12
+              instantChroma[pc] += beta
+            }
+          }
+        }
+
+        const chordMatch = chromaToChord(instantChroma)
+
+        // Real polyphonic voicing completeness against currently active chord
+        const currentTarget = activeChordRef.current
+        const targetPcs = currentTarget?.pitchClasses || []
+        const maxChromaVal = Math.max(...instantChroma)
+        const activeThreshold = Math.max(0.05, maxChromaVal * 0.25)
+        const matchedPcs = targetPcs.filter((pc) => (instantChroma[pc] ?? 0) >= activeThreshold)
+        const missingPcs = targetPcs.filter((pc) => !matchedPcs.includes(pc))
+        const voicingCompleteness =
+          targetPcs.length > 0 ? matchedPcs.length / targetPcs.length : 1.0
+
+        if (pitchRes || chordMatch.chord !== 'None' || rms > -45) {
           setLivePitchResult({
-            detectedFreqHz: pitchRes.freq,
-            detectedNote: pitchRes.note,
-            centsDeviation: pitchRes.cents,
+            detectedFreqHz: pitchRes?.freq ?? (chordMatch.chord !== 'None' ? 220 : null),
+            detectedNote: chordMatch.chord !== 'None' ? chordMatch.chord : (pitchRes?.note ?? null),
+            centsDeviation: pitchRes?.cents ?? 0,
             rmsDb: rms,
-            voicingCompleteness: 1.0,
-            matchedPitchClasses: [],
-            missingPitchClasses: [],
+            voicingCompleteness: Math.round(voicingCompleteness * 100) / 100,
+            matchedPitchClasses: matchedPcs,
+            missingPitchClasses: missingPcs,
             timingDeltaMs: 0,
-            isSoundDetected: true,
-            clarityScore: pitchRes.clarity,
+            isSoundDetected: rms > -45,
+            clarityScore: chordMatch.confidence || (pitchRes?.clarity ?? 0.5),
           })
         }
       }
 
-      source.connect(processor)
-      processor.connect(ctx.destination)
       scriptProcessorRef.current = processor
 
       setIsRecordingMic(true)
@@ -635,6 +805,7 @@ export function PracticeStudioCockpit({
       mediaStreamRef.current = null
     }
     setIsRecordingMic(false)
+    setIsPlaying(false)
     setIsEvaluating(true)
     setEvaluationError(null)
 
@@ -751,6 +922,8 @@ export function PracticeStudioCockpit({
     const first = activeChord?.chordName || flowingProgression[0]?.chordName || 'Am'
     const second = nextChord?.chordName || flowingProgression[1]?.chordName || 'C'
     const isoBpm = drill.tempo_stages?.isolation_bpm ?? Math.max(44, Math.round(tempoBpm * 0.7))
+    const firstBeats = activeChord?.duration_beats ?? beatsPerMeasure
+    const secondBeats = nextChord?.duration_beats ?? beatsPerMeasure
 
     const enrichedDrill: AdaptiveInterventionDto = {
       ...drill,
@@ -758,8 +931,8 @@ export function PracticeStudioCockpit({
         drill.progression && drill.progression.length > 0
           ? drill.progression
           : [
-              { name: first, beats: 4 },
-              { name: second, beats: 4 },
+              { name: first, beats: firstBeats },
+              { name: second, beats: secondBeats },
             ],
       tempo_stages: drill.tempo_stages ?? {
         isolation_bpm: isoBpm,
@@ -784,6 +957,8 @@ export function PracticeStudioCockpit({
     }
     const baseBpm = selectedSong.tempo_bpm || 76
     const isoBpm = Math.max(40, Math.round(baseBpm * 0.7))
+    const firstBeats = activeChord?.duration_beats ?? beatsPerMeasure
+    const secondBeats = nextChord?.duration_beats ?? beatsPerMeasure
     setActiveDrillSlice({
       id: `loop_${Date.now()}`,
       user_id: 'user',
@@ -794,8 +969,8 @@ export function PracticeStudioCockpit({
       completed: false,
       measured_improvement: null,
       progression: [
-        { name: activeChord.chordName, beats: 4 },
-        { name: nextChord.chordName, beats: 4 },
+        { name: activeChord.chordName, beats: firstBeats },
+        { name: nextChord.chordName, beats: secondBeats },
       ],
       tempo_stages: {
         isolation_bpm: isoBpm,
@@ -1059,9 +1234,12 @@ export function PracticeStudioCockpit({
             currentBeat={currentBeat}
             tempoBpm={tempoBpm}
             isPlaying={isPlaying}
+            isCountingIn={isCountingIn}
+            countInBeat={countInBeat}
             activeHitResult={livePitchResult}
             chordMetrics={evaluationResult?.chord_metrics}
-            beatsPerMeasure={4}
+            beatsPerMeasure={beatsPerMeasure}
+            timeSignature={beatsPerMeasure === 3 ? '3/4' : '4/4'}
             pianoNotationMode={pianoNotationMode}
             hideWatermark={true}
             onKeyClick={(midi) => {
@@ -1086,7 +1264,7 @@ export function PracticeStudioCockpit({
                 const isCurrent = idx === currentMeasureIdx
                 let startBeat = 0
                 for (let j = 0; j < idx; j++) {
-                  startBeat += flowingProgression[j]?.duration_beats ?? 4
+                  startBeat += flowingProgression[j]?.duration_beats ?? beatsPerMeasure
                 }
 
                 const metric = evaluationResult?.chord_metrics?.[idx]
@@ -1311,10 +1489,11 @@ export function PracticeStudioCockpit({
               type="button"
               data-testid="stand-play-toggle"
               onClick={() => {
-                if (audioEngineRef.current) {
-                  audioEngineRef.current.unlock()
+                if (isPlaying) {
+                  setIsPlaying(false)
+                } else {
+                  startCountInThenPlay()
                 }
-                setIsPlaying((p) => !p)
               }}
               className={`flex-1 py-2.5 px-4 rounded-xl font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 isPlaying
@@ -1343,7 +1522,12 @@ export function PracticeStudioCockpit({
                 type="button"
                 data-testid="record-take-btn"
                 disabled={isEvaluating}
-                onClick={startMicRecording}
+                onClick={async () => {
+                  await startMicRecording()
+                  if (!isPlaying) {
+                    startCountInThenPlay()
+                  }
+                }}
                 className="flex-1 py-2.5 px-4 rounded-xl bg-[#C5A059] hover:bg-[#b58f48] text-[#141312] font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
                 <Mic className="size-4" />

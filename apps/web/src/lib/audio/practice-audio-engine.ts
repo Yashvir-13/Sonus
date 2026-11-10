@@ -404,6 +404,10 @@ export class PracticeAudioEngine {
     }
   }
 
+  public getCurrentTime(): number {
+    return this.getContext()?.currentTime ?? 0
+  }
+
   /**
    * Play an authentic wooden metronome click.
    * @param isDownbeat True for beat 1 of measure (higher pitch & distinct woodblock timbre).
@@ -502,12 +506,14 @@ export class PracticeAudioEngine {
    * @param direction 'down' (low to high string sweep) or 'up' (high to low sweep).
    * @param isAccented Whether this strum has dynamic accent.
    * @param durationSec Total ringing duration in seconds.
+   * @param time Scheduled AudioContext timestamp in seconds.
    */
   public playGuitarStrum(
     pitches: (string | number)[],
     direction: 'down' | 'up' = 'down',
     isAccented = false,
-    durationSec = 2.0
+    durationSec = 2.0,
+    time?: number
   ): void {
     const ctx = this.getContext()
     if (!ctx) return
@@ -516,7 +522,7 @@ export class PracticeAudioEngine {
     if (parsedMidis.length === 0) return
 
     try {
-      const now = ctx.currentTime
+      const now = time !== undefined ? Math.max(0, time) : ctx.currentTime
       const sampleRate = ctx.sampleRate || 44100
       // Order strings based on strum direction
       const strumPitches = direction === 'down' ? parsedMidis : [...parsedMidis].reverse()
@@ -581,18 +587,20 @@ export class PracticeAudioEngine {
    * @param durationSec Note length in seconds until damper release.
    * @param velocity Dynamic touch velocity [0..1].
    * @param isBass Whether this is a deep bass note (enhances fundamental resonance).
+   * @param time Scheduled AudioContext timestamp in seconds.
    */
   public playPianoNote(
     pitch: string | number,
     durationSec = 1.0,
     velocity = 0.7,
-    isBass = false
+    isBass = false,
+    time?: number
   ): void {
     const ctx = this.getContext()
     if (!ctx) return
 
     try {
-      const now = ctx.currentTime
+      const now = time !== undefined ? Math.max(0, time) : ctx.currentTime
       const midi = parsePitchToMidi(pitch)
       const sampleRate = ctx.sampleRate || 44100
 
@@ -652,14 +660,84 @@ export class PracticeAudioEngine {
     lhPitches: (string | number)[],
     rhPitches: (string | number)[],
     durationSec = 2.0,
-    velocity = 0.7
+    velocity = 0.7,
+    time?: number
   ): void {
     lhPitches.forEach((p) => {
-      this.playPianoNote(p, durationSec, velocity * 1.1, true)
+      this.playPianoNote(p, durationSec, velocity * 1.1, true, time)
     })
     rhPitches.forEach((p) => {
-      this.playPianoNote(p, durationSec, velocity * 0.9, false)
+      this.playPianoNote(p, durationSec, velocity * 0.9, false, time)
     })
+  }
+
+  /**
+   * Schedules a multi-event rhythmic guitar strumming pattern across the measure.
+   */
+  public scheduleStrumPattern(
+    pitches: (string | number)[],
+    strumEvents: Array<{ beatOffset: number; direction?: 'down' | 'up' | 'rest' | 'mute'; accent?: boolean }>,
+    baseTime: number,
+    secondsPerBeat: number,
+    durationSec = 1.4
+  ): void {
+    strumEvents.forEach((evt) => {
+      if (evt.direction === 'rest') return
+      const targetTime = baseTime + evt.beatOffset * secondsPerBeat
+      const isAccent = evt.accent ?? false
+      const dir = evt.direction === 'up' ? 'up' : 'down'
+      this.playGuitarStrum(pitches, dir, isAccent, durationSec, targetTime)
+    })
+  }
+
+  /**
+   * Schedules right-hand or polyphonic melodic note events across the measure.
+   */
+  public schedulePianoNotes(
+    notes: Array<{ pitch: string | number; beatOffset: number; duration?: number }>,
+    baseTime: number,
+    secondsPerBeat: number,
+    velocity = 0.75
+  ): void {
+    notes.forEach((n) => {
+      const targetTime = baseTime + n.beatOffset * secondsPerBeat
+      const dur = Math.max(0.15, (n.duration ?? 1.0) * secondsPerBeat * 0.95)
+      this.playPianoNote(n.pitch, dur, velocity, false, targetTime)
+    })
+  }
+
+  /**
+   * Schedules authentic piano accompaniment (e.g. 3/4 Boom-Chick-Chick or 4/4 ballads) across the measure.
+   */
+  public schedulePianoAccompaniment(
+    lhPitches: (string | number)[],
+    rhPitches: (string | number)[],
+    beatsPerMeasure: number,
+    baseTime: number,
+    secondsPerBeat: number
+  ): void {
+    // Beat 1: Bass root
+    lhPitches.forEach((p) => {
+      this.playPianoNote(p, secondsPerBeat * 1.8, 0.85, true, baseTime)
+    })
+
+    if (beatsPerMeasure === 3) {
+      // 3/4 Waltz Boom-Chick-Chick: chords struck on beat 2 and beat 3
+      for (let b = 1; b < 3; b++) {
+        const chordTime = baseTime + b * secondsPerBeat
+        rhPitches.forEach((p) => {
+          this.playPianoNote(p, secondsPerBeat * 0.85, 0.65, false, chordTime)
+        })
+      }
+    } else {
+      // 4/4 or other meter: accompaniment chords on subsequent beats
+      for (let b = 1; b < beatsPerMeasure; b++) {
+        const chordTime = baseTime + b * secondsPerBeat
+        rhPitches.forEach((p) => {
+          this.playPianoNote(p, secondsPerBeat * 0.9, 0.6, false, chordTime)
+        })
+      }
+    }
   }
 
   /**

@@ -27,3 +27,19 @@ async def test_transcribe_test_wav_endpoint() -> None:
         assert "notes" in data
         assert "chords" in data
         assert "duration_seconds" in data
+
+
+@pytest.mark.anyio
+async def test_transcribe_test_wav_disabled_in_production(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("ENV", "production")
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        buf = io.BytesIO()
+        wavfile.write(buf, 22050, np.zeros(2205, dtype=np.float32))
+        buf.seek(0)
+
+        res = await client.post(
+            "/api/audio/test-transcribe",
+            files={"file": ("test.wav", buf.read(), "audio/wav")},
+        )
+        assert res.status_code == 404

@@ -12,9 +12,11 @@ from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel, col, select
 
+from src.lib.adaptive.mastery import StudentMasteryEngine
 from src.lib.auth.clerk import ClerkIdentityDep, resolve_clerk_email
 from src.lib.db import get_session
 from src.lib.exception import NotFound, Unprocessable
+from src.lib.schemas.mastery import MeMasteryResponse, TransitionRecommendationItem
 from src.models.practice import (
     AdaptiveIntervention,
     AdaptiveInterventionRead,
@@ -22,6 +24,8 @@ from src.models.practice import (
     HabitPattern,
     HabitPatternRead,
     PracticeSession,
+    TransitionMastery,
+    TransitionMasteryRead,
 )
 from src.models.user import User
 
@@ -181,28 +185,27 @@ async def get_my_stats(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> MeStatsResponse:
     """Retrieve aggregated practice performance statistics and streak data."""
-    # Completed sessions metrics
-    sessions_query = await session.execute(
-        select(PracticeSession).where(
+    # Push session metric aggregation directly to PostgreSQL
+    stats_query = await session.execute(
+        select(
+            func.count(col(PracticeSession.id)),
+            func.avg(col(PracticeSession.overall_accuracy)),
+            func.avg(col(PracticeSession.avg_timing_error_ms)),
+            func.avg(col(PracticeSession.voicing_score)),
+        ).where(
             col(PracticeSession.user_id) == identity.user_id,
             col(PracticeSession.state) == "completed",
         )
     )
-    completed_sessions = list(sessions_query.scalars().all())
+    stats_row = stats_query.one()
+    total_count = int(stats_row[0] or 0)
+    raw_acc = stats_row[1]
+    raw_timing = stats_row[2]
+    raw_voicing = stats_row[3]
 
-    total_count = len(completed_sessions)
-    if total_count > 0:
-        accuracies = [s.overall_accuracy for s in completed_sessions if s.overall_accuracy is not None]
-        timing_errors = [s.avg_timing_error_ms for s in completed_sessions if s.avg_timing_error_ms is not None]
-        voicings = [s.voicing_score for s in completed_sessions if s.voicing_score is not None]
-
-        avg_acc = (sum(accuracies) / len(accuracies) * 100.0) if accuracies else 0.0
-        avg_timing = (sum(timing_errors) / len(timing_errors)) if timing_errors else 0.0
-        avg_voicing = (sum(voicings) / len(voicings)) if voicings else 0.0
-    else:
-        avg_acc = 0.0
-        avg_timing = 0.0
-        avg_voicing = 0.0
+    avg_acc = (float(raw_acc) * 100.0) if raw_acc is not None else 0.0
+    avg_timing = float(raw_timing) if raw_timing is not None else 0.0
+    avg_voicing = float(raw_voicing) if raw_voicing is not None else 0.0
 
     # Habit patterns count
     habits_query = await session.execute(
@@ -260,5 +263,25 @@ async def get_my_habits(
         .order_by(col(HabitPattern.evidence_count).desc())
     )
     return list(query.scalars().all())
+
+
+@router.get("/me/mastery", response_model=MeMasteryResponse)
+async def get_my_mastery(
+    identity: ClerkIdentityDep,
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> MeMasteryResponse:
+    """Retrieve user's active transition mastery states, ranked recommendations, and priority scores."""
+    query = await session.execute(
+        select(TransitionMastery)
+        .where(col(TransitionMastery.user_id) == identity.user_id)
+        .order_by(col(TransitionMastery.p_known).asc(), col(TransitionMastery.ewma_latency_ms).desc())
+    )
+    records = list(query.scalars().all())
+    ranked_recommendations = StudentMasteryEngine.rank_transition_prescriptions(records)
+
+    return MeMasteryResponse(
+        records=[TransitionMasteryRead.model_validate(r) for r in records],
+        recommendations=ranked_recommendations,
+    )
 
 

@@ -121,7 +121,7 @@ async def test_submit_take_and_analyze(async_client: AsyncClient) -> None:
     analysis = take_resp.json()
     assert analysis["session_id"] == sess_id
     assert analysis["state"] == "completed"
-    assert analysis["overall_accuracy"] == 1.0
+    assert analysis["overall_accuracy"] == 100.0
     assert analysis["voicing_score"] == 1.0
     assert len(analysis["chord_metrics"]) == 2
     assert analysis["chord_metrics"][0]["expected_chord"] == "C"
