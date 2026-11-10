@@ -8,7 +8,7 @@ type AuthShellProps = {
 
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 
-export function AuthShell({ children, hideHeader = false }: AuthShellProps) {
+export function AuthShell({ children, hideHeader = true }: AuthShellProps) {
   const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
   const hasValidClerkKey = Boolean(
     publishableKey &&

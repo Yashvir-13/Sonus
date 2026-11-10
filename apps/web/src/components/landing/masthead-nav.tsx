@@ -1,9 +1,11 @@
 import React from 'react'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
-import { ArrowUpRight, TrendingUp, Users } from 'lucide-react'
+import { ArrowUpRight, TrendingUp, Users, BookOpen, Disc } from 'lucide-react'
 
 export type MastheadNavProps = {
   onEnterStudio?: () => void
+  onOpenTheory?: () => void
+  onOpenTuner?: () => void
   onOpenProgress?: () => void
   onOpenCommunity?: () => void
   onSignIn?: () => void
@@ -14,6 +16,8 @@ export type MastheadNavProps = {
 
 export function MastheadNav({
   onEnterStudio,
+  onOpenTheory,
+  onOpenTuner,
   onOpenProgress,
   onOpenCommunity,
   onSignIn,
@@ -39,13 +43,14 @@ export function MastheadNav({
           e.preventDefault()
           scrollToRatio(0)
         }}
-        className="font-brand text-sm font-bold tracking-[0.22em] uppercase text-zinc-900 dark:text-zinc-100 whitespace-nowrap shrink-0"
+        className="font-brand text-sm font-bold tracking-[0.22em] uppercase text-zinc-900 dark:text-zinc-100 whitespace-nowrap shrink-0 flex items-center gap-1.5"
       >
-        SONUS
+        <span className="text-amber-600 dark:text-amber-500 font-bold">§</span>
+        <span>SONUS</span>
       </a>
 
-      {/* Zone 2: Clean Musician-Focused Section Links */}
-      <nav className="hidden lg:flex items-center gap-6 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+      {/* Zone 2: Streamlined Section & Feature Links */}
+      <nav className="hidden xl:flex items-center gap-6 text-xs font-mono font-medium text-zinc-600 dark:text-zinc-400">
         <button
           type="button"
           onClick={() => scrollToRatio(0.18)}
@@ -62,18 +67,31 @@ export function MastheadNav({
         </button>
         <button
           type="button"
-          onClick={() => scrollToRatio(0.62)}
-          className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap cursor-pointer"
-        >
-          Habit Tracking
-        </button>
-        <button
-          type="button"
           onClick={() => scrollToRatio(0.92)}
           className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap cursor-pointer"
         >
           Song Library
         </button>
+        {onOpenTheory && (
+          <button
+            type="button"
+            onClick={onOpenTheory}
+            className="hover:text-amber-600 dark:text-amber-400 transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1"
+          >
+            <BookOpen className="size-3 text-amber-500" />
+            <span>Chords &amp; Scales</span>
+          </button>
+        )}
+        {onOpenTuner && (
+          <button
+            type="button"
+            onClick={onOpenTuner}
+            className="hover:text-amber-600 dark:text-amber-400 transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1"
+          >
+            <Disc className="size-3 text-amber-500" />
+            <span>Guitar Tuner</span>
+          </button>
+        )}
       </nav>
 
       {/* Zone 3: App Destinations, Theme Toggle & Practice Studio CTA */}
@@ -82,7 +100,7 @@ export function MastheadNav({
           <button
             type="button"
             onClick={onOpenProgress}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-[#121215] hover:border-amber-500/60 text-zinc-800 dark:text-zinc-200 text-xs font-medium transition-colors cursor-pointer"
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-[#121215] hover:border-amber-500/60 text-zinc-800 dark:text-zinc-200 text-xs font-mono transition-colors cursor-pointer"
           >
             <TrendingUp className="size-3.5 text-amber-600 dark:text-amber-500" />
             <span>Progress &amp; Coach</span>
@@ -93,7 +111,7 @@ export function MastheadNav({
           <button
             type="button"
             onClick={onOpenCommunity}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-[#121215] hover:border-amber-500/60 text-zinc-800 dark:text-zinc-200 text-xs font-medium transition-colors cursor-pointer"
+            className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-[#121215] hover:border-amber-500/60 text-zinc-800 dark:text-zinc-200 text-xs font-mono transition-colors cursor-pointer"
           >
             <Users className="size-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Peer Benchmarks</span>
@@ -106,7 +124,7 @@ export function MastheadNav({
         <button
           type="button"
           onClick={onEnterStudio || onSignIn}
-          className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer shadow-xs"
+          className="px-3.5 sm:px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer shadow-xs"
         >
           <span>Enter Practice Studio</span>
           <ArrowUpRight className="size-3.5" />

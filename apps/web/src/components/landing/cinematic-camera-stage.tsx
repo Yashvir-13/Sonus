@@ -6,7 +6,7 @@ import {
   useMotionValueEvent,
   useReducedMotion,
 } from 'motion/react'
-import { ArrowUpRight, Volume2, Play, Activity, Sliders, Disc, TrendingUp, Users } from 'lucide-react'
+import { ArrowUpRight, Volume2, Play, Activity, Sliders, Disc, TrendingUp, Users, BookOpen } from 'lucide-react'
 import { PracticeAudioEngine } from '@/lib/audio/practice-audio-engine'
 import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
 import type { ExerciseDto } from '@/api/sessions'
@@ -14,6 +14,8 @@ import { VolumetricSmokeCanvas } from './volumetric-smoke-canvas'
 
 export type CinematicCameraStageProps = {
   onEnterStudio?: (songId?: string) => void
+  onOpenTheory?: () => void
+  onOpenTuner?: () => void
   onOpenProgress?: () => void
   onOpenCommunity?: () => void
   onSelectPiece?: (title: string, songId?: string) => void
@@ -32,6 +34,8 @@ const SECTION_WAYPOINTS = [
 
 export function CinematicCameraStage({
   onEnterStudio,
+  onOpenTheory,
+  onOpenTuner,
   onOpenProgress,
   onOpenCommunity,
   onSelectPiece,
@@ -364,6 +368,65 @@ export function CinematicCameraStage({
                 <span>Peer Benchmarks</span>
               </button>
             )}
+          </div>
+
+          {/* Clean Interactive Suite Discovery Strip */}
+          <div className="mt-8 pointer-events-auto grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-3xl w-full text-left">
+            <button
+              type="button"
+              onClick={onOpenTheory}
+              className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-[#121215]/90 hover:border-amber-500 transition-all cursor-pointer group shadow-xs"
+            >
+              <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-amber-500">
+                <BookOpen className="size-3.5 text-amber-500" />
+                <span>Chords &amp; Scales</span>
+              </div>
+              <p className="text-[10px] text-zinc-500 font-sans mt-0.5 leading-snug">
+                12 roots · Diatonic, modes &amp; voicings
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={onOpenTuner}
+              className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-[#121215]/90 hover:border-amber-500 transition-all cursor-pointer group shadow-xs"
+            >
+              <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-amber-500">
+                <Disc className="size-3.5 text-amber-500" />
+                <span>Guitar Tuner</span>
+              </div>
+              <p className="text-[10px] text-zinc-500 font-sans mt-0.5 leading-snug">
+                Microphone pitch lock ±50¢
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={onOpenProgress}
+              className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-[#121215]/90 hover:border-amber-500 transition-all cursor-pointer group shadow-xs"
+            >
+              <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-amber-500">
+                <TrendingUp className="size-3.5 text-amber-500" />
+                <span>Practice Coach</span>
+              </div>
+              <p className="text-[10px] text-zinc-500 font-sans mt-0.5 leading-snug">
+                Longitudinal BKT &amp; SM-2 schedule
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={onOpenCommunity}
+              className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-[#121215]/90 hover:border-emerald-500 transition-all cursor-pointer group shadow-xs"
+            >
+              <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-emerald-500">
+                <Users className="size-3.5 text-emerald-500" />
+                <span>Peer Benchmarks</span>
+              </div>
+              <p className="text-[10px] text-zinc-500 font-sans mt-0.5 leading-snug">
+                Percentile curves across 12k takes
+              </p>
+            </button>
           </div>
         </motion.div>
 
@@ -842,8 +905,18 @@ export function CinematicCameraStage({
                     Synthesizes plucked guitar strings in real time so you can hear how each chord voicing and strumming pattern should sound at any tempo without pitch distortion.
                   </p>
                 </div>
-                <div className="text-[11px] font-mono text-zinc-500 pt-3 border-t border-zinc-200 dark:border-zinc-800">
-                  Side-by-Side Current Chord → Next Chord Fretboard Guide
+                <div className="text-[11px] font-mono text-zinc-500 pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2">
+                  <span>Side-by-Side Fretboard Guide</span>
+                  {onOpenTuner && (
+                    <button
+                      type="button"
+                      onClick={onOpenTuner}
+                      className="px-2 py-1 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold transition-colors cursor-pointer flex items-center gap-1"
+                    >
+                      <Disc className="size-3" />
+                      <span>Tune Guitar ↗</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -863,8 +936,18 @@ export function CinematicCameraStage({
                     Practice with falling Left-Hand (Amber) and Right-Hand (Emerald) key ribbons or traditional sheet music, complete with interactive 25-key hand-position diagrams.
                   </p>
                 </div>
-                <div className="text-[11px] font-mono text-zinc-500 pt-3 border-t border-zinc-200 dark:border-zinc-800">
-                  Wooden Metronome Click · Instant Speed Scaling (40–220 BPM)
+                <div className="text-[11px] font-mono text-zinc-500 pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2">
+                  <span>Wooden Metronome · Instant Speed Ramp</span>
+                  {onOpenTheory && (
+                    <button
+                      type="button"
+                      onClick={onOpenTheory}
+                      className="px-2 py-1 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold transition-colors cursor-pointer flex items-center gap-1"
+                    >
+                      <BookOpen className="size-3" />
+                      <span>Chords &amp; Scales ↗</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

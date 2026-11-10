@@ -24,7 +24,7 @@ describe('PianoWaterfallStand Component', () => {
     expect(screen.getByTestId('waterfall-strike-zone')).toBeDefined()
   })
 
-  it('renders all 25 baseline keys with 15 white keys and 10 black keys', () => {
+  it('renders all 88 concert baseline keys with 52 white keys and 36 black keys', () => {
     render(
       <PianoWaterfallStand
         progression={progression}
@@ -37,8 +37,8 @@ describe('PianoWaterfallStand Component', () => {
     const whiteGroup = screen.getByTestId('waterfall-white-keys')
     const blackGroup = screen.getByTestId('waterfall-black-keys')
 
-    expect(whiteGroup.children.length).toBe(15)
-    expect(blackGroup.children.length).toBe(10)
+    expect(whiteGroup.children.length).toBe(52)
+    expect(blackGroup.children.length).toBe(36)
   })
 
   it('triggers onKeyClick when a baseline key is clicked with exact MIDI pitch', () => {

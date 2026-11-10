@@ -7,6 +7,8 @@ import { ColophonFooter } from './colophon-footer'
 
 export type LandingPageProps = {
   onEnterStudio?: (songId?: string) => void
+  onOpenTheory?: () => void
+  onOpenTuner?: () => void
   onOpenProgress?: () => void
   onOpenCommunity?: () => void
   onSignIn?: () => void
@@ -16,6 +18,8 @@ export type LandingPageProps = {
 
 export function LandingPage({
   onEnterStudio,
+  onOpenTheory,
+  onOpenTuner,
   onOpenProgress,
   onOpenCommunity,
   onSignIn,
@@ -68,6 +72,8 @@ export function LandingPage({
     >
       <MastheadNav
         onEnterStudio={() => handleEnter(activeSongId)}
+        onOpenTheory={onOpenTheory}
+        onOpenTuner={onOpenTuner}
         onOpenProgress={onOpenProgress}
         onOpenCommunity={onOpenCommunity}
         onSignIn={onSignIn}
@@ -77,6 +83,8 @@ export function LandingPage({
 
       <CinematicCameraStage
         onEnterStudio={(songId) => handleEnter(songId)}
+        onOpenTheory={onOpenTheory}
+        onOpenTuner={onOpenTuner}
         onOpenProgress={onOpenProgress}
         onOpenCommunity={onOpenCommunity}
         onSelectPiece={(title, songId) => {
