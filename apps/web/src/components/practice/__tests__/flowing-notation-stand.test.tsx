@@ -148,13 +148,14 @@ describe('FlowingNotationStand', () => {
     // Check total beats header (3 beats for 1 measure)
     expect(screen.getByText(/1 MEASURES/i)).toBeDefined()
     expect(screen.getByText(/BEAT 1 \/ 3/i)).toBeDefined()
-    // Check melody noteheads
+    // Check melody noteheads (8 authentic VexFlow Bravura SMuFL noteheads)
     const noteheads = screen.getAllByTestId('grand-staff-notehead')
     expect(noteheads.length).toBe(8)
-    // Check pitch label
-    expect(screen.getByText('Eb5')).toBeDefined()
-    // Check flat accidental symbol
-    expect(screen.getAllByText('♭').length).toBeGreaterThanOrEqual(1)
+    // Check authentic VexFlow Grand Staff SVG + C Minor key signature + chord symbol
+    const svg = screen.getByTestId('vexflow-grand-staff-svg')
+    expect(svg).toBeDefined()
+    expect(screen.getAllByText(/Key:\s*Cm/i).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByText('Cm')).toBeDefined()
   })
 
   it('renders piano waterfall visualizer when pianoNotationMode="keys"', () => {

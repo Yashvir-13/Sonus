@@ -33,7 +33,15 @@ export type ExerciseDto = {
         keys?: string[]
         octave?: number
       }
+      piano_voicings?: {
+        lh_note?: string
+        rh_notes?: string[]
+        lh_pitches?: number[]
+        rh_pitches?: number[]
+        inversion?: string
+      }
       common_mistakes?: string[]
+      section?: string
     }>
   }
 }
@@ -196,6 +204,10 @@ export function setClerkAuthActive(active: boolean): void {
   clerkAuthActive = active
 }
 
+export function isClerkAuthActive(): boolean {
+  return clerkAuthActive
+}
+
 export function setClerkUserMetadata(metadata: ClerkUserMetadata | null): void {
   clerkUserMetadata = metadata
 }
@@ -217,7 +229,7 @@ async function resolveAuthHeader(token?: string): Promise<Record<string, string>
   if (clerkAuthActive) {
     return {}
   }
-  return { Authorization: 'Bearer dev_token' }
+  return {}
 }
 
 export async function fetchMe(token?: string): Promise<UserProfileDto> {

@@ -25,7 +25,8 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "tailwind-merge": "^3.7.0",
-    "tonal": "^6.5.0"
+    "tonal": "^6.5.0",
+    "vexflow": "^5.1.2"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",

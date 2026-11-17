@@ -1,3 +1,7 @@
+import { MusicalChord } from './musical-chord'
+
+export { MusicalChord }
+
 export type GuitarTabVoicing = {
   frets: (number | null)[] // [E2, A2, D3, G3, B3, E4]
   fingering: string
@@ -94,8 +98,8 @@ const NOTE_TO_PITCH_CLASS: Record<string, number> = {
   B: 11,
 }
 
-const PITCH_CLASS_TO_NOTE_SHARPS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-const PITCH_CLASS_TO_NOTE_FLATS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+export const PITCH_CLASS_TO_NOTE_SHARPS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+export const PITCH_CLASS_TO_NOTE_FLATS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
 
 const CHORD_INTERVALS: Record<string, number[]> = {
   '': [0, 4, 7],
@@ -419,7 +423,13 @@ export const STANDARD_GUITAR_VOICINGS: Record<string, GuitarTabVoicing> = {
 }
 
 function parseRootAndQuality(chordName: string): { root: string; quality: string } {
-  const match = chordName.match(/^([A-Ga-g][#b]?)(.*)$/)
+  let cleaned = (chordName || '').trim()
+  if (/\s+Major$/i.test(cleaned)) {
+    cleaned = cleaned.replace(/\s+Major$/i, '')
+  } else if (/\s+Minor$/i.test(cleaned)) {
+    cleaned = cleaned.replace(/\s+Minor$/i, 'm')
+  }
+  const match = cleaned.match(/^([A-Ga-g][#b]?)(.*)$/)
   if (!match) {
     return { root: 'C', quality: '' }
   }
@@ -444,9 +454,15 @@ export function resolveChordVoicing(chordName: string): VoicingDefinition {
 
   // Guitar Tab lookup or dynamic approximation
   let rawGuitarTab = STANDARD_GUITAR_VOICINGS[chordName]
+  if (!rawGuitarTab) {
+    const normalized = chordName.trim().replace(/\s+Major$/i, '').replace(/\s+Minor$/i, 'm')
+    rawGuitarTab = STANDARD_GUITAR_VOICINGS[normalized]
+  }
   if (!rawGuitarTab && (chordName === 'G_folk' || chordName === 'Gfolk' || chordName === 'G-folk' || chordName === 'G3')) {
     rawGuitarTab = STANDARD_GUITAR_VOICINGS['G_folk']
   }
+
+  const domainChord = new MusicalChord(chordName)
 
   let guitarTab: GuitarTabVoicing
   if (rawGuitarTab) {
@@ -456,19 +472,11 @@ export function resolveChordVoicing(chordName: string): VoicingDefinition {
       baseFret: rawGuitarTab.baseFret ?? 1,
     }
   } else {
-    guitarTab = {
-      frets: [null, null, 0, null, null, null],
-      fingering: 'x-x-0-x-x-x',
-      fingers: [null, null, null, null, null, null],
-      strings: 'x-x-D-G-B-e',
-      baseFret: 1,
-    }
-    if (quality.includes('m') || quality.includes('min')) {
-      guitarTab.barreFret = rootPc
-    }
+    // Dynamic CAGED guitar voicing computed via MusicalChord domain entity
+    guitarTab = domainChord.getGuitarVoicing()
   }
 
-  // Guitar expected MIDI pitches
+  // Expected MIDI pitches from guitar tab (or fallback to piano)
   const expectedPitches: number[] = []
   guitarTab.frets.forEach((fret, stringIdx) => {
     if (fret !== null) {
@@ -476,45 +484,18 @@ export function resolveChordVoicing(chordName: string): VoicingDefinition {
     }
   })
 
-  // Piano Voicing: LH root octave (C2-B2) + RH triad (C4-B4)
-  const lhRootMidi = 36 + rootPc
-  const lhNotes = [`${root}2`]
-  const lhPitches = [lhRootMidi]
-
-  const rhNotes: string[] = []
-  const rhPitches: number[] = []
-  intervals.forEach((semitones) => {
-    const midi = 60 + rootPc + semitones
-    const pc = midi % 12
-    const noteTable = (root.includes('b') || root === 'F') ? PITCH_CLASS_TO_NOTE_FLATS : PITCH_CLASS_TO_NOTE_SHARPS
-    const octave = Math.floor(midi / 12) - 1
-    rhNotes.push(`${noteTable[pc]}${octave}`)
-    rhPitches.push(midi)
-  })
-
-  // Pitch spelling table
-  const roleNames = ['Root', 'Third', 'Fifth', 'Seventh', 'Ninth']
-  const pitchSpelling: PitchSpellingItem[] = intervals.map((_, idx) => {
-    const pc = (rootPc + intervals[idx]) % 12
-    return {
-      note: ((root.includes('b') || root === 'F') ? PITCH_CLASS_TO_NOTE_FLATS : PITCH_CLASS_TO_NOTE_SHARPS)[pc],
-      role: roleNames[idx] || 'Extension',
-    }
-  })
+  // Piano Voicing and Pitch Spelling computed via MusicalChord domain entity
+  const pianoVoicing = domainChord.getPianoVoicing()
+  const pitchSpelling = domainChord.getPitchSpelling()
 
   return {
     chordName,
     root,
     quality,
-    expectedPitches: expectedPitches.length > 0 ? expectedPitches : rhPitches,
+    expectedPitches: expectedPitches.length > 0 ? expectedPitches : pianoVoicing.rhPitches,
     pitchClasses,
     guitarTab,
-    pianoVoicing: {
-      lhNotes,
-      rhNotes,
-      lhPitches,
-      rhPitches,
-    },
+    pianoVoicing,
     pitchSpelling,
   }
 }

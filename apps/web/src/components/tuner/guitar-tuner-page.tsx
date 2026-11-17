@@ -38,6 +38,18 @@ export function GuitarTunerPage({
   const [isMicListening, setIsMicListening] = useState(false)
   const [micError, setMicError] = useState<string | null>(null)
 
+  // Mutable refs to prevent stale closure capture in continuous audio processing callbacks
+  const selectedStringRef = useRef(selectedString)
+  const isAutoDetectRef = useRef(isAutoDetect)
+
+  useEffect(() => {
+    selectedStringRef.current = selectedString
+  }, [selectedString])
+
+  useEffect(() => {
+    isAutoDetectRef.current = isAutoDetect
+  }, [isAutoDetect])
+
   // Live pitch state
   const [detectedHz, setDetectedHz] = useState<number | null>(null)
   const [centsDeviation, setCentsDeviation] = useState<number>(0)
@@ -79,30 +91,49 @@ export function GuitarTunerPage({
 
           if (res && res.freq > 0) {
             setHasSound(true)
-            const hz = res.freq
-            setDetectedHz(hz)
-            setDetectedNote(res.note)
+            const smoothedHz = pitchTrackerRef.current.getSmoothedPitch(res.freq, 5)
+            setDetectedHz(smoothedHz)
 
-            if (isAutoDetect) {
-              // Find closest guitar string
+            // Calculate note synchronously from smoothed frequency to eliminate visual glitch desync
+            const midiVal = Math.round(12 * Math.log2(smoothedHz / 440) + 69)
+            const noteIdx = ((midiVal % 12) + 12) % 12
+            const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+            setDetectedNote(noteNames[noteIdx] ?? res.note)
+
+            const activeAutoDetect = isAutoDetectRef.current
+            const activeSelected = selectedStringRef.current
+
+            if (activeAutoDetect) {
+              // Find closest guitar string using logarithmic musical distance (cents)
               let closest = GUITAR_STANDARD_STRINGS[0]!
-              let minDiff = Math.abs(hz - closest.targetHz)
+              let minCentsDiff = Infinity
               for (const s of GUITAR_STANDARD_STRINGS) {
-                const diff = Math.abs(hz - s.targetHz)
-                if (diff < minDiff) {
-                  minDiff = diff
+                const centsDistance = Math.abs(1200 * Math.log2(smoothedHz / s.targetHz))
+                if (centsDistance < minCentsDiff) {
+                  minCentsDiff = centsDistance
                   closest = s
                 }
               }
-              setSelectedString(closest)
-              const cents = 1200 * Math.log2(hz / closest.targetHz)
+              // Hysteresis: switch candidate if closest is already active or if candidate is >= 60 cents closer
+              const currentDistance = Math.abs(1200 * Math.log2(smoothedHz / activeSelected.targetHz))
+              const targetString =
+                closest === activeSelected || minCentsDiff + 60 < currentDistance
+                  ? closest
+                  : activeSelected
+
+              if (targetString !== activeSelected) {
+                selectedStringRef.current = targetString
+                setSelectedString(targetString)
+              }
+              const cents = 1200 * Math.log2(smoothedHz / targetString.targetHz)
               setCentsDeviation(Math.max(-50, Math.min(50, cents)))
             } else {
-              const cents = 1200 * Math.log2(hz / selectedString.targetHz)
+              const cents = 1200 * Math.log2(smoothedHz / activeSelected.targetHz)
               setCentsDeviation(Math.max(-50, Math.min(50, cents)))
             }
           } else {
             setHasSound(false)
+            pitchTrackerRef.current.clearPitchHistory()
           }
         },
         (err) => {
@@ -279,70 +310,72 @@ export function GuitarTunerPage({
             </div>
 
             {/* Analog Needle Dial */}
-            <div className="relative w-72 h-36 flex items-end justify-center select-none">
-              <svg viewBox="0 0 240 120" className="w-full h-full overflow-visible">
-                {/* Arc Background */}
-                <path
-                  d="M 20 110 A 100 100 0 0 1 220 110"
-                  fill="none"
-                  stroke="currentColor"
-                  className="text-zinc-200 dark:text-zinc-800"
-                  strokeWidth="8"
-                  strokeLinecap="round"
-                />
-
-                {/* In-Tune Sweet Zone (±3 cents around center) */}
-                <path
-                  d="M 112 11 A 100 100 0 0 1 128 11"
-                  fill="none"
-                  stroke="#10B981"
-                  strokeWidth="10"
-                  strokeLinecap="round"
-                />
-
-                {/* Ticks (-50 to +50 cents) */}
-                {[-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50].map((cent) => {
-                  const angle = (cent / 50) * 45 * (Math.PI / 180)
-                  const x1 = 120 + 90 * Math.sin(angle)
-                  const y1 = 110 - 90 * Math.cos(angle)
-                  const x2 = 120 + 102 * Math.sin(angle)
-                  const y2 = 110 - 102 * Math.cos(angle)
-                  const isCenter = cent === 0
-                  return (
-                    <line
-                      key={cent}
-                      x1={x1}
-                      y1={y1}
-                      x2={x2}
-                      y2={y2}
-                      stroke={isCenter ? '#10B981' : cent < 0 ? '#DC2626' : '#D97706'}
-                      strokeWidth={isCenter ? 2.5 : 1.2}
-                      strokeOpacity={0.8}
-                    />
-                  )
-                })}
-
-                {/* Rotating Needle */}
-                <motion.g
-                  animate={{ rotate: needleRotation }}
-                  transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-                  style={{
-                    transformOrigin: '120px 110px',
-                  }}
-                >
-                  <polygon
-                    points="118,110 122,110 120.5,15"
-                    fill={isInTune ? '#10B981' : '#F59E0B'}
+            <div className="flex flex-col items-center gap-3 select-none">
+              <div className="relative w-72 h-36 flex items-end justify-center">
+                <svg viewBox="0 0 240 120" className="w-full h-full overflow-visible">
+                  {/* Arc Background */}
+                  <path
+                    d="M 20 110 A 100 100 0 0 1 220 110"
+                    fill="none"
+                    stroke="currentColor"
+                    className="text-zinc-200 dark:text-zinc-800"
+                    strokeWidth="8"
+                    strokeLinecap="round"
                   />
-                  <circle cx="120" cy="110" r="5" fill="#18181B" />
-                </motion.g>
-              </svg>
 
-              {/* -50 Flat and +50 Sharp labels */}
-              <div className="absolute inset-x-2 bottom-0 flex justify-between text-[10px] font-mono text-zinc-400">
-                <span>♭ FLAT (-50¢)</span>
-                <span className="font-bold text-emerald-500">0¢</span>
-                <span>SHARP (+50¢) ♯</span>
+                  {/* In-Tune Sweet Zone (±3 cents around center) */}
+                  <path
+                    d="M 112 11 A 100 100 0 0 1 128 11"
+                    fill="none"
+                    stroke="#10B981"
+                    strokeWidth="10"
+                    strokeLinecap="round"
+                  />
+
+                  {/* Ticks (-50 to +50 cents) */}
+                  {[-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50].map((cent) => {
+                    const angle = (cent / 50) * 45 * (Math.PI / 180)
+                    const x1 = 120 + 90 * Math.sin(angle)
+                    const y1 = 110 - 90 * Math.cos(angle)
+                    const x2 = 120 + 102 * Math.sin(angle)
+                    const y2 = 110 - 102 * Math.cos(angle)
+                    const isCenter = cent === 0
+                    return (
+                      <line
+                        key={cent}
+                        x1={x1}
+                        y1={y1}
+                        x2={x2}
+                        y2={y2}
+                        stroke={isCenter ? '#10B981' : cent < 0 ? '#DC2626' : '#D97706'}
+                        strokeWidth={isCenter ? 2.5 : 1.2}
+                        strokeOpacity={0.8}
+                      />
+                    )
+                  })}
+
+                  {/* Rotating Needle */}
+                  <motion.g
+                    animate={{ rotate: needleRotation }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+                    style={{
+                      transformOrigin: '120px 110px',
+                    }}
+                  >
+                    <polygon
+                      points="118,110 122,110 120.5,15"
+                      fill={isInTune ? '#10B981' : '#F59E0B'}
+                    />
+                    <circle cx="120" cy="110" r="5" fill="#18181B" />
+                  </motion.g>
+                </svg>
+              </div>
+
+              {/* -50 Flat and +50 Sharp labels positioned cleanly below dial without needle pivot overlap */}
+              <div className="flex items-center justify-between w-72 px-1 text-[10px] font-mono text-zinc-500">
+                <span className="text-red-600 dark:text-red-400 font-medium">♭ FLAT (-50¢)</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">0¢ IN TUNE</span>
+                <span className="text-amber-600 dark:text-amber-400 font-medium">SHARP (+50¢) ♯</span>
               </div>
             </div>
 

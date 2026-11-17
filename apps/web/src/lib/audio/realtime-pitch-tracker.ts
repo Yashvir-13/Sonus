@@ -16,7 +16,7 @@ export type PitchDetectionResult = {
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
 export class RealtimePitchTracker {
-  private readonly sampleRate: number
+  private sampleRate: number
   private readonly minFreq: number
   private readonly maxFreq: number
   public noiseGateDb: number
@@ -24,6 +24,7 @@ export class RealtimePitchTracker {
   private mediaStream: MediaStream | null = null
   private audioContext: AudioContext | null = null
   private animFrameId: number | null = null
+  private pitchHistory: number[] = []
 
   constructor(sampleRate = 44100, minFreq = 70, maxFreq = 1200, noiseGateDb = -34, clarityThreshold = 0.35) {
     this.sampleRate = sampleRate
@@ -31,6 +32,46 @@ export class RealtimePitchTracker {
     this.maxFreq = maxFreq
     this.noiseGateDb = noiseGateDb
     this.clarityThreshold = clarityThreshold
+  }
+
+  public getSampleRate(): number {
+    return this.sampleRate
+  }
+
+  public setSampleRate(rate: number): void {
+    if (rate > 0) {
+      this.sampleRate = rate
+    }
+  }
+
+  public clearPitchHistory(): void {
+    this.pitchHistory = []
+  }
+
+  /**
+   * Applies a rolling median filter over recent pitch estimates to suppress octave jumps and transient jitter.
+   */
+  public getSmoothedPitch(rawFreq: number, maxHistory = 5): number {
+    if (rawFreq <= 0 || !Number.isFinite(rawFreq)) {
+      return rawFreq
+    }
+    this.pitchHistory.push(rawFreq)
+    if (this.pitchHistory.length > maxHistory) {
+      this.pitchHistory.shift()
+    }
+    const sorted = [...this.pitchHistory].sort((a, b) => a - b)
+    const mid = Math.floor(sorted.length / 2)
+    if (sorted.length % 2 !== 0) {
+      return sorted[mid]!
+    }
+    const lower = sorted[mid - 1]!
+    const upper = sorted[mid]!
+    // If the two middle estimates are within 6% (same musical pitch), average them for smooth fine-tuning cents.
+    // If they diverge (e.g. octave harmonic or glitch jump), select the median without synthesizing a phantom note.
+    if (Math.abs(upper - lower) / lower <= 0.06) {
+      return (lower + upper) / 2
+    }
+    return upper
   }
 
   /**
@@ -52,6 +93,8 @@ export class RealtimePitchTracker {
       if (!AudioCtx) return
       const ctx = new AudioCtx()
       this.audioContext = ctx
+      // Synchronize sampleRate with actual audio hardware context (e.g. 48000 Hz vs 44100 Hz)
+      this.sampleRate = ctx.sampleRate
       const source = ctx.createMediaStreamSource(stream)
       const analyser = ctx.createAnalyser()
       analyser.fftSize = 2048
@@ -73,6 +116,7 @@ export class RealtimePitchTracker {
    * Stops live microphone stream and cleans up Web Audio resources.
    */
   public stop(): void {
+    this.clearPitchHistory()
     if (this.animFrameId) {
       cancelAnimationFrame(this.animFrameId)
       this.animFrameId = null
@@ -151,30 +195,57 @@ export class RealtimePitchTracker {
       return null
     }
 
-    // Pick the FIRST local peak that is within 85% of the global peak
-    // This prevents picking harmonic multiples (e.g. 5x period = octave drop)
-    const threshold = globalMax * 0.85
-    let bestLag = -1
-    let maxCorr = -1
+    // Collect all local positive correlation peaks
+    type LocalPeak = { lag: number; corr: number }
+    const localPeaks: LocalPeak[] = []
+    let globalPeakLag = -1
+    let globalPeakVal = -1
 
     for (let lag = minLag + 1; lag < maxLag; lag++) {
-      if (corrs[lag] > corrs[lag - 1] && corrs[lag] >= corrs[lag + 1]) {
-        if (corrs[lag] >= threshold) {
-          bestLag = lag
-          maxCorr = corrs[lag]
-          break
+      if (corrs[lag] > corrs[lag - 1] && corrs[lag] >= corrs[lag + 1] && corrs[lag] > 0) {
+        localPeaks.push({ lag, corr: corrs[lag] })
+        if (corrs[lag] > globalPeakVal) {
+          globalPeakVal = corrs[lag]
+          globalPeakLag = lag
         }
       }
     }
 
-    if (bestLag === -1) {
-      // Fallback to highest peak if no local peak satisfied threshold
-      for (let lag = minLag; lag <= maxLag; lag++) {
-        if (corrs[lag] === globalMax) {
-          bestLag = lag
-          maxCorr = corrs[lag]
-          break
+    if (localPeaks.length === 0 || globalPeakLag <= 0) {
+      return null
+    }
+
+    // Fundamental selection with harmonic sub-multiple rejection:
+    // A smaller lag L is only chosen if it is NOT a sub-multiple (harmonic) of a larger lag with
+    // higher or equal correlation. If an integer multiple k*L (k=2,3,4) has a peak with higher
+    // correlation than L, then L is a harmonic (e.g. 2nd or 3rd harmonic), NOT the fundamental.
+    const threshold = globalPeakVal * 0.85
+    let bestLag = globalPeakLag
+    let maxCorr = globalPeakVal
+
+    for (const p of localPeaks) {
+      if (p.corr < threshold) continue
+
+      let isHarmonic = false
+      for (let k = 2; k <= 4; k++) {
+        const multLag = Math.round(p.lag * k)
+        if (multLag > maxLag) break
+
+        for (const other of localPeaks) {
+          if (Math.abs(other.lag - multLag) <= Math.max(2, Math.round(other.lag * 0.04))) {
+            if (other.corr > p.corr + 0.03) {
+              isHarmonic = true
+              break
+            }
+          }
         }
+        if (isHarmonic) break
+      }
+
+      if (!isHarmonic) {
+        bestLag = p.lag
+        maxCorr = p.corr
+        break
       }
     }
 
@@ -182,23 +253,11 @@ export class RealtimePitchTracker {
       return null
     }
 
-    // Parabolic interpolation around the peak lag
+    // Parabolic interpolation around the peak lag using consistent normalized correlation values
     let fineLag = bestLag
     if (bestLag > minLag && bestLag < maxLag) {
-      let prevCorr = 0
-      const prevOverlap = bufferSize - (bestLag - 1)
-      for (let i = 0; i < prevOverlap; i++) {
-        prevCorr += timeData[i] * timeData[i + (bestLag - 1)]
-      }
-      prevCorr /= prevOverlap
-
-      let nextCorr = 0
-      const nextOverlap = bufferSize - (bestLag + 1)
-      for (let i = 0; i < nextOverlap; i++) {
-        nextCorr += timeData[i] * timeData[i + (bestLag + 1)]
-      }
-      nextCorr /= nextOverlap
-
+      const prevCorr = corrs[bestLag - 1] ?? 0
+      const nextCorr = corrs[bestLag + 1] ?? 0
       const denom = 2 * (2 * maxCorr - prevCorr - nextCorr)
       if (Math.abs(denom) > 1e-9) {
         const delta = (nextCorr - prevCorr) / denom
@@ -248,7 +307,7 @@ export class RealtimePitchTracker {
         matchedPitchClasses: [],
         missingPitchClasses: expected.pitchClasses,
         timingDeltaMs: 0,
-        isSoundDetected: false,
+        isSoundDetected: rmsDb >= this.noiseGateDb,
         clarityScore: 0,
       }
     }

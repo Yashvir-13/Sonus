@@ -17,7 +17,7 @@ import {
   type AdaptiveExerciseRecommendation,
 } from '@/lib/adaptive/recommendation-engine'
 import { MusicianLoadingScreen } from '@/components/ui/loading-screen'
-import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
+import { BUILTIN_FULL_SONGS, ALL_BUILTIN_EXERCISES } from '@/lib/music/song-catalog'
 import {
   fetchExercises,
   fetchMe,
@@ -77,7 +77,14 @@ export function exerciseIdToSlug(id: string): string {
       return 'four-chord-anthem'
     case 'ex_guitar_knockin':
       return 'knockin-cadence'
+    case 'ex_piano_autumn_turnaround':
+      return 'piano-autumn-turnaround'
+    case 'ex_piano_pop_ballad':
+      return 'piano-pop-ballad'
     default:
+      if (id.startsWith('drill_chord_')) {
+        return id.replace(/^drill_/, '').replace(/_/g, '-')
+      }
       return id.replace(/^ex_/, '').replace(/_/g, '-')
   }
 }
@@ -96,18 +103,58 @@ export function slugToExerciseId(slug: string, available: ExerciseDto[] = BUILTI
   if (normalized === 'pachelbels-canon' || normalized === 'pachelbel-canon' || normalized === 'pachelbel' || normalized === 'canon') {
     return 'ex_piano_canon'
   }
-  if (normalized === 'four-chord-anthem' || normalized === 'anthem-in-d' || normalized === 'four-chord') {
+  if (normalized.startsWith('four-chord-anthem') || normalized === 'anthem-in-d' || normalized === 'four-chord') {
     return 'ex_guitar_four_chord'
   }
   if (normalized === 'knockin-cadence' || normalized === 'knockin' || normalized === 'knockin-on-heavens-door') {
     return 'ex_guitar_knockin'
   }
+  if (normalized === 'piano-autumn-turnaround' || normalized === 'autumn-turnaround' || normalized === 'autumn-jazz-turnaround') {
+    return 'ex_piano_autumn_turnaround'
+  }
+  if (normalized === 'piano-pop-ballad' || normalized === 'pop-ballad' || normalized === 'pop-ballad-cadence') {
+    return 'ex_piano_pop_ballad'
+  }
+
+  // 1. Direct slug inverse check against exercise catalogue
+  const bySlug = available.find((e) => exerciseIdToSlug(e.id) === normalized)
+  if (bySlug) return bySlug.id
+
+  // 2. Chord drill aliases and direct matching
+  if (
+    normalized.startsWith('chord-drill-') ||
+    normalized.startsWith('drill-chord-') ||
+    normalized.startsWith('chord-')
+  ) {
+    const drillMatch = available.find(
+      (e) =>
+        e.id.toLowerCase() === `drill_${normalized.replace(/-/g, '_')}` ||
+        e.id.toLowerCase() === `drill_chord_${normalized.replace(/^chord-/, '').replace(/-/g, '_')}` ||
+        e.id.toLowerCase() === `drill_chord_${normalized.replace(/^drill-chord-/, '').replace(/-/g, '_')}` ||
+        e.id.toLowerCase() === `drill_chord_${normalized.replace(/^chord-drill-/, '').replace(/-/g, '_')}` ||
+        e.id.toLowerCase() === normalized.replace(/-/g, '_') ||
+        e.id.toLowerCase().replace(/_/g, '-') === normalized
+    )
+    if (drillMatch) return drillMatch.id
+
+    // Fallback: Infer chord drill ID directly from slug pattern (e.g. chord-c -> drill_chord_c)
+    const cleanChordSlug = normalized
+      .replace(/^(drill-chord-|chord-drill-|chord-)/, '')
+      .replace(/-/g, '_')
+    if (cleanChordSlug) {
+      return `drill_chord_${cleanChordSlug}`
+    }
+  }
+
   const direct = available.find((e) => e.id.toLowerCase() === normalized || e.id.toLowerCase() === `ex_${normalized.replace(/-/g, '_')}`)
   if (direct) return direct.id
   const byTitle = available.find((e) => e.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(normalized))
   if (byTitle) return byTitle.id
   return undefined
 }
+
+import { createChordDrillExercise } from '@/lib/music/song-catalog'
+export { createChordDrillExercise }
 
 /**
  * Parses browser pathname into the matching AppViewMode and optional song ID.
@@ -185,6 +232,7 @@ export default function App({
   const [activeView, setActiveView] = useState<AppViewMode>(initialRoute.view)
   const [isSignedIn, setIsSignedIn] = useState(defaultSignedIn || Boolean(userButtonSlot))
   const [showSignInModal, setShowSignInModal] = useState(false)
+  const [authReturnUrl, setAuthReturnUrl] = useState<string>('/practice')
   const [selectedSongId, setSelectedSongId] = useState<string>(initialRoute.songId || 'ex_guitar_knockin')
   const [pendingLoopDrill, setPendingLoopDrill] = useState<{
     fromChord: string
@@ -196,22 +244,89 @@ export default function App({
   // Shared Longitudinal State across Practice Room, Progress & Coach, and Peer Benchmarks
   const [transitions, setTransitions] = useState<TransitionMasteryState[]>([])
   const [sessionHistory, setSessionHistory] = useState<LongitudinalSessionPoint[]>([])
-  const [availableExercises, setAvailableExercises] = useState<ExerciseDto[]>(BUILTIN_FULL_SONGS)
+  const [availableExercises, setAvailableExercises] = useState<ExerciseDto[]>(() => {
+    if (initialRoute.songId && initialRoute.songId.startsWith('drill_chord_')) {
+      const rawChord = initialRoute.songId
+        .replace(/^drill_chord_/, '')
+        .replace(/_sharp/g, '#')
+        .replace(/_/g, ' ')
+      const chordSymbol = rawChord.charAt(0).toUpperCase() + rawChord.slice(1)
+      const drill = createChordDrillExercise(chordSymbol)
+      return [...ALL_BUILTIN_EXERCISES, drill]
+    }
+    return ALL_BUILTIN_EXERCISES
+  })
   const [userStats, setUserStats] = useState<UserStatsDto | null>(null)
   const [userHabits, setUserHabits] = useState<HabitPatternDto[]>([])
   const [isInitialHydrating, setIsInitialHydrating] = useState(true)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isSessionSelectorOpen, setIsSessionSelectorOpen] = useState(false)
-  const [_studioPrefs, setStudioPrefs] = useState<StudioPreferences>(loadStoredPreferences)
+  const [studioPrefs, setStudioPrefs] = useState<StudioPreferences>(loadStoredPreferences)
   const [userProfile, setUserProfile] = useState<{ name: string; username: string; email: string }>({
     name: 'Studio Musician',
     username: 'musician',
     email: 'musician@sonus.studio',
   })
+  const [practiceInstrument, setPracticeInstrument] = useState<'guitar' | 'piano'>(
+    studioPrefs.defaultInstrument || 'guitar'
+  )
+  const [practiceMode, setPracticeMode] = useState<'listen' | 'practice'>('practice')
+  const [practiceNotationMode, setPracticeNotationMode] = useState<'staff' | 'keys'>('staff')
+  const [isRepertoireOpen, setIsRepertoireOpen] = useState(false)
+
+  const selectedSong = useMemo(() => {
+    const found =
+      availableExercises.find((s) => s.id === selectedSongId) ??
+      BUILTIN_FULL_SONGS.find((s) => s.id === selectedSongId)
+    if (found) return found
+
+    if (selectedSongId?.startsWith('drill_chord_')) {
+      const rawChord = selectedSongId
+        .replace(/^drill_chord_/, '')
+        .replace(/_sharp/g, '#')
+        .replace(/_/g, ' ')
+      const chordSymbol = rawChord.charAt(0).toUpperCase() + rawChord.slice(1)
+      return createChordDrillExercise(chordSymbol, studioPrefs.defaultInstrument || 'guitar')
+    }
+
+    return (
+      availableExercises[0] ??
+      BUILTIN_FULL_SONGS[0]
+    )
+  }, [availableExercises, selectedSongId, studioPrefs.defaultInstrument])
+
+  useEffect(() => {
+    if (selectedSong?.instrument) {
+      setPracticeInstrument(selectedSong.instrument.toLowerCase() === 'guitar' ? 'guitar' : 'piano')
+    }
+  }, [selectedSong?.id, selectedSong?.instrument])
 
   // Hydrate authentic repertoire catalogue and user history from PostgreSQL backend
   const loadBackendData = useCallback(async () => {
     try {
+      if (!isSignedIn) {
+        try {
+          const exercisesRes = await fetchExercises()
+          if (exercisesRes && exercisesRes.length > 0) {
+            setAvailableExercises((prev) => {
+              const drills = prev.filter((e) => e.id.startsWith('drill_chord_'))
+              const existingIds = new Set(exercisesRes.map((e) => e.id))
+              const uniqueDrills = drills.filter((d) => !existingIds.has(d.id))
+              return [...exercisesRes, ...uniqueDrills]
+            })
+            if (typeof window !== 'undefined') {
+              const route = parseRouteFromPath(window.location.pathname, exercisesRes)
+              if (route.songId) {
+                setSelectedSongId(route.songId)
+              }
+            }
+          }
+        } catch {
+          // Keep builtin catalogue
+        }
+        return
+      }
+
       const [exercisesRes, sessionsRes, statsRes, habitsRes, masteryRes, meRes] = await Promise.allSettled([
         fetchExercises(),
         fetchUserSessions(),
@@ -225,7 +340,19 @@ export default function App({
         exercisesRes.status === 'fulfilled' && exercisesRes.value.length > 0
           ? exercisesRes.value
           : BUILTIN_FULL_SONGS
-      setAvailableExercises(loadedExercises)
+      setAvailableExercises((prev) => {
+        const drills = prev.filter((e) => e.id.startsWith('drill_chord_'))
+        const existingIds = new Set(loadedExercises.map((e) => e.id))
+        const uniqueDrills = drills.filter((d) => !existingIds.has(d.id))
+        return [...loadedExercises, ...uniqueDrills]
+      })
+
+      if (typeof window !== 'undefined') {
+        const route = parseRouteFromPath(window.location.pathname, loadedExercises)
+        if (route.songId) {
+          setSelectedSongId(route.songId)
+        }
+      }
 
       if (meRes.status === 'fulfilled' && meRes.value) {
         setUserProfile({
@@ -291,7 +418,7 @@ export default function App({
     } finally {
       setIsInitialHydrating(false)
     }
-  }, [])
+  }, [isSignedIn])
 
   useEffect(() => {
     void loadBackendData()
@@ -305,12 +432,21 @@ export default function App({
       setActiveView(view)
       if (songId) {
         setSelectedSongId(songId)
+        if (songId.startsWith('drill_chord_') && !availableExercises.some((e) => e.id === songId)) {
+          const rawChord = songId
+            .replace(/^drill_chord_/, '')
+            .replace(/_sharp/g, '#')
+            .replace(/_/g, ' ')
+          const chordSymbol = rawChord.charAt(0).toUpperCase() + rawChord.slice(1)
+          const drill = createChordDrillExercise(chordSymbol, studioPrefs.defaultInstrument || 'guitar')
+          setAvailableExercises((prev) => [...prev, drill])
+        }
       }
     }
 
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
-  }, [availableExercises])
+  }, [availableExercises, studioPrefs])
 
   const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
   const hasValidClerkKey = Boolean(
@@ -320,7 +456,22 @@ export default function App({
   )
 
   const effectiveUserButtonSlot =
-    userButtonSlot || (isSignedIn && hasValidClerkKey ? <UserButton /> : undefined)
+    userButtonSlot ||
+    (isSignedIn && hasValidClerkKey ? (
+      <UserButton />
+    ) : (
+      <button
+        type="button"
+        data-testid="global-signin-btn"
+        onClick={() => {
+          setAuthReturnUrl(window.location.pathname)
+          setShowSignInModal(true)
+        }}
+        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-amber-500 hover:bg-amber-400 text-zinc-950 transition-colors shadow-xs cursor-pointer"
+      >
+        Sign In
+      </button>
+    ))
 
   // Dynamically update BKT mastery, SM-2 schedule, and session history when a take completes
   const handleTakeCompleted = useCallback(
@@ -392,8 +543,15 @@ export default function App({
 
   const navigateToView = useCallback((view: AppViewMode, targetSongId?: string) => {
     const songToUse = targetSongId || selectedSongId
+    const targetPath = viewToPath(view, songToUse)
+
+    if (!isSignedIn && (view === 'practice' || view === 'progress' || view === 'community')) {
+      setAuthReturnUrl(targetPath)
+      setShowSignInModal(true)
+      return
+    }
+
     if (typeof window !== 'undefined') {
-      const targetPath = viewToPath(view, songToUse)
       if (window.location.pathname !== targetPath) {
         window.history.pushState({ view, songId: songToUse }, '', targetPath)
       }
@@ -403,7 +561,7 @@ export default function App({
     if (targetSongId) {
       setSelectedSongId(targetSongId)
     }
-  }, [selectedSongId])
+  }, [selectedSongId, isSignedIn])
 
   const handleSelectSong = useCallback((songId: string) => {
     setSelectedSongId(songId)
@@ -426,6 +584,25 @@ export default function App({
     navigateToView('practice', rec.songId)
   }
 
+  const handleLaunchChordDrill = useCallback(
+    (chordSymbol: string) => {
+      const drill = createChordDrillExercise(chordSymbol, studioPrefs.defaultInstrument || 'guitar')
+      setAvailableExercises((prev) => {
+        const idx = prev.findIndex((e) => e.id === drill.id)
+        if (idx >= 0) {
+          const next = [...prev]
+          next[idx] = drill
+          return next
+        }
+        return [...prev, drill]
+      })
+      setSelectedSongId(drill.id)
+      setPendingLoopDrill(null)
+      navigateToView('practice', drill.id)
+    },
+    [studioPrefs, navigateToView]
+  )
+
   const latestSession = sessionHistory[sessionHistory.length - 1]
 
   if (isInitialHydrating) {
@@ -443,67 +620,186 @@ export default function App({
       {activeView !== 'landing' && (
         <header
           data-testid="global-navigation-header"
-          className="sticky top-0 z-40 w-full h-14 bg-white/95 dark:bg-[#111114]/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-4 sm:px-6 flex items-center justify-between gap-4 font-sans shrink-0"
+          className="sticky top-0 z-40 w-full h-14 bg-white/95 dark:bg-[#111114]/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-3 sm:px-5 flex items-center justify-between gap-2 sm:gap-4 font-sans shrink-0 overflow-x-auto scrollbar-none"
         >
-          {/* Zone 1: Brand */}
-          <button
-            type="button"
-            onClick={() => navigateToView('landing')}
-            className="flex items-center gap-1.5 text-zinc-900 dark:text-zinc-100 hover:text-amber-500 transition-colors cursor-pointer whitespace-nowrap shrink-0"
-          >
-            <span className="font-brand font-bold tracking-[0.2em] text-amber-600 dark:text-amber-500 text-sm">
-              § SONUS
-            </span>
-          </button>
+          {/* Zone 1: Brand & Practice Action Controls (integrated when in Practice view) */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+            <button
+              type="button"
+              onClick={() => navigateToView('landing')}
+              className="flex items-center gap-1.5 text-zinc-900 dark:text-zinc-100 hover:text-amber-500 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            >
+              <span className="font-brand font-bold tracking-[0.2em] text-amber-600 dark:text-amber-500 text-sm">
+                § SONUS
+              </span>
+            </button>
+
+            {activeView === 'practice' && selectedSong && (
+              <>
+                <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800 shrink-0" />
+                <button
+                  type="button"
+                  data-testid="open-repertoire-drawer"
+                  onClick={() => setIsRepertoireOpen(true)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F8F8F6] dark:bg-[#18181C] hover:border-amber-500 border border-zinc-300 dark:border-zinc-800 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 transition-all cursor-pointer truncate max-w-[130px] sm:max-w-[180px] lg:max-w-[240px]"
+                  title="Change piece / repertoire"
+                >
+                  <span className="text-amber-600 dark:text-amber-400 truncate">
+                    {selectedSong.title}
+                  </span>
+                  <span className="text-[10px] text-zinc-400 shrink-0">▾</span>
+                </button>
+
+                <span className="hidden xl:inline text-[11px] font-mono text-zinc-500 shrink-0">
+                  Key: <strong className="text-zinc-700 dark:text-zinc-300">{selectedSong.progression?.key || 'C'}</strong>
+                </span>
+
+                {/* Mode Toggle: Listen vs Practice */}
+                <div className="flex items-center rounded-lg bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 p-0.5 text-xs font-mono shrink-0">
+                  <button
+                    type="button"
+                    data-testid="mode-listen-btn"
+                    onClick={() => setPracticeMode('listen')}
+                    className={`px-2 py-0.5 sm:py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1 ${
+                      practiceMode === 'listen'
+                        ? 'bg-amber-500 text-zinc-950 shadow-xs'
+                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                    }`}
+                  >
+                    <span>🎧 Listen</span>
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="mode-practice-btn"
+                    onClick={() => setPracticeMode('practice')}
+                    className={`px-2 py-0.5 sm:py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1 ${
+                      practiceMode === 'practice'
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                    }`}
+                  >
+                    <span>🎯 Practice</span>
+                  </button>
+                </div>
+
+                {/* Instrument Toggle: Guitar vs Piano */}
+                <div className="flex items-center rounded-lg bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 p-0.5 text-xs font-mono shrink-0">
+                  <button
+                    type="button"
+                    data-testid="toggle-inst-guitar"
+                    onClick={() => setPracticeInstrument('guitar')}
+                    className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
+                      practiceInstrument === 'guitar'
+                        ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold shadow-xs'
+                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                    }`}
+                  >
+                    GUITAR
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="toggle-inst-piano"
+                    onClick={() => setPracticeInstrument('piano')}
+                    className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
+                      practiceInstrument === 'piano'
+                        ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold shadow-xs'
+                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                    }`}
+                  >
+                    PIANO
+                  </button>
+                </div>
+
+                {/* Piano Notation Toggle: Staff vs Falling Keys */}
+                {practiceInstrument === 'piano' && (
+                  <div
+                    data-testid="piano-notation-toggle"
+                    className="hidden lg:flex items-center rounded-lg bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 p-0.5 text-xs font-mono shrink-0"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setPracticeNotationMode('keys')}
+                      className={`px-2 py-0.5 sm:py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
+                        practiceNotationMode === 'keys'
+                          ? 'bg-amber-500 text-zinc-950 font-bold shadow-xs'
+                          : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                      }`}
+                    >
+                      KEYS
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPracticeNotationMode('staff')}
+                      className={`px-2 py-0.5 sm:py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
+                        practiceNotationMode === 'staff'
+                          ? 'bg-amber-500 text-zinc-950 font-bold shadow-xs'
+                          : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                      }`}
+                    >
+                      SHEET
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
 
           {/* Zone 2: Navigation Tabs with shared layoutId underline */}
-          <nav className="flex items-center gap-1 overflow-x-auto scrollbar-none text-xs font-mono">
+          <nav className="flex items-center gap-1 shrink-0 text-xs font-mono">
             {(
               [
-                { id: 'practice', testId: 'nav-pill-practice', label: 'Practice', icon: Music },
-                { id: 'theory', testId: 'nav-pill-theory', label: 'Chords & Scales', icon: BookOpen },
-                { id: 'tuner', testId: 'nav-pill-tuner', label: 'Guitar Tuner', icon: Disc },
-                { id: 'progress', testId: 'nav-pill-progress', label: 'Progress', icon: TrendingUp },
-                { id: 'community', testId: 'nav-pill-community', label: 'Peers', icon: Users },
+                { id: 'practice', testId: 'nav-pill-practice', label: 'Practice', shortLabel: 'Studio', icon: Music },
+                { id: 'theory', testId: 'nav-pill-theory', label: 'Chords & Scales', shortLabel: 'Chords', icon: BookOpen },
+                { id: 'tuner', testId: 'nav-pill-tuner', label: 'Guitar Tuner', shortLabel: 'Tuner', icon: Disc },
+                { id: 'progress', testId: 'nav-pill-progress', label: 'Progress', shortLabel: 'Progress', icon: TrendingUp },
+                { id: 'community', testId: 'nav-pill-community', label: 'Peers', shortLabel: 'Peers', icon: Users },
               ] as const
-            ).map((tab) => {
-              const Icon = tab.icon
-              const isActive = activeView === tab.id
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  data-testid={tab.testId}
-                  onClick={() => navigateToView(tab.id)}
-                  className={`relative px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-                    isActive
-                      ? 'text-zinc-950 dark:text-zinc-100'
-                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
-                  }`}
-                >
-                  {isActive && (
-                    <motion.span
-                      layoutId="global-nav-active-tab"
-                      transition={{ type: 'spring', stiffness: 460, damping: 36 }}
-                      className="absolute inset-0 rounded-lg bg-amber-500/20 dark:bg-amber-500/20 border border-amber-500/60"
-                      aria-hidden="true"
-                    />
-                  )}
-                  <Icon className={`relative z-10 size-3.5 shrink-0 ${isActive ? 'text-amber-600 dark:text-amber-400' : ''}`} />
-                  <span className="relative z-10">{tab.label}</span>
-                </button>
-              )
-            })}
+            )
+              .filter((tab) => {
+                if (!isSignedIn && (tab.id === 'progress' || tab.id === 'community')) {
+                  return false
+                }
+                return true
+              })
+              .map((tab) => {
+                const Icon = tab.icon
+                const isActive = activeView === tab.id
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    data-testid={tab.testId}
+                    onClick={() => navigateToView(tab.id)}
+                    className={`relative px-2.5 sm:px-3 py-1 rounded-lg font-bold flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                      isActive
+                        ? 'text-zinc-950 dark:text-zinc-100'
+                        : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.span
+                        layoutId="global-nav-active-tab"
+                        transition={{ type: 'spring', stiffness: 460, damping: 36 }}
+                        className="absolute inset-0 rounded-lg bg-amber-500/20 dark:bg-amber-500/20 border border-amber-500/60"
+                        aria-hidden="true"
+                      />
+                    )}
+                    <Icon className={`relative z-10 size-3.5 shrink-0 ${isActive ? 'text-amber-600 dark:text-amber-400' : ''}`} />
+                    <span className="relative z-10 hidden sm:inline">{tab.label}</span>
+                    <span className="relative z-10 sm:hidden">{tab.shortLabel}</span>
+                  </button>
+                )
+              })}
           </nav>
 
           {/* Zone 3: Studio Settings, Theme & User */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               type="button"
               data-testid="open-settings-modal-btn"
               onClick={() => setIsSettingsModalOpen(true)}
               aria-label="Studio Settings"
-              className="p-2 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
               title="Studio Settings"
             >
               <Sliders className="size-4" />
@@ -526,6 +822,12 @@ export default function App({
           <LandingPage
             onEnterStudio={(songId) => {
               const chosen = songId || selectedSongId
+              if (!isSignedIn) {
+                const targetPath = chosen ? `/practice/${exerciseIdToSlug(chosen)}` : '/practice'
+                setAuthReturnUrl(targetPath)
+                setShowSignInModal(true)
+                return
+              }
               if (songId) {
                 setSelectedSongId(songId)
                 setPendingLoopDrill(null)
@@ -539,18 +841,12 @@ export default function App({
             onOpenTuner={() => navigateToView('tuner')}
             onOpenProgress={() => navigateToView('progress')}
             onOpenCommunity={() => navigateToView('community')}
-            onSignIn={() => setShowSignInModal(true)}
+            onSignIn={() => {
+              setAuthReturnUrl('/practice')
+              setShowSignInModal(true)
+            }}
             isSignedIn={isSignedIn}
             userButtonSlot={effectiveUserButtonSlot}
-          />
-          <SignInModal
-            isOpen={showSignInModal}
-            onClose={() => setShowSignInModal(false)}
-            onSuccess={() => {
-              setIsSignedIn(true)
-              setShowSignInModal(false)
-              navigateToView('practice')
-            }}
           />
         </motion.div>
       )}
@@ -564,6 +860,15 @@ export default function App({
           transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
         >
         <PracticeStudioCockpit
+          embedded={true}
+          instrument={practiceInstrument}
+          onInstrumentChange={setPracticeInstrument}
+          studioMode={practiceMode}
+          onStudioModeChange={setPracticeMode}
+          isRepertoireOpen={isRepertoireOpen}
+          onRepertoireOpenChange={setIsRepertoireOpen}
+          pianoNotationMode={practiceNotationMode}
+          onPianoNotationModeChange={setPracticeNotationMode}
           initialSongId={selectedSongId}
           initialLoopDrill={pendingLoopDrill}
           availableExercises={availableExercises}
@@ -588,9 +893,7 @@ export default function App({
         >
         <ChordsScalesPage
           onBackToLanding={() => navigateToView('landing')}
-          onOpenPracticeWithChord={(_chord) => {
-            navigateToView('practice')
-          }}
+          onOpenPracticeWithChord={handleLaunchChordDrill}
         />
         </motion.div>
       )}
@@ -725,6 +1028,22 @@ export default function App({
           </section>
         </main>
       )}
+
+      <SignInModal
+        isOpen={showSignInModal}
+        returnUrl={authReturnUrl}
+        onClose={() => setShowSignInModal(false)}
+        onSuccess={() => {
+          setIsSignedIn(true)
+          setShowSignInModal(false)
+          if (authReturnUrl) {
+            const { view, songId } = parseRouteFromPath(authReturnUrl, availableExercises)
+            setActiveView(view)
+            if (songId) setSelectedSongId(songId)
+          }
+          void loadBackendData()
+        }}
+      />
     </AuthShell>
     </MotionConfig>
   )

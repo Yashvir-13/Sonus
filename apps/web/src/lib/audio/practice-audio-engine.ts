@@ -138,12 +138,19 @@ export function generateKarplusStrongBuffer(
 
   const pluckSmoothing = opts?.pluckSmoothing ?? 0.15
 
-  // 3. Initial excitation: zero-mean windowed white noise burst filling N samples
+  // 3. Initial excitation: deterministic seeded excitation with physical windowing
+  // Uses a fixed, deterministic pseudo-random seed per note frequency to eliminate random timbre
+  // jitter so repeated plucks sound 100% identical and acoustic reference pitch is perfectly stable.
   let dcSum = 0
+  // 31-bit LCG seeded deterministically by pitch/frequency
+  let seed = (Math.round(safeFreq * 1000) ^ 0x4b5a) & 0x7fffffff
+  if (seed === 0) seed = 1234567
+
   for (let i = 0; i < N; i++) {
     // Half-sine window eliminates edge boundary clicks
     const window = Math.sin((Math.PI * (i + 0.5)) / N)
-    const noise = (Math.random() * 2 - 1) * window
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff
+    const noise = ((seed / 0x7fffffff) * 2.0 - 1.0) * window
     out[i] = noise
     dcSum += noise
   }
@@ -378,6 +385,9 @@ export class PracticeAudioEngine {
   private isUnlocked = false
   private activeGains: Set<GainNode> = new Set()
   private activeSources: Set<AudioBufferSourceNode> = new Set()
+  private pluckBufferCache: Map<string, AudioBuffer> = new Map()
+  private pianoBufferCache: Map<string, AudioBuffer> = new Map()
+  private guitarStringCache: Map<string, AudioBuffer> = new Map()
 
   private registerGain(gain: GainNode | null): GainNode | null {
     if (!gain) return null
@@ -489,9 +499,6 @@ export class PracticeAudioEngine {
       const freq = midiToFreq(midi)
       const sampleRate = ctx.sampleRate || 44100
 
-      // Synthesize string physical model into Float32Array
-      const samples = generateKarplusStrongBuffer(freq, durationSec, sampleRate, velocity)
-
       // Guard against incomplete test mocks in headless environments
       if (
         typeof ctx.createBuffer !== 'function' ||
@@ -500,8 +507,16 @@ export class PracticeAudioEngine {
         return
       }
 
-      const audioBuffer = ctx.createBuffer(1, samples.length, sampleRate)
-      audioBuffer.getChannelData(0).set(samples)
+      // Cache reference pluck AudioBuffers so repeated clicks are guaranteed to reuse
+      // the exact same buffer and produce 100% deterministic acoustic reference sound.
+      const cacheKey = `${pitch}_${freq.toFixed(2)}_${durationSec}_${sampleRate}_${velocity.toFixed(2)}`
+      let audioBuffer = this.pluckBufferCache.get(cacheKey)
+      if (!audioBuffer) {
+        const samples = generateKarplusStrongBuffer(freq, durationSec, sampleRate, velocity)
+        audioBuffer = ctx.createBuffer(1, samples.length, sampleRate)
+        audioBuffer.getChannelData(0).set(samples)
+        this.pluckBufferCache.set(cacheKey, audioBuffer)
+      }
 
       const source = ctx.createBufferSource()
       this.registerSource(source)
@@ -514,13 +529,14 @@ export class PracticeAudioEngine {
         gainNode.gain.setValueAtTime(1.0, ctx.currentTime)
       }
 
-      // Acoustic body resonance filter (Helmholtz air cavity at 110Hz)
+      // Acoustic body resonance filter (gentle acoustic warmth adapted to string fundamental)
       const bodyFilter = typeof ctx.createBiquadFilter === 'function' ? ctx.createBiquadFilter() : null
       if (bodyFilter) {
         bodyFilter.type = 'peaking'
-        bodyFilter.frequency.setValueAtTime(110, ctx.currentTime)
-        bodyFilter.Q.setValueAtTime(2.0, ctx.currentTime)
-        bodyFilter.gain.setValueAtTime(3.0, ctx.currentTime)
+        const resonanceFreq = Math.min(350, Math.max(70, freq))
+        bodyFilter.frequency.setValueAtTime(resonanceFreq, ctx.currentTime)
+        bodyFilter.Q.setValueAtTime(1.0, ctx.currentTime)
+        bodyFilter.gain.setValueAtTime(1.5, ctx.currentTime)
       }
 
       // High frequency rolloff simulating soundboard absorption
@@ -612,10 +628,17 @@ export class PracticeAudioEngine {
         const ringDuration = Math.max(0.2, durationSec - stringDelay)
         const freq = midiToFreq(midi)
 
-        // Synthesize individual physical string buffer
-        const samples = generateKarplusStrongBuffer(freq, ringDuration, sampleRate, velocity)
-        const audioBuffer = ctx.createBuffer(1, samples.length, sampleRate)
-        audioBuffer.getChannelData(0).set(samples)
+        // Cache or synthesize physical string buffer to eliminate main-thread stutter
+        const cacheKey = `${midi}_${ringDuration.toFixed(2)}_${velocity.toFixed(1)}_${sampleRate}`
+        let audioBuffer = this.guitarStringCache.get(cacheKey)
+        if (!audioBuffer) {
+          const samples = generateKarplusStrongBuffer(freq, ringDuration, sampleRate, velocity)
+          audioBuffer = ctx.createBuffer(1, samples.length, sampleRate)
+          audioBuffer.getChannelData(0).set(samples)
+          if (this.guitarStringCache.size < 512) {
+            this.guitarStringCache.set(cacheKey, audioBuffer)
+          }
+        }
 
         const source = ctx.createBufferSource()
         this.registerSource(source)
@@ -660,10 +683,7 @@ export class PracticeAudioEngine {
       const midi = parsePitchToMidi(pitch)
       const sampleRate = ctx.sampleRate || 44100
 
-      // 1. Generate Float32Array PCM buffer with multi-partial inharmonic synthesis
-      const pcmData = generatePianoNoteBuffer(midi, durationSec, velocity, isBass, sampleRate)
-
-      // 2. Guard against incomplete test mocks in headless environments
+      // 1. Guard against incomplete test mocks in headless environments
       if (
         typeof ctx.createBuffer !== 'function' ||
         typeof ctx.createBufferSource !== 'function'
@@ -671,9 +691,21 @@ export class PracticeAudioEngine {
         return
       }
 
-      const audioBuffer = ctx.createBuffer(1, pcmData.length, sampleRate)
-      const channelData = audioBuffer.getChannelData(0)
-      channelData.set(pcmData)
+      // 2. Cache-accelerated multi-partial inharmonic AudioBuffer lookup (O(1) memory pointer)
+      const durKey = durationSec.toFixed(2)
+      const velKey = velocity.toFixed(1)
+      const cacheKey = `${midi}_${durKey}_${velKey}_${isBass ? '1' : '0'}_${sampleRate}`
+
+      let audioBuffer = this.pianoBufferCache.get(cacheKey)
+      if (!audioBuffer) {
+        const pcmData = generatePianoNoteBuffer(midi, durationSec, velocity, isBass, sampleRate)
+        audioBuffer = ctx.createBuffer(1, pcmData.length, sampleRate)
+        const channelData = audioBuffer.getChannelData(0)
+        channelData.set(pcmData)
+        if (this.pianoBufferCache.size < 512) {
+          this.pianoBufferCache.set(cacheKey, audioBuffer)
+        }
+      }
 
       // 3. Connect to AudioBufferSourceNode
       const source = ctx.createBufferSource()
@@ -809,7 +841,8 @@ export class PracticeAudioEngine {
     chordName: string,
     expectedPitches?: (string | number)[],
     durationSec = 2.0,
-    instrument: 'guitar' | 'piano' = 'guitar'
+    instrument: 'guitar' | 'piano' = 'guitar',
+    time?: number
   ): void {
     let pitches = expectedPitches
     if (!pitches || pitches.length === 0) {
@@ -817,18 +850,21 @@ export class PracticeAudioEngine {
     }
 
     if (instrument === 'guitar') {
-      this.playGuitarStrum(pitches, 'down', true, durationSec)
+      this.playGuitarStrum(pitches, 'down', true, durationSec, time)
     } else {
       // Split into bass (lowest pitch) and treble chord
       const sorted = pitches.map(parsePitchToMidi).sort((a, b) => a - b)
       const bass = sorted.slice(0, 1)
       const rh = sorted.slice(1)
-      this.playPianoVoicing(bass, rh.length > 0 ? rh : bass, durationSec)
+      this.playPianoVoicing(bass, rh.length > 0 ? rh : bass, durationSec, 0.7, time)
     }
   }
 
   public dispose(): void {
     this.stopAllSounds()
+    this.pluckBufferCache.clear()
+    this.pianoBufferCache.clear()
+    this.guitarStringCache.clear()
     if (this.ctx && this.ctx.state !== 'closed') {
       this.ctx.close().catch(() => {})
       this.ctx = null

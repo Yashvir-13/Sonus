@@ -1,21 +1,41 @@
-import React from 'react'
-import { SignIn } from '@clerk/react'
+import React, { useState } from 'react'
+import { SignIn, SignUp } from '@clerk/react'
 
 export type SignInModalProps = {
   isOpen: boolean
   onClose: () => void
   onSuccess?: () => void
+  returnUrl?: string
+  initialMode?: 'sign-in' | 'sign-up'
 }
 
 export function SignInModal({
   isOpen,
   onClose,
   onSuccess,
+  returnUrl = '/practice',
+  initialMode = 'sign-in',
 }: SignInModalProps): React.JSX.Element | null {
+  const [authMode, setAuthMode] = useState<'sign-in' | 'sign-up'>(initialMode)
+  const [prevInitialMode, setPrevInitialMode] = useState(initialMode)
+
+  if (initialMode !== prevInitialMode) {
+    setPrevInitialMode(initialMode)
+    setAuthMode(initialMode)
+  }
+
   if (!isOpen) return null
 
   const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
   const hasClerkKey = Boolean(publishableKey && publishableKey !== '<YOUR_CLERK_PUBLISHABLE_KEY>')
+
+  const handleDemoSuccess = () => {
+    if (typeof window !== 'undefined' && returnUrl && returnUrl !== window.location.pathname) {
+      window.history.pushState(null, '', returnUrl)
+    }
+    if (onSuccess) onSuccess()
+    onClose()
+  }
 
   return (
     <div
@@ -24,12 +44,12 @@ export function SignInModal({
       aria-label="Sign in to Sonus"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200"
     >
-      <div className="relative rounded-xl bg-[#111114] border border-zinc-800 p-6 sm:p-8 shadow-2xl max-w-md w-full text-zinc-100">
+      <div className="relative rounded-xl bg-[#111114] border border-zinc-800 p-6 sm:p-8 shadow-2xl max-w-md w-full text-zinc-100 max-h-[92vh] overflow-y-auto scrollbar-none">
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 rounded-lg px-2 py-1 text-xs font-mono font-bold text-zinc-400 hover:text-zinc-100 border border-zinc-800 hover:bg-zinc-900 transition-colors"
+          className="absolute top-4 right-4 rounded-lg px-2 py-1 text-xs font-mono font-bold text-zinc-400 hover:text-zinc-100 border border-zinc-800 hover:bg-zinc-900 transition-colors cursor-pointer"
           aria-label="Close dialog"
         >
           ✕
@@ -37,19 +57,45 @@ export function SignInModal({
 
         {hasClerkKey ? (
           <div className="pt-2 flex flex-col items-center">
-            <SignIn />
-            <div className="mt-4 pt-3 border-t border-zinc-800 w-full text-center">
+            {/* Mode Switcher Tabs */}
+            <div className="flex border-b border-zinc-800 mb-5 w-full">
               <button
                 type="button"
-                onClick={() => {
-                  if (onSuccess) onSuccess()
-                  onClose()
-                }}
-                className="text-xs text-zinc-400 hover:text-amber-400 font-mono underline underline-offset-4 cursor-pointer transition-colors"
+                onClick={() => setAuthMode('sign-in')}
+                className={`flex-1 py-2.5 text-xs font-mono font-semibold text-center border-b-2 transition-colors cursor-pointer ${
+                  authMode === 'sign-in'
+                    ? 'border-amber-500 text-amber-500'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                }`}
               >
-                Or enter practice studio in guest acoustic mode →
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuthMode('sign-up')}
+                className={`flex-1 py-2.5 text-xs font-mono font-semibold text-center border-b-2 transition-colors cursor-pointer ${
+                  authMode === 'sign-up'
+                    ? 'border-amber-500 text-amber-500'
+                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Create Account
               </button>
             </div>
+
+            {authMode === 'sign-in' ? (
+              <SignIn
+                routing="hash"
+                fallbackRedirectUrl={returnUrl}
+                forceRedirectUrl={returnUrl}
+              />
+            ) : (
+              <SignUp
+                routing="hash"
+                fallbackRedirectUrl={returnUrl}
+                forceRedirectUrl={returnUrl}
+              />
+            )}
           </div>
         ) : (
           <div className="space-y-6">
@@ -75,13 +121,10 @@ export function SignInModal({
             <div className="space-y-2.5">
               <button
                 type="button"
-                onClick={() => {
-                  if (onSuccess) onSuccess()
-                  onClose()
-                }}
+                onClick={handleDemoSuccess}
                 className="w-full flex items-center justify-between rounded-lg bg-amber-500 text-zinc-950 py-3 px-4 text-xs font-mono font-bold uppercase tracking-wider hover:bg-amber-400 transition-all cursor-pointer"
               >
-                <span>Continue as Demo Musician</span>
+                <span>Continue to Workstation</span>
                 <span>→</span>
               </button>
 

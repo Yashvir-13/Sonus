@@ -14,7 +14,7 @@ import { CodexRepertoireDrawer } from './codex-repertoire-drawer'
 
 import { TakeEvaluationDrawer } from './take-evaluation-drawer'
 
-import { BUILTIN_FULL_SONGS, type FullSongChordItem } from '@/lib/music/song-catalog'
+import { BUILTIN_FULL_SONGS, createChordDrillExercise, type FullSongChordItem } from '@/lib/music/song-catalog'
 
 import {
 
@@ -116,6 +116,24 @@ export interface PracticeStudioCockpitProps {
 
   className?: string
 
+  embedded?: boolean
+
+  instrument?: 'guitar' | 'piano'
+
+  onInstrumentChange?: (instrument: 'guitar' | 'piano') => void
+
+  studioMode?: 'listen' | 'practice'
+
+  onStudioModeChange?: (mode: 'listen' | 'practice') => void
+
+  isRepertoireOpen?: boolean
+
+  onRepertoireOpenChange?: (open: boolean) => void
+
+  pianoNotationMode?: 'staff' | 'keys'
+
+  onPianoNotationModeChange?: (mode: 'staff' | 'keys') => void
+
 }
 
 type DiagnosticPresetMode = 'clean' | 'transition_lag' | 'voicing_drop' | 'tempo_rushing'
@@ -144,6 +162,24 @@ export function PracticeStudioCockpit({
 
   className = '',
 
+  embedded = false,
+
+  instrument: propInstrument,
+
+  onInstrumentChange,
+
+  studioMode: propStudioMode,
+
+  onStudioModeChange,
+
+  isRepertoireOpen: propRepertoireOpen,
+
+  onRepertoireOpenChange,
+
+  pianoNotationMode: propPianoNotationMode,
+
+  onPianoNotationModeChange,
+
 }: PracticeStudioCockpitProps): React.JSX.Element {
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -153,80 +189,117 @@ export function PracticeStudioCockpit({
   // ───────────────────────────────────────────────────────────────────────────
 
   const [selectedSong, setSelectedSong] = useState<ExerciseDto>(() => {
+    const pool = availableExercises && availableExercises.length > 0 ? availableExercises : BUILTIN_FULL_SONGS
+    const direct =
+      pool.find((s) => s.id === initialSongId) ??
+      BUILTIN_FULL_SONGS.find((s) => s.id === initialSongId)
+    if (direct) return direct
+
+    if (initialSongId?.startsWith('drill_chord_')) {
+      const rawChord = initialSongId
+        .replace(/^drill_chord_/, '')
+        .replace(/_sharp/g, '#')
+        .replace(/_/g, ' ')
+      const chordSymbol = rawChord.charAt(0).toUpperCase() + rawChord.slice(1)
+      return createChordDrillExercise(chordSymbol, propInstrument || 'guitar')
+    }
 
     return (
-
-      BUILTIN_FULL_SONGS.find((s) => s.id === initialSongId) ??
-
-      BUILTIN_FULL_SONGS[1] ??
-
+      pool[1] ??
+      pool[0] ??
       BUILTIN_FULL_SONGS[0]
-
     )
-
   })
 
   const prevInitialSongIdRef = useRef<string | undefined>(initialSongId)
 
   useEffect(() => {
+    const list = availableExercises && availableExercises.length > 0 ? availableExercises : BUILTIN_FULL_SONGS
+    let found = initialSongId ? list.find((s: ExerciseDto) => s.id === initialSongId) : undefined
 
-    if (initialSongId && initialSongId !== prevInitialSongIdRef.current) {
-
-      prevInitialSongIdRef.current = initialSongId
-
-      const list = availableExercises && availableExercises.length > 0 ? availableExercises : BUILTIN_FULL_SONGS
-
-      const found = list.find((s: ExerciseDto) => s.id === initialSongId)
-
-      if (found) {
-
-        setSelectedSong(found)
-
-        setInstrument(found.instrument.toLowerCase() === 'guitar' ? 'guitar' : 'piano')
-
-        setTempoBpm(found.tempo_bpm || 76)
-
-        setCurrentBeat(0)
-
-        setIsPlaying(false)
-
-        if (!initialLoopDrill) {
-
-          setActiveDrillSlice(null)
-
-        }
-
-      }
-
+    if (!found && initialSongId?.startsWith('drill_chord_')) {
+      const rawChord = initialSongId
+        .replace(/^drill_chord_/, '')
+        .replace(/_sharp/g, '#')
+        .replace(/_/g, ' ')
+      const chordSymbol = rawChord.charAt(0).toUpperCase() + rawChord.slice(1)
+      found = createChordDrillExercise(chordSymbol, propInstrument || 'guitar')
     }
 
-  }, [initialSongId, availableExercises, initialLoopDrill])
+    if (found && (selectedSong.id !== found.id || initialSongId !== prevInitialSongIdRef.current)) {
+      prevInitialSongIdRef.current = initialSongId
+      setSelectedSong(found)
+      setInstrument(found.instrument.toLowerCase() === 'guitar' ? 'guitar' : 'piano')
+      setTempoBpm(found.tempo_bpm || 76)
+      setCurrentBeat(0)
+      setIsPlaying(false)
+      if (!initialLoopDrill) {
+        setActiveDrillSlice(null)
+      }
+    } else if (initialSongId !== prevInitialSongIdRef.current) {
+      prevInitialSongIdRef.current = initialSongId
+    }
+  }, [initialSongId, availableExercises, initialLoopDrill, selectedSong.id, propInstrument])
 
-  const [instrument, setInstrument] = useState<'guitar' | 'piano'>(
-
-    selectedSong.instrument.toLowerCase() === 'guitar' ? 'guitar' : 'piano'
-
+  const [internalInstrument, setInternalInstrument] = useState<'guitar' | 'piano'>(
+    propInstrument ?? (selectedSong.instrument.toLowerCase() === 'guitar' ? 'guitar' : 'piano')
+  )
+  const instrument = propInstrument ?? internalInstrument
+  const setInstrument = useCallback(
+    (inst: 'guitar' | 'piano') => {
+      setInternalInstrument(inst)
+      onInstrumentChange?.(inst)
+    },
+    [onInstrumentChange]
   )
 
-  const [pianoNotationMode, setPianoNotationMode] = useState<'staff' | 'keys'>('staff')
+  const [internalPianoNotationMode, setInternalPianoNotationMode] = useState<'staff' | 'keys'>(
+    propPianoNotationMode ?? 'staff'
+  )
+  const pianoNotationMode = propPianoNotationMode ?? internalPianoNotationMode
+  const setPianoNotationMode = useCallback(
+    (mode: 'staff' | 'keys') => {
+      setInternalPianoNotationMode(mode)
+      onPianoNotationModeChange?.(mode)
+    },
+    [onPianoNotationModeChange]
+  )
 
   const [tempoBpm, setTempoBpm] = useState<number>(
-
     initialLoopDrill?.targetBpm ?? (selectedSong.tempo_bpm || 76)
-
   )
 
-  const [isRepertoireOpen, setIsRepertoireOpen] = useState(false)
+  const [internalRepertoireOpen, setInternalRepertoireOpen] = useState(
+    propRepertoireOpen ?? false
+  )
+  const isRepertoireOpen = propRepertoireOpen ?? internalRepertoireOpen
+  const setIsRepertoireOpen = useCallback(
+    (open: boolean) => {
+      setInternalRepertoireOpen(open)
+      onRepertoireOpenChange?.(open)
+    },
+    [onRepertoireOpenChange]
+  )
 
   const [isTakeDrawerOpen, setIsTakeDrawerOpen] = useState(false)
 
   // ───────────────────────────────────────────────────────────────────────────
-
   // 2. PLAYBACK, MEASURE LOOPING & ENGINE STATE
-
   // ───────────────────────────────────────────────────────────────────────────
 
   const [isPlaying, setIsPlaying] = useState(false)
+
+  const [internalStudioMode, setInternalStudioMode] = useState<'practice' | 'listen'>(
+    propStudioMode ?? 'practice'
+  )
+  const studioMode = propStudioMode ?? internalStudioMode
+  const setStudioMode = useCallback(
+    (mode: 'practice' | 'listen') => {
+      setInternalStudioMode(mode)
+      onStudioModeChange?.(mode)
+    },
+    [onStudioModeChange]
+  )
 
   const [currentBeat, setCurrentBeat] = useState(0)
 
@@ -383,6 +456,7 @@ export function PracticeStudioCockpit({
   const recordingTimerRef = useRef<number | null>(null)
 
   const activeSessionIdRef = useRef<string | null>(null)
+  const recordedSampleRateRef = useRef<number>(44100)
 
   // Parse current song progression (or active 2-bar loop slice)
 
@@ -476,6 +550,20 @@ export function PracticeStudioCockpit({
 
   }, [selectedSong.progression_json, flowingProgression])
 
+  const songTimeSignature = useMemo(() => {
+    try {
+      if (selectedSong.progression_json) {
+        const parsed = JSON.parse(selectedSong.progression_json)
+        if (typeof parsed.time_signature === 'string' && /^\d+\/\d+$/.test(parsed.time_signature.trim())) {
+          return parsed.time_signature.trim()
+        }
+      }
+    } catch {
+      // JSON parse fallback
+    }
+    return beatsPerMeasure === 3 ? '3/4' : beatsPerMeasure === 6 ? '6/8' : '4/4'
+  }, [selectedSong.progression_json, beatsPerMeasure])
+
   const totalBeats = useMemo(() => {
 
     return flowingProgression.reduce((acc, c) => acc + (c.duration_beats ?? beatsPerMeasure), 0)
@@ -562,126 +650,163 @@ export function PracticeStudioCockpit({
 
   const lastChordIdxRef = useRef<number>(-1)
 
+  const loopCountRef = useRef<number>(0)
   const playbackAudioStartRef = useRef<number>(0)
   const playbackBeatStartRef = useRef<number>(0)
-  const scheduledMeasuresRef = useRef<Set<number>>(new Set())
+  const scheduledMeasuresRef = useRef<Set<string>>(new Set())
+  const currentBeatRef = useRef<number>(currentBeat)
+
+  const handleCockpitKeyClick = useCallback((midi: number) => {
+    if (audioEngineRef.current) {
+      audioEngineRef.current.unlock()
+      audioEngineRef.current.stopAllSounds()
+      audioEngineRef.current.playPianoNote(midi, 1.0, 0.8)
+    }
+  }, [])
 
   const handleSeekBeat = useCallback((beat: number) => {
+    currentBeatRef.current = beat
     if (audioEngineRef.current) {
       audioEngineRef.current.stopAllSounds()
       playbackAudioStartRef.current = audioEngineRef.current.getCurrentTime() + 0.05
       playbackBeatStartRef.current = beat
     }
+    loopCountRef.current = 0
     scheduledMeasuresRef.current.clear()
     lastChordIdxRef.current = -1
+    lastTickBeatRef.current = -1
     setCurrentBeat(beat)
   }, [])
+
+  // Re-anchor audio and visual clock when tempo changes dynamically mid-playback
+  const prevTempoRef = useRef(tempoBpm)
+  useEffect(() => {
+    if (prevTempoRef.current !== tempoBpm) {
+      if (isPlaying && audioEngineRef.current) {
+        audioEngineRef.current.stopAllSounds()
+        playbackAudioStartRef.current = audioEngineRef.current.getCurrentTime() + 0.05
+        playbackBeatStartRef.current = currentBeatRef.current
+        scheduledMeasuresRef.current.clear()
+        loopCountRef.current = 0
+        lastTickBeatRef.current = Math.floor(currentBeatRef.current)
+      }
+      prevTempoRef.current = tempoBpm
+    }
+  }, [tempoBpm, isPlaying])
 
   useEffect(() => {
     if (!isPlaying) {
       audioEngineRef.current?.stopAllSounds()
       scheduledMeasuresRef.current.clear()
+      loopCountRef.current = 0
       lastChordIdxRef.current = -1
       lastTickBeatRef.current = -1
-    } else {
-      if (audioEngineRef.current) {
-        audioEngineRef.current.unlock()
-        audioEngineRef.current.stopAllSounds()
-        playbackAudioStartRef.current = audioEngineRef.current.getCurrentTime() + 0.05
-        playbackBeatStartRef.current = currentBeat
-      }
-      scheduledMeasuresRef.current.clear()
     }
   }, [isPlaying])
 
   const startCountInThenPlay = useCallback(() => {
-
     if (audioEngineRef.current) {
-
       audioEngineRef.current.unlock()
-
     }
 
     if (isPlaying) {
-
       setIsPlaying(false)
-
       setIsCountingIn(false)
-
       return
-
     }
 
+    const startFromBeat = currentBeatRef.current >= totalBeats ? 0 : currentBeatRef.current
     setIsCountingIn(true)
-
     setCountInBeat(1)
 
     let currentCount = 1
-
     const msPerBeat = (60 / tempoBpm) * 1000
 
     if (audioEngineRef.current && isMetronomeEnabled) {
-
       audioEngineRef.current.playClick(true)
-
     }
 
     const countTimer = window.setInterval(() => {
-
       currentCount += 1
-
       if (currentCount <= beatsPerMeasure) {
-
         setCountInBeat(currentCount)
-
         if (audioEngineRef.current && isMetronomeEnabled) {
-
           audioEngineRef.current.playClick(false)
-
         }
-
       } else {
-
         clearInterval(countTimer)
-
         setIsCountingIn(false)
-
-        setCurrentBeat(0)
-
+        if (audioEngineRef.current) {
+          audioEngineRef.current.unlock()
+          audioEngineRef.current.stopAllSounds()
+          playbackAudioStartRef.current = audioEngineRef.current.getCurrentTime() + 0.05
+        }
+        playbackBeatStartRef.current = startFromBeat
+        currentBeatRef.current = startFromBeat
+        setCurrentBeat(startFromBeat)
+        scheduledMeasuresRef.current.clear()
+        loopCountRef.current = 0
+        lastChordIdxRef.current = -1
+        lastTickBeatRef.current = -1
         setIsPlaying(true)
-
       }
-
     }, msPerBeat)
+  }, [isPlaying, totalBeats, tempoBpm, beatsPerMeasure, isMetronomeEnabled])
 
-  }, [isPlaying, tempoBpm, beatsPerMeasure, isMetronomeEnabled])
+  const toggleListenPlay = useCallback(() => {
+    if (audioEngineRef.current) {
+      audioEngineRef.current.unlock()
+    }
+
+    if (isPlaying) {
+      setIsPlaying(false)
+      setIsCountingIn(false)
+      return
+    }
+
+    setIsCountingIn(false)
+    const startFromBeat = currentBeatRef.current >= totalBeats ? 0 : currentBeatRef.current
+    if (audioEngineRef.current) {
+      audioEngineRef.current.stopAllSounds()
+      playbackAudioStartRef.current = audioEngineRef.current.getCurrentTime() + 0.05
+    }
+    playbackBeatStartRef.current = startFromBeat
+    currentBeatRef.current = startFromBeat
+    setCurrentBeat(startFromBeat)
+    scheduledMeasuresRef.current.clear()
+    loopCountRef.current = 0
+    lastChordIdxRef.current = -1
+    lastTickBeatRef.current = -1
+    setIsPlaying(true)
+  }, [isPlaying, totalBeats])
 
   useEffect(() => {
 
     if (!isPlaying) return
 
-    const msPerBeat = (60 / tempoBpm) * 1000
-
     const stepIntervalMs = 25
-
-    const beatIncrement = stepIntervalMs / msPerBeat
+    const fallbackWallStart = performance.now()
+    const fallbackBeatStart = currentBeat
 
     const timer = setInterval(() => {
-
-      setCurrentBeat((prev) => {
-
-        const next = prev + beatIncrement
-
-        if (next >= totalBeats) {
-
-          return 0
-
-        }
-
-        return next
-
-      })
-
+      if (audioEngineRef.current) {
+        const currentAudioTime = audioEngineRef.current.getCurrentTime()
+        const elapsedSec = currentAudioTime - playbackAudioStartRef.current
+        const elapsedBeats = Math.max(0, elapsedSec) * (tempoBpm / 60)
+        const totalElapsedBeats = playbackBeatStartRef.current + elapsedBeats
+        const nextBeat = totalBeats > 0 ? totalElapsedBeats % totalBeats : 0
+        currentBeatRef.current = nextBeat
+        setCurrentBeat(nextBeat)
+        loopCountRef.current = totalBeats > 0 ? Math.floor(totalElapsedBeats / totalBeats) : 0
+      } else {
+        const elapsedSec = (performance.now() - fallbackWallStart) / 1000
+        const elapsedBeats = Math.max(0, elapsedSec) * (tempoBpm / 60)
+        const totalElapsedBeats = fallbackBeatStart + elapsedBeats
+        const nextBeat = totalBeats > 0 ? totalElapsedBeats % totalBeats : 0
+        currentBeatRef.current = nextBeat
+        setCurrentBeat(nextBeat)
+        loopCountRef.current = totalBeats > 0 ? Math.floor(totalElapsedBeats / totalBeats) : 0
+      }
     }, stepIntervalMs)
 
     return () => clearInterval(timer)
@@ -699,98 +824,142 @@ export function PracticeStudioCockpit({
       lastTickBeatRef.current = wholeBeat
 
       if (isMetronomeEnabled && audioEngineRef.current) {
-
         const isDownbeat = wholeBeat % beatsPerMeasure === 0
+        const secondsPerBeat = 60 / tempoBpm
+        const currentAudioTime = audioEngineRef.current.getCurrentTime()
+        const elapsedSec = currentAudioTime - playbackAudioStartRef.current
+        const elapsedBeats = Math.max(0, elapsedSec) * (tempoBpm / 60)
+        const totalElapsedBeats = playbackBeatStartRef.current + elapsedBeats
+        const currentLoop = totalBeats > 0 ? Math.floor(totalElapsedBeats / totalBeats) : 0
+        const absoluteBeat = currentLoop * totalBeats + wholeBeat
+        const beatAudioTime =
+          playbackAudioStartRef.current +
+          (absoluteBeat - playbackBeatStartRef.current) * secondsPerBeat
+        const clickTime = Math.max(currentAudioTime, beatAudioTime)
 
-        audioEngineRef.current.playClick(isDownbeat)
-
+        audioEngineRef.current.playClick(isDownbeat, clickTime)
       }
 
     }
 
     if (currentMeasureIdx !== lastChordIdxRef.current) {
       lastChordIdxRef.current = currentMeasureIdx
-      const totalMeasures = flowingProgression.length
-      const prevMeasure = (currentMeasureIdx - 2 + totalMeasures) % totalMeasures
-      scheduledMeasuresRef.current.delete(prevMeasure)
     }
 
     if (isBackingAudioEnabled && audioEngineRef.current && isPlaying) {
       const secondsPerBeat = 60 / tempoBpm
       const currentAudioTime = audioEngineRef.current.getCurrentTime()
       const totalMeasures = flowingProgression.length
+      if (totalMeasures === 0 || totalBeats <= 0) return
 
-      // Lookahead window: schedule current measure and upcoming measure in advance to eliminate stutter
-      const candidateIndices = [currentMeasureIdx, (currentMeasureIdx + 1) % totalMeasures]
+      const currentLoop = loopCountRef.current
 
-      for (const mIdx of candidateIndices) {
-        if (scheduledMeasuresRef.current.has(mIdx)) continue
+      // Precompute cumulative measure start beats
+      const measureStartBeats: number[] = []
+      let accumBeats = 0
+      for (let i = 0; i < totalMeasures; i++) {
+        measureStartBeats.push(accumBeats)
+        accumBeats += flowingProgression[i]?.duration_beats ?? beatsPerMeasure
+      }
 
-        const chord = flowingProgression[mIdx]
-        if (!chord) continue
+      // Scan upcoming measures within lookahead horizon (scheduledAudioTime <= currentAudioTime + 2.5)
+      let scanLoop = currentLoop
+      let scanMIdx = currentMeasureIdx
+      const maxScanSteps = Math.max(totalMeasures * 4, 64)
 
-        let measureStartBeat = 0
-        for (let i = 0; i < mIdx; i++) {
-          measureStartBeat += flowingProgression[i]?.duration_beats ?? beatsPerMeasure
-        }
+      for (let step = 0; step < maxScanSteps; step++) {
+        const chord = flowingProgression[scanMIdx]
+        if (!chord) break
 
-        let beatDelta = measureStartBeat - playbackBeatStartRef.current
-        if (beatDelta < -0.5 && mIdx > currentMeasureIdx) {
-          beatDelta += totalBeats
-        }
-
+        const chordDurationBeats = chord.duration_beats ?? beatsPerMeasure
+        const measureStartBeat = measureStartBeats[scanMIdx] ?? 0
+        const absoluteMeasureBeat = scanLoop * totalBeats + measureStartBeat
+        const measureEndBeat = absoluteMeasureBeat + chordDurationBeats
+        const beatDelta = absoluteMeasureBeat - playbackBeatStartRef.current
         const scheduledAudioTime = playbackAudioStartRef.current + beatDelta * secondsPerBeat
 
-        // Lookahead horizon: schedule when note start falls within [now - 0.08, now + 2.0]
-        if (scheduledAudioTime >= currentAudioTime - 0.08 && scheduledAudioTime <= currentAudioTime + 2.0) {
-          const scheduleTime = Math.max(currentAudioTime, scheduledAudioTime)
-          scheduledMeasuresRef.current.add(mIdx)
-          const chordDurationBeats = chord.duration_beats ?? beatsPerMeasure
+        // Lookahead horizon: do not scan beyond 2.5s ahead
+        if (scheduledAudioTime > currentAudioTime + 2.5) {
+          break
+        }
 
-          if (instrument === 'guitar') {
-            if (chord.strumEvents && chord.strumEvents.length > 0) {
-              audioEngineRef.current.scheduleStrumPattern(
-                chord.expectedPitches,
-                chord.strumEvents,
-                scheduleTime,
-                secondsPerBeat,
-                secondsPerBeat * 1.5
-              )
-            } else {
-              audioEngineRef.current.playGuitarStrum(
-                chord.expectedPitches,
-                'down',
-                true,
-                secondsPerBeat * chordDurationBeats,
-                scheduleTime
-              )
-            }
-          } else if (instrument === 'piano') {
-            if (chord.pianoVoicing) {
-              audioEngineRef.current.schedulePianoAccompaniment(
-                chord.pianoVoicing.lhPitches,
-                chord.pianoVoicing.rhPitches,
-                chordDurationBeats,
-                scheduleTime,
-                secondsPerBeat
-              )
-            } else {
-              audioEngineRef.current.playChord(
-                chord.chordName,
-                chord.expectedPitches,
-                secondsPerBeat * chordDurationBeats,
-                'piano'
-              )
+        // Only schedule if this measure occurrence is active or upcoming relative to playback start
+        if (measureEndBeat > playbackBeatStartRef.current) {
+          const scheduleKey = `${scanLoop}_${scanMIdx}`
+
+          if (!scheduledMeasuresRef.current.has(scheduleKey)) {
+            const scheduleTime = Math.max(currentAudioTime, scheduledAudioTime)
+            scheduledMeasuresRef.current.add(scheduleKey)
+
+            // Prune old scheduled keys from previous loops to keep set bounded
+            for (const key of Array.from(scheduledMeasuresRef.current)) {
+              const keyLoop = parseInt(key.split('_')[0] ?? '0', 10)
+              if (keyLoop < currentLoop) {
+                scheduledMeasuresRef.current.delete(key)
+              }
             }
 
-            if (chord.melodyNotes && chord.melodyNotes.length > 0) {
-              audioEngineRef.current.schedulePianoNotes(
-                chord.melodyNotes,
-                scheduleTime,
-                secondsPerBeat
-              )
+            if (instrument === 'guitar') {
+              if (chord.strumEvents && chord.strumEvents.length > 0) {
+                audioEngineRef.current.scheduleStrumPattern(
+                  chord.expectedPitches,
+                  chord.strumEvents,
+                  scheduleTime,
+                  secondsPerBeat,
+                  secondsPerBeat * 1.5
+                )
+              } else {
+                audioEngineRef.current.playGuitarStrum(
+                  chord.expectedPitches,
+                  'down',
+                  true,
+                  secondsPerBeat * chordDurationBeats,
+                  scheduleTime
+                )
+              }
+            } else if (instrument === 'piano') {
+              if (chord.pianoVoicing) {
+                // Authentic accompaniment pattern (e.g. 3/4 Waltz Boom-Chick-Chick or ballad chord pulses)
+                audioEngineRef.current.schedulePianoAccompaniment(
+                  chord.pianoVoicing.lhPitches,
+                  chord.pianoVoicing.rhPitches,
+                  chordDurationBeats,
+                  scheduleTime,
+                  secondsPerBeat
+                )
+              } else {
+                audioEngineRef.current.playChord(
+                  chord.chordName,
+                  chord.expectedPitches,
+                  secondsPerBeat * chordDurationBeats,
+                  'piano',
+                  scheduleTime
+                )
+              }
+
+              if (chord.melodyNotes && chord.melodyNotes.length > 0) {
+                // Filter to melody notes when bass accompaniment is already handled by schedulePianoAccompaniment
+                const melodyOnly = chord.melodyNotes.some((n) => n.clef === 'bass')
+                  ? chord.melodyNotes.filter((n) => n.clef !== 'bass')
+                  : chord.melodyNotes
+
+                if (melodyOnly.length > 0) {
+                  audioEngineRef.current.schedulePianoNotes(
+                    melodyOnly,
+                    scheduleTime,
+                    secondsPerBeat
+                  )
+                }
+              }
             }
           }
+        }
+
+        // Advance to next measure
+        scanMIdx += 1
+        if (scanMIdx >= totalMeasures) {
+          scanMIdx = 0
+          scanLoop += 1
         }
       }
     }
@@ -816,7 +985,7 @@ export function PracticeStudioCockpit({
     instrument,
 
     tempoBpm,
-
+    totalBeats,
   ])
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -1055,7 +1224,11 @@ export function PracticeStudioCockpit({
 
         (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
 
-      const ctx = new AudioCtx({ sampleRate: 22050 })
+      const ctx = new AudioCtx()
+
+      const actualSampleRate = ctx.sampleRate || 44100
+
+      recordedSampleRateRef.current = actualSampleRate
 
       const source = ctx.createMediaStreamSource(stream)
 
@@ -1079,13 +1252,13 @@ export function PracticeStudioCockpit({
 
       muteGain.connect(ctx.destination)
 
-      const tracker = new RealtimePitchTracker(22050)
+      const tracker = new RealtimePitchTracker(actualSampleRate)
 
       const bufferLength = analyser.frequencyBinCount
 
       const freqData = new Float32Array(bufferLength)
 
-      const binHz = 22050 / 2 / bufferLength
+      const binHz = actualSampleRate / 2 / bufferLength
 
       recordedSamplesRef.current = []
 
@@ -1283,7 +1456,7 @@ export function PracticeStudioCockpit({
 
       })
 
-      const wavBlob = encodeMonoWav(merged, 22050)
+      const wavBlob = encodeMonoWav(merged, recordedSampleRateRef.current || 44100)
 
       const sessionId = activeSessionIdRef.current
 
@@ -1425,7 +1598,7 @@ export function PracticeStudioCockpit({
 
     setTempoBpm(isoBpm)
 
-    setCurrentBeat(0)
+    handleSeekBeat(0)
 
     setIsPlaying(true)
 
@@ -1439,7 +1612,7 @@ export function PracticeStudioCockpit({
 
       setTempoBpm(selectedSong.tempo_bpm || 76)
 
-      setCurrentBeat(0)
+      handleSeekBeat(0)
 
       return
 
@@ -1497,7 +1670,7 @@ export function PracticeStudioCockpit({
 
     setTempoBpm(isoBpm)
 
-    setCurrentBeat(0)
+    handleSeekBeat(0)
 
   }
 
@@ -1514,22 +1687,20 @@ export function PracticeStudioCockpit({
     >
 
       {/* ─────────────────────────────────────────────────────────────
-
           1. PRACTICE COCKPIT ACTION STRIP (Piece & Notation Selection)
-
+          (Only rendered standalone; when embedded in App, integrated into global sticky header)
          ───────────────────────────────────────────────────────────── */}
-
-      <div className="w-full bg-white dark:bg-[#111114] border-b border-zinc-200 dark:border-zinc-800 px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 z-30 shrink-0">
+      {!embedded && (
+        <div className="w-full bg-white dark:bg-[#111114] border-b border-zinc-200 dark:border-zinc-800 px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-3 z-30 shrink-0">
 
         {/* Left: Piece Title Drawer Trigger & Key Info */}
 
-        <div className="flex items-center gap-3 min-w-0">
-          <span className="font-brand font-bold tracking-[0.15em] text-amber-600 dark:text-amber-500 text-xs shrink-0 flex items-center gap-1.5">
+        <div className="flex items-center gap-2.5 min-w-0">
+
+          <span className="font-brand font-bold tracking-[0.15em] text-amber-600 dark:text-amber-500 text-xs shrink-0">
             § SONUS
-            <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 border border-zinc-200 dark:border-zinc-700 hidden sm:inline">
-              STUDIO
-            </span>
           </span>
+
           <div className="h-3.5 w-px bg-zinc-200 dark:bg-zinc-800 shrink-0" />
 
           <button
@@ -1572,9 +1743,39 @@ export function PracticeStudioCockpit({
 
         </div>
 
-        {/* Right: Instrument Mode & Notation Mode Toggles */}
+        {/* Right: Studio Mode, Instrument Mode & Notation Mode Toggles */}
 
         <div className="flex items-center gap-2 shrink-0 ml-auto">
+
+          {/* Studio Mode Selector: Listen vs Practice */}
+          <div className="flex items-center rounded-lg bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 p-0.5 text-xs font-mono">
+            <button
+              type="button"
+              data-testid="mode-listen-btn"
+              onClick={() => {
+                setStudioMode('listen')
+              }}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1 ${
+                studioMode === 'listen'
+                  ? 'bg-amber-500 text-zinc-950 shadow-xs'
+                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+              }`}
+            >
+              <span>🎧 Listen</span>
+            </button>
+            <button
+              type="button"
+              data-testid="mode-practice-btn"
+              onClick={() => setStudioMode('practice')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1 ${
+                studioMode === 'practice'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+              }`}
+            >
+              <span>🎯 Practice</span>
+            </button>
+          </div>
 
           <div className="flex items-center rounded-lg bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 p-0.5 text-xs font-mono">
 
@@ -1689,6 +1890,7 @@ export function PracticeStudioCockpit({
         </div>
 
       </div>
+      )}
 
       {/* Active 2-Bar Loop Banner (when practicing an isolated transition) */}
 
@@ -1900,7 +2102,9 @@ export function PracticeStudioCockpit({
 
             beatsPerMeasure={beatsPerMeasure}
 
-            timeSignature={beatsPerMeasure === 3 ? '3/4' : '4/4'}
+            timeSignature={songTimeSignature}
+
+            keySignature={selectedSong.progression?.key}
 
             pianoNotationMode={pianoNotationMode}
 
@@ -2134,13 +2338,7 @@ export function PracticeStudioCockpit({
 
                 defaultViewMode="keyboard"
 
-                onKeyClick={(midi) => {
-                  if (audioEngineRef.current) {
-                    audioEngineRef.current.unlock()
-                    audioEngineRef.current.stopAllSounds()
-                    audioEngineRef.current.playPianoNote(midi, 1.0, 0.8)
-                  }
-                }}
+                onKeyClick={handleCockpitKeyClick}
 
               />
 
@@ -2192,13 +2390,7 @@ export function PracticeStudioCockpit({
 
                 defaultViewMode="keyboard"
 
-                onKeyClick={(midi) => {
-                  if (audioEngineRef.current) {
-                    audioEngineRef.current.unlock()
-                    audioEngineRef.current.stopAllSounds()
-                    audioEngineRef.current.playPianoNote(midi, 1.0, 0.8)
-                  }
-                }}
+                onKeyClick={handleCockpitKeyClick}
 
               />
 
@@ -2370,6 +2562,10 @@ export function PracticeStudioCockpit({
 
                   setIsPlaying(false)
 
+                } else if (studioMode === 'listen') {
+
+                  toggleListenPlay()
+
                 } else {
 
                   startCountInThenPlay()
@@ -2384,7 +2580,11 @@ export function PracticeStudioCockpit({
 
                   ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950'
 
-                  : 'bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-xs'
+                  : studioMode === 'listen'
+
+                  ? 'bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-xs'
+
+                  : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs'
 
               }`}
 
@@ -2392,7 +2592,15 @@ export function PracticeStudioCockpit({
 
               {isPlaying ? <Pause className="size-4" /> : <Play className="size-4 fill-current" />}
 
-              <span>{isPlaying ? 'Pause Score' : 'Play Along'}</span>
+              <span>
+
+                {isPlaying
+
+                  ? (studioMode === 'listen' ? 'Pause Song' : 'Pause Score')
+
+                  : (studioMode === 'listen' ? 'Play Song (Listen)' : 'Play Along')}
+
+              </span>
 
             </button>
 
@@ -2418,7 +2626,21 @@ export function PracticeStudioCockpit({
 
             </button>
 
-            {!isRecordingMic ? (
+            {studioMode === 'listen' ? (
+
+              <div
+
+                data-testid="listen-mode-indicator"
+
+                className="flex-1 py-2.5 px-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-[#F8F8F6] dark:bg-[#18181C] text-[11px] font-mono text-zinc-500 flex items-center justify-center gap-1.5 select-none"
+
+              >
+
+                <span>🎧 Listen Mode (Score Preview)</span>
+
+              </div>
+
+            ) : !isRecordingMic ? (
 
               <button
 
@@ -2455,6 +2677,8 @@ export function PracticeStudioCockpit({
               <button
 
                 type="button"
+
+                data-testid="stop-take-btn"
 
                 onClick={stopMicAndSubmitTake}
 
@@ -2708,7 +2932,7 @@ export function PracticeStudioCockpit({
 
         onRetake={() => {
 
-          setCurrentBeat(0)
+          handleSeekBeat(0)
 
           setIsPlaying(true)
 

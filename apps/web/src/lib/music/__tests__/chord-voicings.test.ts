@@ -5,6 +5,7 @@ import {
   parseFingeringString,
   STANDARD_GUITAR_VOICINGS,
 } from '../chord-voicings'
+import { getTheoryEntriesByRoot } from '../theory-lexicon'
 
 describe('resolveChordVoicing', () => {
   it('resolves Bm barre chord accurately with 6-string frets and pitches', () => {
@@ -22,6 +23,16 @@ describe('resolveChordVoicing', () => {
     const voicing = resolveChordVoicing('G')
     expect(voicing.guitarTab.frets).toEqual([3, 2, 0, 0, 3, 3])
     expect(voicing.pitchClasses).toEqual([2, 7, 11]) // D, G, B
+
+    // Also handles "G Major" alias
+    const voicingLongName = resolveChordVoicing('G Major')
+    expect(voicingLongName.guitarTab.frets).toEqual([3, 2, 0, 0, 3, 3])
+
+    // Verify Theory Lexicon G Major returns open G major shape (not transposed C shape)
+    const gEntries = getTheoryEntriesByRoot('G')
+    const gMajor = gEntries.find((e) => e.name === 'G Major')
+    expect(gMajor).toBeDefined()
+    expect(gMajor!.guitarVoicing.frets).toEqual([3, 2, 0, 0, 3, 3])
   })
 
   it('resolves D major, A major, and C major chords', () => {

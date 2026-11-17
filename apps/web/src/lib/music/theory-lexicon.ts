@@ -5,7 +5,7 @@
  * and extended chord voicings for guitar and piano.
  */
 
-import type { GuitarTabVoicing, PianoVoicing } from './chord-voicings'
+import { resolveChordVoicing, type GuitarTabVoicing, type PianoVoicing } from './chord-voicings'
 
 export type TheoryCategory = 'triads' | 'sevenths' | 'extended' | 'scales'
 
@@ -483,6 +483,35 @@ export function buildTheoryEntry(root: TheoryRoot, tmpl: PatternTemplate): Theor
   const baseFret = minPositiveFret <= 3 || minPositiveFret === 99 ? 1 : minPositiveFret
 
   const symbol = tmpl.symbol ? `${root}${tmpl.symbol}` : `${root} ${tmpl.name}`
+  const chordSymbol = tmpl.symbol ? `${root}${tmpl.symbol}` : root
+
+  let guitarVoicing: GuitarTabVoicing = {
+    frets,
+    fingering: tmpl.guitarFingering,
+    strings: 'E A D G B E',
+    baseFret,
+  }
+
+  let pianoVoicing: PianoVoicing = {
+    lhNotes: [getNoteByInterval(root, 0)],
+    rhNotes: notes,
+    lhPitches,
+    rhPitches,
+  }
+
+  if (tmpl.category !== 'scales') {
+    try {
+      const standardVoicing = resolveChordVoicing(chordSymbol)
+      if (standardVoicing?.guitarTab && standardVoicing.guitarTab.frets.some((f) => f !== null)) {
+        guitarVoicing = standardVoicing.guitarTab
+      }
+      if (standardVoicing?.pianoVoicing && standardVoicing.pianoVoicing.rhPitches.length > 0) {
+        pianoVoicing = standardVoicing.pianoVoicing
+      }
+    } catch {
+      // Fallback to generated pattern
+    }
+  }
 
   return {
     id: `${root.toLowerCase()}_${tmpl.name.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`,
@@ -496,18 +525,8 @@ export function buildTheoryEntry(root: TheoryRoot, tmpl: PatternTemplate): Theor
     description: tmpl.description,
     mood: tmpl.mood,
     pianoMidi: [bassMidi, ...rhPitches],
-    guitarVoicing: {
-      frets,
-      fingering: tmpl.guitarFingering,
-      strings: 'E A D G B E',
-      baseFret,
-    },
-    pianoVoicing: {
-      lhNotes: [getNoteByInterval(root, 0)],
-      rhNotes: notes,
-      lhPitches,
-      rhPitches,
-    },
+    guitarVoicing,
+    pianoVoicing,
   }
 }
 

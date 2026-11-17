@@ -93,6 +93,15 @@ describe('PracticeAudioEngine Comprehensive Suite', () => {
       expect(buffer.length).toBe(44100)
     })
 
+    it('guarantees deterministic, reproducible excitation on repeated plucks of the same pitch', () => {
+      const buf1 = generateKarplusStrongBuffer('E2', 1.0, sampleRate)
+      const buf2 = generateKarplusStrongBuffer('E2', 1.0, sampleRate)
+      expect(buf1.length).toBe(buf2.length)
+      for (let i = 0; i < buf1.length; i++) {
+        expect(buf1[i]).toBe(buf2[i])
+      }
+    })
+
     it('guarantees zero DC offset and non-NaN values', () => {
       const buffer = generateKarplusStrongBuffer(110, 0.5, sampleRate)
       let sum = 0

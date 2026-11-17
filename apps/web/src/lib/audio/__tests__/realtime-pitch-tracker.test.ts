@@ -58,4 +58,43 @@ describe('RealtimePitchTracker', () => {
     const result = tracker.detectPitch(buffer)
     expect(result).toBeNull()
   })
+
+  it('filters pitch estimates through a rolling median window to suppress outliers', () => {
+    const tracker = new RealtimePitchTracker(44100)
+    tracker.clearPitchHistory()
+    // Stable 440 Hz
+    expect(tracker.getSmoothedPitch(440)).toBe(440)
+    expect(tracker.getSmoothedPitch(441)).toBe(440.5)
+    expect(tracker.getSmoothedPitch(439)).toBe(440)
+    // Momentary outlier / octave glitch (880 Hz)
+    const smoothedWithGlitch = tracker.getSmoothedPitch(880)
+    // Median of [440, 441, 439, 880] sorted is [439, 440, 441, 880] -> 440.5
+    expect(smoothedWithGlitch).toBeLessThan(450)
+  })
+
+  it('accurately tracks 440Hz at 48000Hz hardware sample rate when sampleRate is synchronized', () => {
+    const tracker = new RealtimePitchTracker(48000)
+    const buffer = new Float32Array(2048)
+    for (let i = 0; i < buffer.length; i++) {
+      buffer[i] = Math.sin((2 * Math.PI * 440 * i) / 48000)
+    }
+    const result = tracker.detectPitch(buffer)
+    expect(result).not.toBeNull()
+    expect(result?.note).toBe('A4')
+    expect(Math.abs(result!.freq - 440)).toBeLessThan(1.5)
+  })
+
+  it('correctly identifies low fundamental E2 (82.4Hz) even when 2nd harmonic (164.8Hz) is prominent', () => {
+    const tracker = new RealtimePitchTracker(44100)
+    const buffer = new Float32Array(2048)
+    for (let i = 0; i < buffer.length; i++) {
+      buffer[i] =
+        0.55 * Math.sin((2 * Math.PI * 82.41 * i) / 44100) +
+        0.45 * Math.sin((2 * Math.PI * 164.82 * i) / 44100)
+    }
+    const result = tracker.detectPitch(buffer)
+    expect(result).not.toBeNull()
+    expect(result?.note).toBe('E2')
+    expect(Math.abs(result!.freq - 82.41)).toBeLessThan(2.0)
+  })
 })

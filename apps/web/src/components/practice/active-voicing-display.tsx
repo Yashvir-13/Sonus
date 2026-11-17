@@ -27,7 +27,7 @@ export interface ActiveVoicingDisplayProps {
   className?: string
 }
 
-export function ActiveVoicingDisplay({
+export const ActiveVoicingDisplay = React.memo(function ActiveVoicingDisplay({
   instrument,
   chordName = '',
   guitarTab,
@@ -196,4 +196,4 @@ export function ActiveVoicingDisplay({
       </div>
     </div>
   )
-}
+})

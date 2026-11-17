@@ -21,7 +21,7 @@ export function MastheadNav({
   onOpenProgress,
   onOpenCommunity,
   onSignIn,
-  isSignedIn: _isSignedIn = false,
+  isSignedIn = false,
   userButtonSlot,
   onJumpToProgress,
 }: MastheadNavProps): React.JSX.Element {
@@ -100,7 +100,7 @@ export function MastheadNav({
             Tuner
           </button>
         )}
-        {onOpenProgress && (
+        {isSignedIn && onOpenProgress && (
           <button
             type="button"
             onClick={onOpenProgress}
@@ -109,7 +109,7 @@ export function MastheadNav({
             Progress &amp; Coach
           </button>
         )}
-        {onOpenCommunity && (
+        {isSignedIn && onOpenCommunity && (
           <button
             type="button"
             onClick={onOpenCommunity}
@@ -125,7 +125,15 @@ export function MastheadNav({
         {userButtonSlot}
         <button
           type="button"
-          onClick={onEnterStudio || onSignIn}
+          onClick={() => {
+            if (isSignedIn && onEnterStudio) {
+              onEnterStudio()
+            } else if (onSignIn) {
+              onSignIn()
+            } else if (onEnterStudio) {
+              onEnterStudio()
+            }
+          }}
           className="px-3.5 sm:px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-semibold tracking-wide flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
         >
           <span>Enter Practice Studio</span>

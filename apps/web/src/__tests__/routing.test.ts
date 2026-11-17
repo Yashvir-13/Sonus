@@ -4,7 +4,9 @@ import {
   slugToExerciseId,
   parseRouteFromPath,
   viewToPath,
+  createChordDrillExercise,
 } from '@/app'
+import type { FullSongChordItem } from '@/lib/music/song-catalog'
 
 describe('Application URL Routing & Slugs', () => {
   describe('exerciseIdToSlug', () => {
@@ -19,6 +21,11 @@ describe('Application URL Routing & Slugs', () => {
     it('falls back to stripping ex_ and converting underscores to hyphens', () => {
       expect(exerciseIdToSlug('ex_custom_exercise_123')).toBe('custom-exercise-123')
     })
+
+    it('formats chord drill exercise IDs into clean slugs', () => {
+      expect(exerciseIdToSlug('drill_chord_c')).toBe('chord-c')
+      expect(exerciseIdToSlug('drill_chord_g_sharp')).toBe('chord-g-sharp')
+    })
   })
 
   describe('slugToExerciseId', () => {
@@ -32,6 +39,43 @@ describe('Application URL Routing & Slugs', () => {
       expect(slugToExerciseId('four-chord-anthem')).toBe('ex_guitar_four_chord')
       expect(slugToExerciseId('knockin-cadence')).toBe('ex_guitar_knockin')
       expect(slugToExerciseId('knockin')).toBe('ex_guitar_knockin')
+    })
+
+    it('resolves chord drill slugs against dynamic exercise catalogue', () => {
+      const drill = createChordDrillExercise('C Major', 'guitar')
+      expect(slugToExerciseId('chord-c', [drill])).toBe('drill_chord_c')
+      expect(slugToExerciseId(exerciseIdToSlug(drill.id), [drill])).toBe('drill_chord_c')
+      expect(slugToExerciseId('drill-chord-c', [drill])).toBe('drill_chord_c')
+      expect(slugToExerciseId('chord-drill-c', [drill])).toBe('drill_chord_c')
+      expect(slugToExerciseId('chord-c')).toBe('drill_chord_c')
+      expect(slugToExerciseId('chord-g-sharp')).toBe('drill_chord_g_sharp')
+    })
+  })
+
+  describe('createChordDrillExercise', () => {
+    it('generates a focused 4-measure progression of the requested chord with valid metadata', () => {
+      const drill = createChordDrillExercise('G Major', 'guitar')
+      expect(drill.id).toBe('drill_chord_g')
+      expect(drill.title).toBe('Chord Drill: G Major')
+      expect(drill.progression).toBeDefined()
+      expect(drill.progression?.key).toBe('G Major')
+      expect(drill.progression?.chords).toBeDefined()
+      expect(drill.progression?.chords).toHaveLength(4)
+      expect(drill.progression?.chords?.[0]?.name).toBe('G')
+      expect(drill.progression?.chords?.[0]?.duration_beats).toBe(4)
+      expect(drill.progression?.chords?.[0]?.guitar_tabs?.frets).toEqual([3, 2, 0, 0, 3, 3])
+    })
+
+    it('generates a focused piano chord drill with valid piano voicings', () => {
+      const drill = createChordDrillExercise('C Major', 'piano')
+      expect(drill.id).toBe('drill_chord_c')
+      expect(drill.instrument).toBe('piano')
+      expect(drill.progression).toBeDefined()
+      expect(drill.progression?.chords).toHaveLength(4)
+      const firstChord = drill.progression?.chords?.[0] as FullSongChordItem | undefined
+      expect(firstChord?.name).toBe('C')
+      expect(firstChord?.piano_voicings?.rh_notes).toBeDefined()
+      expect(firstChord?.piano_voicings?.lh_note).toBeDefined()
     })
   })
 
@@ -58,6 +102,10 @@ describe('Application URL Routing & Slugs', () => {
       expect(parseRouteFromPath('/practice/pachelbel')).toEqual({
         view: 'practice',
         songId: 'ex_piano_canon',
+      })
+      expect(parseRouteFromPath('/practice/chord-c')).toEqual({
+        view: 'practice',
+        songId: 'drill_chord_c',
       })
     })
 
@@ -101,6 +149,7 @@ describe('Application URL Routing & Slugs', () => {
       expect(viewToPath('practice')).toBe('/practice')
       expect(viewToPath('practice', 'ex_guitar_rising_sun')).toBe('/practice/house-of-the-rising-sun')
       expect(viewToPath('practice', 'ex_piano_shostakovich_waltz_2')).toBe('/practice/waltz-no-2')
+      expect(viewToPath('practice', 'drill_chord_c')).toBe('/practice/chord-c')
     })
   })
 })

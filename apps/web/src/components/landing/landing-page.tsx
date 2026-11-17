@@ -3,7 +3,6 @@ import Lenis from 'lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useReducedMotion } from 'motion/react'
-import { MastheadNav } from './masthead-nav'
 import { CinematicCameraStage } from './cinematic-camera-stage'
 import { ColophonFooter } from './colophon-footer'
 
@@ -27,8 +26,8 @@ export function LandingPage({
   onOpenProgress,
   onOpenCommunity,
   onSignIn,
-  isSignedIn = false,
-  userButtonSlot,
+  isSignedIn: _isSignedIn = false,
+  userButtonSlot: _userButtonSlot,
 }: LandingPageProps): React.JSX.Element {
   const prefersReduced = useReducedMotion()
   const [activeRepertoireTitle, setActiveRepertoireTitle] = useState('Waltz No. 2 in C Minor')
@@ -74,18 +73,6 @@ export function LandingPage({
     }
   }, [])
 
-  const handleJumpToProgress = useCallback(
-    (ratio: number) => {
-      if (stageJumpRef.current) {
-        stageJumpRef.current(ratio)
-        return
-      }
-      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
-      scrollToPixelY(maxScroll * ratio)
-    },
-    [scrollToPixelY]
-  )
-
   const handleEnter = (songId?: string) => {
     const targetSong = songId || activeSongId
     if (onEnterStudio) {
@@ -100,18 +87,6 @@ export function LandingPage({
       id="top"
       className="relative min-h-screen w-full bg-[#F8F8F6] dark:bg-[#09090B] text-zinc-900 dark:text-zinc-100 font-sans selection:bg-amber-500/30 transition-colors"
     >
-      <MastheadNav
-        onEnterStudio={() => handleEnter(activeSongId)}
-        onOpenTheory={onOpenTheory}
-        onOpenTuner={onOpenTuner}
-        onOpenProgress={onOpenProgress}
-        onOpenCommunity={onOpenCommunity}
-        onSignIn={onSignIn}
-        isSignedIn={isSignedIn}
-        userButtonSlot={userButtonSlot}
-        onJumpToProgress={handleJumpToProgress}
-      />
-
       <CinematicCameraStage
         onEnterStudio={(songId) => handleEnter(songId)}
         onOpenTheory={onOpenTheory}

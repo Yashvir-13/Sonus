@@ -1,6 +1,6 @@
 import type { ExerciseDto } from '@/api/sessions'
 import type { GrandStaffNote, StrumEvent } from '@/components/practice/flowing-notation-stand'
-import { parseFingeringString } from '@/lib/music/chord-voicings'
+import { parseFingeringString, resolveChordVoicing } from '@/lib/music/chord-voicings'
 
 export type FullSongChordItem = {
   name: string
@@ -845,3 +845,318 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
     }),
   },
 ]
+
+export const BUILTIN_ADDITIONAL_EXERCISES: ExerciseDto[] = [
+  {
+    id: 'ex_piano_autumn_turnaround',
+    title: 'Autumn Jazz Turnaround (Dm7 – G7 – Cmaj7 – A7)',
+    artist: 'Jazz Standard',
+    composer: 'Standard Turnaround Cadence',
+    description:
+      'Classic 4-measure jazz turnaround progression (ii7–V7–Imaj7–VI7). Features rich 7th chord voicings, chromatic bass movement, and essential voice leading.',
+    instrument: 'piano',
+    tempo_bpm: 84,
+    difficulty: 2,
+    progression: {
+      key: 'C Major',
+      tempo_range: { min_bpm: 60, default_bpm: 84, max_bpm: 115, gradual_step_bpm: 5 },
+      chords: [
+        {
+          name: 'Dm7',
+          beat: 1.0,
+          duration_beats: 4.0,
+          expected_pitches: [50, 65, 69, 72],
+          piano_voicings: {
+            lh_note: 'D3',
+            rh_notes: ['F4', 'A4', 'C5'],
+            lh_pitches: [50],
+            rh_pitches: [65, 69, 72],
+          },
+          section: 'Turnaround A',
+        },
+        {
+          name: 'G7',
+          beat: 5.0,
+          duration_beats: 4.0,
+          expected_pitches: [43, 65, 71, 74],
+          piano_voicings: {
+            lh_note: 'G2',
+            rh_notes: ['F4', 'B4', 'D5'],
+            lh_pitches: [43],
+            rh_pitches: [65, 71, 74],
+          },
+          section: 'Turnaround A',
+        },
+        {
+          name: 'Cmaj7',
+          beat: 9.0,
+          duration_beats: 4.0,
+          expected_pitches: [48, 64, 67, 71],
+          piano_voicings: {
+            lh_note: 'C3',
+            rh_notes: ['E4', 'G4', 'B4'],
+            lh_pitches: [48],
+            rh_pitches: [64, 67, 71],
+          },
+          section: 'Turnaround A',
+        },
+        {
+          name: 'A7',
+          beat: 13.0,
+          duration_beats: 4.0,
+          expected_pitches: [45, 67, 73, 76],
+          piano_voicings: {
+            lh_note: 'A2',
+            rh_notes: ['G4', 'C#5', 'E5'],
+            lh_pitches: [45],
+            rh_pitches: [67, 73, 76],
+          },
+          section: 'Turnaround A',
+        },
+      ],
+    },
+    progression_json: JSON.stringify({
+      key: 'C Major',
+      time_signature: '4/4',
+      default_tempo_bpm: 84,
+      strumming_pattern: 'Jazz Swing / Ballad Pulses',
+      chords: [
+        {
+          name: 'Dm7',
+          beat: 1.0,
+          duration_beats: 4.0,
+          expected_pitches: [50, 65, 69, 72],
+          piano_voicings: {
+            lh_note: 'D3',
+            rh_notes: ['F4', 'A4', 'C5'],
+            lh_pitches: [50],
+            rh_pitches: [65, 69, 72],
+          },
+        },
+        {
+          name: 'G7',
+          beat: 5.0,
+          duration_beats: 4.0,
+          expected_pitches: [43, 65, 71, 74],
+          piano_voicings: {
+            lh_note: 'G2',
+            rh_notes: ['F4', 'B4', 'D5'],
+            lh_pitches: [43],
+            rh_pitches: [65, 71, 74],
+          },
+        },
+        {
+          name: 'Cmaj7',
+          beat: 9.0,
+          duration_beats: 4.0,
+          expected_pitches: [48, 64, 67, 71],
+          piano_voicings: {
+            lh_note: 'C3',
+            rh_notes: ['E4', 'G4', 'B4'],
+            lh_pitches: [48],
+            rh_pitches: [64, 67, 71],
+          },
+        },
+        {
+          name: 'A7',
+          beat: 13.0,
+          duration_beats: 4.0,
+          expected_pitches: [45, 67, 73, 76],
+          piano_voicings: {
+            lh_note: 'A2',
+            rh_notes: ['G4', 'C#5', 'E5'],
+            lh_pitches: [45],
+            rh_pitches: [67, 73, 76],
+          },
+        },
+      ],
+    }),
+  },
+  {
+    id: 'ex_piano_pop_ballad',
+    title: 'Pop Ballad Cadence (C – G – Am – F)',
+    artist: 'Pop Standard',
+    composer: 'Standard I–V–vi–IV Cadence',
+    description:
+      'Universal 4-measure pop piano progression. Features smooth left-hand bass octaves and balanced right-hand triad inversions.',
+    instrument: 'piano',
+    tempo_bpm: 76,
+    difficulty: 1,
+    progression: {
+      key: 'C Major',
+      tempo_range: { min_bpm: 55, default_bpm: 76, max_bpm: 105, gradual_step_bpm: 5 },
+      chords: [
+        {
+          name: 'C',
+          beat: 1.0,
+          duration_beats: 4.0,
+          expected_pitches: [48, 60, 64, 67],
+          piano_voicings: {
+            lh_note: 'C3',
+            rh_notes: ['C4', 'E4', 'G4'],
+            lh_pitches: [48],
+            rh_pitches: [60, 64, 67],
+          },
+          section: 'Verse',
+        },
+        {
+          name: 'G',
+          beat: 5.0,
+          duration_beats: 4.0,
+          expected_pitches: [43, 59, 62, 67],
+          piano_voicings: {
+            lh_note: 'G2',
+            rh_notes: ['B3', 'D4', 'G4'],
+            lh_pitches: [43],
+            rh_pitches: [59, 62, 67],
+          },
+          section: 'Verse',
+        },
+        {
+          name: 'Am',
+          beat: 9.0,
+          duration_beats: 4.0,
+          expected_pitches: [45, 60, 64, 69],
+          piano_voicings: {
+            lh_note: 'A2',
+            rh_notes: ['C4', 'E4', 'A4'],
+            lh_pitches: [45],
+            rh_pitches: [60, 64, 69],
+          },
+          section: 'Verse',
+        },
+        {
+          name: 'F',
+          beat: 13.0,
+          duration_beats: 4.0,
+          expected_pitches: [41, 60, 65, 69],
+          piano_voicings: {
+            lh_note: 'F2',
+            rh_notes: ['C4', 'F4', 'A4'],
+            lh_pitches: [41],
+            rh_pitches: [60, 65, 69],
+          },
+          section: 'Verse',
+        },
+      ],
+    },
+    progression_json: JSON.stringify({
+      key: 'C Major',
+      time_signature: '4/4',
+      default_tempo_bpm: 76,
+      strumming_pattern: 'Ballad Pulses (4/4)',
+      chords: [
+        {
+          name: 'C',
+          beat: 1.0,
+          duration_beats: 4.0,
+          expected_pitches: [48, 60, 64, 67],
+          piano_voicings: {
+            lh_note: 'C3',
+            rh_notes: ['C4', 'E4', 'G4'],
+            lh_pitches: [48],
+            rh_pitches: [60, 64, 67],
+          },
+        },
+        {
+          name: 'G',
+          beat: 5.0,
+          duration_beats: 4.0,
+          expected_pitches: [43, 59, 62, 67],
+          piano_voicings: {
+            lh_note: 'G2',
+            rh_notes: ['B3', 'D4', 'G4'],
+            lh_pitches: [43],
+            rh_pitches: [59, 62, 67],
+          },
+        },
+        {
+          name: 'Am',
+          beat: 9.0,
+          duration_beats: 4.0,
+          expected_pitches: [45, 60, 64, 69],
+          piano_voicings: {
+            lh_note: 'A2',
+            rh_notes: ['C4', 'E4', 'A4'],
+            lh_pitches: [45],
+            rh_pitches: [60, 64, 69],
+          },
+        },
+        {
+          name: 'F',
+          beat: 13.0,
+          duration_beats: 4.0,
+          expected_pitches: [41, 60, 65, 69],
+          piano_voicings: {
+            lh_note: 'F2',
+            rh_notes: ['C4', 'F4', 'A4'],
+            lh_pitches: [41],
+            rh_pitches: [60, 65, 69],
+          },
+        },
+      ],
+    }),
+  },
+]
+
+export const ALL_BUILTIN_EXERCISES: ExerciseDto[] = [
+  ...BUILTIN_FULL_SONGS,
+  ...BUILTIN_ADDITIONAL_EXERCISES,
+]
+
+/**
+ * Generates an isolated 4-measure chord drill exercise for a specific chord symbol.
+ */
+export function createChordDrillExercise(
+  chordSymbol: string,
+  instrument: 'piano' | 'guitar' = 'guitar'
+): ExerciseDto {
+  const normalized = chordSymbol.trim().replace(/\s+Major$/i, '').replace(/\s+Minor$/i, 'm')
+  const slugChord = normalized.toLowerCase().replace(/#/g, 'sharp').replace(/[^a-z0-9_]/g, '_')
+  const id = `drill_chord_${slugChord}`
+  const voicing = resolveChordVoicing(normalized)
+
+  const chords: FullSongChordItem[] = [1, 2, 3, 4].map((bar) => ({
+    name: normalized,
+    beat: (bar - 1) * 4 + 1,
+    duration_beats: 4,
+    expected_pitches: voicing.expectedPitches,
+    guitar_tabs: {
+      frets: voicing.guitarTab.frets,
+      strings: voicing.guitarTab.strings,
+      fingering: voicing.guitarTab.fingering,
+      fingers: voicing.guitarTab.fingers,
+      baseFret: voicing.guitarTab.baseFret ?? 1,
+      barreFret: voicing.guitarTab.barreFret,
+    },
+    piano_voicings: {
+      lh_note: voicing.pianoVoicing.lhNotes[0] || `${normalized}2`,
+      rh_notes: voicing.pianoVoicing.rhNotes,
+      lh_pitches: voicing.pianoVoicing.lhPitches,
+      rh_pitches: voicing.pianoVoicing.rhPitches,
+    },
+    section: `Measure ${bar}`,
+  }))
+
+  return {
+    id,
+    title: `Chord Drill: ${chordSymbol}`,
+    artist: 'Sonus Chord Compendium',
+    composer: 'Harmonic Practice Drill',
+    description: `Focused chord voicing, hand placement, and rhythmic sustain drill for ${chordSymbol}.`,
+    instrument,
+    tempo_bpm: 76,
+    difficulty: 1,
+    progression: {
+      key: chordSymbol,
+      tempo_range: { min_bpm: 50, default_bpm: 76, max_bpm: 110, gradual_step_bpm: 5 },
+      chords,
+    },
+    progression_json: JSON.stringify({
+      key: chordSymbol,
+      time_signature: '4/4',
+      strumming_pattern: 'Whole Note Sustain (4 Beats)',
+      chords,
+    }),
+  }
+}

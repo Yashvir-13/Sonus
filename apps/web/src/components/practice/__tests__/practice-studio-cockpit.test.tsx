@@ -1,6 +1,8 @@
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { PracticeStudioCockpit } from '../practice-studio-cockpit'
+import { createChordDrillExercise } from '@/app'
+import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
 import { ProgressDashboardPage } from '@/components/progress/progress-dashboard-page'
 import { PeerComparisonPage } from '@/components/community/peer-comparison-page'
 import {
@@ -187,5 +189,18 @@ describe('PracticeStudioCockpit, ProgressDashboardPage & PeerComparisonPage', ()
 
     // Loop banner should display active transition loop
     expect(screen.getByText(/2-BAR TRANSITION LOOP ACTIVE/i)).toBeDefined()
+  })
+
+  it('correctly initializes and renders a dynamic chord drill passed via initialSongId', () => {
+    const drill = createChordDrillExercise('C Major', 'guitar')
+    render(
+      <PracticeStudioCockpit
+        initialSongId={drill.id}
+        availableExercises={[...BUILTIN_FULL_SONGS, drill]}
+      />
+    )
+
+    expect(screen.getByText(/Chord Drill: C Major/i)).toBeDefined()
+    expect(screen.getByText(/GUITAR • 6-STRING/i)).toBeDefined()
   })
 })
