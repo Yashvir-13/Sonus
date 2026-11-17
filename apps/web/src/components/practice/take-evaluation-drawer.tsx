@@ -1,4 +1,5 @@
 import React from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { X, Activity, Compass, ArrowRight, RotateCcw, AlertTriangle } from 'lucide-react'
 import type { TakeEvaluationResponse, AdaptiveInterventionDto } from '@/api/sessions'
 
@@ -38,21 +39,31 @@ export function TakeEvaluationDrawer({
 
   return (
     <>
-      {isOpen && (
-        <div
-          data-testid="take-drawer-backdrop"
-          onClick={onClose}
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 transition-opacity animate-in fade-in duration-200"
-        />
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="take-drawer-backdrop"
+            data-testid="take-drawer-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/70 z-40"
+          />
+        )}
+      </AnimatePresence>
 
-      <div
+      <motion.div
         data-testid="take-evaluation-drawer"
         aria-label="Performance Evaluation & Alignment Diagnostics"
         role="dialog"
         aria-modal="true"
         aria-hidden={!isOpen}
-        className={`fixed inset-y-0 right-0 w-full max-w-xl bg-white dark:bg-[#111114] text-zinc-900 dark:text-zinc-100 border-l border-zinc-200 dark:border-zinc-800 shadow-2xl z-50 transform transition-transform duration-300 ease-out flex flex-col font-sans ${
+        initial={false}
+        animate={{ x: isOpen ? 0 : '100%' }}
+        transition={{ type: 'spring', stiffness: 380, damping: 36 }}
+        className={`fixed inset-y-0 right-0 w-full max-w-xl bg-white dark:bg-[#111114] text-zinc-900 dark:text-zinc-100 border-l border-zinc-200 dark:border-zinc-800 shadow-2xl z-50 flex flex-col font-sans ${
           isOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none'
         } ${className}`}
       >
@@ -275,7 +286,7 @@ export function TakeEvaluationDrawer({
             <span>BACK TO PRACTICE ROOM</span>
           </button>
         </div>
-      </div>
+      </motion.div>
     </>
   )
 }

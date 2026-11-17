@@ -5,14 +5,17 @@
   "description": "Adaptive Musical Practice System (PRISM) monorepo scaffold (Vite web + FastAPI, empty infra)",
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
-    "dev": "concurrently -n api,web -c cyan,magenta \"python scripts/run.py service:api\" \"npm run --prefix apps/web dev\"",
-    "dev:web": "npm run --prefix apps/web dev",
-    "dev:all": "concurrently -n api,web -c cyan,magenta \"python scripts/run.py service:api\" \"npm run --prefix apps/web dev\"",
-    "build": "npm run --prefix apps/web build",
-    "preview": "npm run --prefix apps/web preview",
-    "test": "npm run --prefix apps/web test",
+    "dev": "node server.ts",
+    "start": "NODE_ENV=production node server.ts",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:all": "node server.ts",
+    "build": "cd apps/web && npm run build",
+    "lint": "cd apps/web && npm run lint",
+    "preview": "cd apps/web && npm run preview",
+    "test": "cd apps/web && npm run test",
+    "test:e2e": "playwright test",
     "db:create": "python scripts/run.py db:create",
     "db:clean": "python scripts/run.py db:clean",
     "db:make": "python scripts/run.py db:make",
@@ -28,5 +31,9 @@
   },
   "workspaces": [
     "apps/*"
-  ]
+  ],
+  "dependencies": {
+    "@playwright/test": "^1.65.1",
+    "gsap": "^3.15.1"
+  }
 }

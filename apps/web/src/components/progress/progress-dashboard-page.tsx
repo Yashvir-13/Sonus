@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { motion } from 'motion/react'
 
 import {
 
   rankAdaptiveRecommendations,
 
   mapBackendMasteryToTransitions,
-
-  INITIAL_TRANSITION_MASTERY,
 
   type TransitionMasteryState,
 
@@ -116,7 +115,7 @@ export function ProgressDashboardPage({
 
     if (transitions && transitions.length > 0) return transitions
 
-    return INITIAL_TRANSITION_MASTERY
+    return []
 
   }, [liveTransitions, transitions])
 
@@ -162,17 +161,17 @@ export function ProgressDashboardPage({
 
       {/* Page Title & Quick Action Strip */}
 
-      <div className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-[#121215]/60 backdrop-blur-md px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+      <div className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-[#121215]/95 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
 
-          <span className="text-xs font-mono font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500">
+          <span className="text-xs font-mono font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500 whitespace-nowrap">
 
             Progress, History &amp; Exercise Coach
 
           </span>
 
-          <span className="hidden sm:inline text-xs font-mono text-zinc-400">
+          <span className="hidden sm:inline text-xs font-mono text-zinc-400 truncate">
 
             • Longitudinal BKT &amp; SM-2 Mastery Schedule
 
@@ -182,13 +181,15 @@ export function ProgressDashboardPage({
 
         {topThreeRecommendations[0] && (
 
-          <button
+          <motion.button
 
             type="button"
 
+            whileTap={{ scale: 0.98 }}
+
             onClick={() => onOpenStudioWithRecommendation?.(topThreeRecommendations[0]!)}
 
-            className="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer ml-auto"
+            className="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer ml-auto whitespace-nowrap shrink-0"
 
           >
 
@@ -196,7 +197,7 @@ export function ProgressDashboardPage({
 
             <span>Practice Recommended Drill</span>
 
-          </button>
+          </motion.button>
 
         )}
 
@@ -230,8 +231,9 @@ export function ProgressDashboardPage({
 
             <div className="inline-flex items-center rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121215] p-1 text-xs font-mono self-start">
 
-              {(['all', 'piano', 'guitar'] as const).map((inst) => (
-
+              {(['all', 'piano', 'guitar'] as const).map((inst) => {
+                const isSelected = instrumentFilter === inst
+                return (
                 <button
 
                   key={inst}
@@ -240,11 +242,11 @@ export function ProgressDashboardPage({
 
                   onClick={() => setInstrumentFilter(inst)}
 
-                  className={`px-3 py-1 rounded-md uppercase font-bold transition-colors cursor-pointer ${
+                  className={`relative px-3 py-1 rounded-md uppercase font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
 
-                    instrumentFilter === inst
+                    isSelected
 
-                      ? 'bg-amber-500 text-zinc-950'
+                      ? 'text-zinc-950'
 
                       : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
 
@@ -252,11 +254,20 @@ export function ProgressDashboardPage({
 
                 >
 
-                  {inst === 'all' ? 'All Instruments' : inst}
+                  {isSelected && (
+                    <motion.span
+                      layoutId="progress-instrument-filter"
+                      transition={{ type: 'spring', stiffness: 460, damping: 36 }}
+                      className="absolute inset-0 rounded-md bg-amber-500 shadow-xs"
+                      aria-hidden="true"
+                    />
+                  )}
+
+                  <span className="relative z-10">{inst === 'all' ? 'All Instruments' : inst}</span>
 
                 </button>
-
-              ))}
+                )
+              })}
 
             </div>
 
@@ -496,13 +507,21 @@ export function ProgressDashboardPage({
 
               topThreeRecommendations.map((rec, idx) => (
 
-              <div
+              <motion.div
 
                 key={rec.id}
 
                 data-testid={`recommendation-card-${idx + 1}`}
 
-                className={`rounded-2xl border p-6 flex flex-col justify-between gap-5 shadow-sm transition-all ${
+                initial={{ opacity: 0, y: 10 }}
+
+                animate={{ opacity: 1, y: 0 }}
+
+                transition={{ duration: 0.24, delay: idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
+
+                whileHover={{ y: -2 }}
+
+                className={`rounded-2xl border p-6 flex flex-col justify-between gap-5 shadow-sm transition-colors ${
 
                   idx === 0
 
@@ -696,19 +715,21 @@ export function ProgressDashboardPage({
 
                   </div>
 
-                  <button
+                  <motion.button
 
                     type="button"
 
                     data-testid={`launch-recommended-drill-${idx + 1}`}
 
+                    whileTap={{ scale: 0.985 }}
+
                     onClick={() => onOpenStudioWithRecommendation?.(rec)}
 
-                    className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                    className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer whitespace-nowrap"
 
                   >
 
-                    <Play className="size-3.5 fill-current" />
+                    <Play className="size-3.5 fill-current shrink-0" />
 
                     <span>
 
@@ -716,11 +737,11 @@ export function ProgressDashboardPage({
 
                     </span>
 
-                  </button>
+                  </motion.button>
 
                 </div>
 
-              </div>
+              </motion.div>
 
             ))
 
@@ -752,51 +773,48 @@ export function ProgressDashboardPage({
 
             </div>
 
-            <div className="inline-flex rounded-lg border border-zinc-200 dark:border-zinc-800 bg-[#F8F8F6] dark:bg-[#09090B] p-1 text-xs font-mono">
+            <div className="inline-flex rounded-lg border border-zinc-200 dark:border-zinc-800 bg-[#F8F8F6] dark:bg-[#09090B] p-1 text-xs font-mono self-start sm:self-auto">
 
-              <button
+              {([
+                { id: 'latency', label: 'Transition Latency (ms)' },
+                { id: 'accuracy', label: 'Alignment Accuracy (%)' },
+              ] as const).map((tab) => {
+                const isSelected = selectedMetricTab === tab.id
+                return (
+                <button
 
-                type="button"
+                  key={tab.id}
 
-                onClick={() => setSelectedMetricTab('latency')}
+                  type="button"
 
-                className={`px-3 py-1 rounded-md font-bold transition-colors cursor-pointer ${
+                  onClick={() => setSelectedMetricTab(tab.id)}
 
-                  selectedMetricTab === 'latency'
+                  className={`relative px-3 py-1 rounded-md font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
 
-                    ? 'bg-amber-500 text-zinc-950'
+                    isSelected
 
-                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                      ? 'text-zinc-950'
 
-                }`}
+                      : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
 
-              >
+                  }`}
 
-                Transition Latency (ms)
+                >
 
-              </button>
+                  {isSelected && (
+                    <motion.span
+                      layoutId="progress-metric-tab"
+                      transition={{ type: 'spring', stiffness: 460, damping: 36 }}
+                      className="absolute inset-0 rounded-md bg-amber-500 shadow-xs"
+                      aria-hidden="true"
+                    />
+                  )}
 
-              <button
+                  <span className="relative z-10">{tab.label}</span>
 
-                type="button"
-
-                onClick={() => setSelectedMetricTab('accuracy')}
-
-                className={`px-3 py-1 rounded-md font-bold transition-colors cursor-pointer ${
-
-                  selectedMetricTab === 'accuracy'
-
-                    ? 'bg-amber-500 text-zinc-950'
-
-                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
-
-                }`}
-
-              >
-
-                Alignment Accuracy (%)
-
-              </button>
+                </button>
+                )
+              })}
 
             </div>
 

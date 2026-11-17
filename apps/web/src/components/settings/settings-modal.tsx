@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { motion } from 'motion/react'
 import { X, User, Sliders, Mic, Check, Save } from 'lucide-react'
 
 export interface StudioPreferences {
@@ -170,14 +171,20 @@ export function SettingsModal({
   if (!isOpen) return null
 
   return (
-    <div
+    <motion.div
       data-testid="settings-modal-backdrop"
-      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 font-sans animate-in fade-in duration-200"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.16 }}
+      className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4 font-sans"
     >
-      <div
+      <motion.div
         role="dialog"
         aria-modal="true"
         aria-labelledby="settings-dialog-title"
+        initial={{ opacity: 0, scale: 0.97, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
         className="w-full max-w-2xl bg-white dark:bg-[#111114] text-zinc-900 dark:text-zinc-100 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header */}
@@ -205,54 +212,44 @@ export function SettingsModal({
         </div>
 
         {/* Tab Strip */}
-        <div className="flex border-b border-zinc-200 dark:border-zinc-800 px-6 bg-white dark:bg-[#111114] text-xs font-mono">
-          <button
-            type="button"
-            data-testid="settings-tab-account"
-            onClick={() => {
-              stopMicTest()
-              setActiveTab('account')
-            }}
-            className={`py-3 px-4 font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
-              activeTab === 'account'
-                ? 'border-amber-500 text-zinc-900 dark:text-zinc-100'
-                : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
-            }`}
-          >
-            <User className="size-3.5" />
-            <span>Profile &amp; Account</span>
-          </button>
-
-          <button
-            type="button"
-            data-testid="settings-tab-studio"
-            onClick={() => {
-              stopMicTest()
-              setActiveTab('studio')
-            }}
-            className={`py-3 px-4 font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
-              activeTab === 'studio'
-                ? 'border-amber-500 text-zinc-900 dark:text-zinc-100'
-                : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
-            }`}
-          >
-            <Sliders className="size-3.5" />
-            <span>Studio Preferences</span>
-          </button>
-
-          <button
-            type="button"
-            data-testid="settings-tab-audio"
-            onClick={() => setActiveTab('audio')}
-            className={`py-3 px-4 font-bold border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
-              activeTab === 'audio'
-                ? 'border-amber-500 text-zinc-900 dark:text-zinc-100'
-                : 'border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
-            }`}
-          >
-            <Mic className="size-3.5" />
-            <span>Audio &amp; Mic Input</span>
-          </button>
+        <div className="flex border-b border-zinc-200 dark:border-zinc-800 px-6 bg-white dark:bg-[#111114] text-xs font-mono overflow-x-auto">
+          {(
+            [
+              { id: 'account', testId: 'settings-tab-account', label: 'Profile & Account', icon: User, stopMic: true },
+              { id: 'studio', testId: 'settings-tab-studio', label: 'Studio Preferences', icon: Sliders, stopMic: true },
+              { id: 'audio', testId: 'settings-tab-audio', label: 'Audio & Mic Input', icon: Mic, stopMic: false },
+            ] as const
+          ).map((tab) => {
+            const Icon = tab.icon
+            const isActive = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                data-testid={tab.testId}
+                onClick={() => {
+                  if (tab.stopMic) stopMicTest()
+                  setActiveTab(tab.id)
+                }}
+                className={`relative py-3 px-4 font-bold transition-colors cursor-pointer flex items-center gap-2 whitespace-nowrap shrink-0 ${
+                  isActive
+                    ? 'text-zinc-900 dark:text-zinc-100'
+                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                }`}
+              >
+                <Icon className="size-3.5 shrink-0" />
+                <span>{tab.label}</span>
+                {isActive && (
+                  <motion.span
+                    layoutId="settings-active-tab-bar"
+                    transition={{ type: 'spring', stiffness: 460, damping: 36 }}
+                    className="absolute inset-x-0 bottom-0 h-0.5 bg-amber-500"
+                    aria-hidden="true"
+                  />
+                )}
+              </button>
+            )
+          })}
         </div>
 
         {/* Tab 1: Profile & Account */}
@@ -500,7 +497,7 @@ export function SettingsModal({
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

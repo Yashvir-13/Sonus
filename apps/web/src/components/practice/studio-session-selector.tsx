@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { motion } from 'motion/react'
 import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
 import { type ExerciseDto } from '@/api/sessions'
 import { Search, Music, ArrowRight, X, Sparkles } from 'lucide-react'
@@ -49,14 +50,20 @@ export function StudioSessionSelector({
   if (!isOpen) return null
 
   return (
-    <div
+    <motion.div
       data-testid="studio-session-selector-overlay"
-      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 font-sans animate-in fade-in duration-200"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.16 }}
+      className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4 font-sans"
     >
-      <div
+      <motion.div
         role="dialog"
         aria-modal="true"
         aria-labelledby="session-selector-title"
+        initial={{ opacity: 0, scale: 0.97, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
         className="w-full max-w-3xl bg-white dark:bg-[#111114] text-zinc-900 dark:text-zinc-100 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header */}
@@ -247,7 +254,7 @@ export function StudioSessionSelector({
             <ArrowRight className="size-4 ml-1" />
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

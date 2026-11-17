@@ -83,11 +83,9 @@ export function MusicianLoadingScreen({
           </div>
         )}
 
-        {/* Text Details */}
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/60 text-[10px] font-mono tracking-widest uppercase text-amber-600 dark:text-amber-500">
-            <span className="size-1.5 rounded-full bg-amber-500 animate-ping" />
-            <span>SONUS STUDIO DESK</span>
+          <div className="text-[11px] font-mono tracking-widest uppercase text-amber-600 dark:text-amber-500 font-semibold">
+            SONUS STUDIO DESK
           </div>
           <h2 className="text-xl font-serif font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
             {headline}

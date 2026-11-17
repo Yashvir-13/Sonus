@@ -1,6 +1,6 @@
 import React from 'react'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
-import { ArrowUpRight, TrendingUp, Users, BookOpen, Disc } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 
 export type MastheadNavProps = {
   onEnterStudio?: () => void
@@ -30,13 +30,12 @@ export function MastheadNav({
       onJumpToProgress(ratio)
       return
     }
-    const maxScroll = document.documentElement.scrollHeight - window.innerHeight
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
     window.scrollTo({ top: maxScroll * ratio, behavior: 'smooth' })
   }
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 h-14 border-b border-zinc-200/90 dark:border-zinc-800/80 bg-[#F8F8F6]/85 dark:bg-[#09090B]/85 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between gap-4 transition-colors">
-      {/* Zone 1: Brand Wordmark */}
+    <header className="fixed top-0 inset-x-0 z-50 h-14 border-b border-zinc-200/90 dark:border-zinc-800/80 bg-[#F8F8F6]/92 dark:bg-[#09090B]/92 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between gap-6 transition-colors">
       <a
         href="#top"
         onClick={(e) => {
@@ -45,30 +44,41 @@ export function MastheadNav({
         }}
         className="font-brand text-sm font-bold tracking-[0.22em] uppercase text-zinc-900 dark:text-zinc-100 whitespace-nowrap shrink-0 flex items-center gap-1.5"
       >
-        <span className="text-amber-600 dark:text-amber-500 font-bold">§</span>
+        <span className="text-amber-600 dark:text-amber-500 font-bold" aria-hidden="true">
+          §
+        </span>
         <span>SONUS</span>
       </a>
 
-      {/* Zone 2: Streamlined Section & Feature Links */}
-      <nav className="hidden xl:flex items-center gap-6 text-xs font-mono font-medium text-zinc-600 dark:text-zinc-400">
+      <nav
+        aria-label="Primary studio sections"
+        className="hidden lg:flex items-center gap-6 text-xs font-medium text-zinc-600 dark:text-zinc-400"
+      >
         <button
           type="button"
-          onClick={() => scrollToRatio(0.18)}
-          className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap cursor-pointer"
+          onClick={() => scrollToRatio(0.22)}
+          className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap shrink-0 cursor-pointer py-1 border-b border-transparent hover:border-amber-500/70"
         >
-          Acoustic Detection
+          Practice View
         </button>
         <button
           type="button"
-          onClick={() => scrollToRatio(0.35)}
-          className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap cursor-pointer"
+          onClick={() => scrollToRatio(0.45)}
+          className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap shrink-0 cursor-pointer py-1 border-b border-transparent hover:border-amber-500/70"
         >
-          Mistake Pinpointing
+          Bar Feedback
+        </button>
+        <button
+          type="button"
+          onClick={() => scrollToRatio(0.68)}
+          className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap shrink-0 cursor-pointer py-1 border-b border-transparent hover:border-amber-500/70"
+        >
+          Drills &amp; Tools
         </button>
         <button
           type="button"
           onClick={() => scrollToRatio(0.92)}
-          className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap cursor-pointer"
+          className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap shrink-0 cursor-pointer py-1 border-b border-transparent hover:border-amber-500/70"
         >
           Song Library
         </button>
@@ -76,58 +86,50 @@ export function MastheadNav({
           <button
             type="button"
             onClick={onOpenTheory}
-            className="hover:text-amber-600 dark:text-amber-400 transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1"
+            className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap shrink-0 cursor-pointer py-1 border-b border-transparent hover:border-amber-500/70"
           >
-            <BookOpen className="size-3 text-amber-500" />
-            <span>Chords &amp; Scales</span>
+            Chords &amp; Scales
           </button>
         )}
         {onOpenTuner && (
           <button
             type="button"
             onClick={onOpenTuner}
-            className="hover:text-amber-600 dark:text-amber-400 transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1"
+            className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap shrink-0 cursor-pointer py-1 border-b border-transparent hover:border-amber-500/70"
           >
-            <Disc className="size-3 text-amber-500" />
-            <span>Guitar Tuner</span>
+            Tuner
           </button>
         )}
-      </nav>
-
-      {/* Zone 3: App Destinations, Theme Toggle & Practice Studio CTA */}
-      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
         {onOpenProgress && (
           <button
             type="button"
             onClick={onOpenProgress}
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-[#121215] hover:border-amber-500/60 text-zinc-800 dark:text-zinc-200 text-xs font-mono transition-colors cursor-pointer"
+            className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap shrink-0 cursor-pointer py-1 border-b border-transparent hover:border-amber-500/70"
           >
-            <TrendingUp className="size-3.5 text-amber-600 dark:text-amber-500" />
-            <span>Progress &amp; Coach</span>
+            Progress &amp; Coach
           </button>
         )}
-
         {onOpenCommunity && (
           <button
             type="button"
             onClick={onOpenCommunity}
-            className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-[#121215] hover:border-amber-500/60 text-zinc-800 dark:text-zinc-200 text-xs font-mono transition-colors cursor-pointer"
+            className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors whitespace-nowrap shrink-0 cursor-pointer py-1 border-b border-transparent hover:border-emerald-500/70"
           >
-            <Users className="size-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>Peer Benchmarks</span>
+            Peer Benchmarks
           </button>
         )}
+      </nav>
 
+      <div className="flex items-center gap-2.5 shrink-0">
         <ThemeToggle />
         {userButtonSlot}
-
         <button
           type="button"
           onClick={onEnterStudio || onSignIn}
-          className="px-3.5 sm:px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-bold tracking-wider uppercase flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer shadow-xs"
+          className="px-3.5 sm:px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-semibold tracking-wide flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
         >
           <span>Enter Practice Studio</span>
-          <ArrowUpRight className="size-3.5" />
+          <ArrowUpRight className="size-3.5 shrink-0" />
         </button>
       </div>
     </header>

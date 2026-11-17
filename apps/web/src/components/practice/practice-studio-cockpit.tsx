@@ -22,6 +22,12 @@ import {
 
   uploadSessionTake,
 
+  submitChordsTake,
+
+  fetchUserHabits,
+
+  ApiError,
+
   type ExerciseDto,
 
   type TakeEvaluationResponse,
@@ -92,6 +98,8 @@ export interface PracticeStudioCockpitProps {
 
   availableExercises?: ExerciseDto[]
 
+  initialHabits?: HabitPatternDto[]
+
   initialLoopDrill?: {
 
     fromChord: string
@@ -129,6 +137,8 @@ export function PracticeStudioCockpit({
   initialLoopDrill = null,
 
   availableExercises,
+
+  initialHabits,
 
   userButtonSlot: _userButtonSlot,
 
@@ -340,49 +350,13 @@ export function PracticeStudioCockpit({
 
   }, [initialLoopDrill])
 
-  const [activeHabits, setActiveHabits] = useState<HabitPatternDto[]>([
+  const [activeHabits, setActiveHabits] = useState<HabitPatternDto[]>(() => initialHabits ?? [])
 
-    {
-
-      id: 'hab_lag_1',
-
-      user_id: 'user',
-
-      pattern_type: 'transition_lag',
-
-      trigger_context: 'Measure 2 → 3 Shift (+142ms late)',
-
-      evidence_count: 3,
-
-      status: 'active',
-
-      severity: 4.1,
-
-      confidence: 0.89,
-
-    },
-
-    {
-
-      id: 'hab_vox_2',
-
-      user_id: 'user',
-
-      pattern_type: 'voicing_drop',
-
-      trigger_context: 'Missed 3rd in Triad Voicing (E4)',
-
-      evidence_count: 2,
-
-      status: 'active',
-
-      severity: 4.5,
-
-      confidence: 0.84,
-
-    },
-
-  ])
+  useEffect(() => {
+    if (initialHabits) {
+      setActiveHabits(initialHabits)
+    }
+  }, [initialHabits])
 
   const audioEngineRef = useRef<PracticeAudioEngine | null>(null)
 
@@ -906,7 +880,7 @@ export function PracticeStudioCockpit({
 
   const runDiagnosticPreset = useCallback(
 
-    (preset: DiagnosticPresetMode, openDrawer = false) => {
+    async (preset: DiagnosticPresetMode, openDrawer = false) => {
 
       setEvaluationError(null)
 
@@ -914,19 +888,13 @@ export function PracticeStudioCockpit({
 
       try {
 
-        const sessionId = `sess_${preset}_${Date.now()}`
-
         const chordCount = Math.min(8, flowingProgression.length)
 
         const slice = flowingProgression.slice(0, chordCount)
-
-        const firstChord = slice[0]?.chordName || 'Am'
-
         const secondChord = slice[1]?.chordName || 'C'
+        const thirdChord = slice[2]?.chordName || slice[0]?.chordName || 'Am'
 
-        const thirdChord = slice[2]?.chordName || firstChord
-
-        const metrics: ChordMetricDto[] = slice.map((c, idx) => {
+        const simulatedOffsets: ChordMetricDto[] = slice.map((c, idx) => {
 
           if (preset === 'transition_lag' && idx === 2) {
 
@@ -1026,257 +994,77 @@ export function PracticeStudioCockpit({
 
         })
 
-        void createPracticeSession(selectedSong.id, undefined, { tempoBpm }).catch(() => {
-
-          // Offline fallback
-
+        const beatSec = 60 / Math.max(30, tempoBpm)
+        let beatCursor = 1
+        const playedEvents = slice.map((c, idx) => {
+          const expectedSec = (beatCursor - 1) * beatSec
+          beatCursor += c.duration_beats ?? beatsPerMeasure
+          const offsetMs = simulatedOffsets[idx]?.onset_error_ms ?? 0
+          const missedSet = new Set(simulatedOffsets[idx]?.missed_notes ?? [])
+          const pitches = (c.expectedPitches || []).filter((p) => {
+            if (missedSet.size === 0) return true
+            const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+            const pcName = `${names[((p % 12) + 12) % 12]}${Math.floor(p / 12) - 1}`
+            return !missedSet.has(pcName)
+          })
+          return {
+            chord: c.chordName,
+            timestamp_sec: Number((expectedSec + offsetMs / 1000).toFixed(3)),
+            pitches: pitches.length > 0 ? pitches : c.expectedPitches,
+          }
         })
 
-        const avgTiming =
-
-          metrics.reduce((acc, m) => acc + m.onset_error_ms, 0) / Math.max(1, metrics.length)
-
-        const avgVox =
-
-          (metrics.reduce((acc, m) => acc + m.voicing_completeness, 0) /
-
-            Math.max(1, metrics.length)) *
-
-          100
-
-        const overallAcc =
-
-          preset === 'clean'
-
-            ? 96.4
-
-            : preset === 'transition_lag'
-
-            ? 78.2
-
-            : preset === 'voicing_drop'
-
-            ? 81.5
-
-            : 79.8
-
-        const bottleneckLabel =
-
-          preset === 'clean'
-
-            ? 'None — All transitions on time'
-
-            : preset === 'transition_lag'
-
-            ? `${secondChord} → ${thirdChord} Shift (+142ms late)`
-
-            : preset === 'voicing_drop'
-
-            ? `Missed 3rd in ${secondChord}`
-
-            : 'Rushing the Beat (-38ms early)'
-
-        const summaryLabel =
-
-          preset === 'clean'
-
-            ? `All ${metrics.length} measures were played within ±5ms of the beat with every chord note ringing clearly.`
-
-            : preset === 'transition_lag'
-
-            ? `Your shift from ${secondChord} to ${thirdChord} (Bar 3) arrived 142ms late while surrounding bars stayed right on the beat.`
-
-            : preset === 'voicing_drop'
-
-            ? `On Bar 2 (${secondChord}), the note ${metrics[1]?.missed_notes[0] || 'E4'} (the chord's 3rd) was muted or missed.`
-
-            : `Your chord attacks arrived an average of ${Math.abs(Math.round(avgTiming))}ms early ahead of the metronome click.`
-
-        const drillType =
-
-          preset === 'transition_lag'
-
-            ? 'isolated_transition'
-
-            : preset === 'voicing_drop'
-
-            ? 'voicing_arpeggio'
-
-            : preset === 'tempo_rushing'
-
-            ? 'subdivision_click'
-
-            : 'tempo_ramp'
-
-        const isolationBpm = Math.max(40, Math.round(tempoBpm * 0.7))
-
-        const stepBpm = Math.max(45, Math.round(tempoBpm * 0.85))
-
-        const goalBpm = Math.min(220, Math.round(tempoBpm * 1.05))
-
-        const drillObj: AdaptiveInterventionDto = {
-
-          id: `drill_${preset}_${Date.now()}`,
-
-          user_id: 'user',
-
-          pattern_id: `pat_${preset}`,
-
-          drill_type: drillType,
-
-          target_tempo: isolationBpm,
-
-          target_repetitions: 6,
-
-          completed: false,
-
-          measured_improvement: null,
-
-          progression: [
-
-            { name: secondChord, beats: beatsPerMeasure },
-
-            { name: thirdChord, beats: beatsPerMeasure },
-
-          ],
-
-          tempo_stages: {
-
-            isolation_bpm: isolationBpm,
-
-            step_bpm: stepBpm,
-
-            target_bpm: tempoBpm,
-
-            goal_bpm: goalBpm,
-
-          },
-
-          description:
-
-            preset === 'transition_lag'
-
-              ? `Loop ${secondChord} ↔ ${thirdChord} at ${isolationBpm} BPM (70%) so your fingers can pre-shape before beat 1.`
-
-              : preset === 'voicing_drop'
-
-              ? `Play the notes of ${secondChord} one by one at ${isolationBpm} BPM to make sure the 3rd rings clearly.`
-
-              : `Practice with subdivision clicks at ${isolationBpm} BPM to stay relaxed in the pocket.`,
-
-        }
-
-        setGeneratedDrill(drillObj)
-
-        if (preset !== 'clean') {
-
-          setActiveHabits((prev) => {
-
-            const nextHabit: HabitPatternDto = {
-
-              id: `hab_${preset}`,
-
-              user_id: 'user',
-
-              pattern_type: preset,
-
-              trigger_context: bottleneckLabel,
-
-              evidence_count: 4,
-
-              status: 'active',
-
-              severity: preset === 'voicing_drop' ? 4.6 : 4.2,
-
-              confidence: 0.92,
-
-            }
-
-            return [nextHabit, ...prev.filter((h) => h.pattern_type !== preset)].slice(0, 3)
-
-          })
-
-        }
-
-        const evalPayload: TakeEvaluationResponse = {
-
-          session_id: sessionId,
-
-          state: 'evaluated',
-
-          analysis_status: 'complete',
-
-          overall_accuracy: overallAcc,
-
-          avg_timing_error_ms: Number(avgTiming.toFixed(1)),
-
-          voicing_score: Number(avgVox.toFixed(1)),
-
-          chord_metrics: metrics,
-
-          coaching_report: {
-
-            session_id: sessionId,
-
-            headline: preset === 'clean' ? 'Clean Take' : bottleneckLabel,
-
-            score: Math.round(overallAcc),
-
-            letter_grade: overallAcc >= 90 ? 'A' : 'B',
-
-            status: 'completed',
-
-            summary: summaryLabel,
-
-            primary_bottleneck: bottleneckLabel,
-
-            ergonomic_advice:
-
-              'Lift and prepare your anchor finger on beat 4 just before the barline.',
-
-            key_strengths: ['Steady pitch clarity'],
-
-            growth_areas: [bottleneckLabel],
-
-            habit_alerts:
-
-              preset === 'clean'
-
-                ? []
-
-                : [`Recurring pattern: ${bottleneckLabel}`],
-
-            recommended_tempo_adjustment_bpm: preset === 'clean' ? 2 : -12,
-
-            tailored_drills: [
-
-              {
-
-                drill_type: drillObj.drill_type,
-
-                target_tempo: drillObj.target_tempo,
-
-                target_repetitions: drillObj.target_repetitions,
-
-                description: drillObj.description || '',
-
-              },
-
+        const sess = await createPracticeSession(selectedSong.id, undefined, { tempoBpm })
+        const evalResp = await submitChordsTake(sess.id, playedEvents, undefined, tempoBpm)
+
+        const rawDrill = evalResp.coaching_report?.tailored_drills?.[0]
+        if (rawDrill) {
+          const isoBpm = Math.max(40, Math.round(rawDrill.target_tempo * 0.7))
+          setGeneratedDrill({
+            id: `drill_${sess.id}`,
+            user_id: sess.user_id || 'user',
+            pattern_id: `pat_${sess.id}`,
+            drill_type: rawDrill.drill_type,
+            target_tempo: rawDrill.target_tempo,
+            target_repetitions: rawDrill.target_repetitions,
+            completed: false,
+            measured_improvement: null,
+            progression: [
+              { name: secondChord, beats: beatsPerMeasure },
+              { name: thirdChord, beats: beatsPerMeasure },
             ],
-
-          },
-
+            tempo_stages: {
+              isolation_bpm: isoBpm,
+              step_bpm: Math.max(45, Math.round(rawDrill.target_tempo * 0.85)),
+              target_bpm: rawDrill.target_tempo,
+              goal_bpm: Math.min(220, Math.round(rawDrill.target_tempo * 1.05)),
+            },
+            description: rawDrill.description,
+          })
+        } else {
+          setGeneratedDrill(null)
         }
 
-        setEvaluationResult(evalPayload)
+        setEvaluationResult(evalResp)
 
-        onTakeCompleted?.(evalPayload, selectedSong.title, instrument, tempoBpm)
+        try {
+          const updatedHabits = await fetchUserHabits()
+          setActiveHabits(updatedHabits)
+        } catch {
+          // Habits refresh is non-blocking
+        }
+
+        onTakeCompleted?.(evalResp, selectedSong.title, instrument, tempoBpm)
 
         if (openDrawer) {
-
           setIsTakeDrawerOpen(true)
-
         }
+
+      } catch (err: unknown) {
+
+        const msg = err instanceof Error ? err.message : 'Backend take evaluation failed.'
+
+        setEvaluationError(msg)
 
       } finally {
 
@@ -1286,7 +1074,7 @@ export function PracticeStudioCockpit({
 
     },
 
-    [flowingProgression, selectedSong.id, selectedSong.title, instrument, tempoBpm, onTakeCompleted]
+    [flowingProgression, selectedSong.id, selectedSong.title, instrument, tempoBpm, beatsPerMeasure, onTakeCompleted]
 
   )
 
@@ -1302,17 +1090,9 @@ export function PracticeStudioCockpit({
 
       setEvaluationError(null)
 
-      try {
+      const sess = await createPracticeSession(selectedSong.id, undefined, { tempoBpm })
 
-        const sess = await createPracticeSession(selectedSong.id, undefined, { tempoBpm })
-
-        activeSessionIdRef.current = sess.id
-
-      } catch {
-
-        activeSessionIdRef.current = `sess_${Date.now()}`
-
-      }
+      activeSessionIdRef.current = sess.id
 
       const stream = await navigator.mediaDevices.getUserMedia({
 
@@ -1494,10 +1274,12 @@ export function PracticeStudioCockpit({
 
       }, 1000)
 
-    } catch {
-
-      setEvaluationError('Microphone permission denied or audio device unavailable.')
-
+    } catch (err: unknown) {
+      const msg =
+        err instanceof ApiError
+          ? `Unable to start practice session (${err.message}).`
+          : 'Microphone permission denied or audio device unavailable.'
+      setEvaluationError(msg)
     }
 
   }, [selectedSong.id, tempoBpm])
@@ -1556,105 +1338,15 @@ export function PracticeStudioCockpit({
 
       const wavBlob = encodeMonoWav(merged, 22050)
 
-      const sessionId = activeSessionIdRef.current || `sess_${Date.now()}`
+      const sessionId = activeSessionIdRef.current
 
-      let evalResp: TakeEvaluationResponse
+      if (!sessionId) {
 
-      try {
-
-        evalResp = await uploadSessionTake(sessionId, wavBlob)
-
-      } catch {
-
-        const cents = livePitchResult?.centsDeviation ?? 0
-
-        const accuracy = Math.max(72, Math.min(99, 100 - Math.abs(cents) * 1.2))
-
-        evalResp = {
-
-          session_id: sessionId,
-
-          state: 'evaluated',
-
-          analysis_status: 'complete',
-
-          overall_accuracy: Number(accuracy.toFixed(1)),
-
-          avg_timing_error_ms: Math.round(livePitchResult?.timingDeltaMs ?? -4),
-
-          voicing_score: Number(Math.min(100, accuracy + 1.5).toFixed(1)),
-
-          chord_metrics: flowingProgression.map((c, idx) => ({
-
-            chord_index: idx,
-
-            expected_chord: c.chordName,
-
-            detected_chord: c.chordName,
-
-            onset_error_ms: Math.round(livePitchResult?.timingDeltaMs ?? -4),
-
-            voicing_completeness: 1.0,
-
-            missed_notes: [],
-
-            extra_notes: [],
-
-            is_matched: true,
-
-          })),
-
-          coaching_report: {
-
-            session_id: sessionId,
-
-            headline: accuracy >= 90 ? 'Clean Take' : 'Solid Chord Articulation',
-
-            score: Math.round(accuracy),
-
-            letter_grade: accuracy >= 90 ? 'A' : 'B+',
-
-            status: 'completed',
-
-            summary:
-
-              'Microphone take captured and aligned against each measure of the score.',
-
-            primary_bottleneck: 'None',
-
-            ergonomic_advice:
-
-              'Maintain relaxed finger preparation prior to measure barlines.',
-
-            key_strengths: ['Pitch stability', 'Chord voicing clarity'],
-
-            growth_areas: ['Keep timing steady across barlines'],
-
-            habit_alerts: [],
-
-            recommended_tempo_adjustment_bpm: 2,
-
-            tailored_drills: [
-
-              {
-
-                drill_type: 'tempo_ramp',
-
-                target_tempo: tempoBpm,
-
-                target_repetitions: 4,
-
-                description: `Loop chord transitions in ${selectedSong.title} at ${tempoBpm} BPM.`,
-
-              },
-
-            ],
-
-          },
-
-        }
+        throw new Error('Practice session was not initialized.')
 
       }
+
+      const evalResp = await uploadSessionTake(sessionId, wavBlob)
 
       setEvaluationResult(evalResp)
 
@@ -1716,7 +1408,7 @@ export function PracticeStudioCockpit({
 
     }
 
-  }, [flowingProgression, livePitchResult, selectedSong.title, instrument, tempoBpm, onTakeCompleted])
+  }, [selectedSong.title, instrument, tempoBpm, onTakeCompleted])
 
   const handleSelectSong = (song: ExerciseDto) => {
 
@@ -2950,11 +2642,11 @@ export function PracticeStudioCockpit({
                 <div className="min-w-0">
 
                   <div className="font-mono font-bold text-zinc-900 dark:text-zinc-100 truncate">
-
-                    {evaluationResult.overall_accuracy.toFixed(1)}% —{' '}
-
+                    {(evaluationResult.overall_accuracy <= 1.0
+                      ? evaluationResult.overall_accuracy * 100
+                      : evaluationResult.overall_accuracy
+                    ).toFixed(1)}% —{' '}
                     {evaluationResult.coaching_report?.primary_bottleneck}
-
                   </div>
 
                   <div className="text-[11px] text-zinc-500 truncate">
@@ -3015,7 +2707,11 @@ export function PracticeStudioCockpit({
 
                   <span className="truncate">
 
-                    Focus Habit: <b>{activeHabits[0]?.trigger_context}</b>
+                    {activeHabits[0] ? (
+                      <>Focus Habit: <b>{activeHabits[0].trigger_context}</b></>
+                    ) : (
+                      <>Ready to listen — press <b>Record Take</b> to evaluate your timing and chord voicing</>
+                    )}
 
                   </span>
 

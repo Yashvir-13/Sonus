@@ -38,7 +38,7 @@ class MockAudioContext {
   }
 }
 
-describe('Landing Page & Volumetric Smoke Stage', () => {
+describe('Landing Page & Single-Room Camera Stage', () => {
   beforeAll(() => {
     if (typeof Element !== 'undefined' && Element.prototype.animate) {
       const originalAnimate = Element.prototype.animate
@@ -58,24 +58,25 @@ describe('Landing Page & Volumetric Smoke Stage', () => {
     window.scrollTo = vi.fn()
   })
 
-  it('renders LandingPage masthead, volumetric smoke canvas, and primary CTAs without fake camera jargon', () => {
+  it('renders LandingPage masthead, smoke canvas, and primary CTAs without hardware specs or jargon', () => {
     const onEnterStudio = vi.fn()
     render(<LandingPage onEnterStudio={onEnterStudio} />)
 
     expect(screen.getAllByText(/SONUS/i).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/Adaptive Musical Practice System/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Piano & Guitar Practice Studio/i).length).toBeGreaterThan(0)
 
     // Volumetric smoke canvas is mounted
     expect(screen.getByTestId('volumetric-smoke-canvas')).toBeDefined()
 
-    // Ensure no fake camera telemetry strings exist
+    // Ensure no fake camera telemetry or low-level DSP/research jargon exists
     expect(screen.queryByText(/CAM 07/i)).toBeNull()
     expect(screen.queryByText(/SPLINE/i)).toBeNull()
-    expect(screen.queryByText(/DOCKED 1\.0x/i)).toBeNull()
-
-    // Grounded technical telemetry
-    expect(screen.getAllByText(/Needleman-Wunsch/i).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/EWMA/i).length).toBeGreaterThan(0)
+    expect(screen.queryByText(/22\.05 kHz/i)).toBeNull()
+    expect(screen.queryByText(/Needleman-Wunsch/i)).toBeNull()
+    expect(screen.queryByText(/EWMA/i)).toBeNull()
+    expect(screen.queryByText(/CUSUM/i)).toBeNull()
+    expect(screen.queryByText(/B=0\.0004/i)).toBeNull()
+    expect(screen.queryByText(/4096 Samples/i)).toBeNull()
 
     // Primary CTA
     const enterBtns = screen.getAllByRole('button', { name: /Enter Practice Studio/i })
@@ -84,14 +85,19 @@ describe('Landing Page & Volumetric Smoke Stage', () => {
     expect(onEnterStudio).toHaveBeenCalled()
   })
 
-  it('renders the kinetic expanding wordmark and DSP mechanics cards', () => {
+  it('renders single studio room camera and interactive Act 2 Piano/Guitar switcher', () => {
     render(<LandingPage />)
     expect(screen.queryByTestId('cinematic-archival-canvas')).toBeNull()
 
     expect(screen.getByTestId('expanding-wordmark')).toBeDefined()
-    expect(screen.getByTestId('mechanics-needleman-wunsch')).toBeDefined()
-    expect(screen.getByTestId('mechanics-karplus-strong')).toBeDefined()
-    expect(screen.getByTestId('mechanics-piano-partials')).toBeDefined()
+    expect(screen.getByTestId('studio-room-camera')).toBeDefined()
+    expect(screen.getByTestId('act2-voicing-preview')).toBeDefined()
+    expect(screen.getByTestId('act3-bar-feedback')).toBeDefined()
+    expect(screen.getByTestId('act4-tempo-ladder')).toBeDefined()
+
+    const guitarSwitch = screen.getByTestId('act2-instrument-guitar')
+    fireEvent.click(guitarSwitch)
+    expect(screen.getByTestId('active-voicing-display')).toBeDefined()
   })
 
   it('mounts VolumetricSmokeCanvas cleanly', () => {

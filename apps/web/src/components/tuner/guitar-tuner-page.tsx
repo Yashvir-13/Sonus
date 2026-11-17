@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { PracticeAudioEngine } from '@/lib/audio/practice-audio-engine'
 import { RealtimePitchTracker } from '@/lib/audio/realtime-pitch-tracker'
 import { Mic, MicOff, Volume2, CheckCircle2, Disc, HelpCircle } from 'lucide-react'
@@ -244,16 +245,22 @@ export function GuitarTunerPage({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           {/* Cent Needle Meter (7 cols) */}
           <div className="lg:col-span-7 p-6 rounded-3xl bg-white dark:bg-[#111114] border border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-between gap-6 shadow-xs relative overflow-hidden">
-            {/* IN TUNE Pulse Banner */}
-            {isInTune && (
-              <div
-                data-testid="in-tune-banner"
-                className="absolute top-4 inset-x-8 py-1.5 rounded-xl bg-emerald-500 text-zinc-950 font-mono font-bold text-xs uppercase tracking-widest text-center shadow-md animate-in fade-in duration-150 flex items-center justify-center gap-1.5"
-              >
-                <CheckCircle2 className="size-4" />
-                <span>IN TUNE (±3 Cents)</span>
-              </div>
-            )}
+            {/* IN TUNE Banner */}
+            <AnimatePresence>
+              {isInTune && (
+                <motion.div
+                  data-testid="in-tune-banner"
+                  initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.96 }}
+                  transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                  className="absolute top-4 inset-x-8 py-1.5 rounded-xl bg-emerald-500 text-zinc-950 font-mono font-bold text-xs uppercase tracking-widest text-center shadow-md flex items-center justify-center gap-1.5"
+                >
+                  <CheckCircle2 className="size-4" />
+                  <span>IN TUNE (±3 Cents)</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Note & Target Header */}
             <div className="text-center space-y-1 mt-4">
@@ -316,11 +323,11 @@ export function GuitarTunerPage({
                 })}
 
                 {/* Rotating Needle */}
-                <g
+                <motion.g
+                  animate={{ rotate: needleRotation }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 24 }}
                   style={{
                     transformOrigin: '120px 110px',
-                    transform: `rotate(${needleRotation}deg)`,
-                    transition: 'transform 120ms ease-out',
                   }}
                 >
                   <polygon
@@ -328,7 +335,7 @@ export function GuitarTunerPage({
                     fill={isInTune ? '#10B981' : '#F59E0B'}
                   />
                   <circle cx="120" cy="110" r="5" fill="#18181B" />
-                </g>
+                </motion.g>
               </svg>
 
               {/* -50 Flat and +50 Sharp labels */}
@@ -405,14 +412,15 @@ export function GuitarTunerPage({
               {GUITAR_STANDARD_STRINGS.map((str) => {
                 const isSelected = selectedString.stringNum === str.stringNum
                 return (
-                  <div
+                  <motion.div
                     key={str.stringNum}
                     data-testid={`tuner-peg-${str.stringNum}`}
+                    whileTap={{ scale: 0.99 }}
                     onClick={() => {
                       setSelectedString(str)
                       setIsAutoDetect(false)
                     }}
-                    className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                    className={`p-3 rounded-xl border transition-colors cursor-pointer flex items-center justify-between gap-3 ${
                       isSelected
                         ? 'bg-amber-500/10 border-amber-500 shadow-xs'
                         : 'bg-[#F8F8F6] dark:bg-[#09090B] border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700'
@@ -433,7 +441,7 @@ export function GuitarTunerPage({
                           <span className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
                             {str.name}
                           </span>
-                          <span className="text-[11px] font-mono text-zinc-500">
+                          <span className="text-[11px] font-mono text-zinc-500 tabular-nums">
                             ({str.targetHz.toFixed(1)} Hz)
                           </span>
                         </div>
@@ -450,24 +458,25 @@ export function GuitarTunerPage({
                         setIsAutoDetect(false)
                         pluckString(str)
                       }}
-                      className="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-amber-500 hover:text-zinc-950 hover:border-amber-500 text-zinc-600 dark:text-zinc-300 text-xs font-mono font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-amber-500 hover:text-zinc-950 hover:border-amber-500 text-zinc-600 dark:text-zinc-300 text-xs font-mono font-bold flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0"
                     >
                       <Volume2 className="size-3.5" />
                       <span>Pluck</span>
                     </button>
-                  </div>
+                  </motion.div>
                 )
               })}
             </div>
 
-            <button
+            <motion.button
               type="button"
+              whileTap={{ scale: 0.985 }}
               onClick={() => pluckString(selectedString)}
-              className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+              className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-xs cursor-pointer"
             >
               <Volume2 className="size-4" />
               <span>Pluck Reference {selectedString.name} ({selectedString.targetHz.toFixed(2)} Hz)</span>
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>

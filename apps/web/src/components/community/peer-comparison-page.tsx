@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { motion } from 'motion/react'
 
 import {
 
@@ -23,6 +24,21 @@ import {
   Gauge,
 
 } from 'lucide-react'
+
+function formatOrdinal(n: number): string {
+  const mod100 = n % 100
+  if (mod100 >= 11 && mod100 <= 13) return `${n}th`
+  switch (n % 10) {
+    case 1:
+      return `${n}st`
+    case 2:
+      return `${n}nd`
+    case 3:
+      return `${n}rd`
+    default:
+      return `${n}th`
+  }
+}
 
 export type PeerComparisonPageProps = {
 
@@ -104,7 +120,7 @@ export function PeerComparisonPage({
 
       .map((e, i) => ({ ...e, rank: i + 1 }))
 
-  }, [instrumentFilter, selectedSongFilter, tempoTierFilter, userAccuracyPct, userMeanLatencyMs, userVoicingPct])
+  }, [instrumentFilter, selectedSongFilter, tempoTierFilter, userAccuracyPct, userMeanLatencyMs, userVoicingPct, hasRecordedTakes])
 
   // Compute user percentiles
 
@@ -126,17 +142,17 @@ export function PeerComparisonPage({
 
       {/* Page Title & Quick Action Strip */}
 
-      <div className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-[#121215]/60 backdrop-blur-md px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+      <div className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-[#121215]/95 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
 
-          <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+          <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
 
             Peer Benchmarks &amp; Piece Leaderboards
 
           </span>
 
-          <span className="hidden sm:inline text-xs font-mono text-zinc-400">
+          <span className="hidden sm:inline text-xs font-mono text-zinc-400 truncate">
 
             • Empirical Community Distributions &amp; Accuracy Percentiles
 
@@ -144,13 +160,15 @@ export function PeerComparisonPage({
 
         </div>
 
-        <button
+        <motion.button
 
           type="button"
 
+          whileTap={{ scale: 0.98 }}
+
           onClick={() => onPracticePiece?.('ex_piano_shostakovich_waltz_2')}
 
-          className="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer ml-auto"
+          className="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer ml-auto whitespace-nowrap shrink-0"
 
         >
 
@@ -158,7 +176,7 @@ export function PeerComparisonPage({
 
           <span>Practice Room</span>
 
-        </button>
+        </motion.button>
 
       </div>
 
@@ -194,7 +212,7 @@ export function PeerComparisonPage({
 
                 {hasRecordedTakes ? (
 
-                <>Your Overall Standing: <b>{overallPercentile}th Percentile</b> (Top {100 - overallPercentile}%)</>
+                <>Your Overall Standing: <b>{formatOrdinal(overallPercentile)} Percentile</b> (Top {100 - overallPercentile}%)</>
 
               ) : (
 
@@ -278,13 +296,19 @@ export function PeerComparisonPage({
 
               },
 
-            ].map((dist) => (
+            ].map((dist, idx) => (
 
-              <div
+              <motion.div
 
                 key={dist.id}
 
                 data-testid={dist.id}
+
+                initial={{ opacity: 0, y: 10 }}
+
+                animate={{ opacity: 1, y: 0 }}
+
+                transition={{ duration: 0.22, delay: idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
 
                 className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121215] p-5 shadow-xs flex flex-col justify-between gap-4"
 
@@ -298,7 +322,7 @@ export function PeerComparisonPage({
 
                     <span className="font-bold text-amber-600 dark:text-amber-400">
 
-                      {dist.percentile}th Percentile
+                      {dist.percentile != null ? `${formatOrdinal(dist.percentile)} Percentile` : 'Baseline Needed'}
 
                     </span>
 
@@ -460,7 +484,7 @@ export function PeerComparisonPage({
 
                 </p>
 
-              </div>
+              </motion.div>
 
             ))}
 
@@ -500,8 +524,9 @@ export function PeerComparisonPage({
 
               <div className="inline-flex rounded-lg border border-zinc-200 dark:border-zinc-800 bg-[#F8F8F6] dark:bg-[#09090B] p-1">
 
-                {(['all', 'piano', 'guitar'] as const).map((inst) => (
-
+                {(['all', 'piano', 'guitar'] as const).map((inst) => {
+                  const isSelected = instrumentFilter === inst
+                  return (
                   <button
 
                     key={inst}
@@ -510,11 +535,11 @@ export function PeerComparisonPage({
 
                     onClick={() => setInstrumentFilter(inst)}
 
-                    className={`px-2.5 py-1 rounded uppercase font-bold transition-colors cursor-pointer ${
+                    className={`relative px-2.5 py-1 rounded uppercase font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
 
-                      instrumentFilter === inst
+                      isSelected
 
-                        ? 'bg-amber-500 text-zinc-950'
+                        ? 'text-zinc-950'
 
                         : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
 
@@ -522,11 +547,20 @@ export function PeerComparisonPage({
 
                   >
 
-                    {inst}
+                    {isSelected && (
+                      <motion.span
+                        layoutId="peer-instrument-filter"
+                        transition={{ type: 'spring', stiffness: 460, damping: 36 }}
+                        className="absolute inset-0 rounded bg-amber-500 shadow-xs"
+                        aria-hidden="true"
+                      />
+                    )}
+
+                    <span className="relative z-10">{inst}</span>
 
                   </button>
-
-                ))}
+                  )
+                })}
 
               </div>
 
@@ -560,8 +594,9 @@ export function PeerComparisonPage({
 
               <div className="inline-flex rounded-lg border border-zinc-200 dark:border-zinc-800 bg-[#F8F8F6] dark:bg-[#09090B] p-1">
 
-                {(['all', '70%', '100%', '105%'] as const).map((tier) => (
-
+                {(['all', '70%', '100%', '105%'] as const).map((tier) => {
+                  const isSelected = tempoTierFilter === tier
+                  return (
                   <button
 
                     key={tier}
@@ -570,11 +605,11 @@ export function PeerComparisonPage({
 
                     onClick={() => setTempoTierFilter(tier)}
 
-                    className={`px-2.5 py-1 rounded uppercase font-bold transition-colors cursor-pointer ${
+                    className={`relative px-2.5 py-1 rounded uppercase font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
 
-                      tempoTierFilter === tier
+                      isSelected
 
-                        ? 'bg-emerald-500 text-zinc-950'
+                        ? 'text-zinc-950'
 
                         : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
 
@@ -582,11 +617,20 @@ export function PeerComparisonPage({
 
                   >
 
-                    {tier === 'all' ? 'All Speeds' : tier}
+                    {isSelected && (
+                      <motion.span
+                        layoutId="peer-tempo-filter"
+                        transition={{ type: 'spring', stiffness: 460, damping: 36 }}
+                        className="absolute inset-0 rounded bg-emerald-500 shadow-xs"
+                        aria-hidden="true"
+                      />
+                    )}
+
+                    <span className="relative z-10">{tier === 'all' ? 'All Speeds' : tier}</span>
 
                   </button>
-
-                ))}
+                  )
+                })}
 
               </div>
 
@@ -813,9 +857,7 @@ export function PeerComparisonPage({
               </div>
 
               <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-
-                Resolving your <b>Am → C (+142ms)</b> transition lag via the 70% isolation loop is projected to raise your overall rank from #4 to #2.
-
+                Isolate slow chord transitions at 70% tempo until onset lag drops below 30ms before advancing to full repertoire speed.
               </p>
 
             </div>

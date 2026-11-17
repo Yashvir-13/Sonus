@@ -161,9 +161,109 @@ export type UserStatsDto = {
   streak_days: number
 }
 
-function getAuthHeader(token?: string): Record<string, string> {
-  const effectiveToken = token || (import.meta.env.DEV ? 'dev_token' : '')
-  return effectiveToken ? { Authorization: `Bearer ${effectiveToken}` } : {}
+export type UserProfileDto = {
+  id: string
+  name: string
+  username: string
+  email: string
+  onboarding_done: boolean
+}
+
+export class ApiError extends Error {
+  status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+  }
+}
+
+export type ClerkUserMetadata = {
+  name: string | null
+  username: string | null
+  email: string | null
+}
+
+let authTokenProvider: (() => Promise<string | null>) | null = null
+let clerkAuthActive = false
+let clerkUserMetadata: ClerkUserMetadata | null = null
+
+export function setAuthTokenProvider(provider: (() => Promise<string | null>) | null): void {
+  authTokenProvider = provider
+}
+
+export function setClerkAuthActive(active: boolean): void {
+  clerkAuthActive = active
+}
+
+export function setClerkUserMetadata(metadata: ClerkUserMetadata | null): void {
+  clerkUserMetadata = metadata
+}
+
+export function getClerkUserMetadata(): ClerkUserMetadata | null {
+  return clerkUserMetadata
+}
+
+async function resolveAuthHeader(token?: string): Promise<Record<string, string>> {
+  if (token) {
+    return { Authorization: `Bearer ${token}` }
+  }
+  if (authTokenProvider) {
+    const clerkJwt = await authTokenProvider()
+    if (clerkJwt) {
+      return { Authorization: `Bearer ${clerkJwt}` }
+    }
+  }
+  if (clerkAuthActive) {
+    return {}
+  }
+  return { Authorization: 'Bearer dev_token' }
+}
+
+export async function fetchMe(token?: string): Promise<UserProfileDto> {
+  const res = await fetch(`${apiBaseUrl()}/api/me`, {
+    headers: { ...(await resolveAuthHeader(token)) },
+  })
+  if (!res.ok) {
+    throw new ApiError(`GET /api/me failed: ${res.status}`, res.status)
+  }
+  return res.json() as Promise<UserProfileDto>
+}
+
+export async function createMe(
+  payload: { name: string; username: string },
+  token?: string
+): Promise<UserProfileDto> {
+  const res = await fetch(`${apiBaseUrl()}/api/me`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(await resolveAuthHeader(token)),
+    },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    throw new ApiError(`POST /api/me failed: ${res.status}`, res.status)
+  }
+  return res.json() as Promise<UserProfileDto>
+}
+
+export async function updateMe(
+  payload: { name?: string; username?: string },
+  token?: string
+): Promise<UserProfileDto> {
+  const res = await fetch(`${apiBaseUrl()}/api/me`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(await resolveAuthHeader(token)),
+    },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    throw new ApiError(`PATCH /api/me failed: ${res.status}`, res.status)
+  }
+  return res.json() as Promise<UserProfileDto>
 }
 
 /**
@@ -179,10 +279,10 @@ export async function fetchExercises(
 
   const queryString = query.toString() ? `?${query.toString()}` : ''
   const res = await fetch(`${apiBaseUrl()}/api/exercises${queryString}`, {
-    headers: { ...getAuthHeader(token) },
+    headers: { ...(await resolveAuthHeader(token)) },
   })
   if (!res.ok) {
-    throw new Error(`GET /api/exercises failed: ${res.status}`)
+    throw new ApiError(`GET /api/exercises failed: ${res.status}`, res.status)
   }
   const rawList = (await res.json()) as ExerciseDto[]
   return rawList.map((ex) => {
@@ -210,10 +310,10 @@ export async function fetchExercises(
  */
 export async function fetchExerciseDetail(exerciseId: string, token?: string): Promise<ExerciseDto> {
   const res = await fetch(`${apiBaseUrl()}/api/exercises/${exerciseId}`, {
-    headers: { ...getAuthHeader(token) },
+    headers: { ...(await resolveAuthHeader(token)) },
   })
   if (!res.ok) {
-    throw new Error(`GET /api/exercises/${exerciseId} failed: ${res.status}`)
+    throw new ApiError(`GET /api/exercises/${exerciseId} failed: ${res.status}`, res.status)
   }
   return res.json() as Promise<ExerciseDto>
 }
@@ -234,12 +334,12 @@ export async function createPracticeSession(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...getAuthHeader(token),
+      ...(await resolveAuthHeader(token)),
     },
     body: JSON.stringify(body),
   })
   if (!res.ok) {
-    throw new Error(`POST /api/sessions failed: ${res.status}`)
+    throw new ApiError(`POST /api/sessions failed: ${res.status}`, res.status)
   }
   return res.json() as Promise<PracticeSessionDto>
 }
@@ -259,12 +359,12 @@ export async function uploadSessionTake(
   const res = await fetch(`${apiBaseUrl()}/api/sessions/${sessionId}/take`, {
     method: 'POST',
     headers: {
-      ...getAuthHeader(token),
+      ...(await resolveAuthHeader(token)),
     },
     body: formData,
   })
   if (!res.ok) {
-    throw new Error(`POST /api/sessions/${sessionId}/take failed: ${res.status}`)
+    throw new ApiError(`POST /api/sessions/${sessionId}/take failed: ${res.status}`, res.status)
   }
   return res.json() as Promise<TakeEvaluationResponse>
 }
@@ -286,12 +386,12 @@ export async function submitChordsTake(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...getAuthHeader(token),
+      ...(await resolveAuthHeader(token)),
     },
     body: JSON.stringify(body),
   })
   if (!res.ok) {
-    throw new Error(`POST /api/sessions/${sessionId}/take failed: ${res.status}`)
+    throw new ApiError(`POST /api/sessions/${sessionId}/take failed: ${res.status}`, res.status)
   }
   return res.json() as Promise<TakeEvaluationResponse>
 }
@@ -306,10 +406,10 @@ export async function fetchSessionAnalysis(
 ): Promise<SessionAnalysisDto> {
   const query = takeNumber !== undefined ? `?take_number=${takeNumber}` : ''
   const res = await fetch(`${apiBaseUrl()}/api/sessions/${sessionId}/analysis${query}`, {
-    headers: { ...getAuthHeader(token) },
+    headers: { ...(await resolveAuthHeader(token)) },
   })
   if (!res.ok) {
-    throw new Error(`GET /api/sessions/${sessionId}/analysis failed: ${res.status}`)
+    throw new ApiError(`GET /api/sessions/${sessionId}/analysis failed: ${res.status}`, res.status)
   }
   return res.json() as Promise<SessionAnalysisDto>
 }
@@ -322,10 +422,10 @@ export async function fetchSessionCoaching(
   token?: string
 ): Promise<CoachingReportDto> {
   const res = await fetch(`${apiBaseUrl()}/api/sessions/${sessionId}/coaching`, {
-    headers: { ...getAuthHeader(token) },
+    headers: { ...(await resolveAuthHeader(token)) },
   })
   if (!res.ok) {
-    throw new Error(`GET /api/sessions/${sessionId}/coaching failed: ${res.status}`)
+    throw new ApiError(`GET /api/sessions/${sessionId}/coaching failed: ${res.status}`, res.status)
   }
   return res.json() as Promise<CoachingReportDto>
 }
@@ -341,12 +441,12 @@ export async function createSessionDrill(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...getAuthHeader(token),
+      ...(await resolveAuthHeader(token)),
     },
     body: JSON.stringify({}),
   })
   if (!res.ok) {
-    throw new Error(`POST /api/sessions/${sessionId}/drill failed: ${res.status}`)
+    throw new ApiError(`POST /api/sessions/${sessionId}/drill failed: ${res.status}`, res.status)
   }
   return res.json() as Promise<AdaptiveInterventionDto>
 }
@@ -356,10 +456,10 @@ export async function createSessionDrill(
  */
 export async function fetchUserHabits(token?: string): Promise<HabitPatternDto[]> {
   const res = await fetch(`${apiBaseUrl()}/api/me/habits`, {
-    headers: { ...getAuthHeader(token) },
+    headers: { ...(await resolveAuthHeader(token)) },
   })
   if (!res.ok) {
-    throw new Error(`GET /api/me/habits failed: ${res.status}`)
+    throw new ApiError(`GET /api/me/habits failed: ${res.status}`, res.status)
   }
   return res.json() as Promise<HabitPatternDto[]>
 }
@@ -369,10 +469,10 @@ export async function fetchUserHabits(token?: string): Promise<HabitPatternDto[]
  */
 export async function fetchUserStats(token?: string): Promise<UserStatsDto> {
   const res = await fetch(`${apiBaseUrl()}/api/me/stats`, {
-    headers: { ...getAuthHeader(token) },
+    headers: { ...(await resolveAuthHeader(token)) },
   })
   if (!res.ok) {
-    throw new Error(`GET /api/me/stats failed: ${res.status}`)
+    throw new ApiError(`GET /api/me/stats failed: ${res.status}`, res.status)
   }
   return res.json() as Promise<UserStatsDto>
 }
@@ -382,10 +482,10 @@ export async function fetchUserStats(token?: string): Promise<UserStatsDto> {
  */
 export async function fetchUserInterventions(token?: string): Promise<AdaptiveInterventionDto[]> {
   const res = await fetch(`${apiBaseUrl()}/api/me/interventions`, {
-    headers: { ...getAuthHeader(token) },
+    headers: { ...(await resolveAuthHeader(token)) },
   })
   if (!res.ok) {
-    throw new Error(`GET /api/me/interventions failed: ${res.status}`)
+    throw new ApiError(`GET /api/me/interventions failed: ${res.status}`, res.status)
   }
   return res.json() as Promise<AdaptiveInterventionDto[]>
 }
@@ -413,10 +513,10 @@ export async function fetchUserSessions(
   offset = 0
 ): Promise<UserSessionDto[]> {
   const res = await fetch(`${apiBaseUrl()}/api/me/sessions?limit=${limit}&offset=${offset}`, {
-    headers: { ...getAuthHeader(token) },
+    headers: { ...(await resolveAuthHeader(token)) },
   })
   if (!res.ok) {
-    throw new Error(`GET /api/me/sessions failed: ${res.status}`)
+    throw new ApiError(`GET /api/me/sessions failed: ${res.status}`, res.status)
   }
   return res.json() as Promise<UserSessionDto[]>
 }
@@ -474,10 +574,10 @@ export type UserMasteryResponseDto = {
  */
 export async function fetchUserMastery(token?: string): Promise<UserMasteryResponseDto> {
   const res = await fetch(`${apiBaseUrl()}/api/me/mastery`, {
-    headers: { ...getAuthHeader(token) },
+    headers: { ...(await resolveAuthHeader(token)) },
   })
   if (!res.ok) {
-    throw new Error(`GET /api/me/mastery failed: ${res.status}`)
+    throw new ApiError(`GET /api/me/mastery failed: ${res.status}`, res.status)
   }
   return res.json() as Promise<UserMasteryResponseDto>
 }

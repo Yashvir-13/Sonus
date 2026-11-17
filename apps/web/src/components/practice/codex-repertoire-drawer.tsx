@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
 import { fetchExercises, type ExerciseDto } from '@/api/sessions'
 import { X, Search, Play, Check } from 'lucide-react'
@@ -75,21 +76,31 @@ export function CodexRepertoireDrawer({
 
   return (
     <>
-      {isOpen && (
-        <div
-          data-testid="repertoire-drawer-backdrop"
-          onClick={onClose}
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 transition-opacity animate-in fade-in duration-200"
-        />
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="repertoire-drawer-backdrop"
+            data-testid="repertoire-drawer-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/65 z-40"
+          />
+        )}
+      </AnimatePresence>
 
-      <div
+      <motion.div
         data-testid="codex-repertoire-drawer"
         aria-label="Repertoire Codex Library"
         role="dialog"
         aria-modal="true"
         aria-hidden={!isOpen}
-        className={`fixed inset-y-0 left-0 w-full max-w-md bg-white dark:bg-[#111114] text-zinc-900 dark:text-zinc-100 border-r border-zinc-200 dark:border-zinc-800 shadow-2xl z-50 transform transition-transform duration-300 ease-out flex flex-col font-sans ${
+        initial={false}
+        animate={{ x: isOpen ? 0 : '-100%' }}
+        transition={{ type: 'spring', stiffness: 380, damping: 36 }}
+        className={`fixed inset-y-0 left-0 w-full max-w-md bg-white dark:bg-[#111114] text-zinc-900 dark:text-zinc-100 border-r border-zinc-200 dark:border-zinc-800 shadow-2xl z-50 flex flex-col font-sans ${
           isOpen ? 'translate-x-0' : '-translate-x-full pointer-events-none'
         } ${className}`}
       >
@@ -223,7 +234,7 @@ export function CodexRepertoireDrawer({
             })
           )}
         </div>
-      </div>
+      </motion.div>
     </>
   )
 }

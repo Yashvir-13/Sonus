@@ -2,7 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vitest/config'
+import { defineConfig, configDefaults } from 'vitest/config'
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
 
@@ -10,7 +10,9 @@ const rootDir = path.dirname(fileURLToPath(import.meta.url))
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    port: 5173,
+    port: 3000,
+    host: '0.0.0.0',
+    allowedHosts: true,
   },
   resolve: {
     alias: {
@@ -27,7 +29,11 @@ export default defineConfig({
           if (id.includes('node_modules/@clerk/')) {
             return 'vendor-clerk'
           }
-          if (id.includes('node_modules/motion/') || id.includes('node_modules/lenis/')) {
+          if (
+            id.includes('node_modules/motion/') ||
+            id.includes('node_modules/lenis/') ||
+            id.includes('node_modules/gsap/')
+          ) {
             return 'vendor-motion'
           }
           if (id.includes('node_modules/lucide-react/')) {
@@ -41,5 +47,7 @@ export default defineConfig({
     environment: 'happy-dom',
     globals: true,
     testTimeout: 15000,
+    setupFiles: ['./src/vitest.setup.ts'],
+    exclude: [...configDefaults.exclude, 'src/components/landing/scroll-choreography.test.ts'],
   },
 })

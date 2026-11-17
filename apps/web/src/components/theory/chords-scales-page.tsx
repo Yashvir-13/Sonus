@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
+import { motion } from 'motion/react'
 import {
   THEORY_ROOTS,
   type TheoryRoot,
@@ -140,13 +141,21 @@ export function ChordsScalesPage({
                   type="button"
                   data-testid={`theory-root-${root}`}
                   onClick={() => setSelectedRoot(root)}
-                  className={`px-3 py-1.5 rounded-lg font-mono text-xs font-bold transition-all cursor-pointer ${
+                  className={`relative px-3 py-1.5 rounded-lg font-mono text-xs font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
                     isSelected
-                      ? 'bg-amber-500 text-zinc-950 shadow-xs ring-2 ring-amber-500/30'
+                      ? 'text-zinc-950'
                       : 'bg-white dark:bg-[#111114] text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 hover:border-amber-500/60'
                   }`}
                 >
-                  {root}
+                  {isSelected && (
+                    <motion.span
+                      layoutId="theory-root-pill"
+                      transition={{ type: 'spring', stiffness: 480, damping: 36 }}
+                      className="absolute inset-0 rounded-lg bg-amber-500 shadow-xs ring-2 ring-amber-500/30"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <span className="relative z-10">{root}</span>
                 </button>
               )
             })}
@@ -163,21 +172,32 @@ export function ChordsScalesPage({
               { id: 'sevenths', label: '7th Chords' },
               { id: 'extended', label: 'Extended & Altered' },
               { id: 'scales', label: 'Scales & Modes' },
-            ].map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                data-testid={`theory-cat-${cat.id}`}
-                onClick={() => setSelectedCategory(cat.id as TheoryCategory | 'all')}
-                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase transition-colors cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? 'bg-zinc-900 text-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 shadow-xs'
-                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
+            ].map((cat) => {
+              const isSelected = selectedCategory === cat.id
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  data-testid={`theory-cat-${cat.id}`}
+                  onClick={() => setSelectedCategory(cat.id as TheoryCategory | 'all')}
+                  className={`relative px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                    isSelected
+                      ? 'text-zinc-100 dark:text-zinc-900'
+                      : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                  }`}
+                >
+                  {isSelected && (
+                    <motion.span
+                      layoutId="theory-category-pill"
+                      transition={{ type: 'spring', stiffness: 480, damping: 36 }}
+                      className="absolute inset-0 rounded-lg bg-zinc-900 dark:bg-zinc-100 shadow-xs"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <span className="relative z-10">{cat.label}</span>
+                </button>
+              )
+            })}
           </div>
 
           {/* Search Input */}
@@ -242,20 +262,31 @@ export function ChordsScalesPage({
                 VISUAL DIAGRAMS:
               </span>
               <div className="flex items-center gap-1 text-[10px] font-mono">
-                {(['both', 'guitar', 'piano'] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    type="button"
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-2 py-0.5 rounded uppercase font-bold transition-colors cursor-pointer ${
-                      activeTab === tab
-                        ? 'bg-amber-500 text-zinc-950'
-                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
+                {(['both', 'guitar', 'piano'] as const).map((tab) => {
+                  const isSelected = activeTab === tab
+                  return (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={() => setActiveTab(tab)}
+                      className={`relative px-2 py-0.5 rounded uppercase font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                        isSelected
+                          ? 'text-zinc-950'
+                          : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                      }`}
+                    >
+                      {isSelected && (
+                        <motion.span
+                          layoutId="theory-diagram-tab"
+                          transition={{ type: 'spring', stiffness: 460, damping: 36 }}
+                          className="absolute inset-0 rounded bg-amber-500 shadow-xs"
+                          aria-hidden="true"
+                        />
+                      )}
+                      <span className="relative z-10">{tab}</span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
@@ -335,11 +366,13 @@ export function ChordsScalesPage({
               {filteredEntries.map((entry) => {
                 const isSelected = entry.id === activeEntry.id
                 return (
-                  <div
+                  <motion.div
                     key={entry.id}
                     data-testid={`theory-card-${entry.id}`}
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.99 }}
                     onClick={() => setSelectedEntryId(entry.id)}
-                    className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                    className={`p-4 rounded-xl border transition-colors cursor-pointer flex flex-col justify-between gap-3 ${
                       isSelected
                         ? 'bg-amber-500/10 border-amber-500 shadow-sm'
                         : 'bg-white dark:bg-[#111114] border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700'
@@ -377,7 +410,7 @@ export function ChordsScalesPage({
                         <Play className="size-3" />
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 )
               })}
             </div>
