@@ -9,7 +9,10 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.lib.adaptive.llm_coach import generate_coaching_report
+from src.lib.adaptive.llm_coach import (
+    generate_coaching_report,
+    generate_coaching_report_async,
+)
 from src.lib.adaptive.patterns import (
     detect_tempo_dragging_patterns,
     detect_tempo_rushing_patterns,
@@ -65,17 +68,15 @@ class PracticeTakeEvaluator:
     """
 
     @classmethod
-    def evaluate(
+    def _evaluate_domain(
         cls,
         played_chords: list[dict[str, Any]],
         reference_chords: list[dict[str, Any]],
         tempo_bpm: int,
-        session_id: str,
-        instrument: str = "piano",
         baseline_metrics: list[dict[str, Any]] | None = None,
         drill_type: str | None = None,
-    ) -> TakeEvaluationResult:
-        """Run sequence alignment, compute timing/voicing scores, detect habits, and evaluate deltas."""
+    ) -> dict[str, Any]:
+        """Pure domain computations without external API or I/O calls."""
         # 1. Dynamic Programming Alignment
         alignment = align_chord_sequence(
             played_chords=played_chords,
@@ -121,15 +122,7 @@ class PracticeTakeEvaluator:
         detected_habits.extend(detect_tempo_dragging_patterns(matched, drag_threshold_ms=30.0, min_evidence=2))
         detected_habits.extend(detect_voicing_drop_patterns(matched, min_evidence=1))
 
-        # 4. Generate Grounded AI Coaching Feedback
-        coaching_report = generate_coaching_report(
-            session_id=session_id,
-            chord_metrics=chord_metric_records,
-            habits=detected_habits,
-            instrument=instrument,
-        )
-
-        # 5. Longitudinal Outcome Tracking for Remedial Drill Interventions
+        # 4. Longitudinal Outcome Tracking for Remedial Drill Interventions
         drill_outcome: dict[str, Any] | None = None
         if baseline_metrics and drill_type:
             follow_up_metrics = [
@@ -149,15 +142,90 @@ class PracticeTakeEvaluator:
                 drill_type=drill_type,
             )
 
+        return {
+            "overall_accuracy": overall_accuracy,
+            "avg_timing_error": avg_timing_error,
+            "voicing_score": voicing_score,
+            "alignment": alignment,
+            "chord_metrics": chord_metric_records,
+            "detected_habits": detected_habits,
+            "drill_outcome": drill_outcome,
+        }
+
+    @classmethod
+    def evaluate(
+        cls,
+        played_chords: list[dict[str, Any]],
+        reference_chords: list[dict[str, Any]],
+        tempo_bpm: int,
+        session_id: str,
+        instrument: str = "piano",
+        baseline_metrics: list[dict[str, Any]] | None = None,
+        drill_type: str | None = None,
+    ) -> TakeEvaluationResult:
+        """Run sequence alignment, compute timing/voicing scores, detect habits, and evaluate deltas synchronously."""
+        res = cls._evaluate_domain(
+            played_chords=played_chords,
+            reference_chords=reference_chords,
+            tempo_bpm=tempo_bpm,
+            baseline_metrics=baseline_metrics,
+            drill_type=drill_type,
+        )
+
+        coaching_report = generate_coaching_report(
+            session_id=session_id,
+            chord_metrics=res["chord_metrics"],
+            habits=res["detected_habits"],
+            instrument=instrument,
+        )
+
         return TakeEvaluationResult(
-            overall_accuracy=overall_accuracy,
-            avg_timing_error_ms=avg_timing_error,
-            voicing_score=voicing_score,
-            alignment=alignment,
-            chord_metrics=chord_metric_records,
-            detected_habits=detected_habits,
+            overall_accuracy=res["overall_accuracy"],
+            avg_timing_error_ms=res["avg_timing_error"],
+            voicing_score=res["voicing_score"],
+            alignment=res["alignment"],
+            chord_metrics=res["chord_metrics"],
+            detected_habits=res["detected_habits"],
             coaching_report=coaching_report,
-            drill_outcome=drill_outcome,
+            drill_outcome=res["drill_outcome"],
+        )
+
+    @classmethod
+    async def evaluate_async(
+        cls,
+        played_chords: list[dict[str, Any]],
+        reference_chords: list[dict[str, Any]],
+        tempo_bpm: int,
+        session_id: str,
+        instrument: str = "piano",
+        baseline_metrics: list[dict[str, Any]] | None = None,
+        drill_type: str | None = None,
+    ) -> TakeEvaluationResult:
+        """Run sequence alignment and generate AI coaching report asynchronously without blocking the event loop."""
+        res = cls._evaluate_domain(
+            played_chords=played_chords,
+            reference_chords=reference_chords,
+            tempo_bpm=tempo_bpm,
+            baseline_metrics=baseline_metrics,
+            drill_type=drill_type,
+        )
+
+        coaching_report = await generate_coaching_report_async(
+            session_id=session_id,
+            chord_metrics=res["chord_metrics"],
+            habits=res["detected_habits"],
+            instrument=instrument,
+        )
+
+        return TakeEvaluationResult(
+            overall_accuracy=res["overall_accuracy"],
+            avg_timing_error_ms=res["avg_timing_error"],
+            voicing_score=res["voicing_score"],
+            alignment=res["alignment"],
+            chord_metrics=res["chord_metrics"],
+            detected_habits=res["detected_habits"],
+            coaching_report=coaching_report,
+            drill_outcome=res["drill_outcome"],
         )
 
 
@@ -210,8 +278,8 @@ class TakeEvaluator:
                     current_session_id=practice_session.id,
                 )
 
-        # Pure mathematical and pedagogical domain evaluation
-        evaluation = PracticeTakeEvaluator.evaluate(
+        # Pure mathematical and pedagogical domain evaluation (non-blocking async)
+        evaluation = await PracticeTakeEvaluator.evaluate_async(
             played_chords=final_played_chords,
             reference_chords=reference_chords,
             tempo_bpm=practice_session.tempo_bpm,

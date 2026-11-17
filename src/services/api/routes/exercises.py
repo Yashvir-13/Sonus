@@ -14,6 +14,7 @@ from src.lib.db import get_session
 from src.lib.exception import NotFound
 from src.lib.schemas.music import CustomExerciseCreate, ExerciseDetailRead, ProgressionData
 from src.models.practice import Exercise, ExerciseRead
+from src.services.api.routes.sessions import _create_synthetic_exercise
 
 from sqlmodel import col
 
@@ -62,7 +63,17 @@ async def get_exercise_detail(
     """Return complete exercise details with fully parsed progression, voicings, tabs, and tempo ranges."""
     exercise = await session.get(Exercise, exercise_id)
     if exercise is None:
-        raise NotFound(f"Exercise '{exercise_id}' not found")
+        if exercise_id.startswith("drill_") or exercise_id.startswith("chord_"):
+            exercise = _create_synthetic_exercise(exercise_id)
+            try:
+                session.add(exercise)
+                await session.commit()
+                await session.refresh(exercise)
+            except Exception:
+                await session.rollback()
+                exercise = await session.get(Exercise, exercise_id)
+        if exercise is None:
+            raise NotFound(f"Exercise '{exercise_id}' not found")
 
     try:
         raw_prog = json.loads(exercise.progression_json)

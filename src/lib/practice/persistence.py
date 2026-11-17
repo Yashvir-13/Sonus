@@ -79,9 +79,9 @@ class TakePersistenceAdapter:
         max_take = max_take_query.scalar()
         current_take_number = (max_take or 0) + 1
 
-        # 2. Persist new chord metric rows for this take with tempo_bpm preserved
-        for m in chord_metric_records:
-            metric_db = SessionChordMetric(
+        # 2. Persist new chord metric rows for this take in batch with tempo_bpm preserved
+        metrics_to_add: list[SessionChordMetric] = [
+            SessionChordMetric(
                 id=f"metric_{uuid4().hex[:16]}",
                 session_id=practice_session.id,
                 take_number=current_take_number,
@@ -95,12 +95,26 @@ class TakePersistenceAdapter:
                 missed_notes_json=json.dumps(m.get("missed_notes", [])),
                 extra_notes_json=json.dumps(m.get("extra_notes", [])),
             )
-            session.add(metric_db)
+            for m in chord_metric_records
+        ]
+        if metrics_to_add:
+            session.add_all(metrics_to_add)
 
         # 3. Assess and update student TransitionMastery for each consecutive chord transition
         norm_acc = overall_accuracy / 100.0 if overall_accuracy > 1.0 else overall_accuracy
         if len(chord_metric_records) >= 2:
-            transitions_cache: dict[tuple[str, str, str, str], TransitionMastery] = {}
+            # Batch fetch all existing transition masteries for this user and instrument in a single round-trip
+            existing_masteries_query = await session.execute(
+                select(TransitionMastery).where(
+                    col(TransitionMastery.user_id) == practice_session.user_id,
+                    col(TransitionMastery.instrument) == instrument,
+                )
+            )
+            transitions_cache: dict[tuple[str, str, str, str], TransitionMastery] = {
+                (row.user_id, row.instrument, row.chord_from, row.chord_to): row
+                for row in existing_masteries_query.scalars().all()
+            }
+
             for i in range(len(chord_metric_records) - 1):
                 m_from = chord_metric_records[i]
                 m_to = chord_metric_records[i + 1]
@@ -122,35 +136,23 @@ class TakePersistenceAdapter:
                 if cache_key in transitions_cache:
                     mastery_row = transitions_cache[cache_key]
                 else:
-                    mastery_query = await session.execute(
-                        select(TransitionMastery).where(
-                            col(TransitionMastery.user_id) == practice_session.user_id,
-                            col(TransitionMastery.instrument) == instrument,
-                            col(TransitionMastery.chord_from) == from_chord,
-                            col(TransitionMastery.chord_to) == to_chord,
-                        )
+                    mastery_row = TransitionMastery(
+                        id=f"tm_{uuid4().hex[:16]}",
+                        user_id=practice_session.user_id,
+                        chord_from=from_chord,
+                        chord_to=to_chord,
+                        instrument=instrument,
+                        p_known=0.20,
+                        is_mastered=False,
+                        opportunities=0,
+                        ewma_latency_ms=abs(timing_err),
+                        voicing_completeness=voicing_comp,
+                        sm2_interval_days=1,
+                        sm2_ease_factor=2.5,
+                        sm2_repetitions=0,
+                        last_practiced_at=datetime.now(UTC),
                     )
-                    existing_row = mastery_query.scalar_one_or_none()
-                    if existing_row is None:
-                        mastery_row = TransitionMastery(
-                            id=f"tm_{uuid4().hex[:16]}",
-                            user_id=practice_session.user_id,
-                            chord_from=from_chord,
-                            chord_to=to_chord,
-                            instrument=instrument,
-                            p_known=0.20,
-                            is_mastered=False,
-                            opportunities=0,
-                            ewma_latency_ms=abs(timing_err),
-                            voicing_completeness=voicing_comp,
-                            sm2_interval_days=1,
-                            sm2_ease_factor=2.5,
-                            sm2_repetitions=0,
-                            last_practiced_at=datetime.now(UTC),
-                        )
-                        session.add(mastery_row)
-                    else:
-                        mastery_row = existing_row
+                    session.add(mastery_row)
                     transitions_cache[cache_key] = mastery_row
 
                 # Assess transition cognitive mastery (BKT, SM-2, CUSUM)
@@ -223,32 +225,37 @@ class TakePersistenceAdapter:
 
                 session.add(mastery_row)
 
-        # 4. Upsert detected habit patterns
-        for habit in detected_habits:
-            p_type = habit["pattern_type"]
-            ctx = habit["context"]
-            existing_p = await session.execute(
+        # 4. Upsert detected habit patterns in batch
+        if detected_habits:
+            existing_habits_query = await session.execute(
                 select(HabitPattern).where(
                     col(HabitPattern.user_id) == practice_session.user_id,
-                    col(HabitPattern.pattern_type) == p_type,
-                    col(HabitPattern.trigger_context) == ctx,
                 )
             )
-            pattern_row = existing_p.scalar_one_or_none()
-            if pattern_row:
-                pattern_row.evidence_count += habit.get("evidence_count", 1)
-                pattern_row.status = habit.get("status", "emerging")
-                session.add(pattern_row)
-            else:
-                new_pat = HabitPattern(
-                    id=f"pat_{uuid4().hex[:16]}",
-                    user_id=practice_session.user_id,
-                    pattern_type=p_type,
-                    trigger_context=ctx,
-                    evidence_count=habit.get("evidence_count", 1),
-                    status=habit.get("status", "emerging"),
-                )
-                session.add(new_pat)
+            habits_cache: dict[tuple[str, str], HabitPattern] = {
+                (h.pattern_type, h.trigger_context): h
+                for h in existing_habits_query.scalars().all()
+            }
+            for habit in detected_habits:
+                p_type = habit["pattern_type"]
+                ctx = habit["context"]
+                h_key = (p_type, ctx)
+                if h_key in habits_cache:
+                    pattern_row = habits_cache[h_key]
+                    pattern_row.evidence_count += habit.get("evidence_count", 1)
+                    pattern_row.status = habit.get("status", "emerging")
+                    session.add(pattern_row)
+                else:
+                    new_pat = HabitPattern(
+                        id=f"pat_{uuid4().hex[:16]}",
+                        user_id=practice_session.user_id,
+                        pattern_type=p_type,
+                        trigger_context=ctx,
+                        evidence_count=habit.get("evidence_count", 1),
+                        status=habit.get("status", "emerging"),
+                    )
+                    session.add(new_pat)
+                    habits_cache[h_key] = new_pat
 
         # 5. Update intervention completion if applicable
         if intervention and drill_outcome and drill_outcome.get("completed"):

@@ -207,3 +207,27 @@ def test_validate_progression_schema_invalid_inputs() -> None:
         is False
     )
 
+
+def test_musical_chord_domain_model() -> None:
+    from src.lib.music.chord_model import MusicalChord
+
+    c = MusicalChord.from_symbol("C")
+    assert c.root == "C"
+    assert c.quality == ""
+    assert c.pitch_classes == (0, 4, 7)
+
+    # Enharmonic equivalence: F# vs Gb
+    f_sharp = MusicalChord.from_symbol("F#")
+    g_flat = MusicalChord.from_symbol("Gb")
+    assert f_sharp.is_enharmonically_equivalent(g_flat)
+    assert f_sharp.is_enharmonically_equivalent("Gb")
+
+    # C#m vs Dbm
+    c_sharp_m = MusicalChord.from_symbol("C#m")
+    d_flat_m = MusicalChord.from_symbol("Dbm")
+    assert c_sharp_m.is_enharmonically_equivalent(d_flat_m)
+
+    # Slash chord
+    c_over_e = MusicalChord.from_symbol("C/E")
+    assert c_over_e.bass == "E"
+    assert c_over_e.pitch_classes[0] == 4  # Bass note first

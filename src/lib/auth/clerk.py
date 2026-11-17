@@ -38,9 +38,9 @@ def require_clerk_identity(request: Request) -> ClerkIdentity:
     if auth_header.startswith("Bearer "):
         token = auth_header[7:].strip()
         env = os.environ.get("ENV", "").strip().lower()
-        if env == "development":
-            # Industry Standard: Allow dev_token during local API testing
-            # so developers don't have to battle 60-second JWT expiration in Postman/curl.
+        allow_dev = os.environ.get("ALLOW_DEV_TOKEN_AUTH", "false").strip().lower() in ("true", "1", "yes")
+        if env == "development" and allow_dev:
+            # Explicitly allowed dev_token during local API testing
             dev_user_id = os.environ.get("DEV_USER_ID", "user_3KEP7OZiiKMswrl5f28AjxOV7Kl")
             if token in ("dev", "dev_token", "dev-token", dev_user_id):
                 return ClerkIdentity(

@@ -102,34 +102,93 @@ def identify_chord_from_pitches(pitches: list[int]) -> str:
 
 def cluster_chords_from_notes(
     notes: list[dict[str, Any]],
-    strum_window_ms: float = 120.0,
+    strum_window_ms: float = 180.0,
+    arpeggio_max_gap_ms: float = 400.0,
+    max_strum_span_ms: float = 350.0,
 ) -> list[dict[str, Any]]:
-    """Cluster asynchronous note onsets within a strum window into chord strikes."""
+    """Cluster asynchronous note onsets within a strum or arpeggio window into chord strikes."""
     if not notes:
         return []
 
-    sorted_notes = sorted(notes, key=lambda n: float(n["start_time"]))
-    window_sec = strum_window_ms / 1000.0
+    sorted_notes = sorted(notes, key=lambda n: (float(n["start_time"]), int(n.get("pitch", 0))))
+    strum_window_sec = strum_window_ms / 1000.0
+    max_strum_span_sec = max_strum_span_ms / 1000.0
+    arpeggio_max_gap_sec = arpeggio_max_gap_ms / 1000.0
 
-    clusters: list[list[dict[str, Any]]] = []
+    # Pass 1: Strum & simultaneous strike clustering (with onset chaining & max span)
+    micro_clusters: list[list[dict[str, Any]]] = []
     current_cluster: list[dict[str, Any]] = [sorted_notes[0]]
 
     for note in sorted_notes[1:]:
+        prev_note_time = float(current_cluster[-1]["start_time"])
         first_note_time = float(current_cluster[0]["start_time"])
         note_time = float(note["start_time"])
-        if (note_time - first_note_time) <= window_sec:
+
+        if (note_time - prev_note_time) <= strum_window_sec and (note_time - first_note_time) <= max_strum_span_sec:
             current_cluster.append(note)
         else:
-            clusters.append(current_cluster)
+            micro_clusters.append(current_cluster)
             current_cluster = [note]
 
     if current_cluster:
-        clusters.append(current_cluster)
+        micro_clusters.append(current_cluster)
+
+    # Pass 2: Arpeggio & Harmonic Pooling
+    # If notes arrive in arpeggiated sequence (e.g. guitar arpeggios or broken chords),
+    # pool consecutive clusters into the active harmony until a bass reset or harmonic change occurs.
+    pooled_clusters: list[list[dict[str, Any]]] = []
+    active_cluster = list(micro_clusters[0])
+
+    for cluster in micro_clusters[1:]:
+        gap = float(cluster[0]["start_time"]) - float(active_cluster[-1]["start_time"])
+        active_pitches = sorted({int(n["pitch"]) for n in active_cluster})
+        active_pcs = {p % 12 for p in active_pitches}
+        active_chord = identify_chord_from_pitches(active_pitches) if len(active_pcs) >= 3 else ""
+        new_pitches = sorted({int(n["pitch"]) for n in cluster})
+        last_pitch = int(active_cluster[-1]["pitch"])
+        lowest_new_pitch = min(new_pitches) if new_pitches else 60
+        active_span = float(active_cluster[-1]["start_time"]) - float(active_cluster[0]["start_time"])
+
+        # Detect bass reset (e.g. arpeggio thumb returning to low bass string after treble pattern)
+        # Register-independent: drops by >= 6 semitones below the preceding note, or returns to the low bass register of the chord
+        is_bass_reset = (
+            len(active_pcs) >= 3
+            and (
+                (last_pitch - lowest_new_pitch) >= 6
+                or (lowest_new_pitch <= min(active_pitches) + 1 and last_pitch > min(active_pitches) + 4)
+            )
+        )
+
+        should_merge = False
+        if gap <= arpeggio_max_gap_sec and not is_bass_reset:
+            combined_pitches = sorted(set(active_pitches + new_pitches))
+            combined_chord = identify_chord_from_pitches(combined_pitches)
+
+            if len(active_pcs) < 3:
+                # Accumulate notes until chord identity is established, capped at 2.2s
+                if active_span + gap <= 2.2:
+                    should_merge = True
+            elif combined_chord == active_chord:
+                # Same harmonic chord continuing within reasonable arpeggio duration (< 2.2s)
+                if active_span + gap <= 2.2:
+                    should_merge = True
+            elif not active_chord and combined_chord:
+                if active_span + gap <= 2.2:
+                    should_merge = True
+
+        if should_merge:
+            active_cluster.extend(cluster)
+        else:
+            pooled_clusters.append(active_cluster)
+            active_cluster = list(cluster)
+
+    if active_cluster:
+        pooled_clusters.append(active_cluster)
 
     result: list[dict[str, Any]] = []
-    for cluster in clusters:
-        cluster_pitches = sorted({int(n["pitch"]) for n in cluster})
-        timestamp = float(cluster[0]["start_time"])
+    for c in pooled_clusters:
+        cluster_pitches = sorted({int(n["pitch"]) for n in c})
+        timestamp = float(c[0]["start_time"])
         detected_name = identify_chord_from_pitches(cluster_pitches)
         result.append({
             "timestamp_sec": timestamp,

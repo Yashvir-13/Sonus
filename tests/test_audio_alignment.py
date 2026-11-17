@@ -142,3 +142,20 @@ def test_transcribe_synthetic_wav(tmp_path: Path) -> None:
     # A4 is MIDI pitch 69
     assert any(n["pitch"] in (68, 69, 70) for n in notes)
 
+
+def test_align_sakoe_chiba_rejects_distant_chord() -> None:
+    """Verify that identical chords performed far outside the temporal window are rejected."""
+    ref = [
+        {"name": "C", "beat": 1, "expected_pitches": [48, 52, 55]},
+    ]
+    # Player plays C chord 15 seconds after expected onset
+    played = [
+        {"detected_name": "C", "timestamp_sec": 15.0, "pitches": [48, 52, 55]},
+    ]
+    matches = align_chord_sequence(played, ref, tempo_bpm=120)
+    assert len(matches) == 1
+    assert matches[0]["is_matched"] is False
+    assert matches[0]["expected_chord"] == "C"
+    assert matches[0]["detected_chord"] == ""
+
+

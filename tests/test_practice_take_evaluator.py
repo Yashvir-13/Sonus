@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from src.lib.practice.evaluator import PracticeTakeEvaluator, TakeEvaluationResult
 
 
@@ -78,3 +80,30 @@ def test_pure_evaluator_detects_transition_lag_and_evaluates_delta() -> None:
     assert result.drill_outcome is not None
     assert result.drill_outcome["completed"] is True
     assert result.drill_outcome["measured_improvement"] > 0.15
+
+
+@pytest.mark.anyio
+async def test_evaluator_evaluate_async() -> None:
+    """Verify that evaluate_async non-blocking evaluation computes exact metrics."""
+    reference_chords = [
+        {"name": "C", "beat": 1.0, "expected_pitches": [60, 64, 67]},
+        {"name": "G", "beat": 2.0, "expected_pitches": [55, 59, 62]},
+    ]
+    played_chords = [
+        {"chord": "C", "pitches": [60, 64, 67], "timestamp_sec": 0.002},
+        {"chord": "G", "pitches": [55, 59, 62], "timestamp_sec": 1.001},
+    ]
+
+    result = await PracticeTakeEvaluator.evaluate_async(
+        played_chords=played_chords,
+        reference_chords=reference_chords,
+        tempo_bpm=60,
+        session_id="sess_async_test_456",
+        instrument="piano",
+    )
+
+    assert isinstance(result, TakeEvaluationResult)
+    assert result.overall_accuracy == 1.0
+    assert result.avg_timing_error_ms < 10.0
+    assert "coaching_report" in result.to_payload("sess_async_test_456")
+

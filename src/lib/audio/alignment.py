@@ -41,15 +41,40 @@ def _compute_chord_similarity(
     return sim
 
 
+def _compute_match_score(
+    ref: dict[str, Any],
+    played: dict[str, Any],
+    exp_time: float,
+    window_sec: float,
+) -> tuple[float, float, float]:
+    """Compute Needleman-Wunsch match score applying Sakoe-Chiba temporal window constraint."""
+    sim = _compute_chord_similarity(ref, played)
+    played_time = float(played.get("timestamp_sec", played.get("onset_time", 0.0)))
+    time_diff = abs(played_time - exp_time)
+
+    # Sakoe-Chiba temporal band: reject distant chords outside window W
+    if time_diff > window_sec:
+        return -100.0, sim, time_diff
+
+    if sim >= 0.5:
+        # High similarity reward discounted by proportional timing error without artificial 3.0s ceiling
+        score = (10.0 * sim) - (time_diff * 1.5)
+    else:
+        score = -6.0
+
+    return score, sim, time_diff
+
+
 def align_chord_sequence(
     played_chords: list[dict[str, Any]],
     reference_chords: list[dict[str, Any]],
     tempo_bpm: int = 120,
+    window_sec: float | None = None,
 ) -> list[dict[str, Any]]:
     """Align performed chords against reference chord progression using dynamic programming.
 
-    Returns per-reference-chord alignment metrics including match status,
-    onset timing error (ms), and voicing completeness.
+    Implements a Sakoe-Chiba temporal window constraint (|t_det - t_exp| <= W)
+    to prevent false matching of temporally distant chords and eliminate artificial timing caps.
     """
     m = len(reference_chords)
     n = len(played_chords)
@@ -58,6 +83,7 @@ def align_chord_sequence(
         return []
 
     beat_sec = 60.0 / tempo_bpm
+    max_window = window_sec if window_sec is not None else max(2.5, 4.0 * beat_sec)
 
     def expected_time_sec(chord_dict: dict[str, Any]) -> float:
         beat = float(chord_dict.get("beat", 1.0))
@@ -78,15 +104,7 @@ def align_chord_sequence(
         exp_time = expected_time_sec(ref)
         for j in range(1, n + 1):
             played = played_chords[j - 1]
-            sim = _compute_chord_similarity(ref, played)
-            played_time = float(played.get("timestamp_sec", played.get("onset_time", 0.0)))
-            time_diff = abs(played_time - exp_time)
-
-            if sim >= 0.5:
-                # High similarity reward discounted by timing error
-                score = (10.0 * sim) - min(time_diff, 3.0)
-            else:
-                score = -6.0
+            score, _, _ = _compute_match_score(ref, played, exp_time, max_window)
 
             match_score = dp[i - 1][j - 1] + score
             del_score = dp[i - 1][j] + gap_ref
@@ -102,13 +120,11 @@ def align_chord_sequence(
         if i > 0 and j > 0:
             ref = reference_chords[i - 1]
             played = played_chords[j - 1]
-            sim = _compute_chord_similarity(ref, played)
-            played_time = float(played.get("timestamp_sec", played.get("onset_time", 0.0)))
-            time_diff = abs(played_time - expected_time_sec(ref))
-            score = ((10.0 * sim) - min(time_diff, 3.0)) if sim >= 0.5 else -6.0
+            exp_time = expected_time_sec(ref)
+            score, sim, time_diff = _compute_match_score(ref, played, exp_time, max_window)
 
             if abs(dp[i][j] - (dp[i - 1][j - 1] + score)) < 1e-6:
-                if sim >= 0.5:
+                if sim >= 0.5 and time_diff <= max_window:
                     aligned_pairs[i - 1] = j - 1
                 else:
                     aligned_pairs[i - 1] = None

@@ -142,6 +142,44 @@ async def test_session_not_found(async_client: AsyncClient) -> None:
 
 
 @pytest.mark.anyio
+async def test_create_session_and_take_with_dynamic_chord_drill(async_client: AsyncClient) -> None:
+    # Test dynamically generated chord drill ID that is not pre-seeded in exercises table
+    payload = {
+        "exercise_id": "drill_chord_c",
+        "tempo_bpm": 60,
+    }
+    create_resp = await async_client.post("/api/sessions", json=payload)
+    assert create_resp.status_code == 201
+    sess_data = create_resp.json()
+    assert sess_data["exercise_id"] == "drill_chord_c"
+    sess_id = sess_data["id"]
+
+    # Submit a take for this chord drill
+    take_payload = {
+        "played_chords": [
+            {"detected_name": "C", "timestamp_sec": 0.05, "pitches": [48, 52, 55]},
+            {"detected_name": "C", "timestamp_sec": 4.02, "pitches": [48, 52, 55]},
+        ]
+    }
+    take_resp = await async_client.post(f"/api/sessions/{sess_id}/take", json=take_payload)
+    assert take_resp.status_code == 200
+    analysis = take_resp.json()
+    assert analysis["session_id"] == sess_id
+    assert analysis["state"] == "completed"
+    assert len(analysis["chord_metrics"]) == 4
+
+
+@pytest.mark.anyio
+async def test_get_dynamic_chord_drill_exercise(async_client: AsyncClient) -> None:
+    resp = await async_client.get("/api/exercises/drill_chord_am")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["id"] == "drill_chord_am"
+    assert "Am" in data["title"]
+    assert len(data["progression"]["chords"]) == 4
+
+
+@pytest.mark.anyio
 async def test_submit_take_wav_file(async_client: AsyncClient, tmp_path: Path) -> None:
     import io
     import numpy as np

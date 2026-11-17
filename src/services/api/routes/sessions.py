@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Annotated, Any
 from uuid import uuid4
 
@@ -15,6 +16,7 @@ from src.lib.adaptive.llm_coach import generate_coaching_report, generate_coachi
 from src.lib.auth.clerk import ClerkIdentityDep
 from src.lib.db import get_session
 from src.lib.exception import NotFound, Unprocessable
+from src.lib.music.chords import parse_chord_notes
 from src.lib.practice.evaluator import TakeEvaluator
 from src.models.practice import (
     AdaptiveIntervention,
@@ -29,6 +31,62 @@ from src.models.practice import (
 )
 
 router = APIRouter(prefix="/sessions", tags=["Practice Sessions"])
+
+
+def _extract_chord_from_id(exercise_id: str) -> str:
+    cleaned = exercise_id
+    if cleaned.startswith("drill_chord_"):
+        cleaned = cleaned[len("drill_chord_") :]
+    elif cleaned.startswith("chord_"):
+        cleaned = cleaned[len("chord_") :]
+    elif cleaned.startswith("drill_"):
+        cleaned = cleaned[len("drill_") :]
+
+    cleaned = (
+        cleaned.replace("_sharp", "#")
+        .replace("sharp", "#")
+        .replace("_flat", "b")
+        .replace("flat", "b")
+        .replace("_", "")
+    )
+    if not cleaned:
+        return "C"
+    return cleaned[0].upper() + cleaned[1:]
+
+
+def _create_synthetic_exercise(exercise_id: str, tempo_bpm: int | None = None) -> Exercise:
+    chord_name = _extract_chord_from_id(exercise_id)
+    try:
+        parse_chord_notes(chord_name)
+    except Exception:
+        chord_name = "C"
+
+    bpm = tempo_bpm or 60
+    progression = {
+        "key": f"{chord_name}",
+        "time_signature": "4/4",
+        "default_tempo_bpm": bpm,
+        "chords": [
+            {
+                "name": chord_name,
+                "chord": chord_name,
+                "beat": 1.0 + (bar * 4.0),
+                "duration_beats": 4.0,
+                "section": f"Measure {bar + 1}",
+            }
+            for bar in range(4)
+        ],
+    }
+
+    return Exercise(
+        id=exercise_id,
+        title=f"Chord Drill: {chord_name}" if "drill" in exercise_id else f"Exercise {exercise_id}",
+        description="Dynamically generated exercise",
+        instrument="guitar",
+        tempo_bpm=bpm,
+        difficulty=1,
+        progression_json=json.dumps(progression),
+    )
 
 
 class TakeSubmission(BaseModel):
@@ -49,7 +107,16 @@ async def create_practice_session(
     """Create a new practice session for the authenticated user."""
     exercise = await session.get(Exercise, body.exercise_id)
     if exercise is None:
-        raise NotFound("Exercise not found")
+        exercise = _create_synthetic_exercise(body.exercise_id, body.tempo_bpm)
+        try:
+            session.add(exercise)
+            await session.commit()
+            await session.refresh(exercise)
+        except Exception:
+            await session.rollback()
+            exercise = await session.get(Exercise, body.exercise_id)
+            if exercise is None:
+                raise NotFound("Exercise not found")
 
     new_session = PracticeSession(
         id=f"sess_{uuid4().hex[:16]}",
@@ -93,7 +160,16 @@ async def submit_take(
 
     exercise = await session.get(Exercise, practice_session.exercise_id)
     if exercise is None:
-        raise NotFound("Associated exercise not found")
+        exercise = _create_synthetic_exercise(practice_session.exercise_id, practice_session.tempo_bpm)
+        try:
+            session.add(exercise)
+            await session.commit()
+            await session.refresh(exercise)
+        except Exception:
+            await session.rollback()
+            exercise = await session.get(Exercise, practice_session.exercise_id)
+            if exercise is None:
+                raise NotFound("Exercise not found")
 
     audio_bytes: bytes | None = None
     played_chords: list[dict[str, Any]] | None = None
