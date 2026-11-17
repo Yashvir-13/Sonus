@@ -563,49 +563,35 @@ export function PracticeStudioCockpit({
   const lastChordIdxRef = useRef<number>(-1)
 
   const playbackAudioStartRef = useRef<number>(0)
-
   const playbackBeatStartRef = useRef<number>(0)
+  const scheduledMeasuresRef = useRef<Set<number>>(new Set())
 
   const handleSeekBeat = useCallback((beat: number) => {
-
     if (audioEngineRef.current) {
-
       audioEngineRef.current.stopAllSounds()
-
       playbackAudioStartRef.current = audioEngineRef.current.getCurrentTime() + 0.05
-
       playbackBeatStartRef.current = beat
-
     }
-
+    scheduledMeasuresRef.current.clear()
     lastChordIdxRef.current = -1
-
     setCurrentBeat(beat)
-
   }, [])
 
   useEffect(() => {
-
     if (!isPlaying) {
-
       audioEngineRef.current?.stopAllSounds()
-
+      scheduledMeasuresRef.current.clear()
       lastChordIdxRef.current = -1
-
       lastTickBeatRef.current = -1
-
     } else {
-
       if (audioEngineRef.current) {
-
+        audioEngineRef.current.unlock()
+        audioEngineRef.current.stopAllSounds()
         playbackAudioStartRef.current = audioEngineRef.current.getCurrentTime() + 0.05
-
         playbackBeatStartRef.current = currentBeat
-
       }
-
+      scheduledMeasuresRef.current.clear()
     }
-
   }, [isPlaying])
 
   const startCountInThenPlay = useCallback(() => {
@@ -723,129 +709,90 @@ export function PracticeStudioCockpit({
     }
 
     if (currentMeasureIdx !== lastChordIdxRef.current) {
-
       lastChordIdxRef.current = currentMeasureIdx
+      const totalMeasures = flowingProgression.length
+      const prevMeasure = (currentMeasureIdx - 2 + totalMeasures) % totalMeasures
+      scheduledMeasuresRef.current.delete(prevMeasure)
+    }
 
-      if (isBackingAudioEnabled && audioEngineRef.current && activeChord) {
+    if (isBackingAudioEnabled && audioEngineRef.current && isPlaying) {
+      const secondsPerBeat = 60 / tempoBpm
+      const currentAudioTime = audioEngineRef.current.getCurrentTime()
+      const totalMeasures = flowingProgression.length
 
-        const secondsPerBeat = 60 / tempoBpm
+      // Lookahead window: schedule current measure and upcoming measure in advance to eliminate stutter
+      const candidateIndices = [currentMeasureIdx, (currentMeasureIdx + 1) % totalMeasures]
+
+      for (const mIdx of candidateIndices) {
+        if (scheduledMeasuresRef.current.has(mIdx)) continue
+
+        const chord = flowingProgression[mIdx]
+        if (!chord) continue
 
         let measureStartBeat = 0
-
-        for (let i = 0; i < currentMeasureIdx; i++) {
-
+        for (let i = 0; i < mIdx; i++) {
           measureStartBeat += flowingProgression[i]?.duration_beats ?? beatsPerMeasure
-
         }
 
-        const beatDelta = measureStartBeat - playbackBeatStartRef.current
+        let beatDelta = measureStartBeat - playbackBeatStartRef.current
+        if (beatDelta < -0.5 && mIdx > currentMeasureIdx) {
+          beatDelta += totalBeats
+        }
 
         const scheduledAudioTime = playbackAudioStartRef.current + beatDelta * secondsPerBeat
 
-        const currentAudioTime = audioEngineRef.current.getCurrentTime()
+        // Lookahead horizon: schedule when note start falls within [now - 0.08, now + 2.0]
+        if (scheduledAudioTime >= currentAudioTime - 0.08 && scheduledAudioTime <= currentAudioTime + 2.0) {
+          const scheduleTime = Math.max(currentAudioTime, scheduledAudioTime)
+          scheduledMeasuresRef.current.add(mIdx)
+          const chordDurationBeats = chord.duration_beats ?? beatsPerMeasure
 
-        const scheduleTime =
+          if (instrument === 'guitar') {
+            if (chord.strumEvents && chord.strumEvents.length > 0) {
+              audioEngineRef.current.scheduleStrumPattern(
+                chord.expectedPitches,
+                chord.strumEvents,
+                scheduleTime,
+                secondsPerBeat,
+                secondsPerBeat * 1.5
+              )
+            } else {
+              audioEngineRef.current.playGuitarStrum(
+                chord.expectedPitches,
+                'down',
+                true,
+                secondsPerBeat * chordDurationBeats,
+                scheduleTime
+              )
+            }
+          } else if (instrument === 'piano') {
+            if (chord.pianoVoicing) {
+              audioEngineRef.current.schedulePianoAccompaniment(
+                chord.pianoVoicing.lhPitches,
+                chord.pianoVoicing.rhPitches,
+                chordDurationBeats,
+                scheduleTime,
+                secondsPerBeat
+              )
+            } else {
+              audioEngineRef.current.playChord(
+                chord.chordName,
+                chord.expectedPitches,
+                secondsPerBeat * chordDurationBeats,
+                'piano'
+              )
+            }
 
-          scheduledAudioTime >= currentAudioTime - 0.1 && scheduledAudioTime <= currentAudioTime + 2.0
-
-            ? Math.max(currentAudioTime, scheduledAudioTime)
-
-            : currentAudioTime
-
-        if (instrument === 'guitar') {
-
-          // Play full rhythmic strumming pattern across subdivisions if available
-
-          if (activeChord.strumEvents && activeChord.strumEvents.length > 0) {
-
-            audioEngineRef.current.scheduleStrumPattern(
-
-              activeChord.expectedPitches,
-
-              activeChord.strumEvents,
-
-              scheduleTime,
-
-              secondsPerBeat,
-
-              secondsPerBeat * 1.5
-
-            )
-
-          } else {
-
-            audioEngineRef.current.playGuitarStrum(
-
-              activeChord.expectedPitches,
-
-              'down',
-
-              true,
-
-              secondsPerBeat * beatsPerMeasure,
-
-              scheduleTime
-
-            )
-
+            if (chord.melodyNotes && chord.melodyNotes.length > 0) {
+              audioEngineRef.current.schedulePianoNotes(
+                chord.melodyNotes,
+                scheduleTime,
+                secondsPerBeat
+              )
+            }
           }
-
-        } else if (instrument === 'piano') {
-
-          // Play authentic piano accompaniment (Beat 1 bass root, subsequent beats chords)
-
-          if (activeChord.pianoVoicing) {
-
-            audioEngineRef.current.schedulePianoAccompaniment(
-
-              activeChord.pianoVoicing.lhPitches,
-
-              activeChord.pianoVoicing.rhPitches,
-
-              beatsPerMeasure,
-
-              scheduleTime,
-
-              secondsPerBeat
-
-            )
-
-          } else {
-
-            audioEngineRef.current.playChord(
-
-              activeChord.chordName,
-
-              activeChord.expectedPitches,
-
-              secondsPerBeat * beatsPerMeasure,
-
-              'piano'
-
-            )
-
-          }
-
-          // If melodic note events exist, schedule them at exact beat offsets
-
-          if (activeChord.melodyNotes && activeChord.melodyNotes.length > 0) {
-
-            audioEngineRef.current.schedulePianoNotes(
-
-              activeChord.melodyNotes,
-
-              scheduleTime,
-
-              secondsPerBeat
-
-            )
-
-          }
-
         }
-
       }
-
     }
 
   }, [
@@ -2188,15 +2135,11 @@ export function PracticeStudioCockpit({
                 defaultViewMode="keyboard"
 
                 onKeyClick={(midi) => {
-
                   if (audioEngineRef.current) {
-
                     audioEngineRef.current.unlock()
-
+                    audioEngineRef.current.stopAllSounds()
                     audioEngineRef.current.playPianoNote(midi, 1.0, 0.8)
-
                   }
-
                 }}
 
               />
@@ -2250,15 +2193,11 @@ export function PracticeStudioCockpit({
                 defaultViewMode="keyboard"
 
                 onKeyClick={(midi) => {
-
                   if (audioEngineRef.current) {
-
                     audioEngineRef.current.unlock()
-
+                    audioEngineRef.current.stopAllSounds()
                     audioEngineRef.current.playPianoNote(midi, 1.0, 0.8)
-
                   }
-
                 }}
 
               />

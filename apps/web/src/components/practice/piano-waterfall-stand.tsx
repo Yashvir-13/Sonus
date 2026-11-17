@@ -44,6 +44,42 @@ interface SparkParticle {
   color: string
   twinkle: number
   wobble: number
+  spriteType: 'rose' | 'gold' | 'white'
+}
+
+/**
+ * Pre-renders an offscreen spark sprite with radial glow and diamond core.
+ * Using pre-rendered sprites eliminates expensive CPU `shadowBlur` in 60 FPS Canvas loops.
+ */
+function createSparkSprite(colorHex: string, size = 32): HTMLCanvasElement {
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return canvas
+
+  const half = size / 2
+  const grad = ctx.createRadialGradient(half, half, 0, half, half, half)
+  grad.addColorStop(0, '#FFFFFF')
+  grad.addColorStop(0.2, colorHex)
+  grad.addColorStop(0.55, `${colorHex}66`)
+  grad.addColorStop(1, 'rgba(0,0,0,0)')
+
+  ctx.fillStyle = grad
+  ctx.beginPath()
+  ctx.arc(half, half, half, 0, Math.PI * 2)
+  ctx.fill()
+
+  // Crisp diamond cross-glint
+  ctx.fillStyle = '#FFFFFF'
+  ctx.beginPath()
+  ctx.ellipse(half, half, half * 0.75, half * 0.15, 0, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.beginPath()
+  ctx.ellipse(half, half, half * 0.15, half * 0.75, 0, 0, Math.PI * 2)
+  ctx.fill()
+
+  return canvas
 }
 
 export function PianoWaterfallStand({
@@ -59,21 +95,33 @@ export function PianoWaterfallStand({
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const particlesRef = useRef<SparkParticle[]>([])
+  const sparkSpritesRef = useRef<Record<string, HTMLCanvasElement> | null>(null)
   const { theme } = useTheme()
   const isDark = theme === 'dark'
 
-  // Geometry: 52 White keys in standard 1040 width coordinate space
-  // White Key: 20px wide, 110px high (Aspect ratio 1:5.5 - authentic concert grand proportions)
+  // Geometry: 52 White keys in standard 1040 coordinate space
+  // White Key: 20px wide, 110px high (Authentic concert grand proportions ~5.5:1)
   // Black Key: 12px wide, 70px high
   const TOTAL_WIDTH = 1040
-  const WATERFALL_HEIGHT = 210
+  const WATERFALL_HEIGHT = 220
   const WHITE_KEY_HEIGHT = 110
   const BLACK_KEY_HEIGHT = 70
-  const TOTAL_HEIGHT = WATERFALL_HEIGHT + WHITE_KEY_HEIGHT // 320
-  const STRIKE_LINE_Y = WATERFALL_HEIGHT - 6 // 204
+  const TOTAL_HEIGHT = WATERFALL_HEIGHT + WHITE_KEY_HEIGHT // 330
+  const STRIKE_LINE_Y = WATERFALL_HEIGHT - 6 // 214
   const WHITE_KEY_WIDTH = 20
   const BLACK_KEY_WIDTH = 12
   const PX_PER_BEAT = 75
+
+  // Initialize cached offscreen spark sprites once
+  useEffect(() => {
+    if (!sparkSpritesRef.current && typeof document !== 'undefined') {
+      sparkSpritesRef.current = {
+        rose: createSparkSprite('#EC4899', 36),
+        gold: createSparkSprite('#FACC15', 36),
+        white: createSparkSprite('#FFFFFF', 28),
+      }
+    }
+  }, [])
 
   const keyMap = useMemo(() => {
     const keys: Array<{
@@ -207,21 +255,25 @@ export function PianoWaterfallStand({
   }, [waterfallNotes, currentBeat])
 
   // Spawn particle burst for a key
-  const spawnSparks = useCallback((cx: number, cy: number, color: string, count = 12) => {
+  const spawnSparks = useCallback((cx: number, cy: number, color: string, count = 14) => {
+    const spriteType: 'rose' | 'gold' | 'white' =
+      color === '#EC4899' ? 'rose' : color === '#FACC15' ? 'gold' : 'white'
+
     for (let i = 0; i < count; i++) {
-      const angle = (Math.random() * Math.PI) / 1.5 + Math.PI / 6 // upward fan
-      const speed = Math.random() * 4.5 + 1.5
+      const angle = (Math.random() * Math.PI) / 1.4 + Math.PI / 5 // upward fountain fan
+      const speed = Math.random() * 4.2 + 1.2
       particlesRef.current.push({
-        x: cx + (Math.random() - 0.5) * 8,
+        x: cx + (Math.random() - 0.5) * 10,
         y: cy + (Math.random() - 0.5) * 4,
-        vx: (Math.random() - 0.5) * 2.5,
+        vx: (Math.random() - 0.5) * 2.8,
         vy: -Math.sin(angle) * speed,
-        size: Math.random() * 2.8 + 1.0,
+        size: Math.random() * 2.6 + 0.8,
         life: 1.0,
-        maxLife: Math.random() * 40 + 25,
-        color: Math.random() > 0.3 ? color : '#FFFFFF',
-        twinkle: Math.random() * 15 + 5,
-        wobble: Math.random() * 0.15 + 0.05,
+        maxLife: Math.random() * 38 + 22,
+        color: Math.random() > 0.35 ? color : '#FFFFFF',
+        twinkle: Math.random() * 18 + 6,
+        wobble: Math.random() * 0.16 + 0.04,
+        spriteType: Math.random() > 0.25 ? spriteType : 'white',
       })
     }
   }, [])
@@ -233,15 +285,15 @@ export function PianoWaterfallStand({
       const scaleY = canvasRef.current.height / TOTAL_HEIGHT
       const cx = (coord.x + coord.width / 2) * scaleX
       const cy = STRIKE_LINE_Y * scaleY
-      spawnSparks(cx, cy, '#FACC15', 20)
+      spawnSparks(cx, cy, '#FACC15', 24)
     }
     onKeyClick?.(midi)
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // 60 FPS HTML5 CANVAS ENGINE:
-  // 1. Dual-Directional Volumetric Light Beams (Upward Column & Downward Spotlight)
-  // 2. Continuous Particle Spark Fountain
+  // 1. Dual-Directional Volumetric Light Beams (Feathered Upward Column & Key Spotlight)
+  // 2. High-Performance Particle Stardust Fountain with Pre-Rendered Sprites
   // 3. Laser Strike Lens Flare Hotspots
   // ─────────────────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -262,10 +314,10 @@ export function PianoWaterfallStand({
       const scaleY = height / TOTAL_HEIGHT
       const strikeY = STRIKE_LINE_Y * scaleY
 
-      // 1. VOLUMETRIC SPOTLIGHT BEAMS (Dual-Directional: Skywards + Onto Keys)
       ctx.save()
       ctx.globalCompositeOperation = 'lighter'
 
+      // 1. VOLUMETRIC SPOTLIGHT BEAMS (Dual-Directional: Skywards + Onto Keys)
       activeArray.forEach(([midi, hand]) => {
         const coord = keyCoordByMidi.get(midi)
         if (!coord) return
@@ -275,35 +327,54 @@ export function PianoWaterfallStand({
         const hexColor = isLh ? '#EC4899' : '#FACC15'
 
         // A. Continuous spark emission at strike line
-        if (Math.random() < 0.6) {
+        if (Math.random() < 0.65) {
           spawnSparks(cx, strikeY, hexColor, 2)
         }
 
-        // B. Upward Atmospheric Column (Skyward Beams)
-        const beamW = Math.max(16, coord.width * scaleX * 1.5)
+        // B. Upward Soft Gaussian-Feathered Skyward Column
+        const beamW = Math.max(18, coord.width * scaleX * 1.6)
+        
+        // Multi-pass feathered vertical column (prevents harsh polygon edges)
         const upGrad = ctx.createLinearGradient(cx, strikeY, cx, 0)
-        upGrad.addColorStop(0, `rgba(${baseColorRgb}, 0.75)`)
-        upGrad.addColorStop(0.3, `rgba(${baseColorRgb}, 0.35)`)
-        upGrad.addColorStop(0.7, `rgba(${baseColorRgb}, 0.12)`)
+        upGrad.addColorStop(0, `rgba(${baseColorRgb}, 0.8)`)
+        upGrad.addColorStop(0.25, `rgba(${baseColorRgb}, 0.4)`)
+        upGrad.addColorStop(0.65, `rgba(${baseColorRgb}, 0.12)`)
         upGrad.addColorStop(1, `rgba(${baseColorRgb}, 0.0)`)
 
         ctx.fillStyle = upGrad
+        // Smooth parabolic / tapered path
         ctx.beginPath()
         ctx.moveTo(cx - beamW * 0.5, strikeY)
-        ctx.lineTo(cx + beamW * 0.5, strikeY)
-        ctx.lineTo(cx + beamW * 0.35, 0)
-        ctx.lineTo(cx - beamW * 0.35, 0)
+        ctx.bezierCurveTo(
+          cx - beamW * 0.45, strikeY * 0.6,
+          cx - beamW * 0.35, strikeY * 0.2,
+          cx - beamW * 0.25, 0
+        )
+        ctx.lineTo(cx + beamW * 0.25, 0)
+        ctx.bezierCurveTo(
+          cx + beamW * 0.35, strikeY * 0.2,
+          cx + beamW * 0.45, strikeY * 0.6,
+          cx + beamW * 0.5, strikeY
+        )
         ctx.closePath()
         ctx.fill()
 
+        // Intense core ray
+        const coreGrad = ctx.createLinearGradient(cx, strikeY, cx, strikeY * 0.3)
+        coreGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)')
+        coreGrad.addColorStop(0.3, `rgba(${baseColorRgb}, 0.6)`)
+        coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)')
+        ctx.fillStyle = coreGrad
+        ctx.fillRect(cx - beamW * 0.15, 0, beamW * 0.3, strikeY)
+
         // C. Downward Key Spotlight Cone (Illuminates the Piano Keys Below!)
         const downGrad = ctx.createLinearGradient(cx, strikeY, cx, height)
-        downGrad.addColorStop(0, `rgba(255, 255, 255, 0.95)`) // strike point flash
-        downGrad.addColorStop(0.12, `rgba(${baseColorRgb}, 0.65)`)
-        downGrad.addColorStop(0.65, `rgba(${baseColorRgb}, 0.35)`)
+        downGrad.addColorStop(0, 'rgba(255, 255, 255, 0.95)') // strike point flash
+        downGrad.addColorStop(0.12, `rgba(${baseColorRgb}, 0.75)`)
+        downGrad.addColorStop(0.55, `rgba(${baseColorRgb}, 0.4)`)
         downGrad.addColorStop(1, `rgba(${baseColorRgb}, 0.08)`)
 
-        const coneBottomW = coord.width * scaleX * 1.8
+        const coneBottomW = coord.width * scaleX * 1.85
         ctx.fillStyle = downGrad
         ctx.beginPath()
         ctx.moveTo(cx - coord.width * scaleX * 0.5, strikeY)
@@ -314,7 +385,7 @@ export function PianoWaterfallStand({
         ctx.fill()
 
         // D. High-Intensity Lens Flare Hotspot at the Strike Collision
-        const flare = ctx.createRadialGradient(cx, strikeY, 1, cx, strikeY, 32 * scaleX)
+        const flare = ctx.createRadialGradient(cx, strikeY, 1, cx, strikeY, 34 * scaleX)
         flare.addColorStop(0, 'rgba(255, 255, 255, 1.0)')
         flare.addColorStop(0.2, `rgba(${baseColorRgb}, 0.9)`)
         flare.addColorStop(0.6, `rgba(${baseColorRgb}, 0.25)`)
@@ -322,32 +393,49 @@ export function PianoWaterfallStand({
 
         ctx.fillStyle = flare
         ctx.beginPath()
-        ctx.arc(cx, strikeY, 32 * scaleX, 0, Math.PI * 2)
+        ctx.arc(cx, strikeY, 34 * scaleX, 0, Math.PI * 2)
         ctx.fill()
       })
 
-      // 2. DYNAMIC SPARK PARTICLES UPDATE & DRAW
+      // 2. DYNAMIC SPARK PARTICLES: Blazing Fast Sprite Blitting
       const remainingParticles: SparkParticle[] = []
+      const sprites = sparkSpritesRef.current
+
       particlesRef.current.forEach((p) => {
-        p.x += p.vx + Math.sin(p.life * p.wobble) * 0.3
+        p.x += p.vx + Math.sin(p.life * p.wobble) * 0.35
         p.y += p.vy
-        p.vy += 0.08 // mild gravity
-        p.vx *= 0.985 // drag
+        p.vy += 0.075 // mild upward-floating gravity
+        p.vx *= 0.985 // gentle air drag
         p.life -= 1 / p.maxLife
 
         if (p.life > 0 && p.y > 0 && p.y < height) {
-          ctx.beginPath()
-          ctx.arc(p.x, p.y, p.size * (0.6 + p.life * 0.4), 0, Math.PI * 2)
-          ctx.fillStyle = p.color
           const alpha = Math.max(0, p.life) * (0.8 + 0.2 * Math.sin(p.life * p.twinkle))
           ctx.globalAlpha = alpha
-          ctx.shadowBlur = 8
-          ctx.shadowColor = p.color
-          ctx.fill()
+
+          const sprite = sprites ? sprites[p.spriteType] || sprites.white : null
+          const renderSize = p.size * 6 * (0.5 + p.life * 0.5)
+
+          if (sprite) {
+            ctx.drawImage(
+              sprite,
+              p.x - renderSize / 2,
+              p.y - renderSize / 2,
+              renderSize,
+              renderSize
+            )
+          } else {
+            ctx.beginPath()
+            ctx.arc(p.x, p.y, p.size * (0.6 + p.life * 0.4), 0, Math.PI * 2)
+            ctx.fillStyle = p.color
+            ctx.fill()
+          }
+
           remainingParticles.push(p)
         }
       })
-      particlesRef.current = remainingParticles.slice(-300) // generous particle pool
+
+      ctx.globalAlpha = 1.0
+      particlesRef.current = remainingParticles.slice(-320) // generous particle pool
       ctx.restore()
 
       animId = requestAnimationFrame(render)
@@ -357,7 +445,7 @@ export function PianoWaterfallStand({
     return () => cancelAnimationFrame(animId)
   }, [activeKeysAtStrike, isPlaying, keyCoordByMidi, spawnSparks])
 
-  // Resize canvas according to container
+  // Resize canvas according to container with clamped Retina DPR
   useEffect(() => {
     const canvas = canvasRef.current
     const container = containerRef.current
@@ -382,9 +470,10 @@ export function PianoWaterfallStand({
     >
       <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col justify-between overflow-hidden relative px-2 sm:px-4 py-2">
         {/* ─────────────────────────────────────────────────────────────
-            AUTHENTIC ACOUSTIC CONCERT GRAND PIANO CONSOLE
+            AUTHENTIC ACOUSTIC CONCERT GRAND PIANO CONSOLE HOUSING
+            Seamless in Dark Mode, Refined Concert Stage in Light Mode
            ───────────────────────────────────────────────────────────── */}
-        <div className="relative w-full flex-1 flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden border border-zinc-300 dark:border-zinc-800/90 shadow-2xl bg-[#121216] transition-all">
+        <div className="relative w-full flex-1 flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-xl bg-zinc-950 transition-all">
           {/* Top Brass Inlay Line */}
           <div className="w-full h-1 bg-gradient-to-r from-amber-700/80 via-amber-400 to-amber-700/80 shrink-0" />
 
@@ -392,7 +481,7 @@ export function PianoWaterfallStand({
           <div
             ref={containerRef}
             data-testid="waterfall-canvas-track"
-            className="relative w-full flex-1 overflow-hidden bg-gradient-to-b from-[#0F0F14] via-[#0A0A0E] to-[#070709] flex flex-col justify-between"
+            className="relative w-full flex-1 overflow-hidden bg-gradient-to-b from-[#09090D] via-[#060608] to-[#040406] flex flex-col justify-between"
             style={{ minHeight: '300px' }}
           >
             {/* 60 FPS Canvas: Volumetric Light Beams, Spotlights, and Spark Fountain */}
@@ -408,15 +497,15 @@ export function PianoWaterfallStand({
               className="w-full h-full select-none z-10"
             >
               <defs>
-                {/* Neon Glow Filters */}
-                <filter id="neon-glow-lh" x="-50%" y="-50%" width="200%" height="200%">
-                  <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor="#EC4899" floodOpacity="0.9" />
+                {/* High-Performance Neon Glow Filters */}
+                <filter id="neon-glow-lh" x="-40%" y="-40%" width="180%" height="180%">
+                  <feDropShadow dx="0" dy="0" stdDeviation="4.5" floodColor="#EC4899" floodOpacity="0.85" />
                 </filter>
-                <filter id="neon-glow-rh" x="-50%" y="-50%" width="200%" height="200%">
-                  <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor="#FACC15" floodOpacity="0.9" />
+                <filter id="neon-glow-rh" x="-40%" y="-40%" width="180%" height="180%">
+                  <feDropShadow dx="0" dy="0" stdDeviation="4.5" floodColor="#FACC15" floodOpacity="0.85" />
                 </filter>
                 <filter id="laser-glow" x="-20%" y="-200%" width="140%" height="500%">
-                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feGaussianBlur stdDeviation="3.5" result="blur" />
                   <feMerge>
                     <feMergeNode in="blur" />
                     <feMergeNode in="SourceGraphic" />
@@ -424,7 +513,7 @@ export function PianoWaterfallStand({
                 </filter>
               </defs>
 
-              {/* Lane guides across all 52 white keys */}
+              {/* Faint lane guides across all 52 white keys */}
               {keyMap
                 .filter((k) => k.isWhite)
                 .map((k) => (
@@ -435,18 +524,18 @@ export function PianoWaterfallStand({
                     x2={k.x}
                     y2={WATERFALL_HEIGHT}
                     stroke="#181822"
-                    strokeWidth={0.8}
+                    strokeWidth={0.7}
                     strokeDasharray="4 6"
-                    opacity={0.35}
+                    opacity={0.3}
                   />
                 ))}
 
-              {/* Falling Note Ribbons (Neon Rounded Capsules) */}
+              {/* Falling Note Capsules (Hollow Neon Pills with Pitch Labels) */}
               {waterfallNotes.map((note) => {
                 const coord = keyCoordByMidi.get(note.midi)
                 if (!coord) return null
 
-                const noteHeight = Math.max(18, note.durationBeats * PX_PER_BEAT)
+                const noteHeight = Math.max(20, note.durationBeats * PX_PER_BEAT)
                 const beatsUntilHit = note.startBeat - currentBeat
                 const noteBottomY = STRIKE_LINE_Y - beatsUntilHit * PX_PER_BEAT
                 const noteTopY = noteBottomY - noteHeight
@@ -454,49 +543,70 @@ export function PianoWaterfallStand({
                 if (noteBottomY < -60 || noteTopY > WATERFALL_HEIGHT + 30) return null
 
                 const isLh = note.hand === 'lh'
-                const fillColor = isLh ? '#EC4899' : '#FACC15'
+                const neonColor = isLh ? '#EC4899' : '#FACC15'
                 const strokeColor = isLh ? '#F472B6' : '#FEF08A'
                 const glowFilter = isLh ? 'url(#neon-glow-lh)' : 'url(#neon-glow-rh)'
 
                 const ribbonWidth = coord.isWhite ? coord.width * 0.78 : coord.width * 0.85
                 const ribbonX = coord.x + (coord.width - ribbonWidth) / 2
+                const isStriking = beatsUntilHit <= 0.1 && beatsUntilHit >= -0.2
 
                 return (
                   <g key={note.id} className="transition-transform duration-75">
-                    {/* Glowing Capsule Body */}
+                    {/* Glowing Translucent Capsule Body */}
                     <rect
                       x={ribbonX}
                       y={noteTopY}
                       width={ribbonWidth}
                       height={noteHeight}
-                      rx={Math.min(6, ribbonWidth / 2)}
-                      ry={Math.min(6, ribbonWidth / 2)}
-                      fill={fillColor}
-                      fillOpacity={0.75}
+                      rx={Math.min(7, ribbonWidth / 2)}
+                      ry={Math.min(7, ribbonWidth / 2)}
+                      fill={isLh ? 'rgba(35, 10, 25, 0.75)' : 'rgba(35, 30, 10, 0.75)'}
                       stroke={strokeColor}
-                      strokeWidth={1.8}
+                      strokeWidth={2}
                       filter={glowFilter}
                     />
-                    {/* Specular Inner Highlight Line */}
+
+                    {/* Specular Inner Highlight Glow */}
                     <rect
                       x={ribbonX + 2}
-                      y={noteTopY + 3}
+                      y={noteTopY + 2.5}
                       width={ribbonWidth - 4}
-                      height={Math.max(6, noteHeight - 6)}
-                      rx={2}
-                      fill="#FFFFFF"
-                      fillOpacity={0.35}
+                      height={Math.max(5, noteHeight - 5)}
+                      rx={4}
+                      fill="none"
+                      stroke={neonColor}
+                      strokeWidth={0.8}
+                      strokeOpacity={0.6}
                     />
-                    {/* Bottom Strike Block */}
+
+                    {/* Bottom Strike Cap */}
                     <rect
-                      x={ribbonX}
-                      y={noteBottomY - 7}
-                      width={ribbonWidth}
-                      height={7}
-                      rx={2}
-                      fill="#FFFFFF"
-                      fillOpacity={0.9}
+                      x={ribbonX + 1}
+                      y={noteBottomY - (isStriking ? 8 : 6)}
+                      width={ribbonWidth - 2}
+                      height={isStriking ? 8 : 6}
+                      rx={3}
+                      fill={isStriking ? '#FFFFFF' : neonColor}
+                      fillOpacity={isStriking ? 1.0 : 0.9}
                     />
+
+                    {/* Monospace Pitch Name Embossed inside Capsule */}
+                    {noteHeight >= 28 && (
+                      <text
+                        x={ribbonX + ribbonWidth / 2}
+                        y={noteBottomY - 10}
+                        textAnchor="middle"
+                        fill="#FFFFFF"
+                        fontSize="8.5"
+                        fontFamily="monospace"
+                        fontWeight="bold"
+                        letterSpacing="0.05em"
+                        className="select-none pointer-events-none drop-shadow-sm"
+                      >
+                        {midiToPitchName(note.midi)}
+                      </text>
+                    )}
                   </g>
                 )
               })}
@@ -510,7 +620,7 @@ export function PianoWaterfallStand({
                   y2={STRIKE_LINE_Y}
                   stroke="#EC4899"
                   strokeWidth={7}
-                  strokeOpacity={0.4}
+                  strokeOpacity={0.45}
                   filter="url(#laser-glow)"
                 />
                 <line
