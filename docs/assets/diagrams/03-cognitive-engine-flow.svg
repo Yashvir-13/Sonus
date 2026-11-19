@@ -1,0 +1,224 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1340 740" width="100%" height="100%" style="background:#F8FAFC; font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <pattern id="grid3" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#E2E8F0"/>
+    </pattern>
+
+    <filter id="shadow3" x="-5%" y="-5%" width="110%" height="114%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+
+    <marker id="arrCog" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7C3AED"/>
+    </marker>
+  </defs>
+
+  <rect width="1340" height="740" fill="#F8FAFC"/>
+  <rect width="1340" height="740" fill="url(#grid3)"/>
+
+  <!-- Header -->
+  <g transform="translate(48, 36)">
+    <text x="0" y="22" fill="#0F172A" font-size="24" font-weight="800" letter-spacing="-0.5">Adaptive Cognitive Engine &amp; Feedback Loop</text>
+    <text x="0" y="46" fill="#64748B" font-size="13">Continuous skill modeling: statistically tracking physical habits, cognitive mastery, spaced repetition, and bandit scheduling.</text>
+  </g>
+
+  <!-- ==================== LEFT: TAKE EVALUATION (FACT BUNDLE) ==================== -->
+  <g transform="translate(48, 96)">
+    <rect x="0" y="0" width="250" height="600" rx="14" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.8" stroke-dasharray="6,4" filter="url(#shadow3)"/>
+    <rect x="20" y="-13" width="160" height="26" rx="13" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+    <text x="100" y="5" fill="#1D4ED8" font-size="11" font-weight="800" text-anchor="middle">TAKE EVALUATION</text>
+
+    <g transform="translate(20, 30)">
+      <text x="0" y="20" fill="#0F172A" font-size="16" font-weight="800">Fact Bundle</text>
+      <rect x="0" y="28" width="100" height="18" rx="9" fill="#DBEAFE"/>
+      <text x="50" y="40" fill="#1E40AF" font-size="10" font-weight="700" text-anchor="middle">Ground Truth</text>
+
+      <g transform="translate(0, 72)" font-size="12">
+        <text x="0" y="0" fill="#0F172A" font-weight="700">Per-Chord Data:</text>
+        <text x="0" y="24" fill="#475569">• Timing error &Delta;t (ms)</text>
+        <text x="0" y="48" fill="#475569">• Missing root / 3rd flags</text>
+        <text x="0" y="72" fill="#475569">• Unintended notes &amp; buzz</text>
+        <text x="0" y="96" fill="#475569">• Dynamic velocity</text>
+
+        <path d="M 0 120 h 210" stroke="#E2E8F0" stroke-width="1"/>
+
+        <text x="0" y="146" fill="#0F172A" font-weight="700">Session Context:</text>
+        <text x="0" y="170" fill="#475569">• Target BPM vs played</text>
+        <text x="0" y="194" fill="#475569">• Chord transition pairs</text>
+        <text x="0" y="218" fill="#475569">• Instrument type (Guitar/Piano)</text>
+        <text x="0" y="242" fill="#475569">• Historical user mean</text>
+      </g>
+
+      <rect x="0" y="460" width="210" height="38" rx="8" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1"/>
+      <text x="105" y="484" fill="#1D4ED8" font-size="11" font-weight="700" text-anchor="middle">Deterministic Telemetry</text>
+    </g>
+  </g>
+
+  <!-- ==================== CENTER 4 PILLARS ==================== -->
+  
+  <!-- PILLAR 1: HABIT TRACKER -->
+  <g transform="translate(360, 96)">
+    <rect x="0" y="0" width="270" height="270" rx="12" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1.8" filter="url(#shadow3)"/>
+    <rect x="0" y="0" width="270" height="40" rx="12" fill="#FFFBEB"/>
+    <rect x="0" y="30" width="270" height="10" fill="#FFFBEB"/>
+    <text x="16" y="25" fill="#92400E" font-size="12" font-weight="800">PILLAR 1: HABIT TRACKER</text>
+
+    <g transform="translate(16, 56)">
+      <text x="0" y="18" fill="#0F172A" font-size="15" font-weight="700">EWMA &amp; Page's CUSUM</text>
+      <rect x="0" y="26" width="114" height="18" rx="9" fill="#FEF3C7"/>
+      <text x="57" y="38" fill="#92400E" font-size="10" font-weight="700" text-anchor="middle">Statistical Process</text>
+
+      <text x="0" y="74" fill="#475569" font-size="12">• Smoothing factor &alpha; = 0.35</text>
+      <text x="0" y="98" fill="#475569" font-size="12">• Rushing vs dragging drift</text>
+      <text x="0" y="122" fill="#475569" font-size="12">• Two-sided CUSUM test</text>
+      <text x="0" y="146" fill="#475569" font-size="12">• Detects persistent micro-hesitations</text>
+      <text x="0" y="170" fill="#64748B" font-size="11">Flags physical motor memory shifts</text>
+    </g>
+  </g>
+
+  <!-- PILLAR 2: SKILL MASTERY -->
+  <g transform="translate(690, 96)">
+    <rect x="0" y="0" width="270" height="270" rx="12" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.8" filter="url(#shadow3)"/>
+    <rect x="0" y="0" width="270" height="40" rx="12" fill="#EFF6FF"/>
+    <rect x="0" y="30" width="270" height="10" fill="#EFF6FF"/>
+    <text x="16" y="25" fill="#1E40AF" font-size="12" font-weight="800">PILLAR 2: SKILL MASTERY</text>
+
+    <g transform="translate(16, 56)">
+      <text x="0" y="18" fill="#0F172A" font-size="15" font-weight="700">Knowledge Tracing (BKT)</text>
+      <rect x="0" y="26" width="94" height="18" rx="9" fill="#DBEAFE"/>
+      <text x="47" y="38" fill="#1E40AF" font-size="10" font-weight="700" text-anchor="middle">2-State HMM</text>
+
+      <text x="0" y="74" fill="#475569" font-size="12">• Latent mastery probability P(L_t)</text>
+      <text x="0" y="98" fill="#475569" font-size="12">• Slip P(S)=0.05, Guess P(G)=0.10</text>
+      <text x="0" y="122" fill="#475569" font-size="12">• Per-chord &amp; transition pair tracking</text>
+      <text x="0" y="146" fill="#475569" font-size="12">• Corbett &amp; Anderson formulation</text>
+      <text x="0" y="170" fill="#64748B" font-size="11">Calculates true mastery probability</text>
+    </g>
+  </g>
+
+  <!-- PILLAR 3: RETENTION SCHEDULE -->
+  <g transform="translate(360, 426)">
+    <rect x="0" y="0" width="270" height="270" rx="12" fill="#FFFFFF" stroke="#6EE7B7" stroke-width="1.8" filter="url(#shadow3)"/>
+    <rect x="0" y="0" width="270" height="40" rx="12" fill="#ECFDF5"/>
+    <rect x="0" y="30" width="270" height="10" fill="#ECFDF5"/>
+    <text x="16" y="25" fill="#065F46" font-size="12" font-weight="800">PILLAR 3: RETENTION</text>
+
+    <g transform="translate(16, 56)">
+      <text x="0" y="18" fill="#0F172A" font-size="15" font-weight="700">SuperMemo SM-2</text>
+      <rect x="0" y="26" width="108" height="18" rx="9" fill="#D1FAE5"/>
+      <text x="54" y="38" fill="#065F46" font-size="10" font-weight="700" text-anchor="middle">Spaced Interval</text>
+
+      <text x="0" y="74" fill="#475569" font-size="12">• Musical performance grade q &isin; [0, 5]</text>
+      <text x="0" y="98" fill="#475569" font-size="12">• Easiness factor EF &ge; 1.3</text>
+      <text x="0" y="122" fill="#475569" font-size="12">• Optimal review interval (days)</text>
+      <text x="0" y="146" fill="#475569" font-size="12">• Schedules motor consolidation</text>
+      <text x="0" y="170" fill="#64748B" font-size="11">Prevents decay of motor fingerings</text>
+    </g>
+  </g>
+
+  <!-- PILLAR 4: CURRICULUM BANDIT -->
+  <g transform="translate(690, 426)">
+    <rect x="0" y="0" width="270" height="270" rx="12" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1.8" filter="url(#shadow3)"/>
+    <rect x="0" y="0" width="270" height="40" rx="12" fill="#F5F3FF"/>
+    <rect x="0" y="30" width="270" height="10" fill="#F5F3FF"/>
+    <text x="16" y="25" fill="#6B21A8" font-size="12" font-weight="800">PILLAR 4: CURRICULUM</text>
+
+    <g transform="translate(16, 56)">
+      <text x="0" y="18" fill="#0F172A" font-size="15" font-weight="700">Thompson &amp; UCB1</text>
+      <rect x="0" y="26" width="112" height="18" rx="9" fill="#EDE9FE"/>
+      <text x="56" y="38" fill="#6B21A8" font-size="10" font-weight="700" text-anchor="middle">Multi-Armed Bandit</text>
+
+      <text x="0" y="74" fill="#475569" font-size="12">• Beta distribution priors (&alpha;, &beta;)</text>
+      <text x="0" y="98" fill="#475569" font-size="12">• Exploration vs exploitation tradeoff</text>
+      <text x="0" y="122" fill="#475569" font-size="12">• Selects next optimal drill</text>
+      <text x="0" y="146" fill="#475569" font-size="12">• Targeted remediation recommendations</text>
+      <text x="0" y="170" fill="#64748B" font-size="11">Maximizes learning velocity per minute</text>
+    </g>
+  </g>
+
+  <!-- ==================== RIGHT: PEDAGOGICAL COACH ==================== -->
+  <g transform="translate(1020, 96)">
+    <rect x="0" y="0" width="270" height="600" rx="14" fill="#FFFFFF" stroke="#FECDD3" stroke-width="1.8" stroke-dasharray="6,4" filter="url(#shadow3)"/>
+    <rect x="20" y="-13" width="160" height="26" rx="13" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.5"/>
+    <text x="100" y="5" fill="#BE123C" font-size="11" font-weight="800" text-anchor="middle">PEDAGOGICAL COACH</text>
+
+    <g transform="translate(20, 30)">
+      <text x="0" y="20" fill="#0F172A" font-size="16" font-weight="800">Grounded Coach</text>
+      <rect x="0" y="28" width="94" height="18" rx="9" fill="#FFE4E6"/>
+      <text x="47" y="40" fill="#BE123C" font-size="10" font-weight="700" text-anchor="middle">Gemini 1.5 Flash</text>
+
+      <g transform="translate(0, 72)" font-size="12">
+        <text x="0" y="0" fill="#0F172A" font-weight="700">Strict Grounding:</text>
+        <text x="0" y="24" fill="#475569">• Prompts pass exact facts only</text>
+        <text x="0" y="48" fill="#475569">• Empathetic, human tone</text>
+        <text x="0" y="72" fill="#475569">• Zero generic AI buzzwords</text>
+
+        <path d="M 0 98 h 230" stroke="#E2E8F0" stroke-width="1"/>
+
+        <text x="0" y="124" fill="#0F172A" font-weight="700">Deterministic Fallback:</text>
+        <text x="0" y="148" fill="#475569">• Operates when API is offline</text>
+        <text x="0" y="172" fill="#475569">• Template-free rule engine</text>
+        <text x="0" y="196" fill="#475569">• Generates full coaching letter</text>
+      </g>
+
+      <rect x="0" y="325" width="230" height="150" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.2"/>
+      <g transform="translate(14, 350)">
+        <text x="0" y="0" fill="#0F172A" font-size="13" font-weight="800">Delivered to Musician:</text>
+        <text x="0" y="28" fill="#059669" font-size="12" font-weight="600">✓ Pinpointed transition flaw</text>
+        <text x="0" y="52" fill="#059669" font-size="12" font-weight="600">✓ Target BPM &amp; drill routine</text>
+        <text x="0" y="76" fill="#059669" font-size="12" font-weight="600">✓ Updated BKT mastery score</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ==================== CONNECTING ARROWS ==================== -->
+  
+  <!-- Take Evaluation -> Pillar 1 -->
+  <g>
+    <path d="M 298 231 L 358 231" stroke="#7C3AED" stroke-width="2.6" marker-end="url(#arrCog)"/>
+    <rect x="306" y="206" width="44" height="18" rx="4" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1"/>
+    <text x="328" y="218" fill="#6B21A8" font-size="9" font-weight="700" text-anchor="middle">FACTS</text>
+  </g>
+  
+  <!-- Take Evaluation -> Pillar 3 -->
+  <g>
+    <path d="M 298 561 L 358 561" stroke="#7C3AED" stroke-width="2.6" marker-end="url(#arrCog)"/>
+    <rect x="304" y="536" width="48" height="18" rx="4" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1"/>
+    <text x="328" y="548" fill="#6B21A8" font-size="9" font-weight="700" text-anchor="middle">SCORE q</text>
+  </g>
+
+  <!-- Pillar 1 -> Pillar 2 -->
+  <g>
+    <path d="M 630 231 L 688 231" stroke="#7C3AED" stroke-width="2.6" marker-end="url(#arrCog)"/>
+    <rect x="635" y="206" width="48" height="18" rx="4" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1"/>
+    <text x="659" y="218" fill="#6B21A8" font-size="9" font-weight="700" text-anchor="middle">HABITS</text>
+  </g>
+
+  <!-- Pillar 2 -> Pillar 4 -->
+  <g>
+    <path d="M 825 366 L 825 424" stroke="#7C3AED" stroke-width="2.6" marker-end="url(#arrCog)"/>
+    <rect x="795" y="383" width="60" height="18" rx="4" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1"/>
+    <text x="825" y="395" fill="#6B21A8" font-size="9" font-weight="700" text-anchor="middle">MASTERY</text>
+  </g>
+
+  <!-- Pillar 3 -> Pillar 4 -->
+  <g>
+    <path d="M 630 561 L 688 561" stroke="#7C3AED" stroke-width="2.6" marker-end="url(#arrCog)"/>
+    <rect x="635" y="536" width="48" height="18" rx="4" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1"/>
+    <text x="659" y="548" fill="#6B21A8" font-size="9" font-weight="700" text-anchor="middle">INTERVAL</text>
+  </g>
+
+  <!-- Pillar 2 -> Coach -->
+  <g>
+    <path d="M 960 231 L 1018 231" stroke="#7C3AED" stroke-width="2.6" marker-end="url(#arrCog)"/>
+    <rect x="965" y="206" width="48" height="18" rx="4" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1"/>
+    <text x="989" y="218" fill="#6B21A8" font-size="9" font-weight="700" text-anchor="middle">P(L_t)</text>
+  </g>
+
+  <!-- Pillar 4 -> Coach -->
+  <g>
+    <path d="M 960 561 L 1018 561" stroke="#7C3AED" stroke-width="2.6" marker-end="url(#arrCog)"/>
+    <rect x="965" y="536" width="48" height="18" rx="4" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1"/>
+    <text x="989" y="548" fill="#6B21A8" font-size="9" font-weight="700" text-anchor="middle">NEXT DRILL</text>
+  </g>
+</svg>

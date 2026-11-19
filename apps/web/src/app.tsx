@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { MotionConfig, AnimatePresence, motion } from 'motion/react'
 import { UserButton } from '@clerk/react'
 import { AudioTestBench } from '@/components/dev/audio-test-bench'
@@ -45,7 +45,7 @@ import { GuitarTunerPage } from '@/components/tuner/guitar-tuner-page'
 import { SettingsModal, loadStoredPreferences, type StudioPreferences } from '@/components/settings/settings-modal'
 import { StudioSessionSelector } from '@/components/practice/studio-session-selector'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
-import { Music, BookOpen, Disc, TrendingUp, Users, Sliders } from 'lucide-react'
+import { Music, BookOpen, Disc, TrendingUp, Users, Sliders, ChevronDown, SlidersHorizontal } from 'lucide-react'
 
 export type AppViewMode =
   | 'landing'
@@ -261,6 +261,19 @@ export default function App({
   const [isInitialHydrating, setIsInitialHydrating] = useState(true)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isSessionSelectorOpen, setIsSessionSelectorOpen] = useState(false)
+  const [isStudioSetupOpen, setIsStudioSetupOpen] = useState(false)
+  const studioSetupMenuRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!isStudioSetupOpen) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (studioSetupMenuRef.current && !studioSetupMenuRef.current.contains(e.target as Node)) {
+        setIsStudioSetupOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isStudioSetupOpen])
   const [studioPrefs, setStudioPrefs] = useState<StudioPreferences>(loadStoredPreferences)
   const [userProfile, setUserProfile] = useState<{ name: string; username: string; email: string }>({
     name: 'Studio Musician',
@@ -620,9 +633,9 @@ export default function App({
       {activeView !== 'landing' && (
         <header
           data-testid="global-navigation-header"
-          className="sticky top-0 z-40 w-full h-14 bg-white/95 dark:bg-[#111114]/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-3 sm:px-5 flex items-center justify-between gap-2 sm:gap-4 font-sans shrink-0 overflow-x-auto scrollbar-none"
+          className="sticky top-0 z-40 w-full h-14 bg-white/95 dark:bg-[#111114]/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-3 sm:px-5 flex items-center justify-between gap-2 sm:gap-4 font-sans shrink-0 overflow-visible"
         >
-          {/* Zone 1: Brand & Practice Action Controls (integrated when in Practice view) */}
+          {/* Zone 1: Brand, Repertoire Selector & Hideable Studio Setup */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
             <button
               type="button"
@@ -641,7 +654,7 @@ export default function App({
                   type="button"
                   data-testid="open-repertoire-drawer"
                   onClick={() => setIsRepertoireOpen(true)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F8F8F6] dark:bg-[#18181C] hover:border-amber-500 border border-zinc-300 dark:border-zinc-800 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 transition-all cursor-pointer truncate max-w-[130px] sm:max-w-[180px] lg:max-w-[240px]"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F8F8F6] dark:bg-[#18181C] hover:border-amber-500 border border-zinc-300 dark:border-zinc-800 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 transition-all cursor-pointer truncate max-w-[130px] sm:max-w-[180px] lg:max-w-[220px]"
                   title="Change piece / repertoire"
                 >
                   <span className="text-amber-600 dark:text-amber-400 truncate">
@@ -650,96 +663,149 @@ export default function App({
                   <span className="text-[10px] text-zinc-400 shrink-0">▾</span>
                 </button>
 
-                <span className="hidden xl:inline text-[11px] font-mono text-zinc-500 shrink-0">
-                  Key: <strong className="text-zinc-700 dark:text-zinc-300">{selectedSong.progression?.key || 'C'}</strong>
-                </span>
+                {/* Hideable Studio Setup Menu */}
+                <div className="relative shrink-0">
+                  <button
+                    type="button"
+                    data-testid="studio-setup-toggle-btn"
+                    onClick={() => setIsStudioSetupOpen((prev) => !prev)}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F8F8F6] dark:bg-[#18181C] hover:border-amber-500 border border-zinc-300 dark:border-zinc-800 text-xs font-mono font-medium text-zinc-800 dark:text-zinc-200 transition-all cursor-pointer"
+                    title="Studio Setup (Mode, Instrument, Notation)"
+                  >
+                    <SlidersHorizontal className="size-3.5 text-amber-600 dark:text-amber-500 shrink-0" />
+                    <span className="font-bold hidden md:inline">
+                      {practiceMode === 'listen' ? '🎧 Listen' : '🎯 Practice'}
+                    </span>
+                    <span className="hidden md:inline text-zinc-400">·</span>
+                    <span className="uppercase text-[11px] font-semibold text-zinc-600 dark:text-zinc-400">
+                      {practiceInstrument}
+                    </span>
+                    {practiceInstrument === 'piano' && (
+                      <>
+                        <span className="hidden lg:inline text-zinc-400">·</span>
+                        <span className="hidden lg:inline text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase">
+                          {practiceNotationMode}
+                        </span>
+                      </>
+                    )}
+                    <ChevronDown className={`size-3 text-zinc-400 transition-transform duration-150 ${isStudioSetupOpen ? 'rotate-180' : ''}`} />
+                  </button>
 
-                {/* Mode Toggle: Listen vs Practice */}
-                <div className="flex items-center rounded-lg bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 p-0.5 text-xs font-mono shrink-0">
-                  <button
-                    type="button"
-                    data-testid="mode-listen-btn"
-                    onClick={() => setPracticeMode('listen')}
-                    className={`px-2 py-0.5 sm:py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1 ${
-                      practiceMode === 'listen'
-                        ? 'bg-amber-500 text-zinc-950 shadow-xs'
-                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
-                    }`}
-                  >
-                    <span>🎧 Listen</span>
-                  </button>
-                  <button
-                    type="button"
-                    data-testid="mode-practice-btn"
-                    onClick={() => setPracticeMode('practice')}
-                    className={`px-2 py-0.5 sm:py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer flex items-center gap-1 ${
-                      practiceMode === 'practice'
-                        ? 'bg-emerald-600 text-white shadow-xs'
-                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
-                    }`}
-                  >
-                    <span>🎯 Practice</span>
-                  </button>
-                </div>
-
-                {/* Instrument Toggle: Guitar vs Piano */}
-                <div className="flex items-center rounded-lg bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 p-0.5 text-xs font-mono shrink-0">
-                  <button
-                    type="button"
-                    data-testid="toggle-inst-guitar"
-                    onClick={() => setPracticeInstrument('guitar')}
-                    className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
-                      practiceInstrument === 'guitar'
-                        ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold shadow-xs'
-                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
-                    }`}
-                  >
-                    GUITAR
-                  </button>
-                  <button
-                    type="button"
-                    data-testid="toggle-inst-piano"
-                    onClick={() => setPracticeInstrument('piano')}
-                    className={`px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
-                      practiceInstrument === 'piano'
-                        ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold shadow-xs'
-                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
-                    }`}
-                  >
-                    PIANO
-                  </button>
-                </div>
-
-                {/* Piano Notation Toggle: Staff vs Falling Keys */}
-                {practiceInstrument === 'piano' && (
-                  <div
-                    data-testid="piano-notation-toggle"
-                    className="hidden lg:flex items-center rounded-lg bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 p-0.5 text-xs font-mono shrink-0"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setPracticeNotationMode('keys')}
-                      className={`px-2 py-0.5 sm:py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
-                        practiceNotationMode === 'keys'
-                          ? 'bg-amber-500 text-zinc-950 font-bold shadow-xs'
-                          : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
-                      }`}
+                  {isStudioSetupOpen && (
+                    <div
+                      ref={studioSetupMenuRef}
+                      className="absolute left-0 mt-2 w-72 p-3.5 rounded-xl bg-white dark:bg-[#141418] border border-zinc-200 dark:border-zinc-800 shadow-2xl z-50 flex flex-col gap-3 font-sans animate-in fade-in zoom-in-95 duration-100"
                     >
-                      KEYS
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPracticeNotationMode('staff')}
-                      className={`px-2 py-0.5 sm:py-1 rounded-md text-[11px] transition-colors cursor-pointer ${
-                        practiceNotationMode === 'staff'
-                          ? 'bg-amber-500 text-zinc-950 font-bold shadow-xs'
-                          : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
-                      }`}
-                    >
-                      SHEET
-                    </button>
-                  </div>
-                )}
+                      {/* Mode selection */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-bold">
+                          Practice Mode
+                        </label>
+                        <div className="grid grid-cols-2 gap-1.5 p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-xs font-mono">
+                          <button
+                            type="button"
+                            data-testid="mode-listen-btn"
+                            onClick={() => { setPracticeMode('listen'); }}
+                            className={`py-1.5 rounded-md font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
+                              practiceMode === 'listen'
+                                ? 'bg-amber-500 text-zinc-950 shadow-xs'
+                                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                            }`}
+                          >
+                            <span>🎧 Listen</span>
+                          </button>
+                          <button
+                            type="button"
+                            data-testid="mode-practice-btn"
+                            onClick={() => { setPracticeMode('practice'); }}
+                            className={`py-1.5 rounded-md font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
+                              practiceMode === 'practice'
+                                ? 'bg-emerald-600 text-white shadow-xs'
+                                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                            }`}
+                          >
+                            <span>🎯 Practice</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Instrument selection */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-bold">
+                          Instrument
+                        </label>
+                        <div className="grid grid-cols-2 gap-1.5 p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-xs font-mono">
+                          <button
+                            type="button"
+                            data-testid="toggle-inst-guitar"
+                            onClick={() => { setPracticeInstrument('guitar'); }}
+                            className={`py-1.5 rounded-md font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
+                              practiceInstrument === 'guitar'
+                                ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs'
+                                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                            }`}
+                          >
+                            <span>🎸 Guitar</span>
+                          </button>
+                          <button
+                            type="button"
+                            data-testid="toggle-inst-piano"
+                            onClick={() => { setPracticeInstrument('piano'); }}
+                            className={`py-1.5 rounded-md font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
+                              practiceInstrument === 'piano'
+                                ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs'
+                                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                            }`}
+                          >
+                            <span>🎹 Piano</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Piano Notation (when piano is active) */}
+                      {practiceInstrument === 'piano' && (
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-bold">
+                            Piano Display
+                          </label>
+                          <div data-testid="piano-notation-toggle" className="grid grid-cols-2 gap-1.5 p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-xs font-mono">
+                            <button
+                              type="button"
+                              onClick={() => { setPracticeNotationMode('staff'); }}
+                              className={`py-1.5 rounded-md font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
+                                practiceNotationMode === 'staff'
+                                  ? 'bg-amber-500 text-zinc-950 shadow-xs'
+                                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                              }`}
+                            >
+                              <span>🎼 Grand Staff</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => { setPracticeNotationMode('keys'); }}
+                              className={`py-1.5 rounded-md font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
+                                practiceNotationMode === 'keys'
+                                  ? 'bg-amber-500 text-zinc-950 shadow-xs'
+                                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                              }`}
+                            >
+                              <span>🎹 Falling Keys</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Key & Song metadata badge */}
+                      {selectedSong && (
+                        <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-[11px] font-mono text-zinc-500">
+                          <span>Key: <strong className="text-zinc-700 dark:text-zinc-300">{selectedSong.progression?.key || 'C'}</strong></span>
+                          <span>Meter: <strong className="text-zinc-700 dark:text-zinc-300">{(selectedSong.progression as Record<string, unknown> | undefined)?.time_signature as string || '4/4'}</strong></span>
+                          <span>Tempo: <strong className="text-amber-600 dark:text-amber-400">{selectedSong.tempo_bpm || 80} BPM</strong></span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </div>

@@ -1,0 +1,296 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 860" width="100%" height="100%" style="background:#F8FAFC; font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <pattern id="grid4" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#E2E8F0"/>
+    </pattern>
+
+    <filter id="shadow4" x="-5%" y="-5%" width="110%" height="114%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+
+    <!-- True Crow's Foot Marker -->
+    <marker id="crowsFoot" viewBox="0 0 16 16" refX="16" refY="8" markerWidth="14" markerHeight="14" orient="auto-start-reverse">
+      <path d="M 0 0 L 16 8 L 0 16 M 16 0 L 16 16" fill="none" stroke="#D97706" stroke-width="2"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="860" fill="#F8FAFC"/>
+  <rect width="1400" height="860" fill="url(#grid4)"/>
+
+  <!-- Header -->
+  <g transform="translate(48, 36)">
+    <text x="0" y="22" fill="#0F172A" font-size="24" font-weight="800" letter-spacing="-0.5">Database Relational Schema (ERD)</text>
+    <text x="0" y="46" fill="#64748B" font-size="13">Normalized PostgreSQL tables: tracking users, sessions, chord telemetry, transitions, and cognitive habit states.</text>
+  </g>
+
+  <!-- ==================== TABLE 1: users (380 x 280) ==================== -->
+  <g transform="translate(48, 100)">
+    <rect x="0" y="0" width="370" height="290" rx="12" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.8" filter="url(#shadow4)"/>
+    <rect x="0" y="0" width="370" height="42" rx="12" fill="#EFF6FF"/>
+    <rect x="0" y="32" width="370" height="10" fill="#EFF6FF"/>
+    <text x="18" y="26" fill="#1E40AF" font-size="14" font-weight="800">users</text>
+    <rect x="290" y="11" width="62" height="20" rx="10" fill="#DBEAFE"/>
+    <text x="321" y="24" fill="#1E40AF" font-size="10" font-weight="700" text-anchor="middle">[Table]</text>
+
+    <!-- Columns: Track 1 (Name: x=18), Track 2 (Key: x=175), Track 3 (Type: x=240) -->
+    <g transform="translate(18, 64)" font-size="12">
+      <!-- PK id -->
+      <text x="0" y="16" fill="#0F172A" font-weight="700">id</text>
+      <rect x="155" y="4" width="30" height="16" rx="4" fill="#DBEAFE"/>
+      <text x="170" y="16" fill="#1E40AF" font-size="9" font-weight="800" text-anchor="middle">PK</text>
+      <text x="220" y="16" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(255)</text>
+
+      <!-- username -->
+      <text x="0" y="48" fill="#334155" font-weight="600">username</text>
+      <rect x="155" y="36" width="30" height="16" rx="4" fill="#F1F5F9"/>
+      <text x="170" y="48" fill="#475569" font-size="9" font-weight="700" text-anchor="middle">UQ</text>
+      <text x="220" y="48" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(30)</text>
+
+      <!-- email -->
+      <text x="0" y="80" fill="#334155" font-weight="600">email</text>
+      <rect x="155" y="68" width="30" height="16" rx="4" fill="#F1F5F9"/>
+      <text x="170" y="80" fill="#475569" font-size="9" font-weight="700" text-anchor="middle">UQ</text>
+      <text x="220" y="80" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(255)</text>
+
+      <!-- name -->
+      <text x="0" y="112" fill="#334155" font-weight="600">name</text>
+      <text x="220" y="112" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(100)</text>
+
+      <!-- onboarding_done -->
+      <text x="0" y="144" fill="#334155" font-weight="600">onboarding_done</text>
+      <text x="220" y="144" fill="#64748B" font-family="'JetBrains Mono', monospace">BOOLEAN</text>
+
+      <!-- created_at -->
+      <text x="0" y="176" fill="#334155" font-weight="600">created_at</text>
+      <text x="220" y="176" fill="#64748B" font-family="'JetBrains Mono', monospace">TIMESTAMPTZ</text>
+
+      <!-- updated_at -->
+      <text x="0" y="208" fill="#334155" font-weight="600">updated_at</text>
+      <text x="220" y="208" fill="#64748B" font-family="'JetBrains Mono', monospace">TIMESTAMPTZ</text>
+    </g>
+  </g>
+
+  <!-- ==================== TABLE 2: exercises (370 x 280) ==================== -->
+  <g transform="translate(48, 470)">
+    <rect x="0" y="0" width="370" height="280" rx="12" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.8" filter="url(#shadow4)"/>
+    <rect x="0" y="0" width="370" height="42" rx="12" fill="#EFF6FF"/>
+    <rect x="0" y="32" width="370" height="10" fill="#EFF6FF"/>
+    <text x="18" y="26" fill="#1E40AF" font-size="14" font-weight="800">exercises</text>
+    <rect x="290" y="11" width="62" height="20" rx="10" fill="#DBEAFE"/>
+    <text x="321" y="24" fill="#1E40AF" font-size="10" font-weight="700" text-anchor="middle">[Table]</text>
+
+    <g transform="translate(18, 64)" font-size="12">
+      <!-- PK id -->
+      <text x="0" y="16" fill="#0F172A" font-weight="700">id</text>
+      <rect x="155" y="4" width="30" height="16" rx="4" fill="#DBEAFE"/>
+      <text x="170" y="16" fill="#1E40AF" font-size="9" font-weight="800" text-anchor="middle">PK</text>
+      <text x="220" y="16" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(64)</text>
+
+      <!-- title -->
+      <text x="0" y="48" fill="#334155" font-weight="600">title</text>
+      <text x="220" y="48" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(100)</text>
+
+      <!-- composer -->
+      <text x="0" y="80" fill="#334155" font-weight="600">composer</text>
+      <text x="220" y="80" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(100)</text>
+
+      <!-- instrument -->
+      <text x="0" y="112" fill="#334155" font-weight="600">instrument</text>
+      <text x="220" y="112" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(20)</text>
+
+      <!-- difficulty -->
+      <text x="0" y="144" fill="#334155" font-weight="600">difficulty</text>
+      <text x="220" y="144" fill="#64748B" font-family="'JetBrains Mono', monospace">INTEGER (1-5)</text>
+
+      <!-- progression -->
+      <text x="0" y="176" fill="#334155" font-weight="600">progression</text>
+      <text x="220" y="176" fill="#64748B" font-family="'JetBrains Mono', monospace">JSONB</text>
+
+      <!-- created_at -->
+      <text x="0" y="208" fill="#334155" font-weight="600">created_at</text>
+      <text x="220" y="208" fill="#64748B" font-family="'JetBrains Mono', monospace">TIMESTAMPTZ</text>
+    </g>
+  </g>
+
+  <!-- ==================== TABLE 3: practice_sessions (410 x 320) ==================== -->
+  <g transform="translate(490, 260)">
+    <rect x="0" y="0" width="410" height="320" rx="12" fill="#FFFFFF" stroke="#6EE7B7" stroke-width="1.8" filter="url(#shadow4)"/>
+    <rect x="0" y="0" width="410" height="42" rx="12" fill="#ECFDF5"/>
+    <rect x="0" y="32" width="410" height="10" fill="#ECFDF5"/>
+    <text x="18" y="26" fill="#047857" font-size="14" font-weight="800">practice_sessions</text>
+    <rect x="330" y="11" width="62" height="20" rx="10" fill="#D1FAE5"/>
+    <text x="361" y="24" fill="#065F46" font-size="10" font-weight="700" text-anchor="middle">[Table]</text>
+
+    <g transform="translate(18, 64)" font-size="12">
+      <!-- PK id -->
+      <text x="0" y="16" fill="#0F172A" font-weight="700">id</text>
+      <rect x="155" y="4" width="30" height="16" rx="4" fill="#DBEAFE"/>
+      <text x="170" y="16" fill="#1E40AF" font-size="9" font-weight="800" text-anchor="middle">PK</text>
+      <text x="220" y="16" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(64)</text>
+
+      <!-- FK user_id -->
+      <text x="0" y="48" fill="#334155" font-weight="700">user_id</text>
+      <rect x="155" y="36" width="30" height="16" rx="4" fill="#FEF3C7"/>
+      <text x="170" y="48" fill="#92400E" font-size="9" font-weight="800" text-anchor="middle">FK</text>
+      <text x="220" y="48" fill="#D97706" font-family="'JetBrains Mono', monospace">&rarr; users.id</text>
+
+      <!-- FK exercise_id -->
+      <text x="0" y="80" fill="#334155" font-weight="700">exercise_id</text>
+      <rect x="155" y="68" width="30" height="16" rx="4" fill="#FEF3C7"/>
+      <text x="170" y="80" fill="#92400E" font-size="9" font-weight="800" text-anchor="middle">FK</text>
+      <text x="220" y="80" fill="#D97706" font-family="'JetBrains Mono', monospace">&rarr; exercises.id</text>
+
+      <!-- tempo_bpm -->
+      <text x="0" y="112" fill="#334155" font-weight="600">tempo_bpm</text>
+      <text x="220" y="112" fill="#64748B" font-family="'JetBrains Mono', monospace">FLOAT</text>
+
+      <!-- accuracy_score -->
+      <text x="0" y="144" fill="#334155" font-weight="600">accuracy_score</text>
+      <text x="220" y="144" fill="#64748B" font-family="'JetBrains Mono', monospace">FLOAT (0.0 - 1.0)</text>
+
+      <!-- duration_sec -->
+      <text x="0" y="176" fill="#334155" font-weight="600">duration_sec</text>
+      <text x="220" y="176" fill="#64748B" font-family="'JetBrains Mono', monospace">FLOAT</text>
+
+      <!-- created_at -->
+      <text x="0" y="208" fill="#334155" font-weight="600">created_at</text>
+      <text x="220" y="208" fill="#64748B" font-family="'JetBrains Mono', monospace">TIMESTAMPTZ</text>
+    </g>
+  </g>
+
+  <!-- ==================== TABLE 4: session_chord_metrics (390 x 290) ==================== -->
+  <g transform="translate(970, 100)">
+    <rect x="0" y="0" width="380" height="290" rx="12" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1.8" filter="url(#shadow4)"/>
+    <rect x="0" y="0" width="380" height="42" rx="12" fill="#FFFBEB"/>
+    <rect x="0" y="32" width="380" height="10" fill="#FFFBEB"/>
+    <text x="18" y="26" fill="#92400E" font-size="14" font-weight="800">session_chord_metrics</text>
+    <rect x="300" y="11" width="62" height="20" rx="10" fill="#FEF3C7"/>
+    <text x="331" y="24" fill="#92400E" font-size="10" font-weight="700" text-anchor="middle">[Table]</text>
+
+    <g transform="translate(18, 64)" font-size="12">
+      <!-- PK id -->
+      <text x="0" y="16" fill="#0F172A" font-weight="700">id</text>
+      <rect x="155" y="4" width="30" height="16" rx="4" fill="#DBEAFE"/>
+      <text x="170" y="16" fill="#1E40AF" font-size="9" font-weight="800" text-anchor="middle">PK</text>
+      <text x="220" y="16" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(64)</text>
+
+      <!-- FK session_id -->
+      <text x="0" y="48" fill="#334155" font-weight="700">session_id</text>
+      <rect x="155" y="36" width="30" height="16" rx="4" fill="#FEF3C7"/>
+      <text x="170" y="48" fill="#92400E" font-size="9" font-weight="800" text-anchor="middle">FK</text>
+      <text x="220" y="48" fill="#D97706" font-family="'JetBrains Mono', monospace">&rarr; sessions.id</text>
+
+      <!-- chord_symbol -->
+      <text x="0" y="80" fill="#334155" font-weight="600">chord_symbol</text>
+      <text x="220" y="80" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(16)</text>
+
+      <!-- timing_error_ms -->
+      <text x="0" y="112" fill="#334155" font-weight="600">timing_error_ms</text>
+      <text x="220" y="112" fill="#64748B" font-family="'JetBrains Mono', monospace">FLOAT</text>
+
+      <!-- voicing_f1 -->
+      <text x="0" y="144" fill="#334155" font-weight="600">voicing_f1</text>
+      <text x="220" y="144" fill="#64748B" font-family="'JetBrains Mono', monospace">FLOAT</text>
+
+      <!-- missed -->
+      <text x="0" y="176" fill="#334155" font-weight="600">missed</text>
+      <text x="220" y="176" fill="#64748B" font-family="'JetBrains Mono', monospace">BOOLEAN</text>
+
+      <!-- played_notes -->
+      <text x="0" y="208" fill="#334155" font-weight="600">played_notes</text>
+      <text x="220" y="208" fill="#64748B" font-family="'JetBrains Mono', monospace">INTEGER[]</text>
+    </g>
+  </g>
+
+  <!-- ==================== TABLE 5: transition_mastery (390 x 280) ==================== -->
+  <g transform="translate(970, 470)">
+    <rect x="0" y="0" width="380" height="280" rx="12" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1.8" filter="url(#shadow4)"/>
+    <rect x="0" y="0" width="380" height="42" rx="12" fill="#F5F3FF"/>
+    <rect x="0" y="32" width="380" height="10" fill="#F5F3FF"/>
+    <text x="18" y="26" fill="#6B21A8" font-size="14" font-weight="800">transition_mastery</text>
+    <rect x="300" y="11" width="62" height="20" rx="10" fill="#EDE9FE"/>
+    <text x="331" y="24" fill="#6B21A8" font-size="10" font-weight="700" text-anchor="middle">[Table]</text>
+
+    <g transform="translate(18, 64)" font-size="12">
+      <!-- PK id -->
+      <text x="0" y="16" fill="#0F172A" font-weight="700">id</text>
+      <rect x="155" y="4" width="30" height="16" rx="4" fill="#DBEAFE"/>
+      <text x="170" y="16" fill="#1E40AF" font-size="9" font-weight="800" text-anchor="middle">PK</text>
+      <text x="220" y="16" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(64)</text>
+
+      <!-- FK user_id -->
+      <text x="0" y="48" fill="#334155" font-weight="700">user_id</text>
+      <rect x="155" y="36" width="30" height="16" rx="4" fill="#FEF3C7"/>
+      <text x="170" y="48" fill="#92400E" font-size="9" font-weight="800" text-anchor="middle">FK</text>
+      <text x="220" y="48" fill="#D97706" font-family="'JetBrains Mono', monospace">&rarr; users.id</text>
+
+      <!-- from_chord -->
+      <text x="0" y="80" fill="#334155" font-weight="600">from_chord</text>
+      <text x="220" y="80" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(16)</text>
+
+      <!-- to_chord -->
+      <text x="0" y="112" fill="#334155" font-weight="600">to_chord</text>
+      <text x="220" y="112" fill="#64748B" font-family="'JetBrains Mono', monospace">VARCHAR(16)</text>
+
+      <!-- p_mastery -->
+      <text x="0" y="144" fill="#334155" font-weight="600">p_mastery</text>
+      <text x="220" y="144" fill="#64748B" font-family="'JetBrains Mono', monospace">FLOAT (BKT)</text>
+
+      <!-- interval_days -->
+      <text x="0" y="176" fill="#334155" font-weight="600">interval_days</text>
+      <text x="220" y="176" fill="#64748B" font-family="'JetBrains Mono', monospace">INTEGER (SM-2)</text>
+
+      <!-- easiness_factor -->
+      <text x="0" y="208" fill="#334155" font-weight="600">easiness_factor</text>
+      <text x="220" y="208" fill="#64748B" font-family="'JetBrains Mono', monospace">FLOAT</text>
+    </g>
+  </g>
+
+  <!-- ==================== CROW'S FOOT RELATIONSHIP ARROWS ==================== -->
+  
+  <!-- 1. users (1) -> practice_sessions (N) -->
+  <g>
+    <path d="M 418 245 L 454 245 L 454 360 L 490 360" fill="none" stroke="#D97706" stroke-width="2.2" marker-end="url(#crowsFoot)"/>
+    <rect x="424" y="290" width="60" height="18" rx="4" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1"/>
+    <text x="454" y="303" fill="#B45309" font-size="9" font-weight="800" text-anchor="middle">1 : N</text>
+  </g>
+
+  <!-- 2. exercises (1) -> practice_sessions (N) -->
+  <g>
+    <path d="M 418 610 L 454 610 L 454 480 L 490 480" fill="none" stroke="#D97706" stroke-width="2.2" marker-end="url(#crowsFoot)"/>
+    <rect x="424" y="535" width="60" height="18" rx="4" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1"/>
+    <text x="454" y="548" fill="#B45309" font-size="9" font-weight="800" text-anchor="middle">1 : N</text>
+  </g>
+
+  <!-- 3. practice_sessions (1) -> session_chord_metrics (N) -->
+  <g>
+    <path d="M 900 360 L 935 360 L 935 245 L 970 245" fill="none" stroke="#D97706" stroke-width="2.2" marker-end="url(#crowsFoot)"/>
+    <rect x="905" y="290" width="60" height="18" rx="4" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1"/>
+    <text x="935" y="303" fill="#B45309" font-size="9" font-weight="800" text-anchor="middle">1 : N</text>
+  </g>
+
+  <!-- 4. users (1) -> transition_mastery (N) -->
+  <g>
+    <path d="M 418 280 L 454 280 L 454 810 L 940 810 L 940 610 L 970 610" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#crowsFoot)"/>
+    <rect x="620" y="800" width="100" height="20" rx="4" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1"/>
+    <text x="670" y="814" fill="#B45309" font-size="9.5" font-weight="800" text-anchor="middle">1 : N TRACKS</text>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(48, 775)">
+    <rect x="0" y="0" width="370" height="38" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+    <g transform="translate(16, 24)" font-size="11" font-weight="700">
+      <rect x="0" y="-12" width="26" height="16" rx="3" fill="#DBEAFE"/>
+      <text x="13" y="0" fill="#1E40AF" font-size="9" text-anchor="middle">PK</text>
+      <text x="32" y="0" fill="#475569">Primary Key</text>
+
+      <rect x="120" y="-12" width="26" height="16" rx="3" fill="#FEF3C7"/>
+      <text x="133" y="0" fill="#92400E" font-size="9" text-anchor="middle">FK</text>
+      <text x="152" y="0" fill="#475569">Foreign Key</text>
+
+      <line x1="240" y1="-4" x2="270" y2="-4" stroke="#D97706" stroke-width="2"/>
+      <path d="M 264 -8 L 272 -4 L 264 0 M 272 -8 L 272 0" fill="none" stroke="#D97706" stroke-width="1.6"/>
+      <text x="282" y="0" fill="#B45309">1 : N Cardinality</text>
+    </g>
+  </g>
+</svg>

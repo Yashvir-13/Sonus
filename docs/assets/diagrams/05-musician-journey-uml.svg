@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 860" width="100%" height="100%" style="background:#F8FAFC; font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <pattern id="grid5" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#E2E8F0"/>
+    </pattern>
+
+    <filter id="shadow5" x="-5%" y="-5%" width="110%" height="114%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+
+    <marker id="arrUmlSolid" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563EB"/>
+    </marker>
+    <marker id="arrUmlGreen" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669"/>
+    </marker>
+    <marker id="arrUmlPurple" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7C3AED"/>
+    </marker>
+    <marker id="arrUmlAmber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#D97706"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="860" fill="#F8FAFC"/>
+  <rect width="1400" height="860" fill="url(#grid5)"/>
+
+  <!-- Header -->
+  <g transform="translate(48, 36)">
+    <text x="0" y="22" fill="#0F172A" font-size="24" font-weight="800" letter-spacing="-0.5">Musician Practice Lifecycle (UML Sequence)</text>
+    <text x="0" y="46" fill="#64748B" font-size="13">End-to-end execution flow: from live score interaction and real-time DSP to backend ML alignment and cognitive feedback.</text>
+  </g>
+
+  <!-- ==================== 6 PARTICIPANTS ==================== -->
+  
+  <!-- Participant 1: Musician (cx=100) -->
+  <g transform="translate(20, 100)">
+    <rect x="0" y="0" width="160" height="52" rx="10" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.6" filter="url(#shadow5)"/>
+    <text x="80" y="24" fill="#1D4ED8" font-size="14" font-weight="800" text-anchor="middle">Musician</text>
+    <text x="80" y="40" fill="#64748B" font-size="11" text-anchor="middle">[Actor]</text>
+  </g>
+  <line x1="100" y1="152" x2="100" y2="810" stroke="#CBD5E1" stroke-width="1.8" stroke-dasharray="6,4"/>
+
+  <!-- Participant 2: Practice Studio UI (cx=330) -->
+  <g transform="translate(250, 100)">
+    <rect x="0" y="0" width="160" height="52" rx="10" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.6" filter="url(#shadow5)"/>
+    <text x="80" y="24" fill="#1D4ED8" font-size="14" font-weight="800" text-anchor="middle">Practice Studio UI</text>
+    <text x="80" y="40" fill="#64748B" font-size="11" text-anchor="middle">React 19 / VexFlow</text>
+  </g>
+  <line x1="330" y1="152" x2="330" y2="810" stroke="#CBD5E1" stroke-width="1.8" stroke-dasharray="6,4"/>
+
+  <!-- Participant 3: Web Audio DSP (cx=560) -->
+  <g transform="translate(480, 100)">
+    <rect x="0" y="0" width="160" height="52" rx="10" fill="#FFFFFF" stroke="#6EE7B7" stroke-width="1.6" filter="url(#shadow5)"/>
+    <text x="80" y="24" fill="#047857" font-size="14" font-weight="800" text-anchor="middle">Web Audio DSP</text>
+    <text x="80" y="40" fill="#64748B" font-size="11" text-anchor="middle">AudioWorklet Tuner</text>
+  </g>
+  <line x1="560" y1="152" x2="560" y2="810" stroke="#CBD5E1" stroke-width="1.8" stroke-dasharray="6,4"/>
+
+  <!-- Participant 4: FastAPI Gateway (cx=790) -->
+  <g transform="translate(710, 100)">
+    <rect x="0" y="0" width="160" height="52" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.6" filter="url(#shadow5)"/>
+    <text x="80" y="24" fill="#334155" font-size="14" font-weight="800" text-anchor="middle">FastAPI Gateway</text>
+    <text x="80" y="40" fill="#64748B" font-size="11" text-anchor="middle">Auth &amp; WAV Guard</text>
+  </g>
+  <line x1="790" y1="152" x2="790" y2="810" stroke="#CBD5E1" stroke-width="1.8" stroke-dasharray="6,4"/>
+
+  <!-- Participant 5: ML Threadpool (cx=1020) -->
+  <g transform="translate(940, 100)">
+    <rect x="0" y="0" width="160" height="52" rx="10" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1.6" filter="url(#shadow5)"/>
+    <text x="80" y="24" fill="#6B21A8" font-size="14" font-weight="800" text-anchor="middle">ML Threadpool</text>
+    <text x="80" y="40" fill="#64748B" font-size="11" text-anchor="middle">Basic Pitch &amp; NW Align</text>
+  </g>
+  <line x1="1020" y1="152" x2="1020" y2="810" stroke="#CBD5E1" stroke-width="1.8" stroke-dasharray="6,4"/>
+
+  <!-- Participant 6: Cognitive & Store (cx=1250) -->
+  <g transform="translate(1170, 100)">
+    <rect x="0" y="0" width="160" height="52" rx="10" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1.6" filter="url(#shadow5)"/>
+    <text x="80" y="24" fill="#92400E" font-size="14" font-weight="800" text-anchor="middle">Cognitive &amp; Store</text>
+    <text x="80" y="40" fill="#64748B" font-size="11" text-anchor="middle">BKT / SM-2 / Postgres</text>
+  </g>
+  <line x1="1250" y1="152" x2="1250" y2="810" stroke="#CBD5E1" stroke-width="1.8" stroke-dasharray="6,4"/>
+
+  <!-- ==================== ACTIVATION BOXES ==================== -->
+  <rect x="323" y="180" width="14" height="600" rx="3" fill="#DBEAFE" stroke="#2563EB" stroke-width="1"/>
+  <rect x="553" y="245" width="14" height="155" rx="3" fill="#D1FAE5" stroke="#059669" stroke-width="1"/>
+  <rect x="783" y="435" width="14" height="280" rx="3" fill="#E2E8F0" stroke="#475569" stroke-width="1"/>
+  <rect x="1013" y="495" width="14" height="100" rx="3" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1"/>
+  <rect x="1243" y="555" width="14" height="100" rx="3" fill="#FEF3C7" stroke="#D97706" stroke-width="1"/>
+
+  <!-- ==================== MESSAGES & SEQUENCES ==================== -->
+
+  <!-- Step 1: Musician -> Practice Studio UI -->
+  <g>
+    <path d="M 100 195 L 323 195" stroke="#2563EB" stroke-width="2.2" marker-end="url(#arrUmlSolid)"/>
+    <rect x="135" y="172" width="155" height="20" rx="4" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1"/>
+    <text x="212" y="186" fill="#1D4ED8" font-size="10" font-weight="700" text-anchor="middle">1. Selects Piece &amp; Sets BPM</text>
+  </g>
+
+  <!-- Step 2: Practice Studio UI -> Web Audio DSP -->
+  <g>
+    <path d="M 337 255 L 553 255" stroke="#059669" stroke-width="2.2" marker-end="url(#arrUmlGreen)"/>
+    <rect x="375" y="232" width="140" height="20" rx="4" fill="#FFFFFF" stroke="#A7F3D0" stroke-width="1"/>
+    <text x="445" y="246" fill="#047857" font-size="10" font-weight="700" text-anchor="middle">2. Starts Audio Engine</text>
+  </g>
+
+  <!-- Step 3: Musician -> Web Audio DSP -->
+  <g>
+    <path d="M 100 315 L 553 315" stroke="#D97706" stroke-width="2.2" marker-end="url(#arrUmlAmber)"/>
+    <rect x="250" y="292" width="165" height="20" rx="4" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1"/>
+    <text x="332" y="306" fill="#92400E" font-size="10" font-weight="700" text-anchor="middle">3. Plays Acoustic Instrument</text>
+  </g>
+
+  <!-- Step 4: Web Audio DSP -->> Practice Studio UI (Live Feedback) -->
+  <g>
+    <path d="M 553 375 L 337 375" stroke="#059669" stroke-width="2.2" stroke-dasharray="6,4" marker-end="url(#arrUmlGreen)"/>
+    <rect x="365" y="352" width="160" height="20" rx="4" fill="#FFFFFF" stroke="#A7F3D0" stroke-width="1"/>
+    <text x="445" y="366" fill="#047857" font-size="10" font-weight="700" text-anchor="middle">4. Real-Time Pitch &amp; Strobe (60fps)</text>
+  </g>
+
+  <!-- Step 5: Practice Studio UI -> FastAPI Gateway -->
+  <g>
+    <path d="M 337 445 L 783 445" stroke="#2563EB" stroke-width="2.4" marker-end="url(#arrUmlSolid)"/>
+    <rect x="475" y="422" width="170" height="20" rx="4" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1"/>
+    <text x="560" y="436" fill="#1D4ED8" font-size="10" font-weight="700" text-anchor="middle">5. POST /api/practice/take [WAV]</text>
+  </g>
+
+  <!-- Step 6: FastAPI Gateway -> ML Threadpool -->
+  <g>
+    <path d="M 797 505 L 1013 505" stroke="#7C3AED" stroke-width="2.2" marker-end="url(#arrUmlPurple)"/>
+    <rect x="835" y="482" width="150" height="20" rx="4" fill="#FFFFFF" stroke="#DDD6FE" stroke-width="1"/>
+    <text x="910" y="496" fill="#6B21A8" font-size="10" font-weight="700" text-anchor="middle">6. Run Basic Pitch &amp; NW Align</text>
+  </g>
+
+  <!-- Step 7: ML Threadpool -> Cognitive & Store -->
+  <g>
+    <path d="M 1027 565 L 1243 565" stroke="#D97706" stroke-width="2.2" marker-end="url(#arrUmlAmber)"/>
+    <rect x="1055" y="542" width="165" height="20" rx="4" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1"/>
+    <text x="1137" y="556" fill="#92400E" font-size="10" font-weight="700" text-anchor="middle">7. Update BKT &amp; SM-2 State in DB</text>
+  </g>
+
+  <!-- Step 8: Cognitive & Store -->> FastAPI Gateway -->
+  <g>
+    <path d="M 1243 625 L 797 625" stroke="#059669" stroke-width="2.2" stroke-dasharray="6,4" marker-end="url(#arrUmlGreen)"/>
+    <rect x="940" y="602" width="170" height="20" rx="4" fill="#FFFFFF" stroke="#A7F3D0" stroke-width="1"/>
+    <text x="1025" y="616" fill="#047857" font-size="10" font-weight="700" text-anchor="middle">8. Evaluated Metrics &amp; Coach Letter</text>
+  </g>
+
+  <!-- Step 9: FastAPI Gateway -->> Practice Studio UI -->
+  <g>
+    <path d="M 783 685 L 337 685" stroke="#2563EB" stroke-width="2.2" stroke-dasharray="6,4" marker-end="url(#arrUmlSolid)"/>
+    <rect x="485" y="662" width="150" height="20" rx="4" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1"/>
+    <text x="560" y="676" fill="#1D4ED8" font-size="10" font-weight="700" text-anchor="middle">9. Return Aligned Take (JSON)</text>
+  </g>
+
+  <!-- Step 10: Practice Studio UI -->> Musician -->
+  <g>
+    <path d="M 323 745 L 100 745" stroke="#059669" stroke-width="2.2" marker-end="url(#arrUmlGreen)"/>
+    <rect x="130" y="722" width="165" height="20" rx="4" fill="#FFFFFF" stroke="#A7F3D0" stroke-width="1"/>
+    <text x="212" y="736" fill="#047857" font-size="10" font-weight="700" text-anchor="middle">10. Visual Flaw &amp; Next Drill Plan</text>
+  </g>
+</svg>

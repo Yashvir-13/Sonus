@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useReducedMotion } from 'motion/react'
 import { CinematicCameraStage } from './cinematic-camera-stage'
 import { ColophonFooter } from './colophon-footer'
+import { MastheadNav } from './masthead-nav'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -87,6 +88,25 @@ export function LandingPage({
       id="top"
       className="relative min-h-screen w-full bg-[#F8F8F6] dark:bg-[#09090B] text-zinc-900 dark:text-zinc-100 font-sans selection:bg-amber-500/30 transition-colors"
     >
+      <MastheadNav
+        onEnterStudio={() => handleEnter()}
+        onOpenTheory={onOpenTheory}
+        onOpenTuner={onOpenTuner}
+        onOpenProgress={onOpenProgress}
+        onOpenCommunity={onOpenCommunity}
+        onSignIn={onSignIn}
+        isSignedIn={_isSignedIn}
+        userButtonSlot={_userButtonSlot}
+        onJumpToProgress={(ratio) => {
+          if (stageJumpRef.current) {
+            stageJumpRef.current(ratio)
+          } else {
+            const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
+            scrollToPixelY(maxScroll * ratio)
+          }
+        }}
+      />
+
       <CinematicCameraStage
         onEnterStudio={(songId) => handleEnter(songId)}
         onOpenTheory={onOpenTheory}

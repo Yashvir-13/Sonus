@@ -1,0 +1,330 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1340 760" width="100%" height="100%" style="background:#F8FAFC; font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <pattern id="grid1" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#E2E8F0"/>
+    </pattern>
+
+    <filter id="shadow1" x="-5%" y="-5%" width="110%" height="114%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+
+    <marker id="arrBlue1" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563EB"/>
+    </marker>
+    <marker id="arrGreen1" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669"/>
+    </marker>
+    <marker id="arrPurple1" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7C3AED"/>
+    </marker>
+    <marker id="arrAmber1" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#D97706"/>
+    </marker>
+    <marker id="arrRose1" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#E11D48"/>
+    </marker>
+    <marker id="arrSlate1" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <rect width="1340" height="760" fill="#F8FAFC"/>
+  <rect width="1340" height="760" fill="url(#grid1)"/>
+
+  <!-- Header -->
+  <g transform="translate(48, 36)">
+    <text x="0" y="22" fill="#0F172A" font-size="24" font-weight="800" letter-spacing="-0.5">End-to-End System Architecture</text>
+    <text x="0" y="46" fill="#64748B" font-size="13">Modular full-stack design: Browser Audio DSP, FastAPI Gateway, and ML Worker Pool.</text>
+  </g>
+
+  <!-- ==================== TIER 1: CLIENT LAYER (SPA) ==================== -->
+  <g transform="translate(48, 96)">
+    <rect x="0" y="0" width="280" height="610" rx="14" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.8" stroke-dasharray="6,4" filter="url(#shadow1)"/>
+    <rect x="16" y="-13" width="160" height="26" rx="13" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+    <text x="96" y="5" fill="#1D4ED8" font-size="11" font-weight="800" text-anchor="middle" letter-spacing="0.5">CLIENT LAYER (SPA)</text>
+
+    <!-- 1.1 Practice Studio UI -->
+    <g transform="translate(14, 26)">
+      <rect x="0" y="0" width="252" height="125" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" filter="url(#shadow1)"/>
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="#EFF6FF"/>
+      <path d="M 19 20 h 14 v 10 h -14 z M 21 32 h 10" fill="none" stroke="#2563EB" stroke-width="1.6"/>
+      <text x="48" y="24" fill="#0F172A" font-size="14" font-weight="700">Practice Studio UI</text>
+      <rect x="48" y="30" width="76" height="16" rx="8" fill="#F1F5F9"/>
+      <text x="86" y="42" fill="#475569" font-size="10" font-weight="700" text-anchor="middle">React 19 / TS</text>
+      <text x="12" y="68" fill="#475569" font-size="11">Dual-theme studio (Alabaster &amp; Obsidian)</text>
+      <text x="12" y="86" fill="#64748B" font-size="11">Interactive fretboard, piano &amp; tuner views</text>
+      <text x="12" y="104" fill="#94A3B8" font-size="10">Studio Setup hideable popover menu</text>
+    </g>
+
+    <!-- 1.2 Notation Engraver -->
+    <g transform="translate(14, 166)">
+      <rect x="0" y="0" width="252" height="120" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" filter="url(#shadow1)"/>
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="#F5F3FF"/>
+      <path d="M 22 32 A 3 3 0 1 1 22 26 L 22 18 L 30 16 L 30 24 A 3 3 0 1 1 30 30" fill="none" stroke="#7C3AED" stroke-width="1.6"/>
+      <text x="48" y="24" fill="#0F172A" font-size="14" font-weight="700">Notation Engraver</text>
+      <rect x="48" y="30" width="94" height="16" rx="8" fill="#F3E8FF"/>
+      <text x="95" y="42" fill="#6B21A8" font-size="10" font-weight="700" text-anchor="middle">VexFlow 5 / SMuFL</text>
+      <text x="12" y="68" fill="#475569" font-size="11">Bravura fonts &amp; Grand Staff rendering</text>
+      <text x="12" y="86" fill="#64748B" font-size="11">Monotonic beat mapping &amp; 60fps playhead</text>
+      <text x="12" y="104" fill="#94A3B8" font-size="10">Active chord and note highlighting</text>
+    </g>
+
+    <!-- 1.3 Audio DSP -->
+    <g transform="translate(14, 302)">
+      <rect x="0" y="0" width="252" height="135" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" filter="url(#shadow1)"/>
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="#ECFDF5"/>
+      <path d="M 18 26 L 22 20 L 26 32 L 30 18 L 34 28 L 38 26" fill="none" stroke="#059669" stroke-width="1.8" stroke-linecap="round"/>
+      <text x="48" y="24" fill="#0F172A" font-size="14" font-weight="700">Real-Time Audio DSP</text>
+      <rect x="48" y="30" width="86" height="16" rx="8" fill="#D1FAE5"/>
+      <text x="91" y="42" fill="#065F46" font-size="10" font-weight="700" text-anchor="middle">Web Audio API</text>
+      <text x="12" y="68" fill="#475569" font-size="11">Pearson normalized autocorrelation pitch</text>
+      <text x="12" y="86" fill="#64748B" font-size="11">AudioWorklet chromagram &amp; harmonic gate</text>
+      <text x="12" y="104" fill="#64748B" font-size="11">Sub-multiple rejection &amp; rolling median</text>
+      <text x="12" y="122" fill="#94A3B8" font-size="10">Sub-cent strobe visual guitar tuner</text>
+    </g>
+
+    <!-- 1.4 Synthesis -->
+    <g transform="translate(14, 452)">
+      <rect x="0" y="0" width="252" height="120" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" filter="url(#shadow1)"/>
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="#FFFBEB"/>
+      <path d="M 19 23 h 4 l 5 -5 v 18 l -5 -5 h -4 z" fill="none" stroke="#D97706" stroke-width="1.6"/>
+      <text x="48" y="24" fill="#0F172A" font-size="14" font-weight="700">Deterministic Synth</text>
+      <rect x="48" y="30" width="98" height="16" rx="8" fill="#FEF3C7"/>
+      <text x="97" y="42" fill="#92400E" font-size="10" font-weight="700" text-anchor="middle">Physical Modeling</text>
+      <text x="12" y="68" fill="#475569" font-size="11">Karplus-Strong plucked acoustic string</text>
+      <text x="12" y="86" fill="#64748B" font-size="11">Inharmonic 6-partial dispersion piano</text>
+      <text x="12" y="104" fill="#94A3B8" font-size="10">Dual-cavity wooden metronome click</text>
+    </g>
+  </g>
+
+  <!-- ==================== TIER 2: GATEWAY (FastAPI) ==================== -->
+  <g transform="translate(380, 96)">
+    <rect x="0" y="0" width="250" height="610" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.8" stroke-dasharray="6,4" filter="url(#shadow1)"/>
+    <rect x="16" y="-13" width="150" height="26" rx="13" fill="#F8FAFC" stroke="#64748B" stroke-width="1.5"/>
+    <text x="91" y="5" fill="#334155" font-size="11" font-weight="800" text-anchor="middle" letter-spacing="0.5">GATEWAY (FastAPI)</text>
+
+    <!-- 2.1 Auth & Session -->
+    <g transform="translate(14, 30)">
+      <rect x="0" y="0" width="222" height="145" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" filter="url(#shadow1)"/>
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="#F1F5F9"/>
+      <path d="M 21 23 a 4 4 0 1 0 -4 4 h 8 v -3 h -2 v -2 h -2 z" fill="none" stroke="#475569" stroke-width="1.5"/>
+      <text x="48" y="24" fill="#0F172A" font-size="14" font-weight="700">Auth &amp; Session</text>
+      <rect x="48" y="30" width="90" height="16" rx="8" fill="#E2E8F0"/>
+      <text x="93" y="42" fill="#334155" font-size="10" font-weight="700" text-anchor="middle">Clerk JWT Bearer</text>
+      <text x="12" y="68" fill="#475569" font-size="11">• Identity verify (sub = user_id)</text>
+      <text x="12" y="88" fill="#475569" font-size="11">• Dev token bypass for testing</text>
+      <text x="12" y="108" fill="#64748B" font-size="11">• Cached LRU email resolution</text>
+      <text x="12" y="128" fill="#94A3B8" font-size="10">• Dependency: ClerkIdentityDep</text>
+    </g>
+
+    <!-- 2.2 Media Guard -->
+    <g transform="translate(14, 215)">
+      <rect x="0" y="0" width="222" height="155" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" filter="url(#shadow1)"/>
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="#EFF6FF"/>
+      <path d="M 26 18 l -7 3 v 5 c 0 5 7 8 7 8 s 7 -3 7 -8 v -5 z" fill="none" stroke="#2563EB" stroke-width="1.5"/>
+      <text x="48" y="24" fill="#0F172A" font-size="14" font-weight="700">Media Validator</text>
+      <rect x="48" y="30" width="94" height="16" rx="8" fill="#DBEAFE"/>
+      <text x="95" y="42" fill="#1E40AF" font-size="10" font-weight="700" text-anchor="middle">RIFF/WAVE Guard</text>
+      <text x="12" y="68" fill="#475569" font-size="11">• Magic bytes check (RIFF/WAVE)</text>
+      <text x="12" y="88" fill="#475569" font-size="11">• Duration clamp: &le; 180s</text>
+      <text x="12" y="108" fill="#475569" font-size="11">• Payload limit: &le; 15 MB</text>
+      <text x="12" y="128" fill="#64748B" font-size="11">• Ephemeral temp file lifecycle</text>
+      <text x="12" y="146" fill="#94A3B8" font-size="10">• Prevents invalid audio decode</text>
+    </g>
+
+    <!-- 2.3 Router -->
+    <g transform="translate(14, 410)">
+      <rect x="0" y="0" width="222" height="145" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" filter="url(#shadow1)"/>
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="#F1F5F9"/>
+      <path d="M 20 30 v -8 h 8 m 0 -3 v 6 l 3 -3 z" fill="none" stroke="#475569" stroke-width="1.5"/>
+      <text x="48" y="24" fill="#0F172A" font-size="14" font-weight="700">FastAPI Router</text>
+      <rect x="48" y="30" width="84" height="16" rx="8" fill="#E2E8F0"/>
+      <text x="90" y="42" fill="#334155" font-size="10" font-weight="700" text-anchor="middle">RFC 9457 Errors</text>
+      <text x="12" y="68" fill="#475569" font-size="11">• Lifespan model pre-warming</text>
+      <text x="12" y="88" fill="#475569" font-size="11">• X-Request-ID correlation</text>
+      <text x="12" y="108" fill="#64748B" font-size="11">• Dual take/takes route alias</text>
+      <text x="12" y="128" fill="#94A3B8" font-size="10">• AsyncSession injection (Depends)</text>
+    </g>
+  </g>
+
+  <!-- ==================== TIER 3: ML WORKERS & COGNITIVE ==================== -->
+  <g transform="translate(680, 96)">
+    <rect x="0" y="0" width="270" height="610" rx="14" fill="#FFFFFF" stroke="#6EE7B7" stroke-width="1.8" stroke-dasharray="6,4" filter="url(#shadow1)"/>
+    <rect x="16" y="-13" width="180" height="26" rx="13" fill="#ECFDF5" stroke="#10B981" stroke-width="1.5"/>
+    <text x="106" y="5" fill="#047857" font-size="11" font-weight="800" text-anchor="middle" letter-spacing="0.5">ML &amp; COGNITIVE ENGINE</text>
+
+    <!-- 3.1 Basic Pitch -->
+    <g transform="translate(14, 25)">
+      <rect x="0" y="0" width="242" height="120" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" filter="url(#shadow1)"/>
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="#ECFDF5"/>
+      <path d="M 19 26 h 14 M 26 19 v 14" fill="none" stroke="#059669" stroke-width="1.6"/>
+      <text x="48" y="24" fill="#0F172A" font-size="14" font-weight="700">Basic Pitch ONNX</text>
+      <rect x="48" y="30" width="82" height="16" rx="8" fill="#D1FAE5"/>
+      <text x="89" y="42" fill="#065F46" font-size="10" font-weight="700" text-anchor="middle">Neural Pitch</text>
+      <text x="12" y="68" fill="#475569" font-size="11">• Polyphonic neural pitch CNN</text>
+      <text x="12" y="86" fill="#475569" font-size="11">• Threadpool offload (AnyIO)</text>
+      <text x="12" y="104" fill="#64748B" font-size="10">• Hann STFT fallback for safety</text>
+    </g>
+
+    <!-- 3.2 Voicing & Clusters -->
+    <g transform="translate(14, 165)">
+      <rect x="0" y="0" width="242" height="125" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" filter="url(#shadow1)"/>
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="#F5F3FF"/>
+      <path d="M 19 22 h 14 v 8 h -14 z" fill="none" stroke="#7C3AED" stroke-width="1.6"/>
+      <text x="48" y="24" fill="#0F172A" font-size="14" font-weight="700">Voicing &amp; Clusters</text>
+      <rect x="48" y="30" width="86" height="16" rx="8" fill="#EDE9FE"/>
+      <text x="91" y="42" fill="#6B21A8" font-size="10" font-weight="700" text-anchor="middle">2-Pass Window</text>
+      <text x="12" y="68" fill="#475569" font-size="11">• Strum (180ms) / Arp (400ms)</text>
+      <text x="12" y="86" fill="#475569" font-size="11">• Bass reset (&ge;6 st drop)</text>
+      <text x="12" y="104" fill="#64748B" font-size="10">• F1 pitch-class harmonic matcher</text>
+    </g>
+
+    <!-- 3.3 DP Alignment -->
+    <g transform="translate(14, 310)">
+      <rect x="0" y="0" width="242" height="120" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" filter="url(#shadow1)"/>
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="#EFF6FF"/>
+      <path d="M 19 24 l 6 6 l 6 -6" fill="none" stroke="#2563EB" stroke-width="1.6"/>
+      <text x="48" y="24" fill="#0F172A" font-size="14" font-weight="700">DP Alignment</text>
+      <rect x="48" y="30" width="94" height="16" rx="8" fill="#DBEAFE"/>
+      <text x="95" y="42" fill="#1E40AF" font-size="10" font-weight="700" text-anchor="middle">Sakoe-Chiba Band</text>
+      <text x="12" y="68" fill="#475569" font-size="11">• Needleman-Wunsch algorithm</text>
+      <text x="12" y="86" fill="#475569" font-size="11">• Timing delta &Delta;t (ms) scoring</text>
+      <text x="12" y="104" fill="#64748B" font-size="10">• Substitution, insertion &amp; deletion</text>
+    </g>
+
+    <!-- 3.4 Cognitive Loop -->
+    <g transform="translate(14, 450)">
+      <rect x="0" y="0" width="242" height="140" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2" filter="url(#shadow1)"/>
+      <rect x="12" y="12" width="28" height="28" rx="6" fill="#FFF1F2"/>
+      <path d="M 22 30 a 4 4 0 1 1 8 0 c 0 3 -4 4 -4 4 v 2" fill="none" stroke="#E11D48" stroke-width="1.6"/>
+      <text x="48" y="24" fill="#0F172A" font-size="14" font-weight="700">Cognitive Loop</text>
+      <rect x="48" y="30" width="88" height="16" rx="8" fill="#FFE4E6"/>
+      <text x="92" y="42" fill="#BE123C" font-size="10" font-weight="700" text-anchor="middle">BKT / SM-2 / UCB</text>
+      <text x="12" y="68" fill="#475569" font-size="11">• EWMA habits &amp; Page's CUSUM</text>
+      <text x="12" y="86" fill="#475569" font-size="11">• Bayesian Knowledge Tracing</text>
+      <text x="12" y="104" fill="#475569" font-size="11">• SuperMemo SM-2 memory interval</text>
+      <text x="12" y="122" fill="#64748B" font-size="10">• Thompson Sampling curriculum</text>
+    </g>
+  </g>
+
+  <!-- ==================== TIER 4: PERSISTENCE & SAAS ==================== -->
+  
+  <!-- SaaS External Card -->
+  <g transform="translate(1000, 96)">
+    <rect x="0" y="0" width="290" height="175" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.8" stroke-dasharray="6,4" filter="url(#shadow1)"/>
+    <rect x="16" y="-13" width="160" height="26" rx="13" fill="#F8FAFC" stroke="#64748B" stroke-width="1.5"/>
+    <text x="96" y="5" fill="#334155" font-size="11" font-weight="800" text-anchor="middle" letter-spacing="0.5">EXTERNAL SAAS</text>
+
+    <!-- Clerk -->
+    <g transform="translate(14, 25)">
+      <rect x="0" y="0" width="262" height="60" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+      <text x="12" y="22" fill="#0F172A" font-size="13" font-weight="700">Clerk Identity Provider</text>
+      <text x="12" y="42" fill="#64748B" font-size="11">Session JWT verification &amp; user sync</text>
+    </g>
+    <!-- Gemini -->
+    <g transform="translate(14, 95)">
+      <rect x="0" y="0" width="262" height="65" rx="8" fill="#FFF1F2" stroke="#FECDD3" stroke-width="1"/>
+      <text x="12" y="22" fill="#BE123C" font-size="13" font-weight="700">Gemini 1.5 Flash AI Coach</text>
+      <text x="12" y="40" fill="#475569" font-size="11">Strict fact-grounded letter generation</text>
+      <text x="12" y="54" fill="#64748B" font-size="10">Deterministic fallback if offline</text>
+    </g>
+  </g>
+
+  <!-- PostgreSQL Cylinder -->
+  <g transform="translate(1040, 310)">
+    <path d="M 0 25 v 280 c 0 18 105 26 105 26 s 105 -8 105 -26 v -280" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.8" filter="url(#shadow1)"/>
+    <ellipse cx="105" cy="25" rx="105" ry="22" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.8"/>
+    <path d="M 0 100 c 0 16 50 20 105 20 s 105 -4 105 -20" fill="none" stroke="#F59E0B" stroke-width="1.2" stroke-dasharray="4,3"/>
+    <path d="M 0 175 c 0 16 50 20 105 20 s 105 -4 105 -20" fill="none" stroke="#F59E0B" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+    <text x="105" y="30" fill="#78350F" font-size="14" font-weight="800" text-anchor="middle">PostgreSQL 16 Store</text>
+    
+    <g transform="translate(14, 60)" font-size="11" font-weight="600" fill="#92400E">
+      <text x="91" y="16" text-anchor="middle" font-weight="800" fill="#78350F">SCHEMA TABLES</text>
+      <text x="91" y="38" text-anchor="middle">• users (Clerk sub = id)</text>
+      <text x="91" y="58" text-anchor="middle">• practice_sessions</text>
+      <text x="91" y="78" text-anchor="middle">• session_chord_metrics</text>
+      <text x="91" y="98" text-anchor="middle">• transition_mastery</text>
+      <text x="91" y="118" text-anchor="middle">• exercises catalog</text>
+
+      <rect x="18" y="145" width="146" height="28" rx="6" fill="#FEF3C7" stroke="#D97706" stroke-width="1"/>
+      <text x="91" y="164" text-anchor="middle" font-size="11" font-weight="700" fill="#78350F">QueuePool (Asyncpg)</text>
+      <text x="91" y="190" text-anchor="middle" font-size="10" fill="#B45309">IPv4 Direct Routed / SSL</text>
+    </g>
+  </g>
+
+  <!-- ==================== EXPLICIT, BOLD CONNECTOR ARROWS ==================== -->
+  
+  <!-- Arrow 1: UI to Audio Guard (POST WAV) -->
+  <g>
+    <path d="M 328 360 L 394 360" fill="none" stroke="#2563EB" stroke-width="2.6" marker-end="url(#arrBlue1)"/>
+    <circle cx="361" cy="360" r="10" fill="#2563EB"/>
+    <text x="361" y="364" fill="#FFFFFF" font-size="10" font-weight="800" text-anchor="middle">1</text>
+    <rect x="332" y="330" width="58" height="18" rx="4" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1"/>
+    <text x="361" y="343" fill="#1D4ED8" font-size="9" font-weight="800" text-anchor="middle">POST WAV</text>
+  </g>
+
+  <!-- Arrow 2: UI to Auth (JWT Bearer) -->
+  <g>
+    <path d="M 328 175 L 394 175" fill="none" stroke="#2563EB" stroke-width="2" marker-end="url(#arrBlue1)"/>
+    <rect x="334" y="152" width="54" height="18" rx="4" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1"/>
+    <text x="361" y="165" fill="#1D4ED8" font-size="9" font-weight="800" text-anchor="middle">JWT GET</text>
+  </g>
+
+  <!-- Arrow 3: Audio Guard to Basic Pitch ONNX -->
+  <g>
+    <path d="M 616 320 L 650 320 L 650 180 L 694 180" fill="none" stroke="#059669" stroke-width="2.6" marker-end="url(#arrGreen1)"/>
+    <circle cx="650" cy="250" r="10" fill="#059669"/>
+    <text x="650" y="254" fill="#FFFFFF" font-size="10" font-weight="800" text-anchor="middle">2</text>
+    <rect x="615" y="222" width="70" height="18" rx="4" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1"/>
+    <text x="650" y="235" fill="#065F46" font-size="9" font-weight="800" text-anchor="middle">THREADPOOL</text>
+  </g>
+
+  <!-- ML Pipeline Internal Downward Arrows -->
+  <g>
+    <!-- Basic Pitch -> Voicing & Clusters -->
+    <path d="M 815 241 L 815 261" stroke="#059669" stroke-width="2" marker-end="url(#arrGreen1)"/>
+    <rect x="765" y="244" width="100" height="15" rx="3" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="0.8"/>
+    <text x="815" y="255" fill="#475569" font-size="8.5" font-weight="700" text-anchor="middle">MIDI Note Events</text>
+
+    <!-- Voicing & Clusters -> DP Alignment -->
+    <path d="M 815 386 L 815 406" stroke="#7C3AED" stroke-width="2" marker-end="url(#arrPurple1)"/>
+    <rect x="765" y="389" width="100" height="15" rx="3" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="0.8"/>
+    <text x="815" y="400" fill="#475569" font-size="8.5" font-weight="700" text-anchor="middle">Chord Clusters</text>
+
+    <!-- DP Alignment -> Cognitive Loop -->
+    <path d="M 815 526 L 815 546" stroke="#2563EB" stroke-width="2" marker-end="url(#arrBlue1)"/>
+    <rect x="765" y="529" width="100" height="15" rx="3" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="0.8"/>
+    <text x="815" y="540" fill="#475569" font-size="8.5" font-weight="700" text-anchor="middle">Aligned Metrics</text>
+  </g>
+
+  <!-- Arrow 4: Cognitive Loop to PostgreSQL Writes -->
+  <g>
+    <path d="M 950 590 L 1040 590" fill="none" stroke="#7C3AED" stroke-width="2.4" marker-end="url(#arrPurple1)"/>
+    <circle cx="995" cy="590" r="10" fill="#7C3AED"/>
+    <text x="995" y="594" fill="#FFFFFF" font-size="10" font-weight="800" text-anchor="middle">3</text>
+    <rect x="960" y="562" width="70" height="18" rx="4" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="1"/>
+    <text x="995" y="575" fill="#6B21A8" font-size="9" font-weight="800" text-anchor="middle">WRITE TAKES</text>
+  </g>
+
+  <!-- Arrow 5: Cognitive Loop to Gemini Prompt (External) -->
+  <g>
+    <path d="M 950 630 L 980 630 L 980 230 L 1014 230" fill="none" stroke="#E11D48" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#arrRose1)"/>
+    <rect x="935" y="420" width="90" height="18" rx="4" fill="#FFF1F2" stroke="#FECDD3" stroke-width="1"/>
+    <text x="980" y="433" fill="#BE123C" font-size="9" font-weight="700" text-anchor="middle">PROMPT COACH</text>
+  </g>
+
+  <!-- Arrow 6: Auth to Clerk Identity (External) -->
+  <g>
+    <path d="M 602 150 L 640 150 L 640 64 L 1000 64 L 1000 135 L 1014 135" fill="none" stroke="#475569" stroke-width="1.8" stroke-dasharray="5,3" marker-end="url(#arrSlate1)"/>
+    <rect x="760" y="54" width="120" height="18" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/>
+    <text x="820" y="67" fill="#334155" font-size="9" font-weight="700" text-anchor="middle">VERIFY CLERK JWT</text>
+  </g>
+
+  <!-- Arrow 7: Gateway to PostgreSQL (AsyncSession query) -->
+  <g>
+    <path d="M 505 555 L 505 690 L 1145 690 L 1145 616" fill="none" stroke="#D97706" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrAmber1)"/>
+    <rect x="760" y="678" width="160" height="22" rx="6" fill="#FEF3C7" stroke="#FDE68A" stroke-width="1"/>
+    <text x="840" y="693" fill="#92400E" font-size="11" font-weight="700" text-anchor="middle">AsyncSession (get_session)</text>
+  </g>
+</svg>
