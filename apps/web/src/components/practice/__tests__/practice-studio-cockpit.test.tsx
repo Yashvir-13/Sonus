@@ -203,4 +203,24 @@ describe('PracticeStudioCockpit, ProgressDashboardPage & PeerComparisonPage', ()
     expect(screen.getByText(/Chord Drill: C Major/i)).toBeDefined()
     expect(screen.getByText(/GUITAR • 6-STRING/i)).toBeDefined()
   })
+
+  it('intercepts Record Take with sign-in prompt when isSignedIn is false', async () => {
+    const handleSignIn = vi.fn()
+    render(
+      <PracticeStudioCockpit
+        isSignedIn={false}
+        onRequestSignIn={handleSignIn}
+      />
+    )
+
+    const recordBtn = screen.getByTestId('record-take-btn')
+    await act(async () => {
+      fireEvent.click(recordBtn)
+    })
+
+    expect(handleSignIn).toHaveBeenCalledOnce()
+    expect(
+      screen.getByText(/Sign in to record your take, unlock AI chord feedback, and save your practice history\./i)
+    ).toBeDefined()
+  })
 })

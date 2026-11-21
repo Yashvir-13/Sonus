@@ -58,4 +58,23 @@ describe('ProgressDashboardPage & Adaptive Recommendation Engine', () => {
     fireEvent.click(launchBtn)
     expect(onOpenStudioWithRecommendation).toHaveBeenCalledTimes(1)
   })
+
+  it('renders guest mode showcase banner when isSignedIn is false', () => {
+    const handleSignIn = vi.fn()
+    render(
+      <ProgressDashboardPage
+        transitions={INITIAL_TRANSITION_MASTERY}
+        sessionHistory={INITIAL_SESSION_HISTORY}
+        isSignedIn={false}
+        onRequestSignIn={handleSignIn}
+      />
+    )
+
+    expect(screen.getByTestId('guest-progress-banner')).toBeDefined()
+    expect(screen.getByText('Guest Preview Mode')).toBeDefined()
+
+    const signInBtn = screen.getByTestId('guest-progress-signin-btn')
+    fireEvent.click(signInBtn)
+    expect(handleSignIn).toHaveBeenCalledOnce()
+  })
 })

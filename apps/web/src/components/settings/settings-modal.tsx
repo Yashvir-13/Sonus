@@ -43,6 +43,8 @@ export function saveStoredPreferences(prefs: StudioPreferences): void {
 export interface SettingsModalProps {
   isOpen: boolean
   onClose: () => void
+  isSignedIn?: boolean
+  onRequestSignIn?: () => void
   currentName?: string
   currentUsername?: string
   currentEmail?: string
@@ -53,13 +55,17 @@ export interface SettingsModalProps {
 export function SettingsModal({
   isOpen,
   onClose,
+  isSignedIn = true,
+  onRequestSignIn,
   currentName = 'Studio Musician',
   currentUsername = 'musician',
   currentEmail = 'musician@sonus.studio',
   onSaveProfile,
   onSavePreferences,
 }: SettingsModalProps): React.JSX.Element | null {
-  const [activeTab, setActiveTab] = useState<'account' | 'studio' | 'audio'>('account')
+  const [activeTab, setActiveTab] = useState<'account' | 'studio' | 'audio'>(() =>
+    isSignedIn ? 'account' : 'studio'
+  )
 
   // Account form
   const [name, setName] = useState(currentName)
@@ -254,68 +260,99 @@ export function SettingsModal({
 
         {/* Tab 1: Profile & Account */}
         {activeTab === 'account' && (
-          <form onSubmit={handleSaveProfile} className="p-6 space-y-5 overflow-y-auto">
-            {profileError && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-mono text-red-600 dark:text-red-400">
-                {profileError}
+          isSignedIn ? (
+            <form onSubmit={handleSaveProfile} className="p-6 space-y-5 overflow-y-auto">
+              {profileError && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-mono text-red-600 dark:text-red-400">
+                  {profileError}
+                </div>
+              )}
+              {profileSaveSuccess && (
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+                  <Check className="size-4" />
+                  <span>Profile successfully updated.</span>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label htmlFor="settings-name" className="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">
+                  FULL NAME
+                </label>
+                <input
+                  id="settings-name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-xl bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:border-amber-500 font-sans"
+                />
               </div>
-            )}
-            {profileSaveSuccess && (
-              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
-                <Check className="size-4" />
-                <span>Profile successfully updated.</span>
+
+              <div className="space-y-1.5">
+                <label htmlFor="settings-username" className="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">
+                  USERNAME (3-30 CHARACTERS)
+                </label>
+                <input
+                  id="settings-username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-xl bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 font-mono focus:outline-hidden focus:border-amber-500"
+                />
               </div>
-            )}
 
-            <div className="space-y-1.5">
-              <label htmlFor="settings-name" className="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">
-                FULL NAME
-              </label>
-              <input
-                id="settings-name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-xl bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:border-amber-500 font-sans"
-              />
+              <div className="space-y-1.5">
+                <label htmlFor="settings-email" className="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
+                  <span>PRIMARY EMAIL</span>
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400">Verified via Clerk</span>
+                </label>
+                <input
+                  id="settings-email"
+                  type="email"
+                  value={currentEmail}
+                  disabled
+                  className="w-full px-3 py-2 text-sm rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 font-mono cursor-not-allowed"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSavingProfile}
+                className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono font-bold text-xs flex items-center gap-2 transition-all shadow-xs cursor-pointer disabled:opacity-50"
+              >
+                <Save className="size-4" />
+                <span>{isSavingProfile ? 'Saving...' : 'Save Profile Changes'}</span>
+              </button>
+            </form>
+          ) : (
+            <div data-testid="guest-settings-callout" className="p-8 text-center space-y-5">
+              <div className="size-14 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
+                <User className="size-7" />
+              </div>
+              <div className="space-y-2 max-w-md mx-auto">
+                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                  Guest Musician Mode
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                  You are exploring Sonus as a guest. Studio preferences and mic calibration are saved locally on this device. Sign in to customize your profile, sync your preferences across devices, and unlock AI practice history.
+                </p>
+              </div>
+              {onRequestSignIn && (
+                <button
+                  type="button"
+                  data-testid="guest-settings-signin-btn"
+                  onClick={() => {
+                    stopMicTest()
+                    onClose()
+                    onRequestSignIn()
+                  }}
+                  className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono font-bold text-xs inline-flex items-center gap-2 transition-all shadow-xs cursor-pointer"
+                >
+                  <User className="size-4" />
+                  <span>Sign In or Create Account</span>
+                </button>
+              )}
             </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="settings-username" className="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">
-                USERNAME (3-30 CHARACTERS)
-              </label>
-              <input
-                id="settings-username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-xl bg-[#F8F8F6] dark:bg-[#09090B] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 font-mono focus:outline-hidden focus:border-amber-500"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="settings-email" className="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300 flex items-center justify-between">
-                <span>PRIMARY EMAIL</span>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400">Verified via Clerk</span>
-              </label>
-              <input
-                id="settings-email"
-                type="email"
-                value={currentEmail}
-                disabled
-                className="w-full px-3 py-2 text-sm rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 font-mono cursor-not-allowed"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSavingProfile}
-              className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono font-bold text-xs flex items-center gap-2 transition-all shadow-xs cursor-pointer disabled:opacity-50"
-            >
-              <Save className="size-4" />
-              <span>{isSavingProfile ? 'Saving...' : 'Save Profile Changes'}</span>
-            </button>
-          </form>
+          )
         )}
 
         {/* Tab 2: Studio Preferences */}

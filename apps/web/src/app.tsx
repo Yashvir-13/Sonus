@@ -189,6 +189,9 @@ export function parseRouteFromPath(
     return { view: 'tuner' }
   }
   if (clean === '/audio' || clean === '/bench') {
+    if (import.meta.env.PROD) {
+      return { view: 'landing' }
+    }
     return { view: 'audio' }
   }
   return { view: 'landing' }
@@ -558,7 +561,7 @@ export default function App({
     const songToUse = targetSongId || selectedSongId
     const targetPath = viewToPath(view, songToUse)
 
-    if (!isSignedIn && (view === 'practice' || view === 'progress' || view === 'community')) {
+    if (!isSignedIn && view === 'community') {
       setAuthReturnUrl(targetPath)
       setShowSignInModal(true)
       return
@@ -822,7 +825,7 @@ export default function App({
               ] as const
             )
               .filter((tab) => {
-                if (!isSignedIn && (tab.id === 'progress' || tab.id === 'community')) {
+                if (!isSignedIn && tab.id === 'community') {
                   return false
                 }
                 return true
@@ -888,12 +891,6 @@ export default function App({
           <LandingPage
             onEnterStudio={(songId) => {
               const chosen = songId || selectedSongId
-              if (!isSignedIn) {
-                const targetPath = chosen ? `/practice/${exerciseIdToSlug(chosen)}` : '/practice'
-                setAuthReturnUrl(targetPath)
-                setShowSignInModal(true)
-                return
-              }
               if (songId) {
                 setSelectedSongId(songId)
                 setPendingLoopDrill(null)
@@ -927,6 +924,11 @@ export default function App({
         >
         <PracticeStudioCockpit
           embedded={true}
+          isSignedIn={isSignedIn}
+          onRequestSignIn={() => {
+            setAuthReturnUrl(window.location.pathname)
+            setShowSignInModal(true)
+          }}
           instrument={practiceInstrument}
           onInstrumentChange={setPracticeInstrument}
           studioMode={practiceMode}
@@ -990,6 +992,11 @@ export default function App({
         <ProgressDashboardPage
           transitions={transitions}
           sessionHistory={sessionHistory}
+          isSignedIn={isSignedIn}
+          onRequestSignIn={() => {
+            setAuthReturnUrl('/progress')
+            setShowSignInModal(true)
+          }}
           onBackToLanding={() => navigateToView('landing')}
           onOpenStudioWithRecommendation={handleLaunchRecommendedDrill}
           onOpenCommunity={() => navigateToView('community')}
@@ -1027,6 +1034,11 @@ export default function App({
       <SettingsModal
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
+        isSignedIn={isSignedIn}
+        onRequestSignIn={() => {
+          setAuthReturnUrl(window.location.pathname)
+          setShowSignInModal(true)
+        }}
         currentName={userProfile.name}
         currentUsername={userProfile.username}
         currentEmail={userProfile.email}

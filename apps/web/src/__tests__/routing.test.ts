@@ -136,6 +136,17 @@ describe('Application URL Routing & Slugs', () => {
       expect(parseRouteFromPath('/audio')).toEqual({ view: 'audio' })
       expect(parseRouteFromPath('/bench')).toEqual({ view: 'audio' })
     })
+
+    it('redirects /audio and /bench to landing in production mode', () => {
+      const origProd = import.meta.env.PROD
+      try {
+        import.meta.env.PROD = true
+        expect(parseRouteFromPath('/audio')).toEqual({ view: 'landing' })
+        expect(parseRouteFromPath('/bench')).toEqual({ view: 'landing' })
+      } finally {
+        import.meta.env.PROD = origProd
+      }
+    })
   })
 
   describe('viewToPath', () => {

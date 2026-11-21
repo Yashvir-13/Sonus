@@ -17,9 +17,20 @@ load_dotenv(".env")
 
 
 def cors_allow_origins() -> list[str]:
-    """Parse ``CORS_ALLOWED_ORIGINS``: comma-separated scheme+host+port origins."""
-    cors = os.getenv("CORS_ALLOWED_ORIGINS", "")
-    return [o.strip() for o in cors.split(",") if o.strip()]
+    """Parse ``CORS_ALLOWED_ORIGINS``: comma-separated scheme+host+port origins with safe production defaults."""
+    raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
+    origins = [o.strip() for o in raw.split(",") if o.strip()]
+    default_origins = [
+        "https://sonus.yashvirafterhours.me",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+    for d in default_origins:
+        if d not in origins:
+            origins.append(d)
+    return origins
 
 
 def create_server(

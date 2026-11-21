@@ -35,6 +35,8 @@ import {
 
   Activity,
 
+  ArrowRight,
+
 } from 'lucide-react'
 
 export type ProgressDashboardPageProps = {
@@ -51,6 +53,10 @@ export type ProgressDashboardPageProps = {
 
   userButtonSlot?: React.ReactNode
 
+  isSignedIn?: boolean
+
+  onRequestSignIn?: () => void
+
 }
 
 export function ProgressDashboardPage({
@@ -66,6 +72,10 @@ export function ProgressDashboardPage({
   onOpenCommunity: _onOpenCommunity,
 
   userButtonSlot: _userButtonSlot,
+
+  isSignedIn = true,
+
+  onRequestSignIn,
 
 }: ProgressDashboardPageProps): React.JSX.Element {
 
@@ -204,6 +214,35 @@ export function ProgressDashboardPage({
       </div>
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 py-8 space-y-10">
+
+        {/* Guest Musician Showcase Banner */}
+        {!isSignedIn && (
+          <div data-testid="guest-progress-banner" className="rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
+            <div className="space-y-2 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-400 font-mono text-[10px] font-bold tracking-wider uppercase">
+                <Sparkles className="size-3" />
+                <span>Guest Preview Mode</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
+                Master Instrumental Muscle Memory with AI-Driven Spaced Repetition
+              </h2>
+              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed font-sans">
+                Sonus computes Bayesian Knowledge Tracing (BKT) and Thompson Sampling across every chord transition in your takes. Sign in to log your practice takes, track chord transition latencies down to the millisecond, and unlock personalized drills.
+              </p>
+            </div>
+            {onRequestSignIn && (
+              <button
+                type="button"
+                data-testid="guest-progress-signin-btn"
+                onClick={onRequestSignIn}
+                className="shrink-0 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all cursor-pointer"
+              >
+                <span>Sign In to Track Progress</span>
+                <ArrowRight className="size-4" />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* 1. MUSICIAN PROFILE & LONGITUDINAL SUMMARY CARDS */}
 

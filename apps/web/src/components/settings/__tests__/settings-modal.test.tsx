@@ -47,4 +47,30 @@ describe('SettingsModal Component', () => {
 
     expect(handleClose).toHaveBeenCalledOnce()
   })
+
+  it('renders guest mode cleanly when isSignedIn is false', () => {
+    const handleSignIn = vi.fn()
+    render(
+      <SettingsModal
+        isOpen={true}
+        onClose={vi.fn()}
+        isSignedIn={false}
+        onRequestSignIn={handleSignIn}
+      />
+    )
+
+    // Defaults to studio tab
+    expect(screen.getByText('DEFAULT PRACTICE INSTRUMENT')).toBeDefined()
+
+    // Switch to account tab
+    const accountTab = screen.getByTestId('settings-tab-account')
+    fireEvent.click(accountTab)
+
+    expect(screen.getByTestId('guest-settings-callout')).toBeDefined()
+    expect(screen.getByText('Guest Musician Mode')).toBeDefined()
+
+    const signInBtn = screen.getByTestId('guest-settings-signin-btn')
+    fireEvent.click(signInBtn)
+    expect(handleSignIn).toHaveBeenCalledOnce()
+  })
 })

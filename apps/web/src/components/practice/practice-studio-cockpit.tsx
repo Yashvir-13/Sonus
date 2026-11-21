@@ -134,6 +134,10 @@ export interface PracticeStudioCockpitProps {
 
   onPianoNotationModeChange?: (mode: 'staff' | 'keys') => void
 
+  isSignedIn?: boolean
+
+  onRequestSignIn?: () => void
+
 }
 
 type DiagnosticPresetMode = 'clean' | 'transition_lag' | 'voicing_drop' | 'tempo_rushing'
@@ -179,6 +183,10 @@ export function PracticeStudioCockpit({
   pianoNotationMode: propPianoNotationMode,
 
   onPianoNotationModeChange,
+
+  isSignedIn = true,
+
+  onRequestSignIn,
 
 }: PracticeStudioCockpitProps): React.JSX.Element {
 
@@ -1205,6 +1213,16 @@ export function PracticeStudioCockpit({
 
   const startMicRecording = useCallback(async () => {
 
+    if (!isSignedIn) {
+
+      onRequestSignIn?.()
+
+      setEvaluationError('Sign in to record your take, unlock AI chord feedback, and save your practice history.')
+
+      return
+
+    }
+
     try {
 
       setEvaluationError(null)
@@ -1407,7 +1425,7 @@ export function PracticeStudioCockpit({
       setEvaluationError(msg)
     }
 
-  }, [selectedSong.id, tempoBpm])
+  }, [selectedSong.id, tempoBpm, isSignedIn, onRequestSignIn])
 
   const stopMicAndSubmitTake = useCallback(async () => {
 
@@ -2672,6 +2690,16 @@ export function PracticeStudioCockpit({
                 disabled={isEvaluating}
 
                 onClick={async () => {
+
+                  if (!isSignedIn) {
+
+                    onRequestSignIn?.()
+
+                    setEvaluationError('Sign in to record your take, unlock AI chord feedback, and save your practice history.')
+
+                    return
+
+                  }
 
                   await startMicRecording()
 
