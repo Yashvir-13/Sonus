@@ -159,3 +159,50 @@ def test_align_sakoe_chiba_rejects_distant_chord() -> None:
     assert matches[0]["detected_chord"] == ""
 
 
+def test_align_with_explicit_count_in_lead_in() -> None:
+    """Verify that specifying lead_in_sec properly aligns chords offset by count-in."""
+    ref = [
+        {"name": "Am", "beat": 1, "expected_pitches": [45, 52, 57, 60, 64]},
+        {"name": "E", "beat": 5, "expected_pitches": [40, 47, 52, 56, 59, 64]},
+    ]
+    # Player recorded 4 beats of count-in at 70 BPM (approx 3.428s) before playing
+    lead_in = 3.428
+    played = [
+        {"detected_name": "Am", "timestamp_sec": lead_in + 0.05, "pitches": [45, 52, 57, 60, 64]},
+        {"detected_name": "E", "timestamp_sec": lead_in + 3.45, "pitches": [40, 47, 52, 56, 59, 64]},
+    ]
+    matches = align_chord_sequence(played, ref, tempo_bpm=70, lead_in_sec=lead_in)
+    assert len(matches) == 2
+    assert matches[0]["is_matched"] is True
+    assert matches[0]["expected_chord"] == "Am"
+    assert pytest.approx(matches[0]["onset_error_ms"], abs=15) == 50.0
+    assert matches[1]["is_matched"] is True
+    assert matches[1]["expected_chord"] == "E"
+    assert pytest.approx(matches[1]["onset_error_ms"], abs=30) == 22.0
+
+
+def test_chord_voicing_different_octave_has_full_completeness() -> None:
+    """Verify that playing the right chord in a different octave or voicing gives 100% completeness, not 0%."""
+    # Guitar voicing expected in octave 3-4: C3, E3, G3, C4, E4
+    expected_pitches = [48, 52, 55, 60, 64]
+    # Player plays C in octave 4-5 on keyboard: C4, E4, G4
+    detected_pitches = [60, 64, 67]
+    metric = evaluate_chord_voicing(detected_pitches, expected_pitches, expected_chord_name="C")
+    assert metric["voicing_completeness"] == 1.0
+    assert metric["missed_notes"] == []
+
+
+def test_compute_chord_similarity_with_acoustic_resonance() -> None:
+    """Verify that acoustic overtones/resonances do not drop similarity below matching threshold."""
+    ref = {"name": "C", "expected_pitches": [48, 52, 55, 60, 64]}
+    # Detected notes have all C chord tones plus 4 extra acoustic resonance harmonics
+    played = {
+        "detected_name": "C",
+        "pitches": [48, 50, 52, 55, 57, 59, 60, 64, 66],
+    }
+    from src.lib.audio.alignment import _compute_chord_similarity
+    sim = _compute_chord_similarity(ref, played)
+    assert sim >= 0.85
+
+
+

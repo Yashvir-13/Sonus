@@ -17,8 +17,20 @@ def midi_to_pitch_name(pitch: int) -> str:
 def evaluate_chord_voicing(
     detected_pitches: list[int],
     expected_pitches: list[int],
+    expected_chord_name: str | None = None,
 ) -> dict[str, Any]:
-    """Calculate voicing completeness and identify missed and extra pitches."""
+    """Calculate voicing completeness and identify missed and extra pitches.
+
+    Robustly handles both octave-exact voicings and octave-invariant pitch classes,
+    ensuring that harmonically complete chords are never marked as 0% completeness
+    due to octave differences or register shifts.
+    """
+    if not expected_pitches and expected_chord_name:
+        try:
+            expected_pitches = parse_chord_notes(expected_chord_name)
+        except Exception:
+            expected_pitches = []
+
     if not expected_pitches:
         return {
             "voicing_completeness": 1.0,
@@ -27,37 +39,53 @@ def evaluate_chord_voicing(
             "matched_pitches": [],
         }
 
-    # If reference pitches are provided as pitch classes (0-11)
-    is_pitch_class_ref = all(0 <= p <= 11 for p in expected_pitches)
+    # Pitch-class analysis (0-11)
+    exp_pcs = {p % 12 for p in expected_pitches}
+    det_pcs = {p % 12 for p in detected_pitches}
+    matched_pcs = exp_pcs & det_pcs
+    missed_pcs = exp_pcs - det_pcs
+    extra_pcs = det_pcs - exp_pcs
+    pc_completeness = len(matched_pcs) / len(exp_pcs) if exp_pcs else 1.0
 
+    # Exact MIDI note analysis
+    expected_set = set(expected_pitches)
+    detected_set = set(detected_pitches)
+    matched_exact = expected_set & detected_set
+    missed_exact = expected_set - detected_set
+    extra_exact = detected_set - expected_set
+    exact_completeness = len(matched_exact) / len(expected_set) if expected_set else 1.0
+
+    # If reference pitches were pure pitch classes (0-11)
+    is_pitch_class_ref = all(0 <= p <= 11 for p in expected_pitches)
     if is_pitch_class_ref:
-        exp_pcs = set(expected_pitches)
-        det_pcs = {p % 12 for p in detected_pitches}
-        matched_pcs = exp_pcs & det_pcs
-        missed_pcs = exp_pcs - det_pcs
-        extra_pcs = det_pcs - exp_pcs
-        completeness = len(matched_pcs) / len(exp_pcs) if exp_pcs else 1.0
         return {
-            "voicing_completeness": completeness,
+            "voicing_completeness": round(pc_completeness, 3),
             "missed_notes": [_NOTE_NAMES[pc] for pc in sorted(missed_pcs)],
             "extra_notes": [_NOTE_NAMES[pc] for pc in sorted(extra_pcs)],
             "matched_pitches": sorted(p for p in detected_pitches if p % 12 in matched_pcs),
         }
 
-    expected_set = set(expected_pitches)
-    detected_set = set(detected_pitches)
+    # Take the best representation between exact MIDI voicing and pitch class completeness
+    completeness = max(exact_completeness, pc_completeness)
 
-    matched = expected_set & detected_set
-    missed = expected_set - detected_set
-    extra = detected_set - expected_set
+    if pc_completeness == 1.0:
+        missed_names: list[str] = []
+    elif exact_completeness >= pc_completeness:
+        missed_names = [midi_to_pitch_name(p) for p in sorted(missed_exact)]
+    else:
+        missed_names = [_NOTE_NAMES[pc] for pc in sorted(missed_pcs)]
 
-    completeness = len(matched) / len(expected_set) if expected_set else 1.0
+    extra_names = [midi_to_pitch_name(p) for p in sorted(extra_exact)]
 
     return {
-        "voicing_completeness": completeness,
-        "missed_notes": [midi_to_pitch_name(p) for p in sorted(missed)],
-        "extra_notes": [midi_to_pitch_name(p) for p in sorted(extra)],
-        "matched_pitches": sorted(matched),
+        "voicing_completeness": round(completeness, 3),
+        "missed_notes": missed_names,
+        "extra_notes": extra_names,
+        "matched_pitches": sorted(
+            matched_exact
+            if exact_completeness >= pc_completeness
+            else [p for p in detected_pitches if p % 12 in matched_pcs]
+        ),
     }
 
 

@@ -174,6 +174,7 @@ async def submit_take(
     audio_bytes: bytes | None = None
     played_chords: list[dict[str, Any]] | None = None
     submitted_tempo: int | None = None
+    submitted_lead_in: float = 0.0
 
     content_type = request.headers.get("content-type", "").lower()
     if "multipart/form-data" in content_type:
@@ -187,6 +188,12 @@ async def submit_take(
         if raw_tempo is not None:
             try:
                 submitted_tempo = int(str(raw_tempo))
+            except ValueError:
+                pass
+        raw_lead_in = form.get("lead_in_seconds") or form.get("count_in_seconds")
+        if raw_lead_in is not None:
+            try:
+                submitted_lead_in = float(str(raw_lead_in))
             except ValueError:
                 pass
     elif "application/json" in content_type:
@@ -206,6 +213,16 @@ async def submit_take(
                 submitted_tempo = int(raw_tempo)
             except (ValueError, TypeError):
                 pass
+        raw_lead_in = (
+            raw_body.get("lead_in_seconds") or raw_body.get("count_in_seconds")
+            if isinstance(raw_body, dict)
+            else None
+        )
+        if raw_lead_in is not None:
+            try:
+                submitted_lead_in = float(raw_lead_in)
+            except (ValueError, TypeError):
+                pass
     else:
         raise Unprocessable("Content-Type must be application/json or multipart/form-data")
 
@@ -220,6 +237,7 @@ async def submit_take(
         exercise=exercise,
         audio_bytes=audio_bytes,
         played_chords=played_chords,
+        lead_in_seconds=submitted_lead_in,
     )
 
 

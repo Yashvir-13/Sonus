@@ -6,13 +6,24 @@ from src.lib.audio.voicing import evaluate_chord_voicing, midi_to_pitch_name
 from src.lib.music.chords import chord_similarity, parse_chord_notes
 
 
+_NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+
+
 def _compute_chord_similarity(
     ref: dict[str, Any],
     played: dict[str, Any],
 ) -> float:
-    """Compute harmonic and pitch-class similarity between reference and played chords."""
-    ref_name = str(ref.get("name", ""))
-    det_name = str(played.get("detected_name", "") or played.get("chord", ""))
+    """Compute harmonic and pitch-class similarity between reference and played chords.
+
+    Recognizes exact chord symbols, semantic chord qualities, and pitch-class recall
+    even in the presence of acoustic guitar string resonance or microphone overtone noise.
+    """
+    ref_name = str(ref.get("name", "") or ref.get("chord", "")).strip()
+    det_name = str(played.get("detected_name", "") or played.get("chord", "")).strip()
+
+    # 1. Exact chord symbol match (e.g. 'C' == 'C', 'Am' == 'Am')
+    if ref_name and det_name and ref_name.lower() == det_name.lower():
+        return 1.0
 
     exp_notes = [int(p) for p in ref.get("expected_pitches", [])]
     if not exp_notes and ref_name:
@@ -30,15 +41,32 @@ def _compute_chord_similarity(
         except Exception:
             det_notes = []
 
-    sim = chord_similarity(exp_notes, det_notes)
-
-    if not sim and ref_name and det_name:
+    # 2. Chord symbol semantic similarity
+    chord_name_sim = 0.0
+    if ref_name and det_name:
         try:
-            sim = chord_similarity(parse_chord_notes(ref_name), parse_chord_notes(det_name))
+            ref_pcs = parse_chord_notes(ref_name)
+            det_pcs = parse_chord_notes(det_name)
+            chord_name_sim = chord_similarity(ref_pcs, det_pcs)
         except Exception:
             pass
 
-    return sim
+    # 3. Raw note overlap
+    raw_sim = chord_similarity(exp_notes, det_notes)
+
+    # 4. Harmonic recall (are all or most reference chord tones present in detected notes?)
+    recall_score = 0.0
+    if exp_notes and det_notes:
+        exp_pcs_set = {n % 12 for n in exp_notes}
+        det_pcs_set = {n % 12 for n in det_notes}
+        overlap = len(exp_pcs_set & det_pcs_set)
+        recall = overlap / len(exp_pcs_set) if exp_pcs_set else 0.0
+        if recall == 1.0:
+            recall_score = 0.90
+        elif recall >= 0.66:
+            recall_score = 0.65
+
+    return max(raw_sim, chord_name_sim, recall_score)
 
 
 def _compute_match_score(
@@ -70,6 +98,7 @@ def align_chord_sequence(
     reference_chords: list[dict[str, Any]],
     tempo_bpm: int = 120,
     window_sec: float | None = None,
+    lead_in_sec: float = 0.0,
 ) -> list[dict[str, Any]]:
     """Align performed chords against reference chord progression using dynamic programming.
 
@@ -84,6 +113,32 @@ def align_chord_sequence(
 
     beat_sec = 60.0 / tempo_bpm
     max_window = window_sec if window_sec is not None else max(2.5, 4.0 * beat_sec)
+
+    # Apply lead-in / count-in offset correction
+    offset_sec = float(lead_in_sec)
+    if offset_sec <= 0.0 and played_chords and reference_chords:
+        # Auto-detect standard 4-beat or 3-beat count-in delay if performance starts late
+        first_played_t = float(played_chords[0].get("timestamp_sec", 0.0))
+        sim_first = _compute_chord_similarity(reference_chords[0], played_chords[0])
+        approx_4beat_count_in = 4.0 * beat_sec
+        approx_3beat_count_in = 3.0 * beat_sec
+        if sim_first >= 0.6 and first_played_t >= 1.5 and first_played_t >= 2.0 * beat_sec:
+            if abs(first_played_t - approx_4beat_count_in) < (1.0 * beat_sec):
+                offset_sec = first_played_t
+            elif abs(first_played_t - approx_3beat_count_in) < (1.0 * beat_sec):
+                offset_sec = first_played_t
+
+    if offset_sec > 0.0:
+        norm_played: list[dict[str, Any]] = []
+        for c in played_chords:
+            t = float(c.get("timestamp_sec", c.get("onset_time", 0.0)))
+            if t >= (offset_sec - 0.25):
+                norm_played.append({
+                    **c,
+                    "timestamp_sec": max(0.0, t - offset_sec),
+                })
+        played_chords = norm_played
+        n = len(played_chords)
 
     def expected_time_sec(chord_dict: dict[str, Any]) -> float:
         beat = float(chord_dict.get("beat", 1.0))
@@ -143,7 +198,7 @@ def align_chord_sequence(
     for ref_idx, ref in enumerate(reference_chords):
         exp_time = expected_time_sec(ref)
         exp_pitches = [int(p) for p in ref.get("expected_pitches", [])]
-        expected_chord_name = str(ref.get("name", ""))
+        expected_chord_name = str(ref.get("name", "") or ref.get("chord", ""))
 
         played_idx = aligned_pairs.get(ref_idx)
         if played_idx is not None:
@@ -153,7 +208,7 @@ def align_chord_sequence(
             detected_chord_name = str(played.get("detected_name", "") or played.get("chord", "")) or expected_chord_name
 
             timing_error_ms = (played_time - exp_time) * 1000.0
-            voicing = evaluate_chord_voicing(det_pitches, exp_pitches)
+            voicing = evaluate_chord_voicing(det_pitches, exp_pitches, expected_chord_name)
 
             results.append({
                 "chord_index": ref_idx,
@@ -166,6 +221,12 @@ def align_chord_sequence(
                 "extra_notes": voicing["extra_notes"],
             })
         else:
+            missed_names = [midi_to_pitch_name(p) for p in sorted(exp_pitches)]
+            if not missed_names and expected_chord_name:
+                try:
+                    missed_names = [_NOTE_NAMES[pc] for pc in sorted(parse_chord_notes(expected_chord_name))]
+                except Exception:
+                    missed_names = []
             results.append({
                 "chord_index": ref_idx,
                 "expected_chord": expected_chord_name,
@@ -173,8 +234,10 @@ def align_chord_sequence(
                 "is_matched": False,
                 "onset_error_ms": 0.0,
                 "voicing_completeness": 0.0,
-                "missed_notes": [midi_to_pitch_name(p) for p in sorted(exp_pitches)],
+                "missed_notes": missed_names,
                 "extra_notes": [],
             })
+
+    return results
 
     return results

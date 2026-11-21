@@ -362,11 +362,19 @@ export async function createPracticeSession(
 export async function uploadSessionTake(
   sessionId: string,
   audioBlob: Blob,
-  token?: string
+  token?: string,
+  leadInSeconds?: number,
+  tempoBpm?: number
 ): Promise<TakeEvaluationResponse> {
   const formData = new FormData()
   formData.append('audio_file', audioBlob, 'take.wav')
   formData.append('file', audioBlob, 'take.wav')
+  if (leadInSeconds !== undefined && Number.isFinite(leadInSeconds)) {
+    formData.append('lead_in_seconds', leadInSeconds.toString())
+  }
+  if (tempoBpm !== undefined && Number.isFinite(tempoBpm)) {
+    formData.append('tempo_bpm', tempoBpm.toString())
+  }
 
   const res = await fetch(`${apiBaseUrl()}/api/sessions/${sessionId}/take`, {
     method: 'POST',

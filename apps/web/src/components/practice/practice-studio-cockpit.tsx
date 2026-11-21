@@ -457,6 +457,8 @@ export function PracticeStudioCockpit({
 
   const activeSessionIdRef = useRef<string | null>(null)
   const recordedSampleRateRef = useRef<number>(44100)
+  const recordingStartMsRef = useRef<number>(0)
+  const downbeatMsRef = useRef<number>(0)
 
   // Parse current song progression (or active 2-bar loop slice)
 
@@ -736,6 +738,7 @@ export function PracticeStudioCockpit({
       } else {
         clearInterval(countTimer)
         setIsCountingIn(false)
+        downbeatMsRef.current = performance.now()
         if (audioEngineRef.current) {
           audioEngineRef.current.unlock()
           audioEngineRef.current.stopAllSounds()
@@ -1261,6 +1264,8 @@ export function PracticeStudioCockpit({
       const binHz = actualSampleRate / 2 / bufferLength
 
       recordedSamplesRef.current = []
+      recordingStartMsRef.current = performance.now()
+      downbeatMsRef.current = 0
 
       processor.onaudioprocess = (e) => {
 
@@ -1456,7 +1461,23 @@ export function PracticeStudioCockpit({
 
       })
 
-      const wavBlob = encodeMonoWav(merged, recordedSampleRateRef.current || 44100)
+      const sampleRate = recordedSampleRateRef.current || 44100
+      let audioToEncode = merged
+      let leadInSec = 0
+
+      if (downbeatMsRef.current > recordingStartMsRef.current) {
+        const leadInMs = downbeatMsRef.current - recordingStartMsRef.current
+        const rawLeadInSec = leadInMs / 1000
+        // Retain 100ms pre-roll before the downbeat so transients on Beat 1 aren't cut
+        const preRollSec = 0.1
+        const cutSample = Math.max(0, Math.floor((rawLeadInSec - preRollSec) * sampleRate))
+        if (cutSample < merged.length) {
+          audioToEncode = merged.subarray(cutSample)
+          leadInSec = Math.max(0, cutSample > 0 ? preRollSec : rawLeadInSec)
+        }
+      }
+
+      const wavBlob = encodeMonoWav(audioToEncode, sampleRate)
 
       const sessionId = activeSessionIdRef.current
 
@@ -1466,7 +1487,7 @@ export function PracticeStudioCockpit({
 
       }
 
-      const evalResp = await uploadSessionTake(sessionId, wavBlob)
+      const evalResp = await uploadSessionTake(sessionId, wavBlob, undefined, leadInSec, tempoBpm)
 
       setEvaluationResult(evalResp)
 

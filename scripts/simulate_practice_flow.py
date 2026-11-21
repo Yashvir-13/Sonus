@@ -54,6 +54,7 @@ async def run_flow_simulation() -> None:
     print("=" * 70 + "\n")
 
     os.environ["ENV"] = "development"
+    os.environ["ALLOW_DEV_TOKEN_AUTH"] = "true"
     os.environ.setdefault("DEV_USER_ID", "user_3KEP7OZiiKMswrl5f28AjxOV7Kl")
     os.environ.setdefault("DEV_USER_EMAIL", "yashvir.126@gmail.com")
 

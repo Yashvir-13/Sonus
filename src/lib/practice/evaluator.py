@@ -75,6 +75,7 @@ class PracticeTakeEvaluator:
         tempo_bpm: int,
         baseline_metrics: list[dict[str, Any]] | None = None,
         drill_type: str | None = None,
+        lead_in_sec: float = 0.0,
     ) -> dict[str, Any]:
         """Pure domain computations without external API or I/O calls."""
         # 1. Dynamic Programming Alignment
@@ -82,6 +83,7 @@ class PracticeTakeEvaluator:
             played_chords=played_chords,
             reference_chords=reference_chords,
             tempo_bpm=tempo_bpm,
+            lead_in_sec=lead_in_sec,
         )
 
         matched = [m for m in alignment if m.get("is_matched")]
@@ -162,6 +164,7 @@ class PracticeTakeEvaluator:
         instrument: str = "piano",
         baseline_metrics: list[dict[str, Any]] | None = None,
         drill_type: str | None = None,
+        lead_in_sec: float = 0.0,
     ) -> TakeEvaluationResult:
         """Run sequence alignment, compute timing/voicing scores, detect habits, and evaluate deltas synchronously."""
         res = cls._evaluate_domain(
@@ -170,6 +173,7 @@ class PracticeTakeEvaluator:
             tempo_bpm=tempo_bpm,
             baseline_metrics=baseline_metrics,
             drill_type=drill_type,
+            lead_in_sec=lead_in_sec,
         )
 
         coaching_report = generate_coaching_report(
@@ -200,6 +204,7 @@ class PracticeTakeEvaluator:
         instrument: str = "piano",
         baseline_metrics: list[dict[str, Any]] | None = None,
         drill_type: str | None = None,
+        lead_in_sec: float = 0.0,
     ) -> TakeEvaluationResult:
         """Run sequence alignment and generate AI coaching report asynchronously without blocking the event loop."""
         res = cls._evaluate_domain(
@@ -208,6 +213,7 @@ class PracticeTakeEvaluator:
             tempo_bpm=tempo_bpm,
             baseline_metrics=baseline_metrics,
             drill_type=drill_type,
+            lead_in_sec=lead_in_sec,
         )
 
         coaching_report = await generate_coaching_report_async(
@@ -255,6 +261,7 @@ class TakeEvaluator:
         exercise: Exercise,
         audio_bytes: bytes | None = None,
         played_chords: list[dict[str, Any]] | None = None,
+        lead_in_seconds: float = 0.0,
     ) -> dict[str, Any]:
         """Decode audio (if present), run pure evaluation, and persist results via persistence adapter."""
         if audio_bytes:
@@ -287,6 +294,7 @@ class TakeEvaluator:
             instrument=exercise.instrument,
             baseline_metrics=baseline_metrics,
             drill_type=intervention.drill_type if intervention else None,
+            lead_in_sec=lead_in_seconds,
         )
 
         # Persist metrics, habit updates, and intervention status at the storage seam
