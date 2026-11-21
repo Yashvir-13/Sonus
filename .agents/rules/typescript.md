@@ -17,19 +17,47 @@ Activation: files under `apps/web/**/*.{ts,tsx}`
 - Extend `src/vite-env.d.ts` when adding `VITE_*` keys
 - Alias `@/` → `src/`
 
-## Clerk
+## Clerk & App Shell
 
 ```tsx
-const key = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
-if (!key) throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY")
+const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+const hasValidClerkKey = Boolean(
+  publishableKey &&
+  publishableKey !== '<YOUR_CLERK_PUBLISHABLE_KEY>' &&
+  import.meta.env.VITE_DEV_OFFLINE !== 'true'
+)
 
-<ClerkProvider publishableKey={key}>
-  <Show when="signed-out"><SignInPage /></Show>
-  <Show when="signed-in"><AuthShell><App /></AuthShell></Show>
-</ClerkProvider>
+function ClerkConnectedApp() {
+  const { isLoaded, isSignedIn } = useAuth()
+  return (
+    <>
+      <ClerkTokenBridge />
+      <App
+        defaultSignedIn={Boolean(isLoaded && isSignedIn)}
+        userButtonSlot={isLoaded && isSignedIn ? <UserButton /> : undefined}
+      />
+    </>
+  )
+}
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    {!hasValidClerkKey ? (
+      <DevOfflineShell>
+        <App defaultSignedIn={false} />
+      </DevOfflineShell>
+    ) : (
+      <ClerkErrorBoundary fallback={<App defaultSignedIn={false} />}>
+        <ClerkProvider publishableKey={publishableKey}>
+          <ClerkConnectedApp />
+        </ClerkProvider>
+      </ClerkErrorBoundary>
+    )}
+  </StrictMode>,
+)
 ```
 
-Do **not** add a UI fallback when keys are missing — fail loud.
+Never gate the root React DOM tree behind `<Show when="signed-in">` / `<Show when="signed-out">`. The root `<App />` shell must render immediately in guest mode (`defaultSignedIn={false}`) wrapped in `ClerkErrorBoundary` so DNS propagation or adblockers never render a blank screen. Auth state must bind asynchronously via `useAuth()`.
 
 ## API calls
 

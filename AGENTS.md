@@ -348,29 +348,45 @@ apps/web/src/
 ```tsx
 // main.tsx
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
-if (!publishableKey) {
-  throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY")
+const hasValidClerkKey = Boolean(
+  publishableKey &&
+  publishableKey !== '<YOUR_CLERK_PUBLISHABLE_KEY>' &&
+  import.meta.env.VITE_DEV_OFFLINE !== 'true'
+)
+
+function ClerkConnectedApp() {
+  const { isLoaded, isSignedIn } = useAuth()
+  return (
+    <>
+      <ClerkTokenBridge />
+      <App
+        defaultSignedIn={Boolean(isLoaded && isSignedIn)}
+        userButtonSlot={isLoaded && isSignedIn ? <UserButton /> : undefined}
+      />
+    </>
+  )
 }
 
-createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ClerkProvider publishableKey={publishableKey}>
-      <Show when="signed-out">
-        <SignInPage />
-      </Show>
-      <Show when="signed-in">
-        <AuthShell>
-          <App />
-        </AuthShell>
-      </Show>
-    </ClerkProvider>
+    {!hasValidClerkKey ? (
+      <DevOfflineShell>
+        <App defaultSignedIn={false} />
+      </DevOfflineShell>
+    ) : (
+      <ClerkErrorBoundary fallback={<App defaultSignedIn={false} />}>
+        <ClerkProvider publishableKey={publishableKey}>
+          <ClerkConnectedApp />
+        </ClerkProvider>
+      </ClerkErrorBoundary>
+    )}
   </StrictMode>,
 )
 ```
 
 Rules:
 
-- No silent auth fallback UI when keys are missing — fail loud.
+- Never gate the root React DOM tree behind `<Show when="signed-in">` / `<Show when="signed-out">`. The root `<App />` shell must render immediately in guest mode (`defaultSignedIn={false}`) wrapped in `ClerkErrorBoundary`. Clerk auth state binds asynchronously via `useAuth()`, ensuring DNS propagation delays or adblockers never cause a blank screen.
 - Keep auth chrome under `components/auth/`.
 - API calls that need the session: get a Clerk token and send `Authorization: Bearer <token>` to `VITE_API_BASE_URL`.
 
@@ -440,6 +456,20 @@ pnpm run db:make "describe change"
 pnpm run db:upgrade
 poetry install   # or venv + pip from pyproject.toml
 ```
+
+---
+
+## Production Cloud & Deployment Invariants
+
+- **Docker with Non-Package Mode**: In repositories where `package-mode = false` in `pyproject.toml`, Docker builds must never execute `pip install .`. Use `COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv` and run `uv pip install --system --no-cache -r pyproject.toml`.
+- **Azure for Students Container Apps**:
+  - Deploy to permitted regions (`centralindia`, `eastus`); do not use restricted regions (`eastus2`).
+  - Use external GitHub Actions runners (`docker/build-push-action`) for ACR pushes; do not rely on `az acr build` (ACR Tasks are blocked by student subscription policies).
+  - Null out `logAnalyticsConfiguration` when deploying Container App Express environments (`ExpressAzureMonitorLogDestNotSupported`).
+- **Clerk Production Social Auth**:
+  - In production (`pk_live_...`), social providers (e.g. Google) require custom OAuth Client IDs and Secrets from Google Cloud Console. If custom credentials are not provided, disable the provider in Clerk Dashboard so the UI falls back cleanly to verified Email OTP without throwing `Error 400: invalid_request`.
+- **Deployment Verification Loop**:
+  - Before asking the user to test live URLs after a bug fix, verify `git status`, commit and push changes, and poll the remote deployment (Vercel/Azure) until the new bundle/image is confirmed live.
 
 ---
 
