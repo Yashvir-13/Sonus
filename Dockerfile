@@ -11,12 +11,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Upgrade build tools
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+# Install uv binary from official image for fast, package-mode-agnostic dependency installation
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-# Install dependencies from pyproject.toml
+# Install dependencies from pyproject.toml using uv
 COPY pyproject.toml README.md ./
-RUN pip install --no-cache-dir .
+RUN uv pip install --system --no-cache -r pyproject.toml
 
 # Copy application source, migrations, and scripts
 COPY src/ ./src/
