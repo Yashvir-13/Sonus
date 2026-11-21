@@ -96,6 +96,9 @@ yarn-error.log*
 scratch/
 scratch_*.py
 bench_*.py
+scripts/generate_report_*
+scripts/build_report_*
+docs/main*.tex
 
 # =========================
 # Postman local scratch
