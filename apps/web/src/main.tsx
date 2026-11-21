@@ -1,5 +1,5 @@
-import { ClerkProvider, Show, UserButton } from '@clerk/react'
-import { StrictMode } from 'react'
+import React, { StrictMode } from 'react'
+import { ClerkProvider, useAuth, UserButton } from '@clerk/react'
 import { createRoot } from 'react-dom/client'
 import '@fontsource/inter/400.css'
 import '@fontsource/inter/500.css'
@@ -12,10 +12,48 @@ import '@fontsource/cormorant-garamond/700.css'
 import '@fontsource/cormorant-garamond/400-italic.css'
 import * as Sentry from '@sentry/react'
 import App from '@/app'
-import { SignInPage } from '@/components/auth/sign-in-page'
 import { DevOfflineShell } from '@/components/dev/dev-offline-shell'
 import { ClerkTokenBridge } from '@/lib/auth/clerk-token-bridge'
 import '@/styles/index.css'
+
+class ClerkErrorBoundary extends React.Component<
+  { children: React.ReactNode; fallback: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error: unknown) {
+    console.warn('Clerk failed to initialize (DNS propagating or network issue):', error)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback
+    }
+    return this.props.children
+  }
+}
+
+function ClerkConnectedApp() {
+  const { isLoaded, isSignedIn } = useAuth()
+
+  return (
+    <>
+      <ClerkTokenBridge />
+      <App
+        defaultSignedIn={Boolean(isLoaded && isSignedIn)}
+        userButtonSlot={isLoaded && isSignedIn ? <UserButton /> : undefined}
+      />
+    </>
+  )
+}
 
 const sentryDsn = import.meta.env.VITE_SENTRY_DSN
 if (sentryDsn) {
@@ -39,15 +77,11 @@ createRoot(document.getElementById('root')!).render(
         <App defaultSignedIn={false} />
       </DevOfflineShell>
     ) : (
-      <ClerkProvider publishableKey={publishableKey}>
-        <ClerkTokenBridge />
-        <Show when="signed-out">
-          <SignInPage />
-        </Show>
-        <Show when="signed-in">
-          <App defaultSignedIn={true} userButtonSlot={<UserButton />} />
-        </Show>
-      </ClerkProvider>
+      <ClerkErrorBoundary fallback={<App defaultSignedIn={false} />}>
+        <ClerkProvider publishableKey={publishableKey}>
+          <ClerkConnectedApp />
+        </ClerkProvider>
+      </ClerkErrorBoundary>
     )}
   </StrictMode>,
 )
