@@ -60,6 +60,7 @@ export type AppProps = {
   initialView?: AppViewMode
   userButtonSlot?: React.ReactNode
   defaultSignedIn?: boolean
+  isSignedIn?: boolean
 }
 
 /**
@@ -223,6 +224,7 @@ export default function App({
   initialView = 'landing',
   userButtonSlot,
   defaultSignedIn = false,
+  isSignedIn: controlledIsSignedIn,
 }: AppProps) {
   // Read initial route from browser URL location (supports direct links and reloads)
   const initialRoute = useMemo(() => {
@@ -233,8 +235,29 @@ export default function App({
   }, [initialView])
 
   const [activeView, setActiveView] = useState<AppViewMode>(initialRoute.view)
-  const [isSignedIn, setIsSignedIn] = useState(defaultSignedIn || Boolean(userButtonSlot))
+  const [internalSignedIn, setInternalSignedIn] = useState(
+    defaultSignedIn || Boolean(userButtonSlot)
+  )
+
+  useEffect(() => {
+    if (controlledIsSignedIn !== undefined) {
+      setInternalSignedIn(controlledIsSignedIn)
+    } else if (defaultSignedIn || Boolean(userButtonSlot)) {
+      setInternalSignedIn(true)
+    }
+  }, [controlledIsSignedIn, defaultSignedIn, userButtonSlot])
+
+  const isSignedIn = controlledIsSignedIn !== undefined
+    ? controlledIsSignedIn
+    : (internalSignedIn || Boolean(userButtonSlot))
+
   const [showSignInModal, setShowSignInModal] = useState(false)
+
+  useEffect(() => {
+    if (isSignedIn && showSignInModal) {
+      setShowSignInModal(false)
+    }
+  }, [isSignedIn, showSignInModal])
   const [authReturnUrl, setAuthReturnUrl] = useState<string>('/practice')
   const [selectedSongId, setSelectedSongId] = useState<string>(initialRoute.songId || 'ex_guitar_knockin')
   const [pendingLoopDrill, setPendingLoopDrill] = useState<{
@@ -488,6 +511,13 @@ export default function App({
         Sign In
       </button>
     ))
+
+  const isDeveloper = Boolean(
+    isSignedIn &&
+      userProfile?.email &&
+      (userProfile.email.toLowerCase() === 'yashvir.126@gmail.com' ||
+        userProfile.email.toLowerCase() === 'yashvir13112004@gmail.com')
+  )
 
   // Dynamically update BKT mastery, SM-2 schedule, and session history when a take completes
   const handleTakeCompleted = useCallback(
@@ -947,6 +977,7 @@ export default function App({
           onOpenCommunity={() => navigateToView('community')}
           onTakeCompleted={handleTakeCompleted}
           userButtonSlot={effectiveUserButtonSlot}
+          isDeveloper={isDeveloper}
         />
         </motion.div>
       )}
@@ -1110,9 +1141,10 @@ export default function App({
       <SignInModal
         isOpen={showSignInModal}
         returnUrl={authReturnUrl}
+        isSignedIn={isSignedIn}
         onClose={() => setShowSignInModal(false)}
         onSuccess={() => {
-          setIsSignedIn(true)
+          setInternalSignedIn(true)
           setShowSignInModal(false)
           if (authReturnUrl) {
             const { view, songId } = parseRouteFromPath(authReturnUrl, availableExercises)

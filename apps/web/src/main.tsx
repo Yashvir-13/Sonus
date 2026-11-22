@@ -48,6 +48,7 @@ function ClerkConnectedApp() {
     <>
       <ClerkTokenBridge />
       <App
+        isSignedIn={Boolean(isLoaded && isSignedIn)}
         defaultSignedIn={Boolean(isLoaded && isSignedIn)}
         userButtonSlot={isLoaded && isSignedIn ? <UserButton /> : undefined}
       />

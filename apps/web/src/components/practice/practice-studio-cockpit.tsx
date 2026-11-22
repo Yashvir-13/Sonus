@@ -138,6 +138,8 @@ export interface PracticeStudioCockpitProps {
 
   onRequestSignIn?: () => void
 
+  isDeveloper?: boolean
+
 }
 
 type DiagnosticPresetMode = 'clean' | 'transition_lag' | 'voicing_drop' | 'tempo_rushing'
@@ -188,7 +190,18 @@ export function PracticeStudioCockpit({
 
   onRequestSignIn,
 
+  isDeveloper = false,
+
 }: PracticeStudioCockpitProps): React.JSX.Element {
+
+  const isDevHarnessVisible = Boolean(
+    import.meta.env.DEV ||
+    import.meta.env.MODE === 'test' ||
+    (isDeveloper && typeof window !== 'undefined' && (
+      window.location.search.includes('dev=true') ||
+      window.location.search.includes('debug=1')
+    ))
+  )
 
   // ───────────────────────────────────────────────────────────────────────────
 
@@ -2745,95 +2758,53 @@ export function PracticeStudioCockpit({
 
           <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800 flex flex-col gap-2">
 
-            <details className="text-[10px] font-mono text-zinc-400 group">
-
-              <summary className="cursor-pointer hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors list-none flex items-center justify-between py-0.5">
-
-                <span className="uppercase tracking-wider font-semibold text-[9px] text-zinc-500">Developer Diagnostic Signal Harness</span>
-
-                <span className="text-[8px] text-zinc-400 group-open:rotate-180 transition-transform">▼</span>
-
-              </summary>
-
-              <div className="pt-1.5 flex flex-wrap items-center justify-between gap-1.5">
-
-                <span className="text-[10px] font-mono uppercase text-zinc-500 font-semibold">
-
-                  PRESET TAKE INJECTION:
-
-                </span>
-
-                <div className="flex flex-wrap items-center gap-1 font-mono text-[10px]">
-
-                  <button
-
-                    type="button"
-
-                    data-testid="simulate-clean-take"
-
-                    onClick={() => runDiagnosticPreset('clean', true)}
-
-                    className="px-2 py-1 rounded border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 font-bold cursor-pointer"
-
-                  >
-
-                    Clean Take
-
-                  </button>
-
-                  <button
-
-                    type="button"
-
-                    data-testid="inject-transition-lag"
-
-                    onClick={() => runDiagnosticPreset('transition_lag', false)}
-
-                    className="px-2 py-1 rounded border border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300 hover:bg-red-500/20 font-bold cursor-pointer"
-
-                  >
-
-                    Late Change (+142ms)
-
-                  </button>
-
-                  <button
-
-                    type="button"
-
-                    data-testid="inject-voicing-drop"
-
-                    onClick={() => runDiagnosticPreset('voicing_drop', false)}
-
-                    className="px-2 py-1 rounded border border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 font-bold cursor-pointer"
-
-                  >
-
-                    Missed 3rd
-
-                  </button>
-
-                  <button
-
-                    type="button"
-
-                    data-testid="inject-tempo-rushing"
-
-                    onClick={() => runDiagnosticPreset('tempo_rushing', false)}
-
-                    className="px-2 py-1 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#18181C] text-zinc-700 dark:text-zinc-300 hover:border-amber-500 cursor-pointer"
-
-                  >
-
-                    Rushing (-38ms)
-
-                  </button>
-
+            {isDevHarnessVisible && (
+              <details className="text-[10px] font-mono text-zinc-400 group">
+                <summary className="cursor-pointer hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors list-none flex items-center justify-between py-0.5">
+                  <span className="uppercase tracking-wider font-semibold text-[9px] text-zinc-500">Developer Diagnostic Signal Harness</span>
+                  <span className="text-[8px] text-zinc-400 group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <div className="pt-1.5 flex flex-wrap items-center justify-between gap-1.5">
+                  <span className="text-[10px] font-mono uppercase text-zinc-500 font-semibold">
+                    PRESET TAKE INJECTION:
+                  </span>
+                  <div className="flex flex-wrap items-center gap-1 font-mono text-[10px]">
+                    <button
+                      type="button"
+                      data-testid="simulate-clean-take"
+                      onClick={() => runDiagnosticPreset('clean', true)}
+                      className="px-2 py-1 rounded border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 font-bold cursor-pointer"
+                    >
+                      Clean Take
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="inject-transition-lag"
+                      onClick={() => runDiagnosticPreset('transition_lag', false)}
+                      className="px-2 py-1 rounded border border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300 hover:bg-red-500/20 font-bold cursor-pointer"
+                    >
+                      Late Change (+142ms)
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="inject-voicing-drop"
+                      onClick={() => runDiagnosticPreset('voicing_drop', false)}
+                      className="px-2 py-1 rounded border border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 font-bold cursor-pointer"
+                    >
+                      Missed 3rd
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="inject-tempo-rushing"
+                      onClick={() => runDiagnosticPreset('tempo_rushing', false)}
+                      className="px-2 py-1 rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#18181C] text-zinc-700 dark:text-zinc-300 hover:border-amber-500 cursor-pointer"
+                    >
+                      Rushing (-38ms)
+                    </button>
+                  </div>
                 </div>
-
-              </div>
-
-            </details>
+              </details>
+            )}
 
           {/* Live Mistake Coach Banner */}
 

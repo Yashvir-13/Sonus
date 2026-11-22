@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from datetime import UTC, datetime
 from typing import Annotated, Any
+from uuid import uuid4
 
 from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, EmailStr, Field, field_validator
@@ -13,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel, col, select
 
 from src.lib.adaptive.mastery import StudentMasteryEngine
-from src.lib.auth.clerk import ClerkIdentityDep, resolve_clerk_email
+from src.lib.auth.clerk import ClerkIdentity, ClerkIdentityDep, resolve_clerk_email
 from src.lib.db import get_session
 from src.lib.exception import NotFound, Unprocessable
 from src.lib.schemas.mastery import MeMasteryResponse, TransitionRecommendationItem
@@ -117,16 +118,81 @@ class MeStatsResponse(BaseModel):
     streak_days: int
 
 
+async def ensure_user_exists(
+    session: AsyncSession,
+    identity: ClerkIdentity,
+    candidate_name: str | None = None,
+    candidate_username: str | None = None,
+) -> User:
+    """Return the product user for the Clerk identity, auto-provisioning if missing."""
+    user = await session.get(User, identity.user_id)
+    if user is not None:
+        return user
+
+    email_str: str
+    if identity.email:
+        email_str = identity.email
+    else:
+        try:
+            email_str = resolve_clerk_email(identity.user_id)
+        except Exception:
+            email_str = f"{identity.user_id}@sonus.studio"
+
+    # Check if a user with this email already exists under a legacy/different id
+    existing_by_email = await session.execute(select(User).where(User.email == email_str))
+    matched_user = existing_by_email.scalar_one_or_none()
+    if matched_user is not None:
+        return matched_user
+
+    raw_username = candidate_username or email_str.split("@")[0]
+    sanitized = re.sub(r"[^a-z0-9_]", "_", raw_username.lower()).strip("_")
+    if len(sanitized) < 3:
+        sanitized = f"user_{sanitized}"
+    base_username = sanitized[:22]
+
+    username_candidate = base_username
+    for _ in range(5):
+        taken = await session.execute(
+            select(User.id).where(User.username == username_candidate)
+        )
+        if taken.scalar_one_or_none() is None:
+            break
+        username_candidate = f"{base_username}_{uuid4().hex[:4]}"[:30]
+    else:
+        username_candidate = f"musician_{uuid4().hex[:8]}"[:30]
+
+    name = candidate_name or raw_username.replace("_", " ").title()[:100] or "Studio Musician"
+    now = datetime.now(UTC)
+
+    new_user = User(
+        id=identity.user_id,
+        name=name,
+        username=username_candidate,
+        email=email_str,
+        verified=True,
+        verified_at=now,
+        onboarding_done=True,
+    )
+    session.add(new_user)
+    try:
+        await session.commit()
+        await session.refresh(new_user)
+        return new_user
+    except Exception:
+        await session.rollback()
+        existing = await session.get(User, identity.user_id)
+        if existing is not None:
+            return existing
+        raise
+
+
 @router.get("/me", response_model=User)
 async def get_me(
     identity: ClerkIdentityDep,
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> User:
-    """Return the signed-in user's DB row."""
-    user = await session.get(User, identity.user_id)
-    if user is None:
-        raise NotFound("User not found")
-    return user
+    """Return the signed-in user's DB row, auto-provisioning if first visit."""
+    return await ensure_user_exists(session, identity)
 
 
 @router.post("/me", response_model=User, status_code=status.HTTP_201_CREATED)
@@ -138,38 +204,13 @@ async def create_me(
     """Create the product user row for a signed-in Clerk account."""
     existing = await session.get(User, identity.user_id)
     if existing is not None:
-        raise Unprocessable("User already exists")
-
-    username_taken = await session.execute(
-        select(User.id).where(User.username == body.username),
+        return existing
+    return await ensure_user_exists(
+        session,
+        identity,
+        candidate_name=body.name,
+        candidate_username=body.username,
     )
-    if username_taken.scalar_one_or_none() is not None:
-        raise Unprocessable("Username is already taken")
-
-    email: EmailStr
-    if identity.email:
-        email = identity.email
-    else:
-        email = resolve_clerk_email(identity.user_id)
-
-    email_taken = await session.execute(select(User.id).where(User.email == email))
-    if email_taken.scalar_one_or_none() is not None:
-        raise Unprocessable("Email is already registered")
-
-    now = datetime.now(UTC)
-    user = User(
-        id=identity.user_id,
-        name=body.name,
-        username=body.username,
-        email=email,
-        verified=True,
-        verified_at=now,
-        onboarding_done=True,
-    )
-    session.add(user)
-    await session.commit()
-    await session.refresh(user)
-    return user
 
 
 @router.patch("/me", response_model=User)

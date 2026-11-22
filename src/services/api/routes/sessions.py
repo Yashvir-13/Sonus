@@ -18,6 +18,7 @@ from src.lib.db import get_session
 from src.lib.exception import NotFound, Unprocessable
 from src.lib.music.chords import parse_chord_notes
 from src.lib.practice.evaluator import TakeEvaluator
+from src.services.api.routes.me import ensure_user_exists
 from src.models.practice import (
     AdaptiveIntervention,
     AdaptiveInterventionRead,
@@ -105,6 +106,8 @@ async def create_practice_session(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> PracticeSession:
     """Create a new practice session for the authenticated user."""
+    await ensure_user_exists(session, identity)
+
     exercise = await session.get(Exercise, body.exercise_id)
     if exercise is None:
         exercise = _create_synthetic_exercise(body.exercise_id, body.tempo_bpm)

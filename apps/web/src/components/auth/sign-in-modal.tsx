@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SignIn, SignUp } from '@clerk/react'
 
 export type SignInModalProps = {
@@ -7,6 +7,7 @@ export type SignInModalProps = {
   onSuccess?: () => void
   returnUrl?: string
   initialMode?: 'sign-in' | 'sign-up'
+  isSignedIn?: boolean
 }
 
 export function SignInModal({
@@ -15,9 +16,17 @@ export function SignInModal({
   onSuccess,
   returnUrl = '/practice',
   initialMode = 'sign-in',
+  isSignedIn = false,
 }: SignInModalProps): React.JSX.Element | null {
   const [authMode, setAuthMode] = useState<'sign-in' | 'sign-up'>(initialMode)
   const [prevInitialMode, setPrevInitialMode] = useState(initialMode)
+
+  useEffect(() => {
+    if (isSignedIn && isOpen) {
+      if (onSuccess) onSuccess()
+      onClose()
+    }
+  }, [isSignedIn, isOpen, onSuccess, onClose])
 
   if (initialMode !== prevInitialMode) {
     setPrevInitialMode(initialMode)
