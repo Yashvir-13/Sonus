@@ -463,7 +463,7 @@ poetry install   # or venv + pip from pyproject.toml
 
 - **Docker with Non-Package Mode**: In repositories where `package-mode = false` in `pyproject.toml`, Docker builds must never execute `pip install .`. Use `COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv` and run `uv pip install --system --no-cache -r pyproject.toml`.
 - **Azure for Students Container Apps**:
-  - Deploy to permitted regions (`centralindia`, `eastus`); do not use restricted regions (`eastus2`).
+  - Deploy to permitted regions only: `["indonesiacentral", "centralindia", "uaenorth", "koreacentral", "malaysiawest"]`. Do not attempt deploying to US or other restricted regions.
   - Use external GitHub Actions runners (`docker/build-push-action`) for ACR pushes; do not rely on `az acr build` (ACR Tasks are blocked by student subscription policies).
   - Null out `logAnalyticsConfiguration` when deploying Container App Express environments (`ExpressAzureMonitorLogDestNotSupported`).
 - **Clerk Production Social Auth**:
