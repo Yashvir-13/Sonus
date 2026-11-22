@@ -42,6 +42,9 @@ export default defineConfig({
           ) {
             return 'vendor-motion'
           }
+          if (id.includes('node_modules/vexflow/')) {
+            return 'vendor-vexflow'
+          }
           if (id.includes('node_modules/lucide-react/')) {
             return 'vendor-icons'
           }

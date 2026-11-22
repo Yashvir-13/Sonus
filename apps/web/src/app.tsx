@@ -1,11 +1,7 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef, lazy, Suspense } from 'react'
 import { MotionConfig, AnimatePresence, motion } from 'motion/react'
 import { UserButton } from '@clerk/react'
-import { AudioTestBench } from '@/components/dev/audio-test-bench'
 import { PracticeStudioCockpit } from '@/components/practice/practice-studio-cockpit'
-import { LandingPage } from '@/components/landing/landing-page'
-import { ProgressDashboardPage } from '@/components/progress/progress-dashboard-page'
-import { PeerComparisonPage } from '@/components/community/peer-comparison-page'
 import { SignInModal } from '@/components/auth/sign-in-modal'
 import { AuthShell } from '@/components/auth/auth-shell'
 import {
@@ -40,12 +36,18 @@ import {
 } from '@/lib/adaptive/recommendation-engine'
 import type { TakeEvaluationResponse } from '@/api/sessions'
 
-import { ChordsScalesPage } from '@/components/theory/chords-scales-page'
-import { GuitarTunerPage } from '@/components/tuner/guitar-tuner-page'
 import { SettingsModal, loadStoredPreferences, type StudioPreferences } from '@/components/settings/settings-modal'
 import { StudioSessionSelector } from '@/components/practice/studio-session-selector'
 import { ThemeToggle } from '@/components/theme/theme-toggle'
 import { Music, BookOpen, Disc, TrendingUp, Users, Sliders, ChevronDown, SlidersHorizontal } from 'lucide-react'
+
+// Code-split heavy views to prevent monolithic bundle and ensure instantaneous initial load
+const LandingPage = lazy(() => import('@/components/landing/landing-page').then((m) => ({ default: m.LandingPage })))
+const ProgressDashboardPage = lazy(() => import('@/components/progress/progress-dashboard-page').then((m) => ({ default: m.ProgressDashboardPage })))
+const PeerComparisonPage = lazy(() => import('@/components/community/peer-comparison-page').then((m) => ({ default: m.PeerComparisonPage })))
+const ChordsScalesPage = lazy(() => import('@/components/theory/chords-scales-page').then((m) => ({ default: m.ChordsScalesPage })))
+const GuitarTunerPage = lazy(() => import('@/components/tuner/guitar-tuner-page').then((m) => ({ default: m.GuitarTunerPage })))
+const AudioTestBench = lazy(() => import('@/components/dev/audio-test-bench').then((m) => ({ default: m.AudioTestBench })))
 
 export type AppViewMode =
   | 'landing'
@@ -284,7 +286,6 @@ export default function App({
   })
   const [userStats, setUserStats] = useState<UserStatsDto | null>(null)
   const [userHabits, setUserHabits] = useState<HabitPatternDto[]>([])
-  const [isInitialHydrating, setIsInitialHydrating] = useState(true)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isSessionSelectorOpen, setIsSessionSelectorOpen] = useState(false)
   const [isStudioSetupOpen, setIsStudioSetupOpen] = useState(false)
@@ -366,12 +367,9 @@ export default function App({
         return
       }
 
-      const [exercisesRes, sessionsRes, statsRes, habitsRes, masteryRes, meRes] = await Promise.allSettled([
+      // Step 1: Fast initial hydration (exercises + user profile)
+      const [exercisesRes, meRes] = await Promise.allSettled([
         fetchExercises(),
-        fetchUserSessions(),
-        fetchUserStats(),
-        fetchUserHabits(),
-        fetchUserMastery(),
         fetchMe(),
       ])
 
@@ -425,6 +423,14 @@ export default function App({
         }
       }
 
+      // Step 2: Progressive background hydration (session history, longitudinal stats, habits, mastery)
+      const [sessionsRes, statsRes, habitsRes, masteryRes] = await Promise.allSettled([
+        fetchUserSessions(),
+        fetchUserStats(),
+        fetchUserHabits(),
+        fetchUserMastery(),
+      ])
+
       if (sessionsRes.status === 'fulfilled') {
         const longitudinal = mapBackendSessionsToLongitudinal(sessionsRes.value)
         setSessionHistory(longitudinal)
@@ -454,8 +460,6 @@ export default function App({
       }
     } catch {
       // Preserve existing state on transient network failure without synthesizing mock takes
-    } finally {
-      setIsInitialHydrating(false)
     }
   }, [isSignedIn])
 
@@ -650,15 +654,6 @@ export default function App({
   )
 
   const latestSession = sessionHistory[sessionHistory.length - 1]
-
-  if (isInitialHydrating) {
-    return (
-      <MusicianLoadingScreen
-        headline="Calibrating Studio Acoustics"
-        subtext="Preparing interactive score, chord voicings, and practice stands..."
-      />
-    )
-  }
 
   return (
     <MotionConfig reducedMotion="user">
@@ -910,6 +905,14 @@ export default function App({
       )}
 
       <AnimatePresence mode="wait">
+      <Suspense
+        fallback={
+          <MusicianLoadingScreen
+            headline="Loading Studio Module"
+            subtext="Preparing interactive acoustic stand..."
+          />
+        }
+      >
       {activeView === 'landing' && (
         <motion.div
           key="view-landing"
@@ -1060,6 +1063,7 @@ export default function App({
         />
         </motion.div>
       )}
+      </Suspense>
       </AnimatePresence>
 
       <SettingsModal
@@ -1133,7 +1137,9 @@ export default function App({
           </header>
 
           <section aria-label="Testing Studio" className="w-full">
-            <AudioTestBench />
+            <Suspense fallback={<MusicianLoadingScreen headline="Loading Acoustic Bench" subtext="Initializing audio analyzers..." />}>
+              <AudioTestBench />
+            </Suspense>
           </section>
         </main>
       )}
