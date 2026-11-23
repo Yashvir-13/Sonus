@@ -204,6 +204,9 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       const scheduleStrumPatternSpy = vi
         .spyOn(PracticeAudioEngine.prototype, 'scheduleStrumPattern')
         .mockImplementation(() => {})
+      const schedulePluckedSpy = vi
+        .spyOn(PracticeAudioEngine.prototype, 'schedulePluckedNotes')
+        .mockImplementation(() => {})
       vi.spyOn(PracticeAudioEngine.prototype, 'getCurrentTime').mockImplementation(
         () => mockCurrentTime
       )
@@ -231,7 +234,9 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
         })
       }
 
-      expect(scheduleStrumPatternSpy.mock.calls.length).toBeGreaterThanOrEqual(4)
+      expect(
+        schedulePluckedSpy.mock.calls.length + scheduleStrumPatternSpy.mock.calls.length
+      ).toBeGreaterThanOrEqual(4)
 
       vi.useRealTimers()
     })

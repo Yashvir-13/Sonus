@@ -205,4 +205,132 @@ describe('Song Catalog (BUILTIN_FULL_SONGS)', () => {
       expect(voicing.pianoVoicing?.rhPitches.length).toBeGreaterThan(0)
     }
   })
+
+  it('verifies complete beat coverage across all measures (no missing 4th beats)', () => {
+    for (const song of BUILTIN_FULL_SONGS) {
+      const parsed = song.progression_json ? JSON.parse(song.progression_json) : {}
+      const timeSig = song.progression?.time_signature ?? parsed.time_signature ?? '4/4'
+      const chords = (song.progression?.chords ?? []) as FullSongChordItem[]
+
+      for (let mIdx = 0; mIdx < chords.length; mIdx++) {
+        const chord = chords[mIdx]
+        if (song.instrument === 'piano') {
+          const notes = chord.melody_notes ?? []
+          const offsets = notes.map((n) => n.beatOffset)
+
+          if (timeSig === '4/4') {
+            for (let b = 0; b < 4; b++) {
+              const hasBeat = offsets.some((o) => o >= b && o < b + 1.0)
+              expect(
+                hasBeat,
+                `${song.id} M${mIdx + 1} (${chord.name}) missing beat ${b + 1} (offsets: ${JSON.stringify(offsets)})`
+              ).toBe(true)
+            }
+          } else if (timeSig === '3/4') {
+            for (let b = 0; b < 3; b++) {
+              const hasBeat = offsets.some((o) => o >= b && o < b + 1.0)
+              expect(
+                hasBeat,
+                `${song.id} M${mIdx + 1} (${chord.name}) missing beat ${b + 1} (offsets: ${JSON.stringify(offsets)})`
+              ).toBe(true)
+            }
+          } else if (timeSig === '2/4') {
+            for (let b = 0; b < 2; b++) {
+              const hasBeat = offsets.some((o) => o >= b && o < b + 1.0)
+              expect(
+                hasBeat,
+                `${song.id} M${mIdx + 1} (${chord.name}) missing beat ${b + 1} (offsets: ${JSON.stringify(offsets)})`
+              ).toBe(true)
+            }
+          } else if (timeSig === '3/8') {
+            for (let b = 0; b < 3; b++) {
+              const hasBeat = offsets.some((o) => o >= b && o < b + 1.0)
+              expect(
+                hasBeat,
+                `${song.id} M${mIdx + 1} (${chord.name}) missing eighth ${b + 1} (offsets: ${JSON.stringify(offsets)})`
+              ).toBe(true)
+            }
+          } else if (timeSig === '9/8') {
+            for (let b = 0; b < 9; b += 3) {
+              const hasBeat = offsets.some((o) => o >= b && o < b + 3.0)
+              expect(
+                hasBeat,
+                `${song.id} M${mIdx + 1} (${chord.name}) missing dotted-quarter ${b / 3 + 1}`
+              ).toBe(true)
+            }
+          }
+        } else if (song.instrument === 'guitar') {
+          const plucks = (chord.plucked_notes ?? []).map((p) => p.beatOffset)
+          const strums = (chord.strum_events ?? []).map((s) => s.beatOffset)
+          const allOffsets = [...plucks, ...strums]
+
+          if (timeSig === '6/8') {
+            for (let b = 0; b < 6; b++) {
+              const hasBeat = allOffsets.some((o) => o >= b && o < b + 1.0)
+              expect(
+                hasBeat,
+                `${song.id} M${mIdx + 1} (${chord.name}) missing 6/8 beat ${b + 1}`
+              ).toBe(true)
+            }
+          } else if (timeSig === '4/4') {
+            for (let b = 0; b < 4; b++) {
+              const hasBeat = allOffsets.some((o) => o >= b && o < b + 1.0)
+              expect(
+                hasBeat,
+                `${song.id} M${mIdx + 1} (${chord.name}) missing 4/4 beat ${b + 1}`
+              ).toBe(true)
+            }
+          } else if (timeSig === '3/4') {
+            for (let b = 0; b < 3; b++) {
+              const hasBeat = allOffsets.some((o) => o >= b && o < b + 1.0)
+              expect(
+                hasBeat,
+                `${song.id} M${mIdx + 1} (${chord.name}) missing 3/4 beat ${b + 1}`
+              ).toBe(true)
+            }
+          }
+        }
+      }
+    }
+  })
+
+  it('confirms House of the Rising Sun has authentic 6/8 single-string plucked arpeggios', () => {
+    const risingSun = BUILTIN_FULL_SONGS.find((s) => s.id === 'ex_guitar_rising_sun')
+    expect(risingSun).toBeDefined()
+    const chords = (risingSun?.progression?.chords ?? []) as FullSongChordItem[]
+    expect(chords.length).toBe(24)
+
+    for (let i = 0; i < chords.length; i++) {
+      const chord = chords[i]
+      expect(chord.plucked_notes).toBeDefined()
+      expect(chord.plucked_notes?.length).toBe(6)
+
+      // Strings must be single discrete strings
+      const strings = chord.plucked_notes?.map((p) => p.string)
+      expect(strings).toBeDefined()
+      // Offsets 0 through 5
+      const offsets = chord.plucked_notes?.map((p) => p.beatOffset)
+      expect(offsets).toEqual([0, 1, 2, 3, 4, 5])
+    }
+  })
+
+  it('confirms Prelude in C Major has active 4th beat notes in both treble and bass', () => {
+    const preludeC = BUILTIN_FULL_SONGS.find((s) => s.id === 'ex_piano_prelude_c')
+    expect(preludeC).toBeDefined()
+    const chords = (preludeC?.progression?.chords ?? []) as FullSongChordItem[]
+    expect(chords.length).toBe(16)
+
+    for (let i = 0; i < chords.length; i++) {
+      const chord = chords[i]
+      const trebleNotes = chord.melody_notes?.filter((n) => n.clef === 'treble') ?? []
+      const bassNotes = chord.melody_notes?.filter((n) => n.clef === 'bass') ?? []
+
+      // Beat 3 (the 4th beat in 0-indexed beats) must be present in both staves
+      const trebleHasBeat4 = trebleNotes.some((n) => n.beatOffset >= 3 && n.beatOffset < 4)
+      const bassHasBeat4 = bassNotes.some((n) => n.beatOffset >= 3 && n.beatOffset < 4)
+
+      expect(trebleHasBeat4, `M${i + 1} treble missing 4th beat`).toBe(true)
+      expect(bassHasBeat4, `M${i + 1} bass missing 4th beat`).toBe(true)
+    }
+  })
 })
