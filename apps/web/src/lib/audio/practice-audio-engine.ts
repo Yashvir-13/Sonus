@@ -489,7 +489,8 @@ export class PracticeAudioEngine {
   public playGuitarPluck(
     pitch: string | number,
     durationSec = 1.2,
-    velocity = 0.7
+    velocity = 0.7,
+    time?: number
   ): void {
     const ctx = this.getContext()
     if (!ctx) return
@@ -498,6 +499,7 @@ export class PracticeAudioEngine {
       const midi = parsePitchToMidi(pitch)
       const freq = midiToFreq(midi)
       const sampleRate = ctx.sampleRate || 44100
+      const startTime = time !== undefined ? Math.max(0, time) : ctx.currentTime
 
       // Guard against incomplete test mocks in headless environments
       if (
@@ -526,7 +528,7 @@ export class PracticeAudioEngine {
       const gainNode = typeof ctx.createGain === 'function' ? ctx.createGain() : null
       if (gainNode) {
         this.registerGain(gainNode)
-        gainNode.gain.setValueAtTime(1.0, ctx.currentTime)
+        gainNode.gain.setValueAtTime(1.0, startTime)
       }
 
       // Acoustic body resonance filter (gentle acoustic warmth adapted to string fundamental)
@@ -534,16 +536,16 @@ export class PracticeAudioEngine {
       if (bodyFilter) {
         bodyFilter.type = 'peaking'
         const resonanceFreq = Math.min(350, Math.max(70, freq))
-        bodyFilter.frequency.setValueAtTime(resonanceFreq, ctx.currentTime)
-        bodyFilter.Q.setValueAtTime(1.0, ctx.currentTime)
-        bodyFilter.gain.setValueAtTime(1.5, ctx.currentTime)
+        bodyFilter.frequency.setValueAtTime(resonanceFreq, startTime)
+        bodyFilter.Q.setValueAtTime(1.0, startTime)
+        bodyFilter.gain.setValueAtTime(1.5, startTime)
       }
 
       // High frequency rolloff simulating soundboard absorption
       const highFilter = typeof ctx.createBiquadFilter === 'function' ? ctx.createBiquadFilter() : null
       if (highFilter) {
         highFilter.type = 'lowpass'
-        highFilter.frequency.setValueAtTime(Math.min(6000, Math.max(2500, freq * 6)), ctx.currentTime)
+        highFilter.frequency.setValueAtTime(Math.min(6000, Math.max(2500, freq * 6)), startTime)
       }
 
       let lastNode: any = source
@@ -561,10 +563,40 @@ export class PracticeAudioEngine {
       }
       lastNode.connect(ctx.destination)
 
-      source.start(ctx.currentTime)
+      source.start(startTime)
     } catch {
       // AudioContext unavailable
     }
+  }
+
+  /**
+   * Schedules individual fingerpicked or flatpicked guitar string notes across the measure.
+   * Uses Karplus-Strong physical modeling with realistic string ringout.
+   */
+  public schedulePluckedNotes(
+    notes: Array<{
+      beatOffset: number
+      string?: number
+      fret?: number | string
+      pitch: number | string
+      duration?: number
+      technique?: string
+    }>,
+    baseTime: number,
+    secondsPerBeat: number
+  ): void {
+    notes.forEach((n) => {
+      const targetTime = baseTime + n.beatOffset * secondsPerBeat
+      const isMute = n.fret === 'x' || n.technique === 'mute'
+      if (isMute) {
+        this.playWoodenClick(false, targetTime)
+        return
+      }
+      const durSec = Math.max(0.2, (n.duration ?? 1.0) * secondsPerBeat * 1.5)
+      const isBass = (n.string ?? 1) >= 4
+      const velocity = isBass ? 0.8 : 0.68
+      this.playGuitarPluck(n.pitch, durSec, velocity, targetTime)
+    })
   }
 
   /**

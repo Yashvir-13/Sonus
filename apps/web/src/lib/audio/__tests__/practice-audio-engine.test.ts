@@ -407,5 +407,19 @@ describe('PracticeAudioEngine Comprehensive Suite', () => {
       engine.schedulePianoNotes(melodyNotes, 1.0, 0.375)
       expect(mockBufferSources.length).toBeGreaterThanOrEqual(3)
     })
+
+    it('schedules individual fingerpicked guitar arpeggio notes at exact beat offsets', () => {
+      const plucks = [
+        { beatOffset: 0.0, string: 5, fret: 0, pitch: 45, duration: 1.0 },
+        { beatOffset: 1.0, string: 4, fret: 2, pitch: 52, duration: 1.0 },
+        { beatOffset: 2.0, string: 3, fret: 2, pitch: 57, duration: 1.0 },
+        { beatOffset: 3.0, string: 2, fret: 1, pitch: 60, duration: 1.0 },
+        { beatOffset: 4.0, string: 1, fret: 0, pitch: 64, duration: 1.0 },
+        { beatOffset: 5.0, string: 2, fret: 1, pitch: 60, duration: 1.0 },
+      ]
+      // Base time 1.0s, 76 BPM -> ~0.789s per beat
+      engine.schedulePluckedNotes(plucks, 1.0, 0.789)
+      expect(mockBufferSources.length).toBeGreaterThanOrEqual(6)
+    })
   })
 })

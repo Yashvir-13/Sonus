@@ -535,6 +535,10 @@ export function PracticeStudioCockpit({
 
         strumEvents: item.strum_events,
 
+        pluckedNotes: item.plucked_notes,
+
+        plucked_notes: item.plucked_notes,
+
       }
 
     })
@@ -924,7 +928,14 @@ export function PracticeStudioCockpit({
             }
 
             if (instrument === 'guitar') {
-              if (chord.strumEvents && chord.strumEvents.length > 0) {
+              const plucks = (chord as any).plucked_notes ?? (chord as any).pluckedNotes
+              if (plucks && plucks.length > 0) {
+                audioEngineRef.current.schedulePluckedNotes(
+                  plucks,
+                  scheduleTime,
+                  secondsPerBeat
+                )
+              } else if (chord.strumEvents && chord.strumEvents.length > 0) {
                 audioEngineRef.current.scheduleStrumPattern(
                   chord.expectedPitches,
                   chord.strumEvents,
@@ -1370,23 +1381,58 @@ export function PracticeStudioCockpit({
 
         const chordMatch = chromaToChord(instantChroma)
 
-        // Real polyphonic voicing completeness against currently active chord
-
+        // Real polyphonic or single-note voicing completeness against currently active chord/pluck
         const currentTarget = activeChordRef.current
+        const plucks = currentTarget?.plucked_notes ?? currentTarget?.pluckedNotes
+        let targetPcs = currentTarget?.pitchClasses || []
+        let isSingleNoteMatch = false
 
-        const targetPcs = currentTarget?.pitchClasses || []
+        if (plucks && plucks.length > 0) {
+          const mDuration = currentTarget.duration_beats ?? beatsPerMeasure
+          const curBeat = currentBeatRef.current
+          let mStart = 0
+          for (let m = 0; m < currentMeasureIdx; m++) {
+            mStart += flowingProgression[m]?.duration_beats ?? beatsPerMeasure
+          }
+          const offsetInMeasure = Math.max(0, curBeat - mStart)
+          const sorted = [...plucks].sort((a, b) => a.beatOffset - b.beatOffset)
+          let activePluck = sorted[0]
+          for (let i = 0; i < sorted.length; i++) {
+            const nextOffset = i + 1 < sorted.length ? sorted[i + 1].beatOffset : mDuration
+            if (offsetInMeasure >= sorted[i].beatOffset && offsetInMeasure < nextOffset) {
+              activePluck = sorted[i]
+              break
+            }
+          }
+          if (activePluck && activePluck.fret !== 'x') {
+            targetPcs = [activePluck.pitch % 12]
+            isSingleNoteMatch = true
+          }
+        }
 
         const maxChromaVal = Math.max(...instantChroma)
-
         const activeThreshold = Math.max(0.05, maxChromaVal * 0.25)
+        let matchedPcs: number[] = []
+        let missingPcs: number[] = []
+        let voicingCompleteness = 1.0
 
-        const matchedPcs = targetPcs.filter((pc) => (instantChroma[pc] ?? 0) >= activeThreshold)
-
-        const missingPcs = targetPcs.filter((pc) => !matchedPcs.includes(pc))
-
-        const voicingCompleteness =
-
-          targetPcs.length > 0 ? matchedPcs.length / targetPcs.length : 1.0
+        if (isSingleNoteMatch && pitchRes) {
+          const detectedMidi = Math.round(69 + 12 * Math.log2(pitchRes.freq / 440))
+          const detectedPc = ((detectedMidi % 12) + 12) % 12
+          if (targetPcs.includes(detectedPc)) {
+            matchedPcs = targetPcs
+            missingPcs = []
+            voicingCompleteness = 1.0
+          } else {
+            matchedPcs = []
+            missingPcs = targetPcs
+            voicingCompleteness = 0.0
+          }
+        } else {
+          matchedPcs = targetPcs.filter((pc) => (instantChroma[pc] ?? 0) >= activeThreshold)
+          missingPcs = targetPcs.filter((pc) => !matchedPcs.includes(pc))
+          voicingCompleteness = targetPcs.length > 0 ? matchedPcs.length / targetPcs.length : 1.0
+        }
 
         if (pitchRes || chordMatch.chord !== 'None' || rms > -45) {
 
