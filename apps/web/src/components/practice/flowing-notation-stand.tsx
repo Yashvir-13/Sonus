@@ -349,11 +349,20 @@ export const FlowingNotationStand = React.memo(function FlowingNotationStand({
                         }}
                       >
                         <span
-                          className={`font-brand font-bold text-sm leading-none tracking-tight ${
-                            isCurrentMeasure
-                              ? 'text-zinc-950 dark:text-white'
-                              : 'text-zinc-800 dark:text-zinc-200'
-                          }`}
+                          className={
+                            instrument === 'piano'
+                              ? `text-[11px] font-sans font-medium tracking-wider uppercase ${
+                                  isCurrentMeasure
+                                    ? 'text-zinc-600 dark:text-zinc-300'
+                                    : 'text-zinc-400 dark:text-zinc-600'
+                                }`
+                              : `font-brand font-bold text-sm leading-none tracking-tight ${
+                                  isCurrentMeasure
+                                    ? 'text-zinc-950 dark:text-white'
+                                    : 'text-zinc-800 dark:text-zinc-200'
+                                }`
+                          }
+                          data-testid="measure-harmonic-label"
                         >
                           {m.chordName}
                         </span>

@@ -793,7 +793,8 @@ function renderGuitarTablature(
 
   const measureWidths = progression.map((chord, idx) => {
     const durBeats = chord.duration_beats ?? beatsPerMeasure
-    const strumCount = chord.strumEvents?.length ?? 1
+    const plucksCount = (chord.plucked_notes ?? chord.pluckedNotes)?.length ?? 0
+    const strumCount = plucksCount > 0 ? plucksCount : (chord.strumEvents?.length ?? 1)
     const base = Math.max(250, durBeats * 70, strumCount * 52 + 64)
     return idx === 0 ? base + firstMeasureExtra : base
   })
@@ -846,52 +847,100 @@ function renderGuitarTablature(
 
     tabStave.setContext(ctx).draw()
 
-    // Build rhythmic strum TabNotes with authentic stems and beams below the 6th string
-    const events: StrumEvent[] =
-      chord.strumEvents && chord.strumEvents.length > 0
-        ? chord.strumEvents
-        : [{ beatOffset: 0, direction: 'down', accent: true, label: 'D' }]
-
-    const sortedEvents = [...events]
-      .filter((e) => e.direction !== 'rest')
-      .sort((a, b) => a.beatOffset - b.beatOffset)
-
+    const plucks = chord.plucked_notes ?? chord.pluckedNotes
     const timedTabNotes: Array<{
       note: TabNote
       event: StrumEvent
       beatOffset: number
     }> = []
 
-    for (let eIdx = 0; eIdx < sortedEvents.length; eIdx++) {
-      const evt = sortedEvents[eIdx]
-      const nextBeat =
-        eIdx + 1 < sortedEvents.length ? sortedEvents[eIdx + 1].beatOffset : measureBeats
-      const durBeats = Math.max(0.25, nextBeat - evt.beatOffset)
-      const durSpec = beatsToVexDuration(durBeats)
-      const positions = buildGuitarPositionsFromChord(chord, evt.direction === 'mute')
+    if (plucks && plucks.length > 0) {
+      // --- MODE A: Plucked Arpeggio / Single-Note Sequence ---
+      const sortedPlucks = [...plucks].sort((a, b) => a.beatOffset - b.beatOffset)
+      for (let pIdx = 0; pIdx < sortedPlucks.length; pIdx++) {
+        const p = sortedPlucks[pIdx]
+        const nextBeat = pIdx + 1 < sortedPlucks.length ? sortedPlucks[pIdx + 1].beatOffset : measureBeats
+        const durBeats = Math.max(0.25, (p.duration && p.duration > 0) ? p.duration : (nextBeat - p.beatOffset))
+        const durSpec = beatsToVexDuration(durBeats)
+        const isMute = p.fret === 'x' || p.technique === 'mute'
+        const fretVal: string | number = isMute ? 'X' : p.fret
+        // VexFlow TabNote positions: str 1 (high e) .. 6 (low E)
+        const positions: TabNotePosition[] = [{ str: p.string, fret: fretVal }]
 
-      const tabNote = new TabNote(
-        {
-          positions,
-          duration: durSpec.duration,
-        },
-        durSpec.duration !== 'w' // Whole notes don't have stems; half/quarter/eighth/16th draw rhythmic stems
-      )
-      tabNote.setStemDirection(-1) // Stems neatly downward beneath 6th string
-      tabNote.setFontSize(12)
+        const tabNote = new TabNote(
+          {
+            positions,
+            duration: durSpec.duration,
+          },
+          durSpec.duration !== 'w'
+        )
+        tabNote.setStemDirection(-1)
+        tabNote.setFontSize(12)
 
-      if (durSpec.dots > 0) {
-        Dot.buildAndAttach([tabNote], { all: true })
+        if (durSpec.dots > 0) {
+          Dot.buildAndAttach([tabNote], { all: true })
+        }
+
+        const isBass = p.string >= 4
+        const fretColor = isBass ? palette.lhNotehead : palette.ink
+        tabNote.setStyle({ fillStyle: fretColor, strokeStyle: palette.ink })
+        const stem = tabNote.getStem()
+        if (stem) {
+          stem.setStyle({ strokeStyle: palette.ink, fillStyle: palette.ink })
+        }
+
+        const direction = p.string >= 4 ? 'down' : (p.beatOffset % 2 === 0 ? 'down' : 'up')
+        const evt: StrumEvent = {
+          beatOffset: p.beatOffset,
+          direction,
+          accent: isBass,
+          label: isBass ? 'P' : (direction === 'up' ? 'U' : 'D'),
+        }
+
+        timedTabNotes.push({ note: tabNote, event: evt, beatOffset: p.beatOffset })
       }
+    } else {
+      // --- MODE B: Rhythmic Strumming Blocks ---
+      const events: StrumEvent[] =
+        chord.strumEvents && chord.strumEvents.length > 0
+          ? chord.strumEvents
+          : [{ beatOffset: 0, direction: 'down', accent: true, label: 'D' }]
 
-      const fretColor = evt.accent ? palette.lhNotehead : palette.ink
-      tabNote.setStyle({ fillStyle: fretColor, strokeStyle: palette.ink })
-      const stem = tabNote.getStem()
-      if (stem) {
-        stem.setStyle({ strokeStyle: palette.ink, fillStyle: palette.ink })
+      const sortedEvents = [...events]
+        .filter((e) => e.direction !== 'rest')
+        .sort((a, b) => a.beatOffset - b.beatOffset)
+
+      for (let eIdx = 0; eIdx < sortedEvents.length; eIdx++) {
+        const evt = sortedEvents[eIdx]
+        const nextBeat =
+          eIdx + 1 < sortedEvents.length ? sortedEvents[eIdx + 1].beatOffset : measureBeats
+        const durBeats = Math.max(0.25, nextBeat - evt.beatOffset)
+        const durSpec = beatsToVexDuration(durBeats)
+        const positions = buildGuitarPositionsFromChord(chord, evt.direction === 'mute')
+
+        const tabNote = new TabNote(
+          {
+            positions,
+            duration: durSpec.duration,
+          },
+          durSpec.duration !== 'w' // Whole notes don't have stems; half/quarter/eighth/16th draw rhythmic stems
+        )
+        tabNote.setStemDirection(-1) // Stems neatly downward beneath 6th string
+        tabNote.setFontSize(12)
+
+        if (durSpec.dots > 0) {
+          Dot.buildAndAttach([tabNote], { all: true })
+        }
+
+        const fretColor = evt.accent ? palette.lhNotehead : palette.ink
+        tabNote.setStyle({ fillStyle: fretColor, strokeStyle: palette.ink })
+        const stem = tabNote.getStem()
+        if (stem) {
+          stem.setStyle({ strokeStyle: palette.ink, fillStyle: palette.ink })
+        }
+
+        timedTabNotes.push({ note: tabNote, event: evt, beatOffset: evt.beatOffset })
       }
-
-      timedTabNotes.push({ note: tabNote, event: evt, beatOffset: evt.beatOffset })
     }
 
     const tabNoteList = timedTabNotes.map((t) => t.note)

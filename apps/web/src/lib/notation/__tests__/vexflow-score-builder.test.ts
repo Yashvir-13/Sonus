@@ -181,5 +181,41 @@ describe('vexflow-score-builder', () => {
       // Verifies eighth-note pairs were beamed together underneath the TAB
       expect(svg?.querySelectorAll('.vf-beam').length).toBeGreaterThanOrEqual(2)
     })
+
+    it('engraves single-string guitar arpeggios with discrete TabNotes and rhythmic stems', () => {
+      const container = document.createElement('div')
+      const baseAm = parseProgressionSequence(['Am'])[0]
+      const prog: FlowingChordItem[] = [
+        {
+          ...baseAm,
+          duration_beats: 6,
+          plucked_notes: [
+            { beatOffset: 0, string: 5, fret: 0, pitch: 45, duration: 1 },
+            { beatOffset: 1, string: 4, fret: 2, pitch: 52, duration: 1 },
+            { beatOffset: 2, string: 3, fret: 2, pitch: 57, duration: 1 },
+            { beatOffset: 3, string: 2, fret: 1, pitch: 60, duration: 1 },
+            { beatOffset: 4, string: 1, fret: 0, pitch: 64, duration: 1 },
+            { beatOffset: 5, string: 2, fret: 1, pitch: 60, duration: 1 },
+          ],
+        },
+      ]
+
+      const metrics = renderVexFlowScore(container, {
+        instrument: 'guitar',
+        progression: prog,
+        beatsPerMeasure: 6,
+        timeSignature: '6/8',
+        keySignature: 'A Minor',
+        isDark: false,
+      })
+
+      expect(metrics.measures.length).toBe(1)
+      expect(metrics.totalBeats).toBe(6)
+      expect(metrics.noteCount).toBe(6) // Exactly 6 plucked notes, NOT 30 chord notes (5 frets * 6 events)
+      expect(metrics.anchors.length).toBeGreaterThanOrEqual(6)
+
+      const svg = container.querySelector('[data-testid="vexflow-guitar-tab-svg"]')
+      expect(svg).not.toBeNull()
+    })
   })
 })
