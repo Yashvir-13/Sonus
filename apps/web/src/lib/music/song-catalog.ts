@@ -2,19 +2,29 @@ import type { ExerciseDto } from '@/api/sessions'
 import type { GrandStaffNote, StrumEvent } from '@/components/practice/flowing-notation-stand'
 import { parseFingeringString, resolveChordVoicing } from '@/lib/music/chord-voicings'
 
+export type PluckedNoteEvent = {
+  beatOffset: number
+  string: 1 | 2 | 3 | 4 | 5 | 6
+  fret: number | 'x'
+  pitch: number
+  duration: number
+  technique?: 'pick' | 'thumb' | 'index' | 'hammer' | 'pull' | 'slide' | 'mute'
+}
+
 export type FullSongChordItem = {
   name: string
   beat: number
   duration_beats: number
   expected_pitches?: number[]
   guitar_tabs?: {
-    frets: Array<number | null>
+    frets: Array<number | null | 'x'>
     strings: string
     fingering?: string
     fingers?: Array<number | null | string>
     barreFret?: number
     baseFret?: number
   }
+  plucked_notes?: PluckedNoteEvent[]
   piano_voicings?: {
     lh_note: string
     rh_notes: string[]

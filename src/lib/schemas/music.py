@@ -18,9 +18,20 @@ class TempoRange(BaseModel):
 class GuitarTabs(BaseModel):
     """Fretboard fingering and string positions for guitar."""
 
-    frets: list[int | None] = Field(default_factory=list, description="Fret numbers per string (None for muted)")
+    frets: list[int | str | None] = Field(default_factory=list, description="Fret numbers per string (None or 'x' for muted)")
     strings: str = Field(default="E-A-D-G-B-e")
     fingering: str | None = None
+
+
+class PluckedNote(BaseModel):
+    """Individual single-string pluck or arpeggio event in a guitar measure."""
+
+    beatOffset: float = Field(default=0.0, ge=0.0)
+    string: int = Field(ge=1, le=6)
+    fret: int | str
+    pitch: int = Field(ge=0, le=127)
+    duration: float = Field(default=1.0, ge=0.05)
+    technique: str | None = None
 
 
 class PianoVoicings(BaseModel):
@@ -43,6 +54,7 @@ class ChordDefinition(BaseModel):
     duration_beats: float = Field(default=4.0, ge=0.5)
     expected_pitches: list[int] = Field(default_factory=list)
     guitar_tabs: GuitarTabs | None = None
+    plucked_notes: list[PluckedNote | dict[str, Any]] | None = None
     piano_voicings: PianoVoicings | None = None
     melody_notes: list[dict[str, Any]] | None = None
     strum_events: list[dict[str, Any]] | None = None

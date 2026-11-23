@@ -31,10 +31,21 @@ export type StrumEvent = {
   label?: string
 }
 
+export type PluckedNoteEvent = {
+  beatOffset: number
+  string: 1 | 2 | 3 | 4 | 5 | 6
+  fret: number | 'x'
+  pitch: number
+  duration: number
+  technique?: 'pick' | 'thumb' | 'index' | 'hammer' | 'pull' | 'slide' | 'mute'
+}
+
 export type FlowingChordItem = VoicingDefinition & {
   duration_beats?: number
   melodyNotes?: GrandStaffNote[]
   strumEvents?: StrumEvent[]
+  pluckedNotes?: PluckedNoteEvent[]
+  plucked_notes?: PluckedNoteEvent[]
 }
 
 export type BeatAnchor = {
