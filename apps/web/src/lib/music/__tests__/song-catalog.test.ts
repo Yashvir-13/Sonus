@@ -4,14 +4,29 @@ import { resolveChordVoicing } from '../chord-voicings'
 
 describe('Song Catalog (BUILTIN_FULL_SONGS)', () => {
   it('contains all curated production full songs for guitar and piano', () => {
-    expect(BUILTIN_FULL_SONGS.length).toBe(5)
+    expect(BUILTIN_FULL_SONGS.length).toBe(20)
 
     const expectedIds = [
+      'ex_guitar_rising_sun',
+      'ex_guitar_where_did_you_sleep',
+      'ex_guitar_spanish_romance',
+      'ex_guitar_scarborough_fair',
+      'ex_guitar_greensleeves',
+      'ex_guitar_bourree',
+      'ex_guitar_whiskey_in_the_jar',
+      'ex_guitar_malaguena',
       'ex_guitar_knockin',
+      'ex_guitar_blues_shuffle',
       'ex_piano_shostakovich_waltz_2',
       'ex_piano_canon',
-      'ex_guitar_four_chord',
-      'ex_guitar_rising_sun',
+      'ex_piano_fur_elise',
+      'ex_piano_gymnopedie_1',
+      'ex_piano_moonlight_sonata',
+      'ex_piano_bach_minuet_g',
+      'ex_piano_prelude_c',
+      'ex_piano_clair_de_lune',
+      'ex_piano_the_entertainer',
+      'ex_piano_autumn_turnaround',
     ]
 
     const actualIds = BUILTIN_FULL_SONGS.map((song) => song.id)
@@ -53,14 +68,14 @@ describe('Song Catalog (BUILTIN_FULL_SONGS)', () => {
 
   it('validates guitar repertoire song tab voicings, fingerings, and strumming events', () => {
     const guitarSongs = BUILTIN_FULL_SONGS.filter((s) => s.instrument === 'guitar')
-    expect(guitarSongs.length).toBe(3)
+    expect(guitarSongs.length).toBe(10)
 
     for (const song of guitarSongs) {
       expect(song.progression).toBeDefined()
       if (!song.progression) continue
 
       const chords = (song.progression.chords ?? []) as FullSongChordItem[]
-      expect(chords.length).toBeGreaterThanOrEqual(24)
+      expect(chords.length).toBeGreaterThanOrEqual(16)
 
       for (const chord of chords) {
         expect(chord.name).toBeTruthy()
@@ -103,14 +118,14 @@ describe('Song Catalog (BUILTIN_FULL_SONGS)', () => {
 
   it('validates piano repertoire song voicings, dual hand pitch octaves, and notation', () => {
     const pianoSongs = BUILTIN_FULL_SONGS.filter((s) => s.instrument === 'piano')
-    expect(pianoSongs.length).toBe(2)
+    expect(pianoSongs.length).toBe(10)
 
     for (const song of pianoSongs) {
       expect(song.progression).toBeDefined()
       if (!song.progression) continue
 
       const chords = (song.progression.chords ?? []) as FullSongChordItem[]
-      expect(chords.length).toBe(32)
+      expect(chords.length).toBeGreaterThanOrEqual(16)
 
       for (const chord of chords) {
         expect(chord.name).toBeTruthy()

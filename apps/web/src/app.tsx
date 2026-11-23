@@ -72,16 +72,46 @@ export function exerciseIdToSlug(id: string): string {
   switch (id) {
     case 'ex_guitar_rising_sun':
       return 'house-of-the-rising-sun'
+    case 'ex_guitar_where_did_you_sleep':
+      return 'where-did-you-sleep-last-night'
+    case 'ex_guitar_spanish_romance':
+      return 'spanish-romance'
+    case 'ex_guitar_scarborough_fair':
+      return 'scarborough-fair'
+    case 'ex_guitar_greensleeves':
+      return 'greensleeves'
+    case 'ex_guitar_bourree':
+      return 'bourree-in-e-minor'
+    case 'ex_guitar_whiskey_in_the_jar':
+      return 'whiskey-in-the-jar'
+    case 'ex_guitar_malaguena':
+      return 'malaguena'
+    case 'ex_guitar_knockin':
+      return 'knockin-cadence'
+    case 'ex_guitar_blues_shuffle':
+      return '12-bar-blues-shuffle'
     case 'ex_piano_shostakovich_waltz_2':
       return 'waltz-no-2'
     case 'ex_piano_canon':
       return 'pachelbels-canon'
+    case 'ex_piano_fur_elise':
+      return 'fur-elise'
+    case 'ex_piano_gymnopedie_1':
+      return 'gymnopedie-no-1'
+    case 'ex_piano_moonlight_sonata':
+      return 'moonlight-sonata'
+    case 'ex_piano_bach_minuet_g':
+      return 'bach-minuet-in-g'
+    case 'ex_piano_prelude_c':
+      return 'bach-prelude-in-c'
+    case 'ex_piano_clair_de_lune':
+      return 'clair-de-lune'
+    case 'ex_piano_the_entertainer':
+      return 'the-entertainer'
+    case 'ex_piano_autumn_turnaround':
+      return 'autumn-jazz-turnaround'
     case 'ex_guitar_four_chord':
       return 'four-chord-anthem'
-    case 'ex_guitar_knockin':
-      return 'knockin-cadence'
-    case 'ex_piano_autumn_turnaround':
-      return 'piano-autumn-turnaround'
     case 'ex_piano_pop_ballad':
       return 'piano-pop-ballad'
     default:
@@ -100,11 +130,56 @@ export function slugToExerciseId(slug: string, available: ExerciseDto[] = BUILTI
   if (normalized === 'house-of-the-rising-sun' || normalized === 'rising-sun' || normalized === 'the-house-of-the-rising-sun') {
     return 'ex_guitar_rising_sun'
   }
+  if (normalized === 'where-did-you-sleep-last-night' || normalized === 'where-did-you-sleep' || normalized === 'in-the-pines') {
+    return 'ex_guitar_where_did_you_sleep'
+  }
+  if (normalized === 'spanish-romance' || normalized === 'romance-anonimo' || normalized === 'romance') {
+    return 'ex_guitar_spanish_romance'
+  }
+  if (normalized === 'scarborough-fair' || normalized === 'scarborough') {
+    return 'ex_guitar_scarborough_fair'
+  }
+  if (normalized === 'greensleeves' || normalized === 'what-child-is-this') {
+    return 'ex_guitar_greensleeves'
+  }
+  if (normalized === 'bourree-in-e-minor' || normalized === 'bourree' || normalized === 'bwv-996') {
+    return 'ex_guitar_bourree'
+  }
+  if (normalized === 'whiskey-in-the-jar' || normalized === 'whiskey') {
+    return 'ex_guitar_whiskey_in_the_jar'
+  }
+  if (normalized === 'malaguena' || normalized === 'flamenco-malaguena') {
+    return 'ex_guitar_malaguena'
+  }
+  if (normalized === '12-bar-blues-shuffle' || normalized === 'blues-shuffle' || normalized === 'delta-blues') {
+    return 'ex_guitar_blues_shuffle'
+  }
   if (normalized === 'waltz-no-2' || normalized === 'shostakovich-waltz' || normalized === 'shostakovich-waltz-2' || normalized === 'waltz2') {
     return 'ex_piano_shostakovich_waltz_2'
   }
   if (normalized === 'pachelbels-canon' || normalized === 'pachelbel-canon' || normalized === 'pachelbel' || normalized === 'canon') {
     return 'ex_piano_canon'
+  }
+  if (normalized === 'fur-elise' || normalized === 'furelise' || normalized === 'bagatelle-25') {
+    return 'ex_piano_fur_elise'
+  }
+  if (normalized === 'gymnopedie-no-1' || normalized === 'gymnopedie' || normalized === 'gymnopedie-1') {
+    return 'ex_piano_gymnopedie_1'
+  }
+  if (normalized === 'moonlight-sonata' || normalized === 'moonlight' || normalized === 'sonata-14') {
+    return 'ex_piano_moonlight_sonata'
+  }
+  if (normalized === 'bach-minuet-in-g' || normalized === 'minuet-in-g' || normalized === 'bwv-anh-114') {
+    return 'ex_piano_bach_minuet_g'
+  }
+  if (normalized === 'bach-prelude-in-c' || normalized === 'prelude-in-c' || normalized === 'bwv-846') {
+    return 'ex_piano_prelude_c'
+  }
+  if (normalized === 'clair-de-lune' || normalized === 'clairdelune') {
+    return 'ex_piano_clair_de_lune'
+  }
+  if (normalized === 'the-entertainer' || normalized === 'entertainer' || normalized === 'scott-joplin-entertainer') {
+    return 'ex_piano_the_entertainer'
   }
   if (normalized.startsWith('four-chord-anthem') || normalized === 'anthem-in-d' || normalized === 'four-chord') {
     return 'ex_guitar_four_chord'
@@ -112,7 +187,7 @@ export function slugToExerciseId(slug: string, available: ExerciseDto[] = BUILTI
   if (normalized === 'knockin-cadence' || normalized === 'knockin' || normalized === 'knockin-on-heavens-door') {
     return 'ex_guitar_knockin'
   }
-  if (normalized === 'piano-autumn-turnaround' || normalized === 'autumn-turnaround' || normalized === 'autumn-jazz-turnaround') {
+  if (normalized === 'autumn-jazz-turnaround' || normalized === 'piano-autumn-turnaround' || normalized === 'autumn-turnaround') {
     return 'ex_piano_autumn_turnaround'
   }
   if (normalized === 'piano-pop-ballad' || normalized === 'pop-ballad' || normalized === 'pop-ballad-cadence') {
