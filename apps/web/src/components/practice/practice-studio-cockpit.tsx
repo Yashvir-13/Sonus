@@ -14,7 +14,7 @@ import { CodexRepertoireDrawer } from './codex-repertoire-drawer'
 
 import { TakeEvaluationDrawer } from './take-evaluation-drawer'
 
-import { BUILTIN_FULL_SONGS, createChordDrillExercise, type FullSongChordItem } from '@/lib/music/song-catalog'
+import { BUILTIN_FULL_SONGS, createChordDrillExercise } from '@/lib/music/song-catalog'
 import {
   projectSongToInstrument,
   projectToPiano,

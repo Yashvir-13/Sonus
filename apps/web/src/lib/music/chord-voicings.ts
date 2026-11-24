@@ -51,6 +51,7 @@ export function parseFingeringString(fingering: string): (number | string | null
 }
 
 export type PianoVoicing = {
+  lhNote?: string
   lhNotes: string[]
   rhNotes: string[]
   lhPitches: number[]

@@ -3,7 +3,6 @@ import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
 import {
   projectSongToInstrument,
   noteToMidi,
-  type FlowingChordItem,
 } from '@/lib/music/instrument-lens'
 
 describe('Cross-Instrument Song Switching & Projection', () => {

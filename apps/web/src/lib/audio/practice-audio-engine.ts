@@ -589,7 +589,7 @@ export class PracticeAudioEngine {
       const targetTime = baseTime + n.beatOffset * secondsPerBeat
       const isMute = n.fret === 'x' || n.technique === 'mute'
       if (isMute) {
-        this.playWoodenClick(false, targetTime)
+        this.playClick(false, targetTime)
         return
       }
       const durSec = Math.max(0.2, (n.duration ?? 1.0) * secondsPerBeat * 1.5)

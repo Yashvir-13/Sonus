@@ -2,6 +2,16 @@ import type { ExerciseDto } from '@/api/sessions'
 import type { GrandStaffNote, StrumEvent } from '@/components/practice/flowing-notation-stand'
 import { parseFingeringString, resolveChordVoicing } from '@/lib/music/chord-voicings'
 
+export type MusicalVoiceRole = 'melody' | 'harmony' | 'bass'
+
+export type CanonicalNoteEvent = {
+  pitch: number | string
+  beatOffset: number
+  duration: number
+  voice?: MusicalVoiceRole
+  guitarOverride?: { string?: number; fret?: number }
+}
+
 export type PluckedNoteEvent = {
   beatOffset: number
   string: 1 | 2 | 3 | 4 | 5 | 6
@@ -34,14 +44,17 @@ export type FullSongChordItem = {
   }
   melody_notes?: GrandStaffNote[]
   strum_events?: StrumEvent[]
+  notes?: CanonicalNoteEvent[]
   section?: string
   variation?: string
 }
 
+export type UnifiedMeasureItem = FullSongChordItem
+
 // ==============================================================================
 // 1. GUITAR FULL SONG: Knockin' Cadence (24 Measures, 96 Beats)
 // ==============================================================================
-function buildKnockinFullSong(): FullSongChordItem[] {
+export function buildKnockinFullSong(): FullSongChordItem[] {
   const chords: FullSongChordItem[] = []
   const sections: Array<{ name: string; strumType: 'ballad' | 'anthem' | 'ringout' }> = [
     { name: 'Verse 1', strumType: 'ballad' },
@@ -116,7 +129,7 @@ function buildKnockinFullSong(): FullSongChordItem[] {
 // ==============================================================================
 // 2. PIANO FULL SONG: Pachelbel's Canon Harmonic Flow (32 Measures, 128 Beats)
 // ==============================================================================
-function buildPachelbelCanonFullSong(): FullSongChordItem[] {
+export function buildPachelbelCanonFullSong(): FullSongChordItem[] {
   const progBase = [
     { name: 'C', lhNote: 'C3', rhNotes: ['E4', 'G4', 'C5'], lhPitches: [48], rhPitches: [64, 67, 72] },
     { name: 'G', lhNote: 'G2', rhNotes: ['D4', 'G4', 'B4'], lhPitches: [43], rhPitches: [62, 67, 71] },
@@ -217,7 +230,7 @@ function buildPachelbelCanonFullSong(): FullSongChordItem[] {
 // ==============================================================================
 // 3. GUITAR FULL SONG: Four-Chord Anthem in D (32 Measures, 128 Beats)
 // ==============================================================================
-function buildFourChordAnthemFullSong(): FullSongChordItem[] {
+export function buildFourChordAnthemFullSong(): FullSongChordItem[] {
   const prog = [
     { name: 'D', dur: 4, pitches: [50, 57, 62, 66], frets: [null, null, 0, 2, 3, 2], fing: 'x-x-0-1-3-2', str: 'x-x-D-G-B-e' },
     { name: 'A', dur: 4, pitches: [45, 52, 57, 61, 64], frets: [null, 0, 2, 2, 2, 0], fing: 'x-0-1-2-3-0', str: 'x-A-D-G-B-e' },
@@ -284,7 +297,7 @@ function buildFourChordAnthemFullSong(): FullSongChordItem[] {
 // ==============================================================================
 // 4. GUITAR FULL SONG: House of the Rising Sun (24 Measures in 6/8, 144 Beats)
 // ==============================================================================
-function buildRisingSunFullSong(): FullSongChordItem[] {
+export function buildRisingSunFullSong(): FullSongChordItem[] {
   const cycle = [
     { name: 'Am', dur: 6, pitches: [45, 52, 57, 60, 64], frets: [null, 0, 2, 2, 1, 0], fing: 'x-0-2-3-1-0', str: 'x-A-D-G-B-e' },
     { name: 'C', dur: 6, pitches: [48, 52, 55, 60, 64], frets: [null, 3, 2, 0, 1, 0], fing: 'x-3-2-0-1-0', str: 'x-A-D-G-B-e' },
@@ -332,7 +345,7 @@ function buildRisingSunFullSong(): FullSongChordItem[] {
 // ==============================================================================
 // 5. PIANO FULL SONG: Waltz No. 2 – Dmitri Shostakovich (32 Measures, 96 Beats)
 // ==============================================================================
-function buildShostakovichWaltz2(): FullSongChordItem[] {
+export function buildShostakovichWaltz2(): FullSongChordItem[] {
   type WaltzMeasureDef = {
     chord: 'Cm' | 'G7' | 'Fm'
     lhRoot: string

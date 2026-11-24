@@ -28,7 +28,6 @@ if sentry_dsn:
     sentry_sdk.init(
         dsn=sentry_dsn,
         traces_sample_rate=1.0,
-        profiles_sample_rate=1.0,
     )
 
 

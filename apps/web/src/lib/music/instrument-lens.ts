@@ -18,7 +18,8 @@ import type {
 } from '@/lib/notation/vexflow-score-builder'
 import { resolveChordVoicing } from './chord-voicings'
 
-export type { FullSongChordItem, CanonicalNoteEvent, MusicalVoiceRole, PluckedNoteEvent }
+export type { FullSongChordItem, CanonicalNoteEvent, MusicalVoiceRole, PluckedNoteEvent, FlowingChordItem }
+export type UnifiedMeasureItem = FullSongChordItem
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. PITCH UTILITIES & CONVERSION
@@ -169,9 +170,9 @@ export function extractCanonicalNotes(measure: FullSongChordItem): CanonicalNote
   const resolved = resolveChordVoicing(measure.name)
   const pitches = measure.expected_pitches && measure.expected_pitches.length > 0
     ? measure.expected_pitches
-    : resolved.expected_pitches ?? [60, 64, 67]
+    : resolved.expectedPitches ?? [60, 64, 67]
 
-  return pitches.map((pitch, idx) => ({
+  return pitches.map((pitch: number) => ({
     pitch,
     beatOffset: 0,
     duration: measure.duration_beats ?? 4.0,
@@ -251,8 +252,14 @@ type CandidatePosition = {
 }
 
 /** Generates candidate (string, fret) positions for a MIDI pitch on standard guitar */
-function getGuitarCandidates(midi: number, override?: { string: number; fret: number }): CandidatePosition[] {
-  if (override && override.string >= 1 && override.string <= 6) {
+function getGuitarCandidates(midi: number, override?: { string?: number; fret?: number }): CandidatePosition[] {
+  if (
+    override &&
+    typeof override.string === 'number' &&
+    typeof override.fret === 'number' &&
+    override.string >= 1 &&
+    override.string <= 6
+  ) {
     return [{ string: override.string as 1 | 2 | 3 | 4 | 5 | 6, fret: override.fret }]
   }
 

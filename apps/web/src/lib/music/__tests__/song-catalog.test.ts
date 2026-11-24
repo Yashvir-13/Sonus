@@ -96,7 +96,7 @@ describe('Song Catalog (BUILTIN_FULL_SONGS)', () => {
         // Finger assignments must exist for any fretted string (fret > 0)
         if (tabs?.frets) {
           tabs.frets.forEach((fret, stringIdx) => {
-            if (fret !== null && fret > 0) {
+            if (typeof fret === 'number' && fret > 0) {
               expect(tabs.fingers).toBeDefined()
               const finger = tabs.fingers?.[stringIdx]
               expect(finger).not.toBeNull()

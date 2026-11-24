@@ -13,6 +13,12 @@ export type ExerciseDto = {
   difficulty?: number | string
   progression?: {
     key?: string
+    time_signature?: string
+    default_tempo_bpm?: number
+    strumming_pattern?: string
+    educational_focus?: string
+    artist?: string
+    composer?: string
     tempo_range?: {
       min_bpm: number
       default_bpm: number
@@ -25,9 +31,12 @@ export type ExerciseDto = {
       duration_beats?: number
       expected_pitches?: number[]
       guitar_tabs?: {
-        frets?: Array<number | null>
+        frets?: Array<number | 'x' | null>
         strings?: string
         fingering?: string
+        fingers?: Array<number | string | null>
+        barreFret?: number
+        baseFret?: number
       }
       piano_keys?: {
         keys?: string[]
@@ -40,8 +49,36 @@ export type ExerciseDto = {
         rh_pitches?: number[]
         inversion?: string
       }
+      melody_notes?: Array<{
+        pitch: string
+        beatOffset: number
+        duration: number
+        clef?: 'treble' | 'bass'
+      }>
+      plucked_notes?: Array<{
+        beatOffset: number
+        string: number
+        fret: number | 'x'
+        pitch: number
+        duration: number
+        technique?: string
+      }>
+      strum_events?: Array<{
+        beatOffset: number
+        direction: 'down' | 'up' | 'rest' | 'mute'
+        accent?: boolean
+        label?: string
+      }>
+      notes?: Array<{
+        pitch: number | string
+        beatOffset: number
+        duration: number
+        voice?: 'melody' | 'harmony' | 'bass'
+        guitarOverride?: { string?: number; fret?: number }
+      }>
       common_mistakes?: string[]
       section?: string
+      variation?: string
     }>
   }
 }
