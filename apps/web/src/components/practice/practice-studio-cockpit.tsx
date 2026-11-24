@@ -15,6 +15,12 @@ import { CodexRepertoireDrawer } from './codex-repertoire-drawer'
 import { TakeEvaluationDrawer } from './take-evaluation-drawer'
 
 import { BUILTIN_FULL_SONGS, createChordDrillExercise, type FullSongChordItem } from '@/lib/music/song-catalog'
+import {
+  projectSongToInstrument,
+  projectToPiano,
+  projectToGuitar,
+  noteToMidi,
+} from '@/lib/music/instrument-lens'
 
 import {
 
@@ -482,68 +488,24 @@ export function PracticeStudioCockpit({
   const downbeatMsRef = useRef<number>(0)
 
   // Parse current song progression (or active 2-bar loop slice)
-
+  // Parse current song progression (or active 2-bar loop slice) via Instrument Lens
   const flowingProgression = useMemo<FlowingChordItem[]>(() => {
-
     if (activeDrillSlice?.progression && activeDrillSlice.progression.length > 0) {
-
-      return activeDrillSlice.progression.map((item) => {
-
-        const resolved = resolveChordVoicing(item.name)
-
+      const sliceChords = activeDrillSlice.progression.map((item) => {
         return {
-
-          ...resolved,
-
+          name: item.name,
+          beat: 1.0,
           duration_beats: item.beats ?? 4,
-
+          expected_pitches: resolveChordVoicing(item.name).expectedPitches,
         }
-
       })
-
+      return sliceChords.map((chord) =>
+        instrument === 'piano' ? projectToPiano(chord) : projectToGuitar(chord)
+      )
     }
 
-    const rawChords = (selectedSong.progression?.chords || []) as FullSongChordItem[]
-
-    if (rawChords.length === 0) {
-
-      return [
-
-        { ...resolveChordVoicing('C'), duration_beats: 4 },
-
-        { ...resolveChordVoicing('G'), duration_beats: 4 },
-
-        { ...resolveChordVoicing('Am'), duration_beats: 4 },
-
-        { ...resolveChordVoicing('F'), duration_beats: 4 },
-
-      ]
-
-    }
-
-    return rawChords.map((item) => {
-
-      const resolved = resolveChordVoicing(item.name)
-
-      return {
-
-        ...resolved,
-
-        duration_beats: item.duration_beats ?? 4,
-
-        melodyNotes: item.melody_notes,
-
-        strumEvents: item.strum_events,
-
-        pluckedNotes: item.plucked_notes,
-
-        plucked_notes: item.plucked_notes,
-
-      }
-
-    })
-
-  }, [selectedSong, activeDrillSlice])
+    return projectSongToInstrument(selectedSong, instrument)
+  }, [selectedSong, instrument, activeDrillSlice])
 
   const beatsPerMeasure = useMemo(() => {
 
@@ -929,7 +891,15 @@ export function PracticeStudioCockpit({
 
             if (instrument === 'guitar') {
               const plucks = (chord as any).plucked_notes ?? (chord as any).pluckedNotes
-              if (plucks && plucks.length > 0) {
+              const hasMultiPlucks =
+                Array.isArray(plucks) &&
+                plucks.length > 0 &&
+                plucks.some((p: any) => (p.beatOffset ?? 0) > 0)
+
+              if (
+                hasMultiPlucks ||
+                (plucks && plucks.length > 0 && (!chord.strumEvents || chord.strumEvents.length === 0))
+              ) {
                 audioEngineRef.current.schedulePluckedNotes(
                   plucks,
                   scheduleTime,
@@ -953,7 +923,11 @@ export function PracticeStudioCockpit({
                 )
               }
             } else if (instrument === 'piano') {
-              if (chord.pianoVoicing) {
+              if (
+                chord.pianoVoicing &&
+                Array.isArray(chord.pianoVoicing.lhPitches) &&
+                Array.isArray(chord.pianoVoicing.rhPitches)
+              ) {
                 // Authentic accompaniment pattern (e.g. 3/4 Waltz Boom-Chick-Chick or ballad chord pulses)
                 audioEngineRef.current.schedulePianoAccompaniment(
                   chord.pianoVoicing.lhPitches,
@@ -978,13 +952,12 @@ export function PracticeStudioCockpit({
                   ? chord.melodyNotes.filter((n) => n.clef !== 'bass')
                   : chord.melodyNotes
 
-                if (melodyOnly.length > 0) {
-                  audioEngineRef.current.schedulePianoNotes(
-                    melodyOnly,
-                    scheduleTime,
-                    secondsPerBeat
-                  )
-                }
+                const toSchedule = melodyOnly.length > 0 ? melodyOnly : chord.melodyNotes
+                audioEngineRef.current.schedulePianoNotes(
+                  toSchedule,
+                  scheduleTime,
+                  secondsPerBeat
+                )
               }
             }
           }
@@ -1381,13 +1354,14 @@ export function PracticeStudioCockpit({
 
         const chordMatch = chromaToChord(instantChroma)
 
-        // Real polyphonic or single-note voicing completeness against currently active chord/pluck
+        // Real polyphonic or single-note voicing completeness against currently active chord/pluck/melody
         const currentTarget = activeChordRef.current
         const plucks = currentTarget?.plucked_notes ?? currentTarget?.pluckedNotes
+        const melodies = currentTarget?.melodyNotes
         let targetPcs = currentTarget?.pitchClasses || []
         let isSingleNoteMatch = false
 
-        if (plucks && plucks.length > 0) {
+        if (instrument === 'guitar' && plucks && plucks.length > 0) {
           const mDuration = currentTarget.duration_beats ?? beatsPerMeasure
           const curBeat = currentBeatRef.current
           let mStart = 0
@@ -1406,6 +1380,28 @@ export function PracticeStudioCockpit({
           }
           if (activePluck && activePluck.fret !== 'x') {
             targetPcs = [activePluck.pitch % 12]
+            isSingleNoteMatch = true
+          }
+        } else if (instrument === 'piano' && melodies && melodies.length > 0) {
+          const mDuration = currentTarget.duration_beats ?? beatsPerMeasure
+          const curBeat = currentBeatRef.current
+          let mStart = 0
+          for (let m = 0; m < currentMeasureIdx; m++) {
+            mStart += flowingProgression[m]?.duration_beats ?? beatsPerMeasure
+          }
+          const offsetInMeasure = Math.max(0, curBeat - mStart)
+          const sorted = [...melodies].sort((a, b) => a.beatOffset - b.beatOffset)
+          let activeNote = sorted[0]
+          for (let i = 0; i < sorted.length; i++) {
+            const nextOffset = i + 1 < sorted.length ? sorted[i + 1].beatOffset : mDuration
+            if (offsetInMeasure >= sorted[i].beatOffset && offsetInMeasure < nextOffset) {
+              activeNote = sorted[i]
+              break
+            }
+          }
+          if (activeNote) {
+            const midi = typeof activeNote.pitch === 'number' ? activeNote.pitch : noteToMidi(activeNote.pitch)
+            targetPcs = [midi % 12]
             isSingleNoteMatch = true
           }
         }

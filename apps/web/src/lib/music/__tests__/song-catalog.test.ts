@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { BUILTIN_FULL_SONGS, type FullSongChordItem } from '../song-catalog'
+import {
+  BUILTIN_FULL_SONGS,
+  type FullSongChordItem,
+  type CanonicalNoteEvent,
+  type UnifiedMeasureItem,
+} from '../song-catalog'
 import { resolveChordVoicing } from '../chord-voicings'
 
 describe('Song Catalog (BUILTIN_FULL_SONGS)', () => {
@@ -332,5 +337,26 @@ describe('Song Catalog (BUILTIN_FULL_SONGS)', () => {
       expect(trebleHasBeat4, `M${i + 1} treble missing 4th beat`).toBe(true)
       expect(bassHasBeat4, `M${i + 1} bass missing 4th beat`).toBe(true)
     }
+  })
+
+  it('supports CanonicalNoteEvent and UnifiedMeasureItem typing with voice assignment', () => {
+    const note: CanonicalNoteEvent = {
+      pitch: 'E4',
+      beatOffset: 0,
+      duration: 1,
+      voice: 'melody',
+      guitarOverride: { string: 1, fret: 0 },
+    }
+    expect(note.pitch).toBe('E4')
+    expect(note.voice).toBe('melody')
+    expect(note.guitarOverride?.string).toBe(1)
+
+    const measure: UnifiedMeasureItem = {
+      name: 'Am',
+      beat: 1.0,
+      duration_beats: 4.0,
+      notes: [note],
+    }
+    expect(measure.notes).toHaveLength(1)
   })
 })

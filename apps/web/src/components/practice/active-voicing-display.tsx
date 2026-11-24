@@ -65,7 +65,7 @@ export const ActiveVoicingDisplay = React.memo(function ActiveVoicingDisplay({
 
   // 2. Guitar Mode: Strictly render guitar fretboard with ZERO piano leakage
   if (instrument === 'guitar') {
-    if (!guitarTab) {
+    if (!guitarTab || !guitarTab.frets || !Array.isArray(guitarTab.frets)) {
       return (
         <div
           data-testid="active-voicing-display"

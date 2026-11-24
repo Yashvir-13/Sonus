@@ -133,3 +133,21 @@ def test_seed_piano_exercises_voicings_and_staff() -> None:
                     assert mn["clef"] in ("treble", "bass")
                     assert mn["duration"] > 0
                     assert 0 <= mn["beatOffset"] < chord["duration_beats"]
+
+
+def test_seed_exercises_canonical_notes() -> None:
+    for exercise in SEED_EXERCISES:
+        prog = json.loads(exercise["progression_json"])
+        chords = prog["chords"]
+        assert len(chords) > 0
+
+        for chord in chords:
+            assert "notes" in chord, f"Missing canonical notes in {exercise['id']} chord {chord.get('name')}"
+            assert len(chord["notes"]) > 0
+            for note in chord["notes"]:
+                assert isinstance(note["pitch"], int)
+                assert 20 <= note["pitch"] <= 108
+                assert 0 <= note["beatOffset"] < chord["duration_beats"]
+                assert note["duration"] > 0
+                assert note["voice"] in ("melody", "harmony", "bass", "lead")
+

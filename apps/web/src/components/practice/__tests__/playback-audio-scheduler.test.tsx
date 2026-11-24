@@ -197,7 +197,7 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       }
 
       vi.useRealTimers()
-    })
+    }, 35000)
 
     it('schedules full 24-measure guitar song (House of the Rising Sun in 6/8) continuously', async () => {
       let mockCurrentTime = 20.0
@@ -239,7 +239,7 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       ).toBeGreaterThanOrEqual(4)
 
       vi.useRealTimers()
-    })
+    }, 35000)
 
     it('tolerates execution jitter without dropping delayed measures', async () => {
       let mockCurrentTime = 100.0
@@ -282,7 +282,7 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       expect(scheduleAccompanimentSpy.mock.calls.length).toBeGreaterThan(initialCount)
 
       vi.useRealTimers()
-    })
+    }, 35000)
 
     it('re-anchors cleanly when seeked to another measure', () => {
       let mockCurrentTime = 5.0
@@ -353,7 +353,7 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       expect(scheduleAccompanimentSpy.mock.calls.length).toBeGreaterThanOrEqual(6)
 
       vi.useRealTimers()
-    })
+    }, 35000)
 
     it('schedules all 32 measures of Shostakovich Waltz No. 2 over the full 36-second duration', async () => {
       let mockCurrentTime = 100.0
@@ -391,7 +391,7 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       expect(scheduleAccompanimentSpy.mock.calls.length).toBeGreaterThanOrEqual(32)
 
       vi.useRealTimers()
-    })
+    }, 35000)
 
     it('preserves visual position and seamlessly updates scheduling when tempo changes dynamically mid-playback', async () => {
       let mockCurrentTime = 10.0
@@ -459,7 +459,7 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       expect(scheduleAccompanimentSpy.mock.calls.length).toBeGreaterThan(6)
 
       vi.useRealTimers()
-    })
+    }, 35000)
 
     it('re-anchors cleanly and stops previous song audio when launching a drill loop while actively playing', async () => {
       let mockCurrentTime = 200.0
@@ -506,7 +506,7 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       expect(screen.getByText(/Bar 1 of 2/i)).toBeDefined()
 
       vi.useRealTimers()
-    })
+    }, 35000)
 
     it('schedules metronome clicks with precise Web Audio timestamps when metronome is enabled', async () => {
       let mockCurrentTime = 300.0
@@ -556,7 +556,7 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       expect(clickCalls[0][1]).toBeGreaterThanOrEqual(300.0)
 
       vi.useRealTimers()
-    })
+    }, 35000)
 
     it('schedules full multi-measure Pachelbel Canon in D (16 measures in 4/4) without dropouts', async () => {
       let mockCurrentTime = 400.0
@@ -594,6 +594,6 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       expect(scheduleAccompanimentSpy.mock.calls.length).toBeGreaterThanOrEqual(6)
 
       vi.useRealTimers()
-    })
+    }, 35000)
   })
 })

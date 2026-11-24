@@ -46,6 +46,7 @@ export type FlowingChordItem = VoicingDefinition & {
   strumEvents?: StrumEvent[]
   pluckedNotes?: PluckedNoteEvent[]
   plucked_notes?: PluckedNoteEvent[]
+  notes?: import('@/lib/music/song-catalog').CanonicalNoteEvent[]
 }
 
 export type BeatAnchor = {
@@ -477,8 +478,10 @@ function finalizeAnchors(rawAnchors: BeatAnchor[]): BeatAnchor[] {
     if (Math.abs(anchor.beat - prev.beat) < 0.005) {
       // Average closely aligned treble/bass anchors on the same beat
       prev.x = (prev.x + anchor.x) / 2
-    } else if (anchor.x >= prev.x) {
-      deduped.push(anchor)
+    } else {
+      // Ensure strictly monotonic X coordinates as beats increase, never dropping anchors
+      const strictlyMonotonicX = Math.max(anchor.x, prev.x + 0.5)
+      deduped.push({ beat: anchor.beat, x: strictlyMonotonicX })
     }
   }
 
@@ -848,28 +851,104 @@ function renderGuitarTablature(
     tabStave.setContext(ctx).draw()
 
     const plucks = chord.plucked_notes ?? chord.pluckedNotes
+    const hasPluckOffsets = Boolean(plucks && plucks.length > 0 && plucks.some((p) => p.beatOffset > 0))
+    const isPluckedArpeggio = Boolean(
+      hasPluckOffsets ||
+      (plucks && plucks.length > 0 && (!chord.strumEvents || chord.strumEvents.length === 0))
+    )
     const timedTabNotes: Array<{
       note: TabNote
       event: StrumEvent
       beatOffset: number
+      isRest?: boolean
     }> = []
 
-    if (plucks && plucks.length > 0) {
+    if (isPluckedArpeggio && plucks && plucks.length > 0) {
       // --- MODE A: Plucked Arpeggio / Single-Note Sequence ---
-      const sortedPlucks = [...plucks].sort((a, b) => a.beatOffset - b.beatOffset)
-      for (let pIdx = 0; pIdx < sortedPlucks.length; pIdx++) {
-        const p = sortedPlucks[pIdx]
-        const nextBeat = pIdx + 1 < sortedPlucks.length ? sortedPlucks[pIdx + 1].beatOffset : measureBeats
-        const durBeats = Math.max(0.25, (p.duration && p.duration > 0) ? p.duration : (nextBeat - p.beatOffset))
-        const durSpec = beatsToVexDuration(durBeats)
+      type PluckGroup = {
+        positions: TabNotePosition[]
+        duration: number
+        isBass: boolean
+        direction: 'up' | 'down'
+      }
+      const grouped = new Map<number, PluckGroup>()
+
+      for (const p of plucks) {
+        const quantizedOffset = Math.max(0, Math.min(measureBeats - 0.25, Math.round(p.beatOffset * 8) / 8))
         const isMute = p.fret === 'x' || p.technique === 'mute'
         const fretVal: string | number = isMute ? 'X' : p.fret
-        // VexFlow TabNote positions: str 1 (high e) .. 6 (low E)
-        const positions: TabNotePosition[] = [{ str: p.string, fret: fretVal }]
+        const pos: TabNotePosition = { str: p.string, fret: fretVal }
+        const isBass = p.string >= 4
+        const direction: 'up' | 'down' = p.string >= 4 ? 'down' : (p.beatOffset % 2 === 0 ? 'down' : 'up')
+
+        const existing = grouped.get(quantizedOffset)
+        if (existing) {
+          if (!existing.positions.some((posItem) => posItem.str === pos.str)) {
+            existing.positions.push(pos)
+          }
+          if (p.duration && p.duration > 0) {
+            existing.duration = Math.min(existing.duration, p.duration)
+          }
+          if (isBass) existing.isBass = true
+        } else {
+          grouped.set(quantizedOffset, {
+            positions: [pos],
+            duration: p.duration && p.duration > 0 ? p.duration : 1.0,
+            isBass,
+            direction,
+          })
+        }
+      }
+
+      const sortedOffsets = Array.from(grouped.keys()).sort((a, b) => a - b)
+      let cursor = 0
+
+      for (let i = 0; i < sortedOffsets.length; i++) {
+        const offset = sortedOffsets[i]
+        const entry = grouped.get(offset)!
+
+        // Insert authentic tab rests for any gap before this note
+        if (offset > cursor + 0.05) {
+          const gapRests = decomposeRestBeats(offset - cursor)
+          let restCursor = cursor
+          for (const r of gapRests) {
+            const restNote = new TabNote(
+              {
+                positions: [],
+                duration: `${r.duration}r`,
+              },
+              false
+            )
+            restNote.setStyle({ fillStyle: palette.ink, strokeStyle: palette.ink })
+            const evt: StrumEvent = {
+              beatOffset: restCursor,
+              direction: 'down',
+              accent: false,
+              label: '',
+            }
+            timedTabNotes.push({ note: restNote, event: evt, beatOffset: restCursor, isRest: true })
+            restCursor +=
+              r.duration === 'w'
+                ? 4
+                : r.duration === 'h'
+                  ? (r.dots ? 3 : 2)
+                  : r.duration === 'q'
+                    ? (r.dots ? 1.5 : 1)
+                    : r.duration === '8'
+                      ? 0.5
+                      : 0.25
+          }
+          cursor = offset
+        }
+
+        const nextOffset = i + 1 < sortedOffsets.length ? sortedOffsets[i + 1] : measureBeats
+        const maxAvail = Math.max(0.25, nextOffset - offset)
+        const durBeats = Math.min(entry.duration, maxAvail)
+        const durSpec = beatsToVexDuration(durBeats)
 
         const tabNote = new TabNote(
           {
-            positions,
+            positions: entry.positions,
             duration: durSpec.duration,
           },
           durSpec.duration !== 'w'
@@ -881,23 +960,56 @@ function renderGuitarTablature(
           Dot.buildAndAttach([tabNote], { all: true })
         }
 
-        const isBass = p.string >= 4
-        const fretColor = isBass ? palette.lhNotehead : palette.ink
+        const fretColor = entry.isBass ? palette.lhNotehead : palette.ink
         tabNote.setStyle({ fillStyle: fretColor, strokeStyle: palette.ink })
         const stem = tabNote.getStem()
         if (stem) {
           stem.setStyle({ strokeStyle: palette.ink, fillStyle: palette.ink })
         }
 
-        const direction = p.string >= 4 ? 'down' : (p.beatOffset % 2 === 0 ? 'down' : 'up')
         const evt: StrumEvent = {
-          beatOffset: p.beatOffset,
-          direction,
-          accent: isBass,
-          label: isBass ? 'P' : (direction === 'up' ? 'U' : 'D'),
+          beatOffset: offset,
+          direction: entry.direction,
+          accent: entry.isBass,
+          label: entry.isBass ? 'P' : (entry.direction === 'up' ? 'U' : 'D'),
         }
 
-        timedTabNotes.push({ note: tabNote, event: evt, beatOffset: p.beatOffset })
+        timedTabNotes.push({ note: tabNote, event: evt, beatOffset: offset, isRest: false })
+        cursor = Math.min(measureBeats, offset + durBeats)
+      }
+
+      // Fill any trailing gap with rests if needed
+      if (cursor < measureBeats - 0.05) {
+        const remaining = measureBeats - cursor
+        const trailingRests = decomposeRestBeats(remaining)
+        let restCursor = cursor
+        for (const r of trailingRests) {
+          const restNote = new TabNote(
+            {
+              positions: [],
+              duration: `${r.duration}r`,
+            },
+            false
+          )
+          restNote.setStyle({ fillStyle: palette.ink, strokeStyle: palette.ink })
+          const evt: StrumEvent = {
+            beatOffset: restCursor,
+            direction: 'down',
+            accent: false,
+            label: '',
+          }
+          timedTabNotes.push({ note: restNote, event: evt, beatOffset: restCursor, isRest: true })
+          restCursor +=
+            r.duration === 'w'
+              ? 4
+              : r.duration === 'h'
+                ? (r.dots ? 3 : 2)
+                : r.duration === 'q'
+                  ? (r.dots ? 1.5 : 1)
+                  : r.duration === '8'
+                    ? 0.5
+                    : 0.25
+        }
       }
     } else {
       // --- MODE B: Rhythmic Strumming Blocks ---
@@ -910,8 +1022,43 @@ function renderGuitarTablature(
         .filter((e) => e.direction !== 'rest')
         .sort((a, b) => a.beatOffset - b.beatOffset)
 
+      let cursor = 0
       for (let eIdx = 0; eIdx < sortedEvents.length; eIdx++) {
         const evt = sortedEvents[eIdx]
+        const offset = evt.beatOffset
+
+        if (offset > cursor + 0.05) {
+          const gapRests = decomposeRestBeats(offset - cursor)
+          let restCursor = cursor
+          for (const r of gapRests) {
+            const restNote = new TabNote(
+              {
+                positions: [],
+                duration: `${r.duration}r`,
+              },
+              false
+            )
+            restNote.setStyle({ fillStyle: palette.ink, strokeStyle: palette.ink })
+            timedTabNotes.push({
+              note: restNote,
+              event: { beatOffset: restCursor, direction: 'down', accent: false, label: '' },
+              beatOffset: restCursor,
+              isRest: true,
+            })
+            restCursor +=
+              r.duration === 'w'
+                ? 4
+                : r.duration === 'h'
+                  ? (r.dots ? 3 : 2)
+                  : r.duration === 'q'
+                    ? (r.dots ? 1.5 : 1)
+                    : r.duration === '8'
+                      ? 0.5
+                      : 0.25
+          }
+          cursor = offset
+        }
+
         const nextBeat =
           eIdx + 1 < sortedEvents.length ? sortedEvents[eIdx + 1].beatOffset : measureBeats
         const durBeats = Math.max(0.25, nextBeat - evt.beatOffset)
@@ -939,7 +1086,40 @@ function renderGuitarTablature(
           stem.setStyle({ strokeStyle: palette.ink, fillStyle: palette.ink })
         }
 
-        timedTabNotes.push({ note: tabNote, event: evt, beatOffset: evt.beatOffset })
+        timedTabNotes.push({ note: tabNote, event: evt, beatOffset: evt.beatOffset, isRest: false })
+        cursor = Math.min(measureBeats, offset + durBeats)
+      }
+
+      if (cursor < measureBeats - 0.05) {
+        const remaining = measureBeats - cursor
+        const trailingRests = decomposeRestBeats(remaining)
+        let restCursor = cursor
+        for (const r of trailingRests) {
+          const restNote = new TabNote(
+            {
+              positions: [],
+              duration: `${r.duration}r`,
+            },
+            false
+          )
+          restNote.setStyle({ fillStyle: palette.ink, strokeStyle: palette.ink })
+          timedTabNotes.push({
+            note: restNote,
+            event: { beatOffset: restCursor, direction: 'down', accent: false, label: '' },
+            beatOffset: restCursor,
+            isRest: true,
+          })
+          restCursor +=
+            r.duration === 'w'
+              ? 4
+              : r.duration === 'h'
+                ? (r.dots ? 3 : 2)
+                : r.duration === 'q'
+                  ? (r.dots ? 1.5 : 1)
+                  : r.duration === '8'
+                    ? 0.5
+                    : 0.25
+        }
       }
     }
 
@@ -972,22 +1152,28 @@ function renderGuitarTablature(
     for (const item of timedTabNotes) {
       const absX = item.note.getAbsoluteX()
       if (!Number.isNaN(absX) && Number.isFinite(absX)) {
-        rawAnchors.push({ beat: beatCursor + item.beatOffset, x: absX })
+        // TabNote.getAbsoluteX() returns the left edge of fret digits (~10-12px wide);
+        // offset by +5px to align the playhead caliper directly through the center of the fret digits
+        rawAnchors.push({ beat: beatCursor + item.beatOffset, x: absX + 5 })
         if (item.beatOffset < 0.01) hasBeatZeroAnchor = true
-        strumMarkers.push({
-          measureIndex: mIdx,
-          beat: beatCursor + item.beatOffset,
-          x: absX,
-          direction: item.event.direction,
-          accent: Boolean(item.event.accent),
-          label: item.event.label ?? (item.event.direction === 'up' ? 'U' : 'D'),
-        })
+        if (!item.isRest) {
+          strumMarkers.push({
+            measureIndex: mIdx,
+            beat: beatCursor + item.beatOffset,
+            x: absX + 5,
+            direction: item.event.direction,
+            accent: Boolean(item.event.accent),
+            label: item.event.label ?? (item.event.direction === 'up' ? 'U' : 'D'),
+          })
+        }
       }
-      noteCount += item.note.getPositions().length
+      if (!item.isRest) {
+        noteCount += item.note.getPositions().length
+      }
     }
 
     if (!hasBeatZeroAnchor) {
-      rawAnchors.push({ beat: beatCursor, x: noteStartX })
+      rawAnchors.push({ beat: beatCursor, x: noteStartX + 5 })
     }
 
     if (isLast) {

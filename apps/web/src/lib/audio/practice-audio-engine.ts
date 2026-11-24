@@ -816,7 +816,7 @@ export class PracticeAudioEngine {
    * Schedules right-hand or polyphonic melodic note events across the measure.
    */
   public schedulePianoNotes(
-    notes: Array<{ pitch: string | number; beatOffset: number; duration?: number }>,
+    notes: Array<{ pitch: string | number; beatOffset: number; duration?: number; clef?: string }>,
     baseTime: number,
     secondsPerBeat: number,
     velocity = 0.75
@@ -824,7 +824,10 @@ export class PracticeAudioEngine {
     notes.forEach((n) => {
       const targetTime = baseTime + n.beatOffset * secondsPerBeat
       const dur = Math.max(0.15, (n.duration ?? 1.0) * secondsPerBeat * 0.95)
-      this.playPianoNote(n.pitch, dur, velocity, false, targetTime)
+      const midi = typeof n.pitch === 'number' ? n.pitch : parsePitchToMidi(n.pitch)
+      const isBass = n.clef === 'bass' || midi < 60
+      const noteVel = isBass ? 0.85 : velocity
+      this.playPianoNote(n.pitch, dur, noteVel, isBass, targetTime)
     })
   }
 
@@ -838,8 +841,11 @@ export class PracticeAudioEngine {
     baseTime: number,
     secondsPerBeat: number
   ): void {
+    const safeLh = Array.isArray(lhPitches) ? lhPitches : []
+    const safeRh = Array.isArray(rhPitches) ? rhPitches : []
+
     // Beat 1: Bass root
-    lhPitches.forEach((p) => {
+    safeLh.forEach((p) => {
       this.playPianoNote(p, secondsPerBeat * 1.8, 0.85, true, baseTime)
     })
 
@@ -847,7 +853,7 @@ export class PracticeAudioEngine {
       // 3/4 Waltz Boom-Chick-Chick: chords struck on beat 2 and beat 3
       for (let b = 1; b < 3; b++) {
         const chordTime = baseTime + b * secondsPerBeat
-        rhPitches.forEach((p) => {
+        safeRh.forEach((p) => {
           this.playPianoNote(p, secondsPerBeat * 0.85, 0.65, false, chordTime)
         })
       }
@@ -855,7 +861,7 @@ export class PracticeAudioEngine {
       // 4/4 or other meter: accompaniment chords on subsequent beats
       for (let b = 1; b < beatsPerMeasure; b++) {
         const chordTime = baseTime + b * secondsPerBeat
-        rhPitches.forEach((p) => {
+        safeRh.forEach((p) => {
           this.playPianoNote(p, secondsPerBeat * 0.9, 0.6, false, chordTime)
         })
       }

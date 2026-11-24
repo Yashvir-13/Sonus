@@ -127,7 +127,8 @@ export const GuitarFretboardDiagram: React.FC<GuitarFretboardDiagramProps> = ({
 
     // Find strings fretted at barreFret
     const matchingStrings: number[] = []
-    guitarTab.frets.forEach((f, idx) => {
+    const frets = guitarTab?.frets ?? []
+    frets.forEach((f, idx) => {
       if (f === barreFret) {
         matchingStrings.push(idx)
       }
@@ -268,7 +269,7 @@ export const GuitarFretboardDiagram: React.FC<GuitarFretboardDiagramProps> = ({
 
         {/* ── In-SVG Open ('O') & Muted ('X') Indicators at y=6 ── */}
         {STRING_X.map((x, sIdx) => {
-          const fret = guitarTab.frets[sIdx]
+          const fret = guitarTab?.frets?.[sIdx] ?? null
           if (fret === null || fret < 0) {
             // Muted string 'X'
             return (
@@ -349,7 +350,7 @@ export const GuitarFretboardDiagram: React.FC<GuitarFretboardDiagramProps> = ({
 
         {/* ── Fret Position Dots with Finger Numbers ── */}
         {STRING_X.map((x, sIdx) => {
-          const fret = guitarTab.frets[sIdx]
+          const fret = guitarTab?.frets?.[sIdx] ?? null
           if (!fret || fret <= 0) return null
 
           const relFret = fret - (baseFret - 1)

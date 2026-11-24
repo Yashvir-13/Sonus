@@ -18,6 +18,41 @@ describe('Application URL Routing & Slugs', () => {
       expect(exerciseIdToSlug('ex_guitar_knockin')).toBe('knockin-cadence')
     })
 
+    it('resolves all 20 masterworks bidirectionally between ID and slug', () => {
+      const allMasterworkIds = [
+        'ex_guitar_rising_sun',
+        'ex_guitar_where_did_you_sleep',
+        'ex_guitar_spanish_romance',
+        'ex_guitar_scarborough_fair',
+        'ex_guitar_greensleeves',
+        'ex_guitar_bourree',
+        'ex_guitar_whiskey_in_the_jar',
+        'ex_guitar_malaguena',
+        'ex_guitar_knockin',
+        'ex_guitar_blues_shuffle',
+        'ex_piano_shostakovich_waltz_2',
+        'ex_piano_canon',
+        'ex_piano_fur_elise',
+        'ex_piano_gymnopedie_1',
+        'ex_piano_moonlight_sonata',
+        'ex_piano_bach_minuet_g',
+        'ex_piano_prelude_c',
+        'ex_piano_clair_de_lune',
+        'ex_piano_the_entertainer',
+        'ex_piano_autumn_turnaround',
+      ]
+
+      for (const id of allMasterworkIds) {
+        const slug = exerciseIdToSlug(id)
+        expect(slug).toBeTruthy()
+        if (id !== 'ex_guitar_rising_sun') {
+          expect(slug).not.toBe('house-of-the-rising-sun')
+        }
+        const resolvedId = slugToExerciseId(slug)
+        expect(resolvedId).toBe(id)
+      }
+    })
+
     it('falls back to stripping ex_ and converting underscores to hyphens', () => {
       expect(exerciseIdToSlug('ex_custom_exercise_123')).toBe('custom-exercise-123')
     })
@@ -88,6 +123,12 @@ describe('Application URL Routing & Slugs', () => {
 
     it('resolves /practice without slug to practice view', () => {
       expect(parseRouteFromPath('/practice')).toEqual({ view: 'practice' })
+    })
+
+    it('does not hijack unknown slugs to house of the rising sun', () => {
+      const res = parseRouteFromPath('/practice/some-unknown-random-slug')
+      expect(res.view).toBe('practice')
+      expect(res.songId).toBeUndefined()
     })
 
     it('resolves /practice/:songSlug to practice view with matched song ID', () => {

@@ -1046,10 +1046,15 @@ export function CinematicCameraStage({
                       type="button"
                       onClick={() => {
                         setSelectedInstrument('piano')
-                        const firstPiano = BUILTIN_FULL_SONGS.find((s) => s.instrument === 'piano')
-                        if (firstPiano) {
-                          setSelectedSongId(firstPiano.id)
-                          onSelectPiece?.(firstPiano.title, firstPiano.id)
+                        const isAlreadyPiano = BUILTIN_FULL_SONGS.some(
+                          (s) => s.id === selectedSongId && s.instrument.toLowerCase() === 'piano'
+                        )
+                        if (!isAlreadyPiano) {
+                          const firstPiano = BUILTIN_FULL_SONGS.find((s) => s.instrument.toLowerCase() === 'piano')
+                          if (firstPiano) {
+                            setSelectedSongId(firstPiano.id)
+                            onSelectPiece?.(firstPiano.title, firstPiano.id)
+                          }
                         }
                       }}
                       className={`flex-1 py-1.5 rounded-md text-center font-bold transition-colors whitespace-nowrap cursor-pointer ${
@@ -1064,12 +1069,17 @@ export function CinematicCameraStage({
                       type="button"
                       onClick={() => {
                         setSelectedInstrument('guitar')
-                        const firstGuitar = BUILTIN_FULL_SONGS.find(
-                          (s) => s.instrument === 'guitar'
+                        const isAlreadyGuitar = BUILTIN_FULL_SONGS.some(
+                          (s) => s.id === selectedSongId && s.instrument.toLowerCase() === 'guitar'
                         )
-                        if (firstGuitar) {
-                          setSelectedSongId(firstGuitar.id)
-                          onSelectPiece?.(firstGuitar.title, firstGuitar.id)
+                        if (!isAlreadyGuitar) {
+                          const preferredGuitar =
+                            BUILTIN_FULL_SONGS.find((s) => s.id === 'ex_guitar_knockin') ||
+                            BUILTIN_FULL_SONGS.find((s) => s.instrument.toLowerCase() === 'guitar')
+                          if (preferredGuitar) {
+                            setSelectedSongId(preferredGuitar.id)
+                            onSelectPiece?.(preferredGuitar.title, preferredGuitar.id)
+                          }
                         }
                       }}
                       className={`flex-1 py-1.5 rounded-md text-center font-bold transition-colors whitespace-nowrap cursor-pointer ${

@@ -44,6 +44,16 @@ class PianoVoicings(BaseModel):
     inversion: str | None = None
 
 
+class CanonicalNoteEvent(BaseModel):
+    """Universal instrument-agnostic note event."""
+
+    pitch: str | int
+    beatOffset: float = Field(default=0.0, ge=0.0)
+    duration: float = Field(default=1.0, ge=0.01)
+    voice: str | None = None
+    guitarOverride: dict[str, Any] | None = None
+
+
 class ChordDefinition(BaseModel):
     """Discrete reference chord event in an exercise."""
 
@@ -53,6 +63,7 @@ class ChordDefinition(BaseModel):
     beat: float = Field(default=1.0, ge=0.0)
     duration_beats: float = Field(default=4.0, ge=0.5)
     expected_pitches: list[int] = Field(default_factory=list)
+    notes: list[CanonicalNoteEvent | dict[str, Any]] | None = None
     guitar_tabs: GuitarTabs | None = None
     plucked_notes: list[PluckedNote | dict[str, Any]] | None = None
     piano_voicings: PianoVoicings | None = None

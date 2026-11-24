@@ -405,6 +405,8 @@ export default function App({
     }
 
     return (
+      availableExercises.find((s) => s.id === 'ex_guitar_knockin') ??
+      BUILTIN_FULL_SONGS.find((s) => s.id === 'ex_guitar_knockin') ??
       availableExercises[0] ??
       BUILTIN_FULL_SONGS[0]
     )
@@ -808,7 +810,7 @@ export default function App({
                           <button
                             type="button"
                             data-testid="mode-listen-btn"
-                            onClick={() => { setPracticeMode('listen'); }}
+                            onClick={() => { setPracticeMode('listen'); setIsStudioSetupOpen(false); }}
                             className={`py-1.5 rounded-md font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
                               practiceMode === 'listen'
                                 ? 'bg-amber-500 text-zinc-950 shadow-xs'
@@ -820,7 +822,7 @@ export default function App({
                           <button
                             type="button"
                             data-testid="mode-practice-btn"
-                            onClick={() => { setPracticeMode('practice'); }}
+                            onClick={() => { setPracticeMode('practice'); setIsStudioSetupOpen(false); }}
                             className={`py-1.5 rounded-md font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
                               practiceMode === 'practice'
                                 ? 'bg-emerald-600 text-white shadow-xs'
@@ -841,7 +843,7 @@ export default function App({
                           <button
                             type="button"
                             data-testid="toggle-inst-guitar"
-                            onClick={() => { setPracticeInstrument('guitar'); }}
+                            onClick={() => { setPracticeInstrument('guitar'); setIsStudioSetupOpen(false); }}
                             className={`py-1.5 rounded-md font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
                               practiceInstrument === 'guitar'
                                 ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs'
@@ -853,7 +855,7 @@ export default function App({
                           <button
                             type="button"
                             data-testid="toggle-inst-piano"
-                            onClick={() => { setPracticeInstrument('piano'); }}
+                            onClick={() => { setPracticeInstrument('piano'); setIsStudioSetupOpen(false); }}
                             className={`py-1.5 rounded-md font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
                               practiceInstrument === 'piano'
                                 ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs'
@@ -874,7 +876,7 @@ export default function App({
                           <div data-testid="piano-notation-toggle" className="grid grid-cols-2 gap-1.5 p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-xs font-mono">
                             <button
                               type="button"
-                              onClick={() => { setPracticeNotationMode('staff'); }}
+                              onClick={() => { setPracticeNotationMode('staff'); setIsStudioSetupOpen(false); }}
                               className={`py-1.5 rounded-md font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
                                 practiceNotationMode === 'staff'
                                   ? 'bg-amber-500 text-zinc-950 shadow-xs'
@@ -885,7 +887,7 @@ export default function App({
                             </button>
                             <button
                               type="button"
-                              onClick={() => { setPracticeNotationMode('keys'); }}
+                              onClick={() => { setPracticeNotationMode('keys'); setIsStudioSetupOpen(false); }}
                               className={`py-1.5 rounded-md font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
                                 practiceNotationMode === 'keys'
                                   ? 'bg-amber-500 text-zinc-950 shadow-xs'
