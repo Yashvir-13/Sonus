@@ -48,6 +48,9 @@ export interface SettingsModalProps {
   currentName?: string
   currentUsername?: string
   currentEmail?: string
+  isLoadingProfile?: boolean
+  profileLoadError?: string | null
+  onRetryLoadProfile?: () => void
   onSaveProfile?: (name: string, username: string) => Promise<void>
   onSavePreferences?: (prefs: StudioPreferences) => void
 }
@@ -57,9 +60,12 @@ export function SettingsModal({
   onClose,
   isSignedIn = true,
   onRequestSignIn,
-  currentName = 'Studio Musician',
-  currentUsername = 'musician',
-  currentEmail = 'musician@sonus.studio',
+  currentName = '',
+  currentUsername = '',
+  currentEmail = '',
+  isLoadingProfile = false,
+  profileLoadError = null,
+  onRetryLoadProfile,
   onSaveProfile,
   onSavePreferences,
 }: SettingsModalProps): React.JSX.Element | null {
@@ -346,7 +352,37 @@ export function SettingsModal({
         {/* Tab 1: Profile & Account */}
         {activeTab === 'account' && (
           isSignedIn ? (
+            isLoadingProfile && !currentName && !currentUsername && !currentEmail ? (
+              <div
+                data-testid="settings-profile-loading"
+                className="p-10 text-center space-y-3"
+              >
+                <Loader2 className="size-6 animate-spin text-amber-500 mx-auto" />
+                <p className="text-xs font-mono text-zinc-500">
+                  Loading your verified account profile...
+                </p>
+              </div>
+            ) : (
             <form onSubmit={handleSaveProfile} className="p-6 space-y-5 overflow-y-auto">
+              {profileLoadError && (
+                <div
+                  data-testid="settings-profile-sync-warning"
+                  className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs font-mono text-amber-800 dark:text-amber-300 flex items-center justify-between gap-3"
+                >
+                  <span>
+                    Backend profile sync failed ({profileLoadError}).
+                  </span>
+                  {onRetryLoadProfile && (
+                    <button
+                      type="button"
+                      onClick={onRetryLoadProfile}
+                      className="px-2.5 py-1 rounded-lg bg-amber-500 text-zinc-950 font-bold uppercase tracking-wider shrink-0 cursor-pointer"
+                    >
+                      Retry
+                    </button>
+                  )}
+                </div>
+              )}
               {profileError && (
                 <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs font-mono text-red-600 dark:text-red-400">
                   {profileError}
@@ -394,6 +430,7 @@ export function SettingsModal({
                   id="settings-email"
                   type="email"
                   value={currentEmail}
+                  placeholder="Unavailable from Clerk session"
                   disabled
                   className="w-full px-3 py-2 text-sm rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 font-mono cursor-not-allowed"
                 />
@@ -408,6 +445,7 @@ export function SettingsModal({
                 <span>{isSavingProfile ? 'Saving...' : 'Save Profile Changes'}</span>
               </button>
             </form>
+            )
           ) : (
             <div data-testid="guest-settings-callout" className="p-8 text-center space-y-5">
               <div className="size-14 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">

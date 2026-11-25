@@ -73,4 +73,39 @@ describe('SettingsModal Component', () => {
     fireEvent.click(signInBtn)
     expect(handleSignIn).toHaveBeenCalledOnce()
   })
+
+  it('shows profile loading indicator instead of hardcoded Studio Musician defaults while loading', () => {
+    render(
+      <SettingsModal
+        isOpen={true}
+        onClose={vi.fn()}
+        isSignedIn={true}
+        isLoadingProfile={true}
+      />
+    )
+
+    expect(screen.getByTestId('settings-profile-loading')).toBeDefined()
+    expect(screen.queryByDisplayValue('Studio Musician')).toBeNull()
+    expect(screen.queryByDisplayValue('musician@sonus.studio')).toBeNull()
+  })
+
+  it('surfaces backend profile sync errors honestly with a retry trigger', () => {
+    const onRetry = vi.fn()
+    render(
+      <SettingsModal
+        isOpen={true}
+        onClose={vi.fn()}
+        isSignedIn={true}
+        currentName="Yash"
+        currentUsername="yash_dev"
+        currentEmail="yash@example.com"
+        profileLoadError="HTTP 503"
+        onRetryLoadProfile={onRetry}
+      />
+    )
+
+    expect(screen.getByTestId('settings-profile-sync-warning')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: /Retry/i }))
+    expect(onRetry).toHaveBeenCalledOnce()
+  })
 })

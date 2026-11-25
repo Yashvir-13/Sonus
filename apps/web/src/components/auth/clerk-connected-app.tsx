@@ -1,5 +1,5 @@
-import React from 'react'
-import { useAuth, UserButton } from '@clerk/react'
+import React, { useMemo } from 'react'
+import { useAuth, useUser, UserButton } from '@clerk/react'
 import App from '@/app'
 import { ClerkTokenBridge } from '@/lib/auth/clerk-token-bridge'
 
@@ -30,6 +30,21 @@ export class ClerkErrorBoundary extends React.Component<
 
 export function ClerkConnectedApp() {
   const { isLoaded, isSignedIn } = useAuth()
+  const { isLoaded: isUserLoaded, user } = useUser()
+
+  const clerkProfile = useMemo(() => {
+    if (!isSignedIn || !user) return null
+    const email =
+      user.primaryEmailAddress?.emailAddress ??
+      user.emailAddresses?.[0]?.emailAddress ??
+      ''
+    const name =
+      user.fullName ||
+      [user.firstName, user.lastName].filter(Boolean).join(' ') ||
+      ''
+    const username = user.username || (email ? email.split('@')[0] : '') || ''
+    return { name, username, email }
+  }, [isSignedIn, user])
 
   return (
     <>
@@ -37,6 +52,8 @@ export function ClerkConnectedApp() {
       <App
         isSignedIn={Boolean(isLoaded && isSignedIn)}
         defaultSignedIn={Boolean(isLoaded && isSignedIn)}
+        clerkProfile={clerkProfile}
+        isClerkProfileLoading={Boolean(isLoaded && isSignedIn && !isUserLoaded)}
         userButtonSlot={isLoaded && isSignedIn ? <UserButton /> : undefined}
       />
     </>

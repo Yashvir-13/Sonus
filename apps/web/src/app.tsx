@@ -27,6 +27,7 @@ import {
   type ExerciseDto,
   type HabitPatternDto,
   type UserStatsDto,
+  type UserProfileDto,
 } from '@/api/sessions'
 import {
   mapBackendSessionsToLongitudinal,
@@ -63,6 +64,8 @@ export type AppProps = {
   userButtonSlot?: React.ReactNode
   defaultSignedIn?: boolean
   isSignedIn?: boolean
+  clerkProfile?: { name: string; username: string; email: string } | null
+  isClerkProfileLoading?: boolean
 }
 
 /**
@@ -302,6 +305,8 @@ export default function App({
   userButtonSlot,
   defaultSignedIn = false,
   isSignedIn: controlledIsSignedIn,
+  clerkProfile = null,
+  isClerkProfileLoading = false,
 }: AppProps) {
   // Read initial route from browser URL location (supports direct links and reloads)
   const initialRoute = useMemo(() => {
@@ -363,11 +368,9 @@ export default function App({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [isStudioSetupOpen])
   const [studioPrefs, setStudioPrefs] = useState<StudioPreferences>(loadStoredPreferences)
-  const [userProfile, setUserProfile] = useState<{ name: string; username: string; email: string }>({
-    name: 'Studio Musician',
-    username: 'musician',
-    email: 'musician@sonus.studio',
-  })
+  const [userProfile, setUserProfile] = useState<{ name: string; username: string; email: string } | null>(null)
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false)
+  const [profileLoadError, setProfileLoadError] = useState<string | null>(null)
   const [practiceInstrument, setPracticeInstrument] = useState<'guitar' | 'piano'>(
     studioPrefs.defaultInstrument || 'guitar'
   )
@@ -411,6 +414,14 @@ export default function App({
   // Hydrate authentic repertoire catalogue and user history from PostgreSQL backend
   const loadBackendData = useCallback(async () => {
     setIsHydratingBackend(true)
+    if (isSignedIn) {
+      setIsLoadingProfile(true)
+      setProfileLoadError(null)
+    } else {
+      setUserProfile(null)
+      setProfileLoadError(null)
+      setIsLoadingProfile(false)
+    }
     try {
       if (!isSignedIn) {
         try {
@@ -465,20 +476,21 @@ export default function App({
           username: meRes.value.username,
           email: meRes.value.email,
         })
+        setProfileLoadError(null)
       } else if (
         meRes.status === 'rejected' &&
         meRes.reason instanceof ApiError &&
         meRes.reason.status === 404
       ) {
-        const meta = getClerkUserMetadata()
-        const rawBase = (meta?.username || 'musician')
+        const meta = clerkProfile ?? getClerkUserMetadata()
+        const rawBase = (meta?.username || meta?.email?.split('@')[0] || 'musician')
           .toLowerCase()
           .replace(/[^a-z0-9_]/g, '_')
           .replace(/^_+|_+$/g, '')
         const baseUsername = (rawBase.length >= 3 ? rawBase : `musician_${rawBase}`).slice(0, 22)
         const suffix = Math.random().toString(36).slice(2, 6)
         const candidateUsername = `${baseUsername}_${suffix}`.slice(0, 30)
-        const candidateName = (meta?.name || 'Studio Musician').trim().slice(0, 100) || 'Studio Musician'
+        const candidateName = (meta?.name || meta?.username || 'Musician').trim().slice(0, 100) || 'Musician'
         try {
           const created = await createMe({ name: candidateName, username: candidateUsername })
           setUserProfile({
@@ -486,10 +498,18 @@ export default function App({
             username: created.username,
             email: created.email,
           })
-        } catch {
-          // User may have already been created in a concurrent request
+          setProfileLoadError(null)
+        } catch (createErr) {
+          setProfileLoadError(
+            createErr instanceof Error ? createErr.message : 'Unable to create profile record.'
+          )
         }
+      } else if (meRes.status === 'rejected') {
+        setProfileLoadError(
+          meRes.reason instanceof Error ? meRes.reason.message : 'Unable to load account profile.'
+        )
       }
+      setIsLoadingProfile(false)
 
       // Step 2: Progressive background hydration (session history, longitudinal stats, habits, mastery)
       const [sessionsRes, statsRes, habitsRes, masteryRes] = await Promise.allSettled([
@@ -530,8 +550,9 @@ export default function App({
       // Preserve existing state on transient network failure without synthesizing mock takes
     } finally {
       setIsHydratingBackend(false)
+      setIsLoadingProfile(false)
     }
-  }, [isSignedIn])
+  }, [clerkProfile, isSignedIn])
 
   useEffect(() => {
     let active = true
@@ -950,7 +971,12 @@ export default function App({
             <button
               type="button"
               data-testid="open-settings-modal-btn"
-              onClick={() => setIsSettingsModalOpen(true)}
+              onClick={() => {
+                setIsSettingsModalOpen(true)
+                if (isSignedIn && !userProfile && !isLoadingProfile) {
+                  void loadBackendData()
+                }
+              }}
               aria-label="Studio Settings"
               className="p-1.5 sm:p-2 rounded-lg border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
               title="Studio Settings"
@@ -1140,16 +1166,36 @@ export default function App({
           setAuthReturnUrl(window.location.pathname)
           setShowSignInModal(true)
         }}
-        currentName={userProfile.name}
-        currentUsername={userProfile.username}
-        currentEmail={userProfile.email}
+        currentName={userProfile?.name || clerkProfile?.name || ''}
+        currentUsername={userProfile?.username || clerkProfile?.username || ''}
+        currentEmail={userProfile?.email || clerkProfile?.email || ''}
+        isLoadingProfile={Boolean(
+          isSignedIn &&
+          (isLoadingProfile || isClerkProfileLoading) &&
+          !userProfile &&
+          !clerkProfile
+        )}
+        profileLoadError={!userProfile ? profileLoadError : null}
+        onRetryLoadProfile={() => {
+          void loadBackendData()
+        }}
         onSaveProfile={async (name, username) => {
-          const updated = await updateMe({ name, username })
+          let saved: UserProfileDto
+          try {
+            saved = await updateMe({ name, username })
+          } catch (err) {
+            if (err instanceof ApiError && err.status === 404) {
+              saved = await createMe({ name, username })
+            } else {
+              throw err
+            }
+          }
           setUserProfile({
-            name: updated.name,
-            username: updated.username,
-            email: updated.email,
+            name: saved.name,
+            username: saved.username,
+            email: saved.email,
           })
+          setProfileLoadError(null)
         }}
         onSavePreferences={(prefs) => {
           setStudioPrefs(prefs)
