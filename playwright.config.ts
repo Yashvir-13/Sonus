@@ -18,11 +18,17 @@ export default defineConfig({
   retries: 0,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:5173',
     browserName: 'chromium',
     headless: true,
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
     ...(executablePath ? { launchOptions: { executablePath } } : {}),
+  },
+  webServer: {
+    command: 'pnpm --prefix apps/web preview --port 5173 --host 127.0.0.1',
+    url: 'http://localhost:5173',
+    reuseExistingServer: !process.env.CI,
+    timeout: 60_000,
   },
 })

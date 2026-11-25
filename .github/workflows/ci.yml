@@ -28,6 +28,9 @@ jobs:
           uv venv
           uv pip install -r pyproject.toml
 
+      - name: Lint Python source (ruff)
+        run: uv run --no-project ruff check src/
+
       - name: Run strict type checking
         run: uv run --no-project mypy src/ tests/
         env:
@@ -43,7 +46,7 @@ jobs:
           CLERK_SECRET_KEY: sk_test_mock_clerk_secret_for_ci
 
   frontend:
-    name: Frontend Vitest, Types & Build
+    name: Frontend Lint, Vitest, Types & Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -62,6 +65,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
+
+      - name: Lint frontend (oxlint)
+        run: pnpm --filter web lint
+
+      - name: Run landing scroll choreography unit tests
+        run: node --experimental-strip-types --test apps/web/src/components/landing/scroll-choreography.test.ts
 
       - name: Run Vitest tests
         run: pnpm --filter web test

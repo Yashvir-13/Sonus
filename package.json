@@ -2,8 +2,8 @@
   "name": "adaptive-music-practice",
   "version": "0.1.0",
   "private": true,
-  "description": "Adaptive Musical Practice System (PRISM) monorepo scaffold (Vite web + FastAPI, empty infra)",
-  "license": "ISC",
+  "description": "Adaptive Musical Practice System (Sonus) monorepo (Vite web + FastAPI backend)",
+  "license": "MIT",
   "author": "",
   "type": "module",
   "scripts": {

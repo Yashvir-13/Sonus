@@ -35,10 +35,11 @@ USER appuser
 
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8000
+ENV FORWARDED_ALLOW_IPS="127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10"
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:${PORT}/api/health || exit 1
+    CMD curl -f http://localhost:${PORT}/api/health/live || exit 1
 
 ENTRYPOINT ["/app/scripts/docker-entrypoint.sh"]
-CMD ["sh", "-c", "uvicorn src.services.api.app:app --host 0.0.0.0 --port ${PORT} --proxy-headers --forwarded-allow-ips='*'"]
+CMD ["sh", "-c", "uvicorn src.services.api.app:app --host 0.0.0.0 --port ${PORT} --proxy-headers --forwarded-allow-ips=${FORWARDED_ALLOW_IPS}"]

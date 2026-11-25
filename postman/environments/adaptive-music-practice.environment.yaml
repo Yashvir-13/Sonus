@@ -9,6 +9,6 @@ values:
   - key: session_id
     value: ''
   - key: user_id
-    value: user_3KEP7OZiiKMswrl5f28AjxOV7Kl
+    value: user_dev_local_001
   - key: drill_id
     value: ''

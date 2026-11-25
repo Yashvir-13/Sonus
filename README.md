@@ -130,9 +130,9 @@ ALGORITHM DIRECTORY & RESEARCH CITATIONS
   - de Cheveigné, A., & Kawahara, H. (2002). *YIN, a fundamental frequency estimator for speech and music*. The Journal of the Acoustical Society of America, 111(4), 1917–1930.
 
 #### 2. AudioWorklet Chromagram & Cosine Chord Template Matching
-- **Where in Code**: `apps/web/src/lib/audio/chroma-processor.ts`, `apps/web/src/lib/audio/chord-detector.ts`
+- **Where in Code**: `apps/web/public/worklets/chroma-audio-processor.js`, `apps/web/src/lib/audio/worklet-loader.ts`, `apps/web/src/lib/audio/chord-detector.ts`
 - **Why We Use It**: Real-time chord listening cannot run on the browser's main interface thread. If it did, the sheet music would stutter and drop frames whenever you strummed a chord.
-- **How It Works**: An isolated Web Audio worker thread (`AudioWorklet`) takes audio frames and condenses the spectrum into a 12-element energy profile (one slot for each chromatic note from C to B). This profile is then compared against 108 mathematical chord templates using cosine similarity, allowing Sonus to identify the chord you are playing in real time without lagging your screen.
+- **How It Works**: An isolated same-origin Web Audio worker thread (`AudioWorklet` served from `/worklets/chroma-audio-processor.js`, avoiding unsafe `blob:` URLs) captures audio frames and feeds a 12-element chromagram energy profile (C through B). This profile is compared against 84 mathematical chord templates (7 chord qualities across 12 chromatic roots) using cosine similarity, identifying the chord in real time without blocking UI rendering.
 - **Citations**:
   - Fujishima, T. (1999). *Realtime chord recognition of musical sound: a system using Common Lisp Music*. ICMC 1999, 464–467.
   - Müller, M. (2015). *Fundamentals of Music Processing: Audio, Analysis, Algorithms, Applications*. Springer.
@@ -196,7 +196,7 @@ ALGORITHM DIRECTORY & RESEARCH CITATIONS
 - **Why We Use It**: Microphone recordings always pick up slight fret buzz or sympathetic string hum. Exact string matching fails whenever there is background room noise.
 - **How It Works**: We calculate harmonic precision, recall, and $F_1$ score across nine canonical chord types (major, minor, 7, maj7, min7, dim, aug, sus2, sus4) across all twelve chromatic keys:
   $$F_1 = \frac{2 \cdot \text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}$$
-  The candidate chord template that produces the highest $F_1$ score above 0.65 is identified as the played chord.
+  The candidate chord template that produces the highest $F_1$ score above 0.60 is identified as the played chord.
 
 #### 10. Voicing Set Diagnostics & Harmonic Role Weighting
 - **Where in Code**: `src/lib/audio/voicing.py`
@@ -221,11 +221,11 @@ ALGORITHM DIRECTORY & RESEARCH CITATIONS
 ### Group D: Cognitive Modeling & Motor Habit Detection
 
 #### 12. Exponentially Weighted Moving Average (EWMA) Habit Tracking
-- **Where in Code**: `src/lib/adaptive/patterns.py`
+- **Where in Code**: `src/lib/practice/persistence.py`, `src/lib/adaptive/patterns.py`
 - **Why We Use It**: Making a mistake once is just an accident. A habit is a pattern your hands repeat over and over without you noticing.
-- **How It Works**: We track an exponentially smoothed baseline of your timing errors ($\Delta t$ in milliseconds) for every specific chord transition (like going from G to Em):
-  $$\bar{\mu}_t = 0.35 \cdot \Delta t_t + 0.65 \cdot \bar{\mu}_{t-1}$$
-  This gives appropriate weight to your recent takes while preventing a single sloppy mistake from corrupting your long-term history. It cleanly distinguishes chronic rushing from chronic hesitation.
+- **How It Works**: We maintain an exponentially smoothed baseline of your timing errors ($\Delta t$ in milliseconds) for every specific chord transition (like going from G to Em). Longitudinal transition persistence smooths with $\alpha = 0.30$:
+  $$\bar{\mu}_t = 0.30 \cdot \Delta t_t + 0.70 \cdot \bar{\mu}_{t-1}$$
+  Windowed session habit analysis uses $\alpha = 0.35$ (`compute_ewma`), distinguishing chronic rushing from chronic hesitation without letting a single outlier dominate history.
 - **Citations**:
   - Lucas, J. M., & Saccucci, M. S. (1990). *Exponentially weighted moving average control schemes: properties and enhancements*. Technometrics, 32(1), 1–12.
   - Hunter, J. S. (1986). *The Exponentially Weighted Moving Average*. Journal of Quality Technology, 18(4), 203–210.
@@ -233,7 +233,7 @@ ALGORITHM DIRECTORY & RESEARCH CITATIONS
 #### 13. Page's Two-Sided CUSUM Change-Point Detector
 - **Where in Code**: `src/lib/adaptive/patterns.py`
 - **Why We Use It**: Learning an instrument is not a smooth, straight line. You struggle with a chord change for a week, and then suddenly something clicks in your hand. We need a mathematical way to know when that breakthrough actually occurred.
-- **How It Works**: We maintain running cumulative sums ($S^+$ and $S^-$) that accumulate small deviations from your baseline. When the cumulative sum crosses a statistical threshold ($h = 4.5\sigma$), Sonus registers a verified change-point — confirming that your motor skill has fundamentally shifted, marking a true breakthrough or a sudden regression.
+- **How It Works**: We maintain running cumulative sums ($S^+$ and $S^-$) that accumulate small deviations from your baseline. When the cumulative sum crosses a statistical threshold ($h = 4.0\sigma$), Sonus registers a verified change-point — confirming that your motor skill has fundamentally shifted, marking a true breakthrough or a sudden regression.
 - **Citations**:
   - Page, E. S. (1954). *Continuous Inspection Schemes*. Biometrika, 41(1/2), 100–115.
   - Basseville, M., & Nikiforov, I. V. (1993). *Detection of Abrupt Changes: Theory and Application*. Prentice Hall.
@@ -244,8 +244,8 @@ ALGORITHM DIRECTORY & RESEARCH CITATIONS
 - **How It Works**: We model skill mastery as an underlying state with four realistic probabilities:
   - Prior Mastery $P(L_0) = 0.20$
   - Learning Rate $P(T) = 0.15$
-  - Lucky Guess / Fluke $P(G) = 0.10$
-  - Accidental Slip $P(S) = 0.05$
+  - Lucky Guess / Fluke $P(G) = 0.12$
+  - Accidental Slip $P(S) = 0.08$
   
   Whenever you complete a take, Bayes' rule calculates the updated probability that your hands have genuinely mastered that specific transition.
 - **Citations**:
@@ -279,10 +279,10 @@ ALGORITHM DIRECTORY & RESEARCH CITATIONS
 - **Citations**:
   - W3C Music Notation Community Group. (2021). *Standard Music Font Layout (SMuFL) Specification 1.4*.
 
-#### 18. Strictly Grounded AI Pedagogical Coaching
-- **Where in Code**: `src/lib/adaptive/llm_coach.py`, `src/lib/adaptive/reports.py`
-- **Why We Use It**: Standard language models make up things when asked about music. If an AI coach tells you that you played an "expressive F#" when the song is in C major, you can never trust it again.
-- **How It Works**: The language model (Gemini 1.5 Flash) is strictly bounded. It is never allowed to listen to raw audio or guess your notes. Instead, it is given an unchangeable JSON bundle containing verified facts: exact millisecond timing deltas, missed chord tones, and detected habits. If the API key is missing or the connection drops, Sonus immediately uses a deterministic rules engine to generate clean, thoughtful feedback without missing a beat.
+#### 18. Strictly Grounded AI Pedagogical Coaching & Honest Cohort Benchmarks
+- **Where in Code**: `src/lib/adaptive/llm_coach.py`, `src/lib/adaptive/reports.py`, `src/lib/community/benchmarks.py`
+- **Why We Use It**: Standard language models hallucinate musical critiques when asked about raw audio, and small practice cohorts should never misrepresent sparse data as global norms.
+- **How It Works**: The language model (`gemini-2.5-flash` by default, configurable via `GEMINI_MODEL`) is strictly bounded: it never inspects raw audio or invents notes. Instead, it receives an immutable JSON fact bundle containing verified millisecond timing deltas, missed chord tones, and detected habits, falling back seamlessly to a deterministic pedagogical rules engine when `GEMINI_API_KEY` is omitted or times out. Similarly, **Peer Benchmarks** compute empirical quartiles/top-10% thresholds directly from PostgreSQL once at least 10 completed practice sessions exist in the cohort, and transparently display a clearly labeled *Simulated Reference Baseline* whenever live cohort data falls below that threshold.
 
 ---
 
@@ -336,7 +336,8 @@ python -m venv .venv
 source .venv/bin/activate
 
 # Install Python packages
-pip install -r pyproject.toml
+uv venv
+uv pip install -r pyproject.toml
 ```
 
 ### 2. Configure Environment
@@ -369,17 +370,25 @@ Open `http://localhost:5173` in your browser.
 
 ## 🧪 Testing & Verification
 
-Sonus includes unit and integration tests across both the frontend Web Audio engine and the backend machine learning pipeline:
+Sonus includes unit, integration, type, lint, and end-to-end verification suites across both the frontend Web Audio engine and the backend machine learning pipeline:
 
 ```bash
-# Run frontend Vitest suites (302 tests passing)
+# Run frontend Vitest suites
 pnpm --prefix apps/web test -- --run
+
+# Run landing scroll choreography tests (Node native TS runner)
+node --experimental-strip-types --test apps/web/src/components/landing/scroll-choreography.test.ts
+
+# Lint frontend
+pnpm --filter web lint
 
 # Run frontend production build
 pnpm --prefix apps/web build
 
-# Run backend pytest suites
-pytest -v
+# Run backend lint, strict typecheck & pytest suite
+ruff check src/
+mypy src/ tests/
+pytest tests/ -v
 ```
 
 ---
