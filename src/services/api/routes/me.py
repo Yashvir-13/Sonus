@@ -3,21 +3,21 @@
 from __future__ import annotations
 
 import re
-from datetime import UTC, datetime
-from typing import Annotated, Any
+from datetime import UTC, date, datetime, timedelta
+from typing import Annotated
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, Query, status
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import SQLModel, col, select
-
 from src.lib.adaptive.mastery import StudentMasteryEngine
 from src.lib.auth.clerk import ClerkIdentity, ClerkIdentityDep, resolve_clerk_email
 from src.lib.db import get_session
 from src.lib.exception import NotFound, Unprocessable
-from src.lib.schemas.mastery import MeMasteryResponse, TransitionRecommendationItem
+from src.lib.schemas.mastery import MeMasteryResponse
 from src.models.practice import (
     AdaptiveIntervention,
     AdaptiveInterventionRead,
@@ -33,6 +33,9 @@ from src.models.user import User
 router = APIRouter(tags=["Me"])
 
 _USERNAME_PATTERN = re.compile(r"^[a-zA-Z0-9_]{3,30}$")
+_MIN_USERNAME_LEN = 3
+_MAX_USERNAME_ATTEMPTS = 5
+_PERCENT_SCALE = 100.0
 
 
 class MeCreateRequest(SQLModel):
@@ -44,6 +47,7 @@ class MeCreateRequest(SQLModel):
     @field_validator("name")
     @classmethod
     def strip_name(cls, value: str) -> str:
+        """Strip leading/trailing whitespace and reject blank names."""
         stripped = value.strip()
         if not stripped:
             msg = "Name must not be blank"
@@ -53,6 +57,7 @@ class MeCreateRequest(SQLModel):
     @field_validator("username")
     @classmethod
     def normalize_username(cls, value: str) -> str:
+        """Normalize username to lowercase alphanumeric/underscore."""
         normalized = value.strip().lower()
         if not _USERNAME_PATTERN.fullmatch(normalized):
             msg = "Username must be 3-30 characters: letters, numbers, underscore"
@@ -70,6 +75,7 @@ class MeUpdateRequest(SQLModel):
     @field_validator("name")
     @classmethod
     def strip_name(cls, value: str | None) -> str | None:
+        """Strip whitespace and reject blank names when provided."""
         if value is None:
             return None
         stripped = value.strip()
@@ -81,6 +87,7 @@ class MeUpdateRequest(SQLModel):
     @field_validator("username")
     @classmethod
     def normalize_username(cls, value: str | None) -> str | None:
+        """Normalize username to lowercase alphanumeric/underscore when provided."""
         if value is None:
             return None
         normalized = value.strip().lower()
@@ -118,50 +125,86 @@ class MeStatsResponse(BaseModel):
     streak_days: int
 
 
+def _resolve_email_for_identity(identity: ClerkIdentity) -> str:
+    if identity.email:
+        return identity.email
+    try:
+        return resolve_clerk_email(identity.user_id)
+    except (Unprocessable, RuntimeError):
+        return f"{identity.user_id}@sonus.studio"
+
+
+async def _pick_unique_username(session: AsyncSession, base_raw: str) -> str:
+    sanitized = re.sub(r"[^a-z0-9_]", "_", base_raw.lower()).strip("_")
+    if len(sanitized) < _MIN_USERNAME_LEN:
+        sanitized = f"user_{sanitized}"
+    base_username = sanitized[:22]
+
+    username_candidate = base_username
+    for _ in range(_MAX_USERNAME_ATTEMPTS):
+        taken = await session.execute(
+            select(User.id).where(User.username == username_candidate),
+        )
+        if taken.scalar_one_or_none() is None:
+            return username_candidate
+        username_candidate = f"{base_username}_{uuid4().hex[:4]}"[:30]
+    return f"musician_{uuid4().hex[:8]}"[:30]
+
+
+def _compute_consecutive_utc_streak(timestamps: list[datetime | None]) -> int:
+    practice_dates: set[date] = set()
+    for raw_dt in timestamps:
+        if raw_dt is None:
+            continue
+        dt_utc = (
+            raw_dt.replace(tzinfo=UTC)
+            if raw_dt.tzinfo is None
+            else raw_dt.astimezone(UTC)
+        )
+        practice_dates.add(dt_utc.date())
+
+    if not practice_dates:
+        return 0
+
+    today_utc = datetime.now(UTC).date()
+    cursor = today_utc if today_utc in practice_dates else today_utc - timedelta(days=1)
+    streak = 0
+    while cursor in practice_dates:
+        streak += 1
+        cursor -= timedelta(days=1)
+    return streak
+
+
 async def ensure_user_exists(
     session: AsyncSession,
     identity: ClerkIdentity,
     candidate_name: str | None = None,
     candidate_username: str | None = None,
 ) -> User:
-    """Return the product user for the Clerk identity, auto-provisioning if missing."""
+    """Return the product user for ``identity.user_id``, provisioning if missing."""
     user = await session.get(User, identity.user_id)
     if user is not None:
         return user
 
-    email_str: str
-    if identity.email:
-        email_str = identity.email
-    else:
-        try:
-            email_str = resolve_clerk_email(identity.user_id)
-        except Exception:
-            email_str = f"{identity.user_id}@sonus.studio"
+    email_str = _resolve_email_for_identity(identity)
 
-    # Check if a user with this email already exists under a legacy/different id
-    existing_by_email = await session.execute(select(User).where(User.email == email_str))
+    # Never alias a different Clerk subject onto an existing account
+    existing_by_email = await session.execute(
+        select(User).where(User.email == email_str),
+    )
     matched_user = existing_by_email.scalar_one_or_none()
     if matched_user is not None:
-        return matched_user
+        msg = "An account with this email already exists under a different identity"
+        raise Unprocessable(msg)
 
-    raw_username = candidate_username or email_str.split("@")[0]
-    sanitized = re.sub(r"[^a-z0-9_]", "_", raw_username.lower()).strip("_")
-    if len(sanitized) < 3:
-        sanitized = f"user_{sanitized}"
-    base_username = sanitized[:22]
+    raw_username = candidate_username or email_str.split("@", maxsplit=1)[0]
+    username_candidate = await _pick_unique_username(session, raw_username)
 
-    username_candidate = base_username
-    for _ in range(5):
-        taken = await session.execute(
-            select(User.id).where(User.username == username_candidate)
-        )
-        if taken.scalar_one_or_none() is None:
-            break
-        username_candidate = f"{base_username}_{uuid4().hex[:4]}"[:30]
-    else:
-        username_candidate = f"musician_{uuid4().hex[:8]}"[:30]
-
-    name = candidate_name or raw_username.replace("_", " ").title()[:100] or "Studio Musician"
+    name = (
+        candidate_name
+        or raw_username.replace("_", " ").title()[:100]
+        or "Studio Musician"
+    )
     now = datetime.now(UTC)
 
     new_user = User(
@@ -177,13 +220,14 @@ async def ensure_user_exists(
     try:
         await session.commit()
         await session.refresh(new_user)
-        return new_user
-    except Exception:
+    except IntegrityError as exc:
         await session.rollback()
         existing = await session.get(User, identity.user_id)
         if existing is not None:
             return existing
-        raise
+        msg = "Could not provision user profile due to conflicting email or username"
+        raise Unprocessable(msg) from exc
+    return new_user
 
 
 @router.get("/me", response_model=User)
@@ -222,14 +266,16 @@ async def update_me(
     """Update profile attributes for the signed-in user."""
     user = await session.get(User, identity.user_id)
     if user is None:
-        raise NotFound("User not found")
+        msg = "User not found"
+        raise NotFound(msg)
 
     if body.username is not None and body.username != user.username:
         taken = await session.execute(
-            select(User.id).where(User.username == body.username, User.id != user.id)
+            select(User.id).where(User.username == body.username, User.id != user.id),
         )
         if taken.scalar_one_or_none() is not None:
-            raise Unprocessable("Username is already taken")
+            msg = "Username is already taken"
+            raise Unprocessable(msg)
         user.username = body.username
 
     if body.name is not None:
@@ -263,23 +309,21 @@ async def get_my_sessions(
     )
     rows = await session.execute(query)
 
-    items: list[MeSessionHistoryItem] = []
-    for ps, ex_title, ex_instrument in rows.all():
-        items.append(
-            MeSessionHistoryItem(
-                id=ps.id,
-                exercise_id=ps.exercise_id,
-                exercise_title=ex_title or "Custom Exercise",
-                instrument=ex_instrument or "piano",
-                tempo_bpm=ps.tempo_bpm,
-                state=ps.state,
-                overall_accuracy=ps.overall_accuracy,
-                avg_timing_error_ms=ps.avg_timing_error_ms,
-                voicing_score=ps.voicing_score,
-                created_at=ps.created_at,
-            )
+    return [
+        MeSessionHistoryItem(
+            id=ps.id,
+            exercise_id=ps.exercise_id,
+            exercise_title=ex_title or "Custom Exercise",
+            instrument=ex_instrument or "piano",
+            tempo_bpm=ps.tempo_bpm,
+            state=ps.state,
+            overall_accuracy=ps.overall_accuracy,
+            avg_timing_error_ms=ps.avg_timing_error_ms,
+            voicing_score=ps.voicing_score,
+            created_at=ps.created_at,
         )
-    return items
+        for ps, ex_title, ex_instrument in rows.all()
+    ]
 
 
 @router.get("/me/stats", response_model=MeStatsResponse)
@@ -288,7 +332,6 @@ async def get_my_stats(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> MeStatsResponse:
     """Retrieve aggregated practice performance statistics and streak data."""
-    # Push session metric aggregation directly to PostgreSQL
     stats_query = await session.execute(
         select(
             func.count(col(PracticeSession.id)),
@@ -298,7 +341,7 @@ async def get_my_stats(
         ).where(
             col(PracticeSession.user_id) == identity.user_id,
             col(PracticeSession.state) == "completed",
-        )
+        ),
     )
     stats_row = stats_query.one()
     total_count = int(stats_row[0] or 0)
@@ -306,27 +349,34 @@ async def get_my_stats(
     raw_timing = stats_row[2]
     raw_voicing = stats_row[3]
 
-    avg_acc = (float(raw_acc) * 100.0) if raw_acc is not None else 0.0
+    avg_acc = (float(raw_acc) * _PERCENT_SCALE) if raw_acc is not None else 0.0
     avg_timing = float(raw_timing) if raw_timing is not None else 0.0
     avg_voicing = float(raw_voicing) if raw_voicing is not None else 0.0
 
-    # Habit patterns count
     habits_query = await session.execute(
-        select(func.count()).select_from(HabitPattern).where(col(HabitPattern.user_id) == identity.user_id)
+        select(func.count())
+        .select_from(HabitPattern)
+        .where(col(HabitPattern.user_id) == identity.user_id),
     )
     active_habits = int(habits_query.scalar() or 0)
 
-    # Interventions completed count
     interventions_query = await session.execute(
-        select(func.count()).select_from(AdaptiveIntervention).where(
+        select(func.count())
+        .select_from(AdaptiveIntervention)
+        .where(
             col(AdaptiveIntervention.user_id) == identity.user_id,
-            col(AdaptiveIntervention.completed) == True,  # noqa: E712
-        )
+            col(AdaptiveIntervention.completed).is_(True),
+        ),
     )
     completed_interventions = int(interventions_query.scalar() or 0)
 
-    # Simple streak calculation: distinct practice dates
-    streak_days = min(total_count, 3) if total_count > 0 else 0
+    dates_query = await session.execute(
+        select(col(PracticeSession.created_at)).where(
+            col(PracticeSession.user_id) == identity.user_id,
+            col(PracticeSession.state) == "completed",
+        ),
+    )
+    streak_days = _compute_consecutive_utc_streak(list(dates_query.scalars().all()))
 
     return MeStatsResponse(
         user_id=identity.user_id,
@@ -349,7 +399,7 @@ async def get_my_interventions(
     query = await session.execute(
         select(AdaptiveIntervention)
         .where(col(AdaptiveIntervention.user_id) == identity.user_id)
-        .order_by(col(AdaptiveIntervention.created_at).desc())
+        .order_by(col(AdaptiveIntervention.created_at).desc()),
     )
     return list(query.scalars().all())
 
@@ -359,11 +409,11 @@ async def get_my_habits(
     identity: ClerkIdentityDep,
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> list[HabitPattern]:
-    """Retrieve all detected habit patterns (tempo rushing, dragging, transition lag, voicing drops)."""
+    """Retrieve all detected habit patterns for the signed-in user."""
     query = await session.execute(
         select(HabitPattern)
         .where(col(HabitPattern.user_id) == identity.user_id)
-        .order_by(col(HabitPattern.evidence_count).desc())
+        .order_by(col(HabitPattern.evidence_count).desc()),
     )
     return list(query.scalars().all())
 
@@ -373,11 +423,14 @@ async def get_my_mastery(
     identity: ClerkIdentityDep,
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> MeMasteryResponse:
-    """Retrieve user's active transition mastery states, ranked recommendations, and priority scores."""
+    """Retrieve active transition mastery states and ranked recommendations."""
     query = await session.execute(
         select(TransitionMastery)
         .where(col(TransitionMastery.user_id) == identity.user_id)
-        .order_by(col(TransitionMastery.p_known).asc(), col(TransitionMastery.ewma_latency_ms).desc())
+        .order_by(
+            col(TransitionMastery.p_known).asc(),
+            col(TransitionMastery.ewma_latency_ms).desc(),
+        ),
     )
     records = list(query.scalars().all())
     ranked_recommendations = StudentMasteryEngine.rank_transition_prescriptions(records)
@@ -386,5 +439,3 @@ async def get_my_mastery(
         records=[TransitionMasteryRead.model_validate(r) for r in records],
         recommendations=ranked_recommendations,
     )
-
-

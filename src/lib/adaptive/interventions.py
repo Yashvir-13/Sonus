@@ -10,9 +10,9 @@ def _extract_chords_from_context(context: str, default_chord: str = "C") -> list
     """Parse transition context into chord names (e.g. 'F -> G' -> ['F', 'G'])."""
     if "->" in context:
         parts = [p.strip() for p in context.split("->") if p.strip()]
-        return parts if parts else [default_chord]
-    elif ":" in context:
-        chord = context.split(":")[0].strip()
+        return parts or [default_chord]
+    if ":" in context:
+        chord = context.split(":", maxsplit=1)[0].strip()
         return [chord] if chord else [default_chord]
     return [context.strip()] if context.strip() else [default_chord]
 

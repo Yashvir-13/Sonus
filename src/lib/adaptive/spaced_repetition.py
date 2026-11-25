@@ -7,7 +7,6 @@ performance grades (q in 0..5) to compute dynamic Ease Factors (EF) and review i
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 
 
 @dataclass(frozen=True, slots=True)
@@ -70,7 +69,7 @@ def update_sm2(
         elif current.repetitions == 1:
             new_interval = 6
         else:
-            new_interval = max(1, int(round(current.interval_days * new_ef)))
+            new_interval = max(1, round(current.interval_days * new_ef))
 
         new_reps = current.repetitions + 1
     else:

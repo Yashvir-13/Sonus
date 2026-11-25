@@ -1,4 +1,4 @@
-"""Deep module for decoding and clustering polyphonic acoustic audio with zero retention."""
+"""Deep module for polyphonic audio decoding and clustering with zero retention."""
 
 from __future__ import annotations
 
@@ -9,11 +9,23 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import anyio
 from src.lib.audio.transcription import async_transcribe_polyphonic_wav
-from src.lib.audio.validation import validate_audio_upload
+from src.lib.audio.validation import (
+    DEFAULT_MAX_AUDIO_DURATION_SECONDS,
+    DEFAULT_MAX_AUDIO_SIZE_BYTES,
+    validate_audio_upload,
+)
 from src.lib.audio.voicing import cluster_chords_from_notes
+from src.lib.exception import PayloadTooLarge, Unprocessable
+from src.lib.rate_limit import ml_concurrency_limiter
 
 logger = logging.getLogger(__name__)
+
+_WAV_HEADER_MIN_BYTES = 12
+_WAV_BODY_MIN_BYTES = 44
+_FFMPEG_TIMEOUT_SECONDS = 15
+_MAX_FFMPEG_DURATION_SECONDS = int(DEFAULT_MAX_AUDIO_DURATION_SECONDS)
 
 
 @dataclass(frozen=True, slots=True)
@@ -27,8 +39,23 @@ class DecodedAudioTake:
     channels: int
 
 
+def _safe_unlink(path: Path | None) -> None:
+    if path is not None and path.exists():
+        try:
+            path.unlink()
+        except OSError as exc:
+            logger.warning("Failed to unlink ephemeral audio file %s: %s", path, exc)
+
+
+def _write_temp_wav(wav_bytes: bytes) -> Path:
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+        tmp_path.write_bytes(wav_bytes)
+    return tmp_path
+
+
 class PolyphonicAudioDecoder:
-    """Encapsulates audio validation, neural multipitch transcription, and voicing clustering.
+    """Encapsulates audio validation, neural transcription, and voicing clustering.
 
     Enforces ADR-0001 (Zero Audio Retention): audio bytes are written exclusively to an
     ephemeral scratch file, transcribed via worker threadpool, and immediately unlinked.
@@ -36,9 +63,20 @@ class PolyphonicAudioDecoder:
 
     @classmethod
     def _transcode_non_wav_if_needed(cls, audio_bytes: bytes) -> bytes:
-        """If audio_bytes do not have a standard RIFF/WAVE header, attempt transcoding via ffmpeg."""
-        if len(audio_bytes) >= 12 and audio_bytes[:4] == b"RIFF" and audio_bytes[8:12] == b"WAVE":
+        """Transcode non-RIFF/WAVE compressed audio via bounded ffmpeg."""
+        if (
+            len(audio_bytes) >= _WAV_HEADER_MIN_BYTES
+            and audio_bytes[:4] == b"RIFF"
+            and audio_bytes[8:12] == b"WAVE"
+        ):
             return audio_bytes
+
+        if len(audio_bytes) > DEFAULT_MAX_AUDIO_SIZE_BYTES:
+            msg = (
+                f"Audio payload size ({len(audio_bytes)} bytes) exceeds maximum "
+                f"allowed ({DEFAULT_MAX_AUDIO_SIZE_BYTES} bytes)"
+            )
+            raise PayloadTooLarge(msg)
 
         out_path: Path | None = None
         with tempfile.NamedTemporaryFile(suffix=".raw_audio", delete=False) as in_tmp:
@@ -54,6 +92,10 @@ class PolyphonicAudioDecoder:
                 "-y",
                 "-i",
                 str(in_path),
+                "-t",
+                str(_MAX_FFMPEG_DURATION_SECONDS),
+                "-fs",
+                str(DEFAULT_MAX_AUDIO_SIZE_BYTES),
                 "-ar",
                 "22050",
                 "-ac",
@@ -62,31 +104,29 @@ class PolyphonicAudioDecoder:
                 "pcm_s16le",
                 str(out_path),
             ]
-            res = subprocess.run(cmd, capture_output=True, timeout=15)
-            if res.returncode == 0 and out_path.exists() and out_path.stat().st_size > 44:
+            res = subprocess.run(  # noqa: S603
+                cmd,
+                capture_output=True,
+                timeout=_FFMPEG_TIMEOUT_SECONDS,
+                check=False,
+            )
+            if (
+                res.returncode == 0
+                and out_path.exists()
+                and out_path.stat().st_size > _WAV_BODY_MIN_BYTES
+            ):
                 return out_path.read_bytes()
-        except Exception as exc:
+        except (OSError, subprocess.SubprocessError) as exc:
             logger.debug("Automatic audio transcoding non-fatal fallback: %s", exc)
         finally:
-            if in_path.exists():
-                try:
-                    in_path.unlink()
-                except OSError:
-                    pass
-            if out_path and out_path.exists():
-                try:
-                    out_path.unlink()
-                except OSError:
-                    pass
+            _safe_unlink(in_path)
+            _safe_unlink(out_path)
 
         return audio_bytes
 
-
     @classmethod
     async def decode(cls, audio_bytes: bytes) -> DecodedAudioTake:
-        """Validate audio bytes, transcribe note events, cluster into chords, and clean up temporary storage.
-
-        Transparently transcodes compressed audio formats (e.g. M4A, MP3, AAC, OGG) to 16-bit mono WAV.
+        """Validate audio bytes, transcribe note events, and cluster into chords.
 
         Args:
             audio_bytes: Raw audio byte buffer (WAV or supported compressed format).
@@ -95,34 +135,44 @@ class PolyphonicAudioDecoder:
             DecodedAudioTake with notes, chords, and audio format metadata.
 
         Raises:
-            Unprocessable: If the audio bytes fail validation, duration or size limits.
+            PayloadTooLarge: If the raw buffer exceeds the 15 MB upload ceiling.
+            Unprocessable: If the audio bytes fail validation or duration limits.
+
         """
-        wav_bytes = cls._transcode_non_wav_if_needed(audio_bytes)
-        validation_result = validate_audio_upload(wav_bytes)
+        if not audio_bytes:
+            msg = "Audio payload is empty"
+            raise Unprocessable(msg)
 
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-            tmp_path = Path(tmp.name)
-            tmp_path.write_bytes(wav_bytes)
-
-        try:
-            notes = await async_transcribe_polyphonic_wav(tmp_path)
-            chords = cluster_chords_from_notes(notes)
-            return DecodedAudioTake(
-                notes=notes,
-                chords=chords,
-                duration_seconds=validation_result.duration_seconds,
-                sample_rate=validation_result.sample_rate,
-                channels=validation_result.channels,
+        if len(audio_bytes) > DEFAULT_MAX_AUDIO_SIZE_BYTES:
+            msg = (
+                f"Audio payload size ({len(audio_bytes)} bytes) exceeds maximum "
+                f"allowed ({DEFAULT_MAX_AUDIO_SIZE_BYTES} bytes)"
             )
-        finally:
-            if tmp_path.exists():
-                try:
-                    tmp_path.unlink()
-                except OSError as exc:
-                    logger.warning("Failed to unlink ephemeral audio file %s: %s", tmp_path, exc)
+            raise PayloadTooLarge(msg)
+
+        async with ml_concurrency_limiter():
+            wav_bytes = await anyio.to_thread.run_sync(
+                cls._transcode_non_wav_if_needed,
+                audio_bytes,
+            )
+            validation_result = validate_audio_upload(wav_bytes)
+
+            tmp_path = await anyio.to_thread.run_sync(_write_temp_wav, wav_bytes)
+            try:
+                notes = await async_transcribe_polyphonic_wav(tmp_path)
+                chords = cluster_chords_from_notes(notes)
+                return DecodedAudioTake(
+                    notes=notes,
+                    chords=chords,
+                    duration_seconds=validation_result.duration_seconds,
+                    sample_rate=validation_result.sample_rate,
+                    channels=validation_result.channels,
+                )
+            finally:
+                await anyio.to_thread.run_sync(_safe_unlink, tmp_path)
 
     @classmethod
     async def decode_chords(cls, audio_bytes: bytes) -> list[dict[str, Any]]:
-        """Convenience method returning just the clustered played chords."""
+        """Return just the clustered played chords."""
         decoded = await cls.decode(audio_bytes)
         return decoded.chords

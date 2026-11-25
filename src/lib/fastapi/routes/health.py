@@ -1,4 +1,6 @@
-"""Health API route."""
+"""Health API routes."""
+
+from __future__ import annotations
 
 from datetime import UTC, datetime
 from typing import Any
@@ -6,7 +8,6 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
-
 from src.lib.db import engine
 
 TAG = "Health"
@@ -37,3 +38,9 @@ async def health_check() -> dict[str, Any]:
             },
         )
     return {"status": "healthy", "database": "ok", "timestamp": timestamp}
+
+
+@router.get("/health/live", tags=[TAG], name="Liveness check")
+async def liveness_check() -> dict[str, str]:
+    """Lightweight liveness probe without database queries (supports scale-to-zero)."""
+    return {"status": "alive", "timestamp": datetime.now(UTC).isoformat()}

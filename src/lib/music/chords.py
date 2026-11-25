@@ -122,7 +122,7 @@ def parse_chord_notes(chord_name: str) -> list[int]:
         bass_pitch = _parse_pitch_class(bass_str)
         # Put bass note first, followed by remaining chord tones preserving chord tone order
         remaining_pitches = [p for p in chord_pitches if p != bass_pitch]
-        return [bass_pitch] + remaining_pitches
+        return [bass_pitch, *remaining_pitches]
 
     return chord_pitches
 

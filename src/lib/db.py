@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import os
-from collections.abc import AsyncGenerator
+import socket
+from functools import lru_cache
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 from urllib.parse import quote_plus
 from uuid import uuid4
 
 from dotenv import load_dotenv
-import socket
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -19,22 +20,23 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.pool import NullPool
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(_REPO_ROOT / ".env")
 
 
-def _require_env(name: str) -> str:
-    value = os.environ.get(name)
-    if not value:
-        msg = f"{name} is not set in the environment"
-        raise RuntimeError(msg)
-    return value
+@event.listens_for(Session, "after_flush")
+def _mark_session_pending_writes(session: Session, _flush_context: object) -> None:
+    session.info["has_pending_writes"] = True
 
 
-from functools import lru_cache
-import ssl
+@event.listens_for(Session, "after_commit")
+@event.listens_for(Session, "after_rollback")
+def _clear_session_pending_writes(session: Session) -> None:
+    session.info.pop("has_pending_writes", None)
 
 
 @lru_cache(maxsize=128)
@@ -43,13 +45,17 @@ def _resolve_ipv4(host: str, port: int = 5432) -> str | None:
         infos = socket.getaddrinfo(host, port, socket.AF_INET)
         if infos:
             return str(infos[0][4][0])
-    except Exception:
-        pass
+    except OSError:
+        return None
     return None
 
 
 def _is_cloud_ssl_host(host: str) -> bool:
-    return "supabase.co" in host or "pooler.supabase.com" in host or "neon.tech" in host
+    return (
+        "supabase.co" in host
+        or "pooler.supabase.com" in host
+        or "neon.tech" in host
+    )
 
 
 def _url_from_environment(*, driver: str) -> str | None:
@@ -78,7 +84,9 @@ def _url_from_environment(*, driver: str) -> str | None:
 
 def _pooler_mode() -> str | None:
     """Return pooler mode from host/port, or None for direct connections."""
-    configured_url = os.environ.get("DATABASE_URL_POOLED") or os.environ.get("DATABASE_URL")
+    configured_url = os.environ.get("DATABASE_URL_POOLED") or os.environ.get(
+        "DATABASE_URL",
+    )
     if configured_url:
         parsed_url = make_url(configured_url.strip().strip("'\""))
         host = parsed_url.host or ""
@@ -147,18 +155,16 @@ SyncSessionLocal = sessionmaker(
 
 _async_url = build_database_url(driver="postgresql+asyncpg")
 
-_async_connect_args: dict[str, object] = {}
-_async_engine_kwargs: dict[str, object] = {
+_async_connect_args: dict[str, Any] = {}
+_async_engine_kwargs: dict[str, Any] = {
     "echo": False,
     "future": True,
+    "pool_pre_ping": True,
     "pool_size": 10,
     "max_overflow": 20,
     "pool_recycle": 300,
 }
 
-_parsed_async = make_url(_async_url)
-_orig_host = _parsed_async.host or ""
-# Note: asyncpg relies on hostname for TLS SNI routing to cloud proxies (e.g. Neon, Supabase)
 if _pooler_mode() == "transaction":
     _async_connect_args.update({
         "statement_cache_size": 0,
@@ -182,11 +188,18 @@ AsyncSessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    """Yield a session per request, always closes cleanly."""
+    """Yield a session per request, committing only when pending writes exist."""
     async with AsyncSessionLocal() as session:
         try:
             yield session
-            await session.commit()
+            has_pending = bool(
+                session.new
+                or session.dirty
+                or session.deleted
+                or session.info.get("has_pending_writes"),
+            )
+            if has_pending:
+                await session.commit()
         except Exception:
             await session.rollback()
             raise

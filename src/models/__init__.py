@@ -3,8 +3,8 @@
 Import all table models here so metadata is registered for Alembic and the ORM.
 """
 
-from src.models.base import Base  # noqa: F401
-from src.models.practice import (  # noqa: F401
+from src.models.base import Base
+from src.models.practice import (
     AdaptiveIntervention,
     Exercise,
     HabitPattern,
@@ -12,7 +12,7 @@ from src.models.practice import (  # noqa: F401
     SessionChordMetric,
     TransitionMastery,
 )
-from src.models.user import User  # noqa: F401
+from src.models.user import User
 
 User.model_rebuild()
 Exercise.model_rebuild()

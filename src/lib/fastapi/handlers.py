@@ -3,12 +3,10 @@
 from __future__ import annotations
 
 import http
-from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-
 from src.lib.fastapi.middleware.correlation import get_request_id
 
 

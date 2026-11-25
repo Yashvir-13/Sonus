@@ -8,11 +8,20 @@ from sqlmodel import Field, SQLModel
 from src.models.base import Base
 from src.models.common import TimestampMixin
 
+
 class Exercise(TimestampMixin, Base, table=True):
     """Exercise model for the platform."""
+
     __tablename__ = "exercises"
 
     id: str = Field(primary_key=True, max_length=100)
+    user_id: str | None = Field(
+        default=None,
+        foreign_key="users.id",
+        ondelete="CASCADE",
+        index=True,
+        max_length=255,
+    )
     title: str = Field(max_length=200)
     description: str | None = None
     instrument: str = Field(max_length=50, default="piano")
@@ -83,7 +92,7 @@ class PracticeSessionCreate(SQLModel):
     """Schema for creating a practice session."""
 
     exercise_id: str
-    tempo_bpm: int
+    tempo_bpm: int = Field(ge=30, le=260)
     intervention_id: str | None = None
 
 
@@ -239,7 +248,7 @@ class TransitionMastery(TimestampMixin, Base, table=True):
     sm2_repetitions: int = Field(default=0)
     last_practiced_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
-        sa_type=cast(Any, DateTime(timezone=True)),
+        sa_type=cast("Any", DateTime(timezone=True)),
         sa_column_kwargs={"server_default": func.now(), "nullable": False},
     )
     bandit_alpha_isolated: float = Field(default=1.0)

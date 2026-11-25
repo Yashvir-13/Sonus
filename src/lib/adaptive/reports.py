@@ -1,6 +1,11 @@
+"""Deterministic grounded fact report builder for practice sessions."""
+
 from __future__ import annotations
 
 from typing import Any
+
+_TIMING_BIAS_THRESHOLD_MS = 30.0
+_PERCENT_SCALE = 100.0
 
 
 def generate_grounded_report(
@@ -10,37 +15,50 @@ def generate_grounded_report(
     """Generate a hallucination-free practice report with verifiable fact bundles."""
     total_chords = len(chord_metrics)
     matched_chords = sum(1 for m in chord_metrics if m.get("is_matched") is True)
-    accuracy_pct = round((matched_chords / total_chords * 100.0) if total_chords > 0 else 0.0, 1)
+    accuracy_pct = round(
+        (matched_chords / total_chords * _PERCENT_SCALE) if total_chords > 0 else 0.0,
+        1,
+    )
 
     grounded_facts: list[dict[str, Any]] = [
         {
             "fact_id": f"fact_{session_id}_accuracy",
             "category": "accuracy",
-            "claim": f"Achieved {accuracy_pct}% chord accuracy ({matched_chords}/{total_chords} chords matched).",
+            "claim": (
+                f"Achieved {accuracy_pct}% chord accuracy "
+                f"({matched_chords}/{total_chords} chords matched)."
+            ),
             "data": {
                 "accuracy_pct": accuracy_pct,
                 "matched_chords": matched_chords,
                 "total_chords": total_chords,
             },
-        }
+        },
     ]
 
     summary_lines = [
         f"Session {session_id} Practice Analysis:",
-        f"Overall Accuracy: {accuracy_pct}% ({matched_chords}/{total_chords} chords matched).",
+        (
+            f"Overall Accuracy: {accuracy_pct}% "
+            f"({matched_chords}/{total_chords} chords matched)."
+        ),
     ]
 
     total_onset_error = 0.0
+    total_abs_onset_error = 0.0
     total_voicing = 0.0
 
     for idx, metric in enumerate(chord_metrics):
-        chord_name = str(metric.get("expected_chord") or metric.get("chord", f"Chord {idx}"))
+        chord_name = str(
+            metric.get("expected_chord") or metric.get("chord", f"Chord {idx}"),
+        )
         onset_error = float(metric.get("onset_error_ms", 0.0))
         voicing = float(metric.get("voicing_completeness", 1.0))
         missed = metric.get("missed_notes", [])
         is_matched = metric.get("is_matched", False)
 
         total_onset_error += onset_error
+        total_abs_onset_error += abs(onset_error)
         total_voicing += voicing
 
         if not is_matched:
@@ -48,10 +66,15 @@ def generate_grounded_report(
             grounded_facts.append({
                 "fact_id": fact_id,
                 "category": "missed_chord",
-                "claim": f"Chord {chord_name} at index {idx} was not detected or omitted.",
+                "claim": (
+                    f"Chord {chord_name} at index {idx} "
+                    "was not detected or omitted."
+                ),
                 "data": {"chord": chord_name, "index": idx},
             })
-            summary_lines.append(f"- {chord_name} (index {idx}): Omitted or misaligned.")
+            summary_lines.append(
+                f"- {chord_name} (index {idx}): Omitted or misaligned.",
+            )
             continue
 
         detail_parts: list[str] = []
@@ -61,23 +84,35 @@ def generate_grounded_report(
             grounded_facts.append({
                 "fact_id": fact_id,
                 "category": "voicing",
-                "claim": f"Chord {chord_name} had {int(voicing * 100)}% completeness with missed notes: {missed_str}.",
-                "data": {"chord": chord_name, "voicing": voicing, "missed_notes": missed},
+                "claim": (
+                    f"Chord {chord_name} had {int(voicing * _PERCENT_SCALE)}% "
+                    f"completeness with missed notes: {missed_str}."
+                ),
+                "data": {
+                    "chord": chord_name,
+                    "voicing": voicing,
+                    "missed_notes": missed,
+                },
             })
-            detail_parts.append(f"voicing {int(voicing * 100)}% (missed {missed_str})")
+            detail_parts.append(
+                f"voicing {int(voicing * _PERCENT_SCALE)}% (missed {missed_str})",
+            )
         else:
             detail_parts.append("clean voicing (100%)")
 
         timing_desc = f"{onset_error:+.1f}ms"
-        if onset_error < -30:
+        if onset_error < -_TIMING_BIAS_THRESHOLD_MS:
             timing_desc += " (rushed)"
-        elif onset_error > 30:
+        elif onset_error > _TIMING_BIAS_THRESHOLD_MS:
             timing_desc += " (lagged)"
         detail_parts.append(f"timing error {timing_desc}")
 
         summary_lines.append(f"- {chord_name}: {', '.join(detail_parts)}.")
 
     avg_onset = round(total_onset_error / total_chords, 1) if total_chords > 0 else 0.0
+    avg_abs_onset = (
+        round(total_abs_onset_error / total_chords, 1) if total_chords > 0 else 0.0
+    )
     avg_voicing = round(total_voicing / total_chords, 2) if total_chords > 0 else 0.0
 
     facts: dict[str, Any] = {
@@ -85,6 +120,9 @@ def generate_grounded_report(
         "matched_chords": matched_chords,
         "accuracy_pct": accuracy_pct,
         "avg_onset_error_ms": avg_onset,
+        "avg_abs_timing_error_ms": avg_abs_onset,
+        "timing_bias_ms": avg_onset,
+        "timing_consistency_ms": avg_abs_onset,
         "avg_voicing_completeness": avg_voicing,
     }
 

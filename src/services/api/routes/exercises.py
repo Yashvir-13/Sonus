@@ -7,16 +7,21 @@ from typing import Annotated
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, Query, status
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.lib.auth.clerk import ClerkIdentityDep
+from sqlmodel import col
+from src.lib.auth.clerk import ClerkIdentityDep, OptionalClerkIdentityDep
 from src.lib.db import get_session
 from src.lib.exception import NotFound
-from src.lib.schemas.music import CustomExerciseCreate, ExerciseDetailRead, ProgressionData
+from src.lib.rate_limit import EXERCISE_CREATE_RATE_LIMIT
+from src.lib.schemas.music import (
+    CustomExerciseCreate,
+    ExerciseDetailRead,
+    ProgressionData,
+)
 from src.models.practice import Exercise, ExerciseRead
-from src.services.api.routes.sessions import _create_synthetic_exercise
-
-from sqlmodel import col
+from src.services.api.routes.me import ensure_user_exists
+from src.services.api.routes.sessions import build_synthetic_chord_drill
 
 NAMED_DIFFICULTIES: dict[str, tuple[int, int]] = {
     "beginner": (1, 2),
@@ -32,12 +37,39 @@ router = APIRouter(prefix="/exercises", tags=["Exercises"])
 @router.get("", response_model=list[ExerciseRead])
 async def get_exercises(
     session: Annotated[AsyncSession, Depends(get_session)],
-    instrument: Annotated[str | None, Query(description="Filter by instrument ('piano' or 'guitar')")] = None,
-    difficulty: Annotated[str | None, Query(description="Filter by difficulty level (1-5, or 'beginner', 'intermediate', 'advanced')")] = None,
-    search: Annotated[str | None, Query(description="Search keywords in title or description")] = None,
+    identity: OptionalClerkIdentityDep,
+    instrument: Annotated[
+        str | None,
+        Query(description="Filter by instrument ('piano' or 'guitar')"),
+    ] = None,
+    difficulty: Annotated[
+        str | None,
+        Query(
+            description=(
+                "Filter by difficulty level (1-5, or 'beginner', "
+                "'intermediate', 'advanced')"
+            ),
+        ),
+    ] = None,
+    search: Annotated[
+        str | None,
+        Query(description="Search keywords in title or description"),
+    ] = None,
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    offset: Annotated[int, Query(ge=0)] = 0,
 ) -> list[Exercise]:
-    """Return all exercises matching optional instrument, difficulty, or search filters."""
+    """Return public and caller-owned exercises matching filters."""
     query = select(Exercise)
+    if identity is not None:
+        query = query.where(
+            or_(
+                col(Exercise.user_id).is_(None),
+                col(Exercise.user_id) == identity.user_id,
+            ),
+        )
+    else:
+        query = query.where(col(Exercise.user_id).is_(None))
+
     if instrument:
         query = query.where(col(Exercise.instrument) == instrument.lower())
     if difficulty:
@@ -47,11 +79,18 @@ async def get_exercises(
             query = query.where(col(Exercise.difficulty) == diff_num)
         elif diff_str in NAMED_DIFFICULTIES:
             min_d, max_d = NAMED_DIFFICULTIES[diff_str]
-            query = query.where(col(Exercise.difficulty) >= min_d, col(Exercise.difficulty) <= max_d)
+            query = query.where(
+                col(Exercise.difficulty) >= min_d,
+                col(Exercise.difficulty) <= max_d,
+            )
     if search:
         query = query.where(col(Exercise.title).ilike(f"%{search}%"))
 
-    result = await session.execute(query.order_by(col(Exercise.difficulty), col(Exercise.title)))
+    result = await session.execute(
+        query.order_by(col(Exercise.difficulty), col(Exercise.title))
+        .limit(limit)
+        .offset(offset),
+    )
     return list(result.scalars().all())
 
 
@@ -59,21 +98,21 @@ async def get_exercises(
 async def get_exercise_detail(
     exercise_id: str,
     session: Annotated[AsyncSession, Depends(get_session)],
+    identity: OptionalClerkIdentityDep,
 ) -> ExerciseDetailRead:
-    """Return complete exercise details with fully parsed progression, voicings, tabs, and tempo ranges."""
+    """Return complete exercise details without mutating database state."""
     exercise = await session.get(Exercise, exercise_id)
-    if exercise is None:
-        if exercise_id.startswith("drill_") or exercise_id.startswith("chord_"):
-            exercise = _create_synthetic_exercise(exercise_id)
-            try:
-                session.add(exercise)
-                await session.commit()
-                await session.refresh(exercise)
-            except Exception:
-                await session.rollback()
-                exercise = await session.get(Exercise, exercise_id)
+    if exercise is not None:
+        if exercise.user_id is not None and (
+            identity is None or exercise.user_id != identity.user_id
+        ):
+            msg = f"Exercise '{exercise_id}' not found"
+            raise NotFound(msg)
+    else:
+        exercise = build_synthetic_chord_drill(exercise_id)
         if exercise is None:
-            raise NotFound(f"Exercise '{exercise_id}' not found")
+            msg = f"Exercise '{exercise_id}' not found"
+            raise NotFound(msg)
 
     try:
         raw_prog = json.loads(exercise.progression_json)
@@ -84,7 +123,7 @@ async def get_exercise_detail(
             )
         else:
             progression = ProgressionData.model_validate(raw_prog)
-    except Exception:
+    except (ValueError, TypeError):
         progression = ProgressionData(
             default_tempo_bpm=exercise.tempo_bpm,
             chords=[],
@@ -101,18 +140,26 @@ async def get_exercise_detail(
     )
 
 
-@router.post("", response_model=ExerciseDetailRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=ExerciseDetailRead,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_custom_exercise(
     body: CustomExerciseCreate,
     identity: ClerkIdentityDep,
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> ExerciseDetailRead:
-    """Ingest a new custom chord progression exercise with validated music theory metadata."""
+    """Create a private custom chord progression exercise owned by the caller."""
+    EXERCISE_CREATE_RATE_LIMIT.check(identity.user_id)
+    await ensure_user_exists(session, identity)
+
     new_id = f"ex_custom_{uuid4().hex[:12]}"
     prog_json = body.progression.model_dump_json()
 
     new_exercise = Exercise(
         id=new_id,
+        user_id=identity.user_id,
         title=body.title,
         description=body.description,
         instrument=body.instrument,

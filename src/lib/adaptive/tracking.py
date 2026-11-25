@@ -50,7 +50,7 @@ def evaluate_drill_outcome(
             "follow_up_value": round(follow_val, 2),
         }
 
-    elif drill_type == "voicing_arpeggio":
+    if drill_type == "voicing_arpeggio":
         # Metric: Voicing Completeness (higher is better)
         base_scores = [float(m.get("voicing_completeness", 0.0)) for m in baseline_metrics if "voicing_completeness" in m]
         follow_scores = [float(m.get("voicing_completeness", 0.0)) for m in follow_up_metrics if "voicing_completeness" in m]
@@ -76,28 +76,27 @@ def evaluate_drill_outcome(
             "follow_up_value": round(follow_val, 3),
         }
 
-    else:
-        # Default: Onset Timing Error (lower absolute deviation is better)
-        base_errs = [abs(float(m.get("onset_error_ms", 0.0))) for m in baseline_metrics if "onset_error_ms" in m]
-        follow_errs = [abs(float(m.get("onset_error_ms", 0.0))) for m in follow_up_metrics if "onset_error_ms" in m]
+    # Default: Onset Timing Error (lower absolute deviation is better)
+    base_errs = [abs(float(m.get("onset_error_ms", 0.0))) for m in baseline_metrics if "onset_error_ms" in m]
+    follow_errs = [abs(float(m.get("onset_error_ms", 0.0))) for m in follow_up_metrics if "onset_error_ms" in m]
 
-        if not base_errs or not follow_errs:
-            return {"drill_type": drill_type, "outcome": "inconclusive", "completed": False, "measured_improvement_pct": 0.0}
+    if not base_errs or not follow_errs:
+        return {"drill_type": drill_type, "outcome": "inconclusive", "completed": False, "measured_improvement_pct": 0.0}
 
-        base_val = sum(base_errs) / len(base_errs)
-        follow_val = sum(follow_errs) / len(follow_errs)
-        reduction_err = base_val - follow_val
-        pct_improvement = (reduction_err / base_val * 100.0) if base_val > 0 else 0.0
+    base_val = sum(base_errs) / len(base_errs)
+    follow_val = sum(follow_errs) / len(follow_errs)
+    reduction_err = base_val - follow_val
+    pct_improvement = (reduction_err / base_val * 100.0) if base_val > 0 else 0.0
 
-        is_improved = pct_improvement >= 15.0 or reduction_err >= 15.0
-        outcome = "improved" if is_improved else ("steady" if pct_improvement >= -5.0 else "worsened")
+    is_improved = pct_improvement >= 15.0 or reduction_err >= 15.0
+    outcome = "improved" if is_improved else ("steady" if pct_improvement >= -5.0 else "worsened")
 
-        return {
-            "drill_type": drill_type,
-            "outcome": outcome,
-            "measured_improvement": round(reduction_err, 2),
-            "measured_improvement_pct": round(pct_improvement, 2),
-            "completed": is_improved,
-            "baseline_value": round(base_val, 2),
-            "follow_up_value": round(follow_val, 2),
-        }
+    return {
+        "drill_type": drill_type,
+        "outcome": outcome,
+        "measured_improvement": round(reduction_err, 2),
+        "measured_improvement_pct": round(pct_improvement, 2),
+        "completed": is_improved,
+        "baseline_value": round(base_val, 2),
+        "follow_up_value": round(follow_val, 2),
+    }

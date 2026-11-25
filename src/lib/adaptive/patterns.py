@@ -37,7 +37,7 @@ def _determine_harmonic_role(chord_symbol: str, note_name: str) -> str:
             return "unknown"
 
         # Compare pitch classes
-        root_notes = parse_chord_notes(chord_symbol.split("/")[0])
+        root_notes = parse_chord_notes(chord_symbol.split("/", maxsplit=1)[0])
         note_pc = parse_chord_notes(pitch_name)[0]
 
         if not root_notes:
@@ -46,18 +46,18 @@ def _determine_harmonic_role(chord_symbol: str, note_name: str) -> str:
         root_pc = root_notes[0]
         interval = (note_pc - root_pc) % 12
 
+    except (ValueError, KeyError, IndexError):
+        return "unknown"
+    else:
         if interval == 0:
             return "root"
-        elif interval in (3, 4):
+        if interval in (3, 4):
             return "third"
-        elif interval in (6, 7, 8):
+        if interval in (6, 7, 8):
             return "fifth"
-        elif interval in (10, 11):
+        if interval in (10, 11):
             return "seventh"
-        else:
-            return "extension"
-    except Exception:
-        return "unknown"
+        return "extension"
 
 
 def detect_transition_lag_patterns(

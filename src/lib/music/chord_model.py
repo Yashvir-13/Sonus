@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import re
 
 from src.lib.music.chords import (
     CHORD_REGEX,

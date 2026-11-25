@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from src.lib.audio.voicing import evaluate_chord_voicing, midi_to_pitch_name
 from src.lib.music.chords import chord_similarity, parse_chord_notes
 
-
+logger = logging.getLogger(__name__)
 _NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
 
@@ -29,7 +30,7 @@ def _compute_chord_similarity(
     if not exp_notes and ref_name:
         try:
             exp_notes = parse_chord_notes(ref_name)
-        except Exception:
+        except ValueError:
             exp_notes = []
 
     det_notes: list[int] = []
@@ -38,7 +39,7 @@ def _compute_chord_similarity(
     elif det_name:
         try:
             det_notes = parse_chord_notes(det_name)
-        except Exception:
+        except ValueError:
             det_notes = []
 
     # 2. Chord symbol semantic similarity
@@ -48,8 +49,8 @@ def _compute_chord_similarity(
             ref_pcs = parse_chord_notes(ref_name)
             det_pcs = parse_chord_notes(det_name)
             chord_name_sim = chord_similarity(ref_pcs, det_pcs)
-        except Exception:
-            pass
+        except ValueError:
+            logger.debug("Skipping semantic chord comparison for unparseable symbols %r / %r", ref_name, det_name)
 
     # 3. Raw note overlap
     raw_sim = chord_similarity(exp_notes, det_notes)
@@ -84,11 +85,8 @@ def _compute_match_score(
     if time_diff > window_sec:
         return -100.0, sim, time_diff
 
-    if sim >= 0.5:
-        # High similarity reward discounted by proportional timing error without artificial 3.0s ceiling
-        score = (10.0 * sim) - (time_diff * 1.5)
-    else:
-        score = -6.0
+    # High similarity reward discounted by proportional timing error without artificial 3.0s ceiling
+    score = (10.0 * sim) - (time_diff * 1.5) if sim >= 0.5 else -6.0
 
     return score, sim, time_diff
 
@@ -122,11 +120,16 @@ def align_chord_sequence(
         sim_first = _compute_chord_similarity(reference_chords[0], played_chords[0])
         approx_4beat_count_in = 4.0 * beat_sec
         approx_3beat_count_in = 3.0 * beat_sec
-        if sim_first >= 0.6 and first_played_t >= 1.5 and first_played_t >= 2.0 * beat_sec:
-            if abs(first_played_t - approx_4beat_count_in) < (1.0 * beat_sec):
-                offset_sec = first_played_t
-            elif abs(first_played_t - approx_3beat_count_in) < (1.0 * beat_sec):
-                offset_sec = first_played_t
+        if (
+            sim_first >= 0.6
+            and first_played_t >= 1.5
+            and first_played_t >= 2.0 * beat_sec
+            and (
+                abs(first_played_t - approx_4beat_count_in) < (1.0 * beat_sec)
+                or abs(first_played_t - approx_3beat_count_in) < (1.0 * beat_sec)
+            )
+        ):
+            offset_sec = first_played_t
 
     if offset_sec > 0.0:
         norm_played: list[dict[str, Any]] = []
@@ -225,7 +228,7 @@ def align_chord_sequence(
             if not missed_names and expected_chord_name:
                 try:
                     missed_names = [_NOTE_NAMES[pc] for pc in sorted(parse_chord_notes(expected_chord_name))]
-                except Exception:
+                except ValueError:
                     missed_names = []
             results.append({
                 "chord_index": ref_idx,

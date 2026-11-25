@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -18,7 +19,10 @@ class TempoRange(BaseModel):
 class GuitarTabs(BaseModel):
     """Fretboard fingering and string positions for guitar."""
 
-    frets: list[int | str | None] = Field(default_factory=list, description="Fret numbers per string (None or 'x' for muted)")
+    frets: list[int | str | None] = Field(
+        default_factory=list,
+        description="Fret numbers per string (None or 'x' for muted)",
+    )
     strings: str = Field(default="E-A-D-G-B-e")
     fingering: str | None = None
 
@@ -26,7 +30,7 @@ class GuitarTabs(BaseModel):
 class PluckedNote(BaseModel):
     """Individual single-string pluck or arpeggio event in a guitar measure."""
 
-    beatOffset: float = Field(default=0.0, ge=0.0)
+    beatOffset: float = Field(default=0.0, ge=0.0)  # noqa: N815
     string: int = Field(ge=1, le=6)
     fret: int | str
     pitch: int = Field(ge=0, le=127)
@@ -48,10 +52,10 @@ class CanonicalNoteEvent(BaseModel):
     """Universal instrument-agnostic note event."""
 
     pitch: str | int
-    beatOffset: float = Field(default=0.0, ge=0.0)
+    beatOffset: float = Field(default=0.0, ge=0.0)  # noqa: N815
     duration: float = Field(default=1.0, ge=0.01)
     voice: str | None = None
-    guitarOverride: dict[str, Any] | None = None
+    guitarOverride: dict[str, Any] | None = None  # noqa: N815
 
 
 class ChordDefinition(BaseModel):
@@ -81,7 +85,7 @@ class ProgressionData(BaseModel):
     tempo_range: TempoRange | None = None
     strumming_pattern: str | None = None
     educational_focus: str | None = None
-    chords: list[ChordDefinition] = Field(default_factory=list)
+    chords: list[ChordDefinition] = Field(default_factory=list, max_length=256)
 
 
 class ExerciseDetailRead(BaseModel):

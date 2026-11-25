@@ -55,8 +55,8 @@ async def run_flow_simulation() -> None:
 
     os.environ["ENV"] = "development"
     os.environ["ALLOW_DEV_TOKEN_AUTH"] = "true"
-    os.environ.setdefault("DEV_USER_ID", "user_3KEP7OZiiKMswrl5f28AjxOV7Kl")
-    os.environ.setdefault("DEV_USER_EMAIL", "yashvir.126@gmail.com")
+    os.environ.setdefault("DEV_USER_ID", "user_dev_local_001")
+    os.environ.setdefault("DEV_USER_EMAIL", "dev@example.com")
 
     token = "dev_token"
     headers = {
@@ -83,9 +83,9 @@ async def run_flow_simulation() -> None:
                 "/me",
                 headers=headers,
                 json={
-                    "name": "Yashvir Singh",
-                    "username": "yashvir_guitar",
-                    "email": "yashvir.126@gmail.com",
+                    "name": "Demo Musician",
+                    "username": "demo_guitarist",
+                    "email": "dev@example.com",
                 },
             )
             res = await client.get("/me", headers=headers)

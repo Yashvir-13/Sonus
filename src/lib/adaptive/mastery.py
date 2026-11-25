@@ -5,16 +5,22 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from src.lib.adaptive.bandit import ThompsonSamplingBandit, UCB1Bandit
 from src.lib.adaptive.interventions import generate_intervention
-from src.lib.adaptive.knowledge_tracing import BKTParameters, BKTState, update_bkt
+from src.lib.adaptive.knowledge_tracing import BKTState, update_bkt
 from src.lib.adaptive.patterns import detect_cusum_changepoint
-
-from src.lib.adaptive.spaced_repetition import SM2Record, compute_musical_quality_grade, update_sm2
+from src.lib.adaptive.spaced_repetition import (
+    SM2Record,
+    compute_musical_quality_grade,
+    update_sm2,
+)
 from src.lib.schemas.mastery import TransitionRecommendationItem
 from src.models.practice import TransitionMastery
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +53,7 @@ class StudentMasteryEngine:
     4. Multi-Armed Bandit (Thompson Sampling / UCB1) Reinforcement Learning
     """
 
-    DEFAULT_DRILL_STRATEGIES: list[str] = [
+    DEFAULT_DRILL_STRATEGIES: ClassVar[list[str]] = [
         "isolated_transition",
         "subdivision_click",
         "voicing_arpeggio",
@@ -124,17 +130,17 @@ class StudentMasteryEngine:
     def select_remedial_strategy(
         cls,
         strategies: list[str] | None = None,
-        strategy_history: dict[str, tuple[int, int]] | None = None,
+        strategy_history: Mapping[str, tuple[float, float]] | None = None,
         policy: str = "thompson_sampling",
     ) -> str:
-        """Select optimal remedial drill policy via Multi-Armed Bandit exploration/exploitation."""
+        """Select optimal remedial drill policy via Multi-Armed Bandit."""
         candidate_strategies = strategies or cls.DEFAULT_DRILL_STRATEGIES
 
         if policy == "ucb1":
             bandit_ucb = UCB1Bandit(arms=candidate_strategies)
             if strategy_history:
                 for arm_name, (wins, losses) in strategy_history.items():
-                    total_pulls = wins + losses
+                    total_pulls = round(wins + losses)
                     if total_pulls > 0 and arm_name in bandit_ucb.arms:
                         arm = bandit_ucb.arms[arm_name]
                         arm.pulls = total_pulls
@@ -150,7 +156,7 @@ class StudentMasteryEngine:
                     arm = bandit_ts.arms[arm_name]
                     arm.alpha += wins
                     arm.beta += losses
-                    arm.pulls += (wins + losses)
+                    arm.pulls += round(wins + losses)
                     arm.total_reward += wins
         return bandit_ts.select_arm()
 
@@ -160,7 +166,7 @@ class StudentMasteryEngine:
         habit_pattern: dict[str, Any],
         user_id: str,
         reference_tempo: int,
-        strategy_history: dict[str, tuple[int, int]] | None = None,
+        strategy_history: Mapping[str, tuple[float, float]] | None = None,
         policy: str = "thompson_sampling",
     ) -> dict[str, Any]:
         """Generate tailored remedial intervention using Multi-Armed Bandit strategy selection."""

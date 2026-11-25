@@ -2,7 +2,6 @@
 
 from pydantic import EmailStr
 from sqlmodel import Field, SQLModel
-
 from src.models.base import Base
 from src.models.common import TimestampMixin, VerificationMixin
 

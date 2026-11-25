@@ -4,10 +4,8 @@ from __future__ import annotations
 
 import io
 from dataclasses import dataclass
-from typing import Any
 
 from scipy.io import wavfile
-
 from src.lib.exception import Unprocessable
 
 DEFAULT_MAX_AUDIO_SIZE_BYTES = 15 * 1024 * 1024  # 15 MB

@@ -8,13 +8,13 @@ from src.lib.music.seed_data import SEED_EXERCISES
 
 
 def test_seed_exercises_catalog_count_and_types() -> None:
-    assert len(SEED_EXERCISES) == 20
+    assert len(SEED_EXERCISES) == 21
 
     guitar_exercises = [e for e in SEED_EXERCISES if e["instrument"] == "guitar"]
     piano_exercises = [e for e in SEED_EXERCISES if e["instrument"] == "piano"]
 
     assert len(guitar_exercises) == 10
-    assert len(piano_exercises) == 10
+    assert len(piano_exercises) == 11
 
     expected_ids = {
         "ex_guitar_rising_sun",
@@ -37,6 +37,7 @@ def test_seed_exercises_catalog_count_and_types() -> None:
         "ex_piano_clair_de_lune",
         "ex_piano_the_entertainer",
         "ex_piano_autumn_turnaround",
+        "ex_piano_pop_ballad",
     }
     actual_ids = {e["id"] for e in SEED_EXERCISES}
     assert actual_ids == expected_ids

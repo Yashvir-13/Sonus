@@ -28,7 +28,7 @@ def evaluate_chord_voicing(
     if not expected_pitches and expected_chord_name:
         try:
             expected_pitches = parse_chord_notes(expected_chord_name)
-        except Exception:
+        except ValueError:
             expected_pitches = []
 
     if not expected_pitches:
@@ -93,7 +93,7 @@ def identify_chord_from_pitches(pitches: list[int]) -> str:
     """Best-effort chord identification from a collection of MIDI pitches."""
     if not pitches:
         return ""
-    detected_pcs = set(p % 12 for p in pitches)
+    detected_pcs = {p % 12 for p in pitches}
 
     # Check common triads and seventh chords
     common_qualities = ["", "m", "7", "maj7", "m7", "dim", "aug", "sus2", "sus4"]
@@ -200,9 +200,8 @@ def cluster_chords_from_notes(
                 # Same harmonic chord continuing within reasonable arpeggio duration (< 2.2s)
                 if active_span + gap <= 2.2:
                     should_merge = True
-            elif not active_chord and combined_chord:
-                if active_span + gap <= 2.2:
-                    should_merge = True
+            elif not active_chord and combined_chord and active_span + gap <= 2.2:
+                should_merge = True
 
         if should_merge:
             active_cluster.extend(cluster)

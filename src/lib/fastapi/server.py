@@ -1,35 +1,50 @@
 """FastAPI server."""
 
+from __future__ import annotations
+
 import os
-from collections.abc import AsyncIterator
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-
 from src.lib.fastapi.routes.health import router as health_router
 from src.lib.fastapi.templates.scalar import DOCS_TEMPLATE
-from src.lib.schemas.fastapi import Middleware, Server
+
+if TYPE_CHECKING:
+    from src.lib.schemas.fastapi import Middleware, Server
+    from starlette.types import Lifespan
 
 load_dotenv(".env")
 
 
+def _is_loopback_origin(origin: str) -> bool:
+    host = (urlparse(origin).hostname or "").lower()
+    return host in {"localhost", "127.0.0.1", "::1"}
+
+
 def cors_allow_origins() -> list[str]:
-    """Parse ``CORS_ALLOWED_ORIGINS``: comma-separated scheme+host+port origins with safe production defaults."""
+    """Parse ``CORS_ALLOWED_ORIGINS`` with production-safe defaults."""
+    env = os.getenv("ENV", "development").strip().lower()
     raw = os.getenv("CORS_ALLOWED_ORIGINS", "")
-    origins = [o.strip() for o in raw.split(",") if o.strip()]
-    default_origins = [
-        "https://sonus.yashvirafterhours.me",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
+    origins = [
+        o.strip()
+        for o in raw.split(",")
+        if o.strip() and (env != "production" or not _is_loopback_origin(o.strip()))
     ]
-    for d in default_origins:
-        if d not in origins:
-            origins.append(d)
+    default_origins = ["https://sonus.yashvirafterhours.me"]
+    if env != "production":
+        default_origins.extend([
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+        ])
+    for default_origin in default_origins:
+        if default_origin not in origins:
+            origins.append(default_origin)
     return origins
 
 
@@ -37,7 +52,7 @@ def create_server(
     server: Server,
     middleware: Middleware,
     *,
-    lifespan: Any = None,
+    lifespan: Lifespan[FastAPI] | None = None,
 ) -> tuple[FastAPI, APIRouter]:
     """Create a FastAPI server."""
     env = os.getenv("ENV", "development").strip().lower()

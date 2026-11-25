@@ -23,9 +23,8 @@ def validate_progression_schema(progression: dict[str, Any]) -> bool:
         return False
 
     tempo = progression.get("tempo_bpm")
-    if tempo is not None:
-        if not isinstance(tempo, int) or tempo <= 0:
-            return False
+    if tempo is not None and (not isinstance(tempo, int) or tempo <= 0):
+        return False
 
     chords = progression.get("chords")
     if not isinstance(chords, list) or len(chords) == 0:

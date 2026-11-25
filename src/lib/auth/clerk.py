@@ -10,8 +10,9 @@ from typing import Annotated
 from clerk_backend_api import Clerk
 from clerk_backend_api.security.types import AuthenticateRequestOptions
 from fastapi import Depends, Request
-
 from src.lib.exception import Unauthorized, Unprocessable
+
+_BEARER_PREFIX = "Bearer "
 
 
 @dataclass(frozen=True, slots=True)
@@ -35,17 +36,21 @@ def clerk_client() -> Clerk:
 def require_clerk_identity(request: Request) -> ClerkIdentity:
     """Verify the Bearer session token and return the Clerk user id."""
     auth_header = request.headers.get("Authorization", "")
-    if auth_header.startswith("Bearer "):
-        token = auth_header[7:].strip()
+    if auth_header.startswith(_BEARER_PREFIX):
+        token = auth_header[len(_BEARER_PREFIX) :].strip()
         env = os.environ.get("ENV", "").strip().lower()
-        allow_dev = os.environ.get("ALLOW_DEV_TOKEN_AUTH", "false").strip().lower() in ("true", "1", "yes")
+        allow_dev = os.environ.get("ALLOW_DEV_TOKEN_AUTH", "false").strip().lower() in (
+            "true",
+            "1",
+            "yes",
+        )
         if env == "development" and allow_dev:
             # Explicitly allowed dev_token during local API testing
-            dev_user_id = os.environ.get("DEV_USER_ID", "user_3KEP7OZiiKMswrl5f28AjxOV7Kl")
+            dev_user_id = os.environ.get("DEV_USER_ID", "user_dev_local_001")
             if token in ("dev", "dev_token", "dev-token", dev_user_id):
                 return ClerkIdentity(
                     user_id=dev_user_id,
-                    email=os.environ.get("DEV_USER_EMAIL", "yashvir.126@gmail.com"),
+                    email=os.environ.get("DEV_USER_EMAIL", "dev@example.com"),
                 )
 
     secret = os.environ.get("CLERK_SECRET_KEY")
@@ -68,13 +73,27 @@ def require_clerk_identity(request: Request) -> ClerkIdentity:
 
     user_id = state.payload.get("sub")
     if not isinstance(user_id, str) or not user_id:
-        raise Unauthorized("Invalid session subject")
+        msg = "Invalid session subject"
+        raise Unauthorized(msg)
 
     email = state.payload.get("email")
     if isinstance(email, str) and email:
         return ClerkIdentity(user_id=user_id, email=email)
 
     return ClerkIdentity(user_id=user_id, email=None)
+
+
+def optional_clerk_identity(request: Request) -> ClerkIdentity | None:
+    """Verify a Bearer token if provided; return ``None`` for anonymous guests."""
+    auth_header = request.headers.get("Authorization", "")
+    token = (
+        auth_header[len(_BEARER_PREFIX) :].strip()
+        if auth_header.startswith(_BEARER_PREFIX)
+        else ""
+    )
+    if not token:
+        return None
+    return require_clerk_identity(request)
 
 
 @lru_cache(maxsize=512)
@@ -102,3 +121,7 @@ def resolve_clerk_email(clerk_user_id: str) -> str:
 
 
 ClerkIdentityDep = Annotated[ClerkIdentity, Depends(require_clerk_identity)]
+OptionalClerkIdentityDep = Annotated[
+    ClerkIdentity | None,
+    Depends(optional_clerk_identity),
+]

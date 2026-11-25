@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.lib.adaptive.llm_coach import (
     generate_coaching_report,
     generate_coaching_report_async,
@@ -112,13 +111,14 @@ class PracticeTakeEvaluator:
 
         # 3. Detect Habits
         detected_habits: list[dict[str, Any]] = []
-        transitions: list[dict[str, Any]] = []
-        for i in range(len(matched) - 1):
-            transitions.append({
+        transitions: list[dict[str, Any]] = [
+            {
                 "from_chord": matched[i]["expected_chord"],
                 "to_chord": matched[i + 1]["expected_chord"],
                 "transition_latency_ms": abs(matched[i + 1]["onset_error_ms"]),
-            })
+            }
+            for i in range(len(matched) - 1)
+        ]
         detected_habits.extend(detect_transition_lag_patterns(transitions, threshold_ms=80.0, min_evidence=2))
         detected_habits.extend(detect_tempo_rushing_patterns(matched, rush_threshold_ms=-25.0, min_evidence=2))
         detected_habits.extend(detect_tempo_dragging_patterns(matched, drag_threshold_ms=30.0, min_evidence=2))
@@ -127,17 +127,22 @@ class PracticeTakeEvaluator:
         # 4. Longitudinal Outcome Tracking for Remedial Drill Interventions
         drill_outcome: dict[str, Any] | None = None
         if baseline_metrics and drill_type:
-            follow_up_metrics = [
-                {
+            follow_up_metrics: list[dict[str, Any]] = []
+            for idx, cm in enumerate(chord_metric_records):
+                entry: dict[str, Any] = {
                     "chord": cm["expected_chord"],
-                    "from_chord": cm["expected_chord"],
-                    "to_chord": cm["expected_chord"],
-                    "transition_latency_ms": abs(cm["onset_error_ms"]),
                     "onset_error_ms": cm["onset_error_ms"],
                     "voicing_completeness": cm["voicing_completeness"],
                 }
-                for cm in chord_metric_records
-            ]
+                if idx > 0:
+                    prev_cm = chord_metric_records[idx - 1]
+                    if prev_cm["expected_chord"] != cm["expected_chord"]:
+                        entry["from_chord"] = prev_cm["expected_chord"]
+                        entry["to_chord"] = cm["expected_chord"]
+                        entry["transition_latency_ms"] = abs(cm["onset_error_ms"])
+                elif len(chord_metric_records) == 1:
+                    entry["transition_latency_ms"] = abs(cm["onset_error_ms"])
+                follow_up_metrics.append(entry)
             drill_outcome = evaluate_drill_outcome(
                 baseline_metrics=baseline_metrics,
                 follow_up_metrics=follow_up_metrics,
@@ -249,8 +254,8 @@ class TakeEvaluator:
                 chords = data.get("chords", [])
                 if isinstance(chords, list):
                     return [c for c in chords if isinstance(c, dict)]
-        except Exception as exc:
-            logger.error("Failed to parse exercise progression JSON (%s)", exc)
+        except (json.JSONDecodeError, TypeError, ValueError):
+            logger.exception("Failed to parse exercise progression JSON")
         return []
 
     @classmethod

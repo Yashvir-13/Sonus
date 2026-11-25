@@ -10,7 +10,8 @@ from src.services.api.app import app
 
 
 @pytest.mark.anyio
-async def test_transcribe_test_wav_endpoint() -> None:
+async def test_transcribe_test_wav_endpoint(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("ENV", "development")
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         # Generate dummy 0.1-second WAV
