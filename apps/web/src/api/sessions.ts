@@ -271,12 +271,28 @@ async function resolveAuthHeader(token?: string): Promise<Record<string, string>
   return {}
 }
 
+async function buildApiError(res: Response, fallbackPrefix: string): Promise<ApiError> {
+  let detail: string | null = null
+  try {
+    const body = (await res.json()) as { detail?: unknown; title?: unknown }
+    if (typeof body?.detail === 'string' && body.detail.trim()) {
+      detail = body.detail.trim()
+    } else if (typeof body?.title === 'string' && body.title.trim()) {
+      detail = body.title.trim()
+    }
+  } catch {
+    // Response may not be JSON
+  }
+  const message = detail ? `${detail} (HTTP ${res.status})` : `${fallbackPrefix}: ${res.status}`
+  return new ApiError(message, res.status)
+}
+
 export async function fetchMe(token?: string): Promise<UserProfileDto> {
   const res = await fetch(`${apiBaseUrl()}/api/me`, {
     headers: { ...(await resolveAuthHeader(token)) },
   })
   if (!res.ok) {
-    throw new ApiError(`GET /api/me failed: ${res.status}`, res.status)
+    throw await buildApiError(res, 'GET /api/me failed')
   }
   return res.json() as Promise<UserProfileDto>
 }
@@ -294,7 +310,7 @@ export async function createMe(
     body: JSON.stringify(payload),
   })
   if (!res.ok) {
-    throw new ApiError(`POST /api/me failed: ${res.status}`, res.status)
+    throw await buildApiError(res, 'POST /api/me failed')
   }
   return res.json() as Promise<UserProfileDto>
 }
@@ -312,7 +328,7 @@ export async function updateMe(
     body: JSON.stringify(payload),
   })
   if (!res.ok) {
-    throw new ApiError(`PATCH /api/me failed: ${res.status}`, res.status)
+    throw await buildApiError(res, 'PATCH /api/me failed')
   }
   return res.json() as Promise<UserProfileDto>
 }

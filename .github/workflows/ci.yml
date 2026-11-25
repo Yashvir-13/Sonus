@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           uv venv
-          uv pip install -r pyproject.toml
+          uv pip install -r pyproject.toml "ruff>=0.15.11" "mypy>=1.20.1"
 
       - name: Lint Python source (ruff)
         run: uv run --no-project ruff check src/
