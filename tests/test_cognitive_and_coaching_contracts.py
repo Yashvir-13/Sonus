@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import io
 import json
+import sys
 from collections.abc import AsyncGenerator
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -56,10 +58,15 @@ def test_transcribe_caches_basic_pitch_model_once(tmp_path: Path) -> None:
     fake_model = object()
     mock_model_cls = MagicMock(return_value=fake_model)
     mock_predict = MagicMock(return_value=({}, None, [(0.05, 0.45, 60, 0.8, None)]))
+    fake_bp_inference = SimpleNamespace(Model=mock_model_cls, predict=mock_predict)
+    fake_bp = SimpleNamespace(
+        ICASSP_2022_MODEL_PATH="/fake/icassp_2022_model.onnx",
+        inference=fake_bp_inference,
+    )
 
-    with (
-        patch("basic_pitch.inference.Model", mock_model_cls),
-        patch("basic_pitch.inference.predict", mock_predict),
+    with patch.dict(
+        sys.modules,
+        {"basic_pitch": fake_bp, "basic_pitch.inference": fake_bp_inference},
     ):
         n1 = transcribe_polyphonic_wav(wav1)
         n2 = transcribe_polyphonic_wav(wav2)
