@@ -366,19 +366,23 @@ export function ChordsScalesPage({
               {filteredEntries.map((entry) => {
                 const isSelected = entry.id === activeEntry.id
                 return (
-                  <motion.div
+                  <div
                     key={entry.id}
-                    data-testid={`theory-card-${entry.id}`}
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.99 }}
-                    onClick={() => setSelectedEntryId(entry.id)}
-                    className={`p-4 rounded-xl border transition-colors cursor-pointer flex flex-col justify-between gap-3 ${
+                    className={`p-4 rounded-xl border transition-colors flex flex-col justify-between gap-3 ${
                       isSelected
                         ? 'bg-amber-500/10 border-amber-500 shadow-sm'
                         : 'bg-white dark:bg-[#111114] border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700'
                     }`}
                   >
-                    <div className="space-y-1">
+                    <motion.button
+                      type="button"
+                      data-testid={`theory-card-${entry.id}`}
+                      aria-pressed={isSelected}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.99 }}
+                      onClick={() => setSelectedEntryId(entry.id)}
+                      className="text-left space-y-1 w-full cursor-pointer"
+                    >
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-[9px] font-mono uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
                           {entry.category}
@@ -387,30 +391,30 @@ export function ChordsScalesPage({
                           {entry.formula}
                         </span>
                       </div>
-                      <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                      <span className="block text-sm font-bold text-zinc-900 dark:text-zinc-100">
                         {entry.name}
-                      </h3>
-                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                      </span>
+                      <span className="block text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
                         {entry.description}
-                      </p>
-                    </div>
+                      </span>
+                    </motion.button>
 
                     <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800/80 text-[10px] font-mono">
                       <span className="text-zinc-400">{entry.notes.join(' · ')}</span>
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation()
+                        aria-label={`Preview ${entry.name} audio`}
+                        onClick={() => {
                           setSelectedEntryId(entry.id)
                           playPianoVoicing(entry)
                         }}
-                        className="p-1 rounded bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-500 hover:text-zinc-950 text-zinc-600 dark:text-zinc-300 transition-colors"
+                        className="p-1 rounded bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-500 hover:text-zinc-950 text-zinc-600 dark:text-zinc-300 transition-colors cursor-pointer"
                         title="Preview Audio"
                       >
                         <Play className="size-3" />
                       </button>
                     </div>
-                  </motion.div>
+                  </div>
                 )
               })}
             </div>

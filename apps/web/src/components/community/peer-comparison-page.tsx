@@ -1,13 +1,13 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { motion } from 'motion/react'
 
 import {
+  fetchCommunityBenchmarks,
+  type CommunityBenchmarksDto,
+  type CommunityLeaderboardEntryDto,
+} from '@/api/sessions'
 
-  PEER_LEADERBOARD_ENTRIES,
-
-  type PeerLeaderboardEntry,
-
-} from '@/lib/adaptive/recommendation-engine'
+import { type PeerLeaderboardEntry } from '@/lib/adaptive/recommendation-engine'
 
 import {
 
@@ -22,6 +22,8 @@ import {
   CheckCircle2,
 
   Gauge,
+
+  Loader2,
 
 } from 'lucide-react'
 
@@ -50,6 +52,10 @@ export type PeerComparisonPageProps = {
 
   hasRecordedTakes?: boolean
 
+  isSignedIn?: boolean
+
+  onRequestSignIn?: () => void
+
   onBackToLanding?: () => void
 
   onOpenProgress?: () => void
@@ -58,6 +64,26 @@ export type PeerComparisonPageProps = {
 
   userButtonSlot?: React.ReactNode
 
+}
+
+function mapBackendEntry(e: CommunityLeaderboardEntryDto): PeerLeaderboardEntry {
+  return {
+    rank: e.rank,
+    performerName: e.performer_name,
+    handle: e.handle,
+    isCurrentUser: e.is_current_user,
+    isSimulatedBaseline: false,
+    instrument: e.instrument,
+    songId: e.exercise_id,
+    songTitle: e.exercise_title,
+    tempoTier: e.tempo_tier,
+    tempoBpm: e.tempo_bpm,
+    alignmentScorePct: e.accuracy_pct,
+    meanOnsetDeltaMs: e.abs_timing_error_ms,
+    voicingCompletenessPct: e.voicing_pct,
+    bktMasteredCount: e.bkt_mastered_count,
+    verifiedTakesCount: e.verified_takes_count,
+  }
 }
 
 export function PeerComparisonPage({
@@ -69,6 +95,10 @@ export function PeerComparisonPage({
   userVoicingPct = 95.0,
 
   hasRecordedTakes = true,
+
+  isSignedIn = true,
+
+  onRequestSignIn,
 
   onBackToLanding: _onBackToLanding,
 
@@ -86,49 +116,87 @@ export function PeerComparisonPage({
 
   const [tempoTierFilter, setTempoTierFilter] = useState<'all' | '70%' | '100%' | '105%'>('all')
 
+  const [benchmarks, setBenchmarks] = useState<CommunityBenchmarksDto | null>(null)
+  const [isLoadingBenchmarks, setIsLoadingBenchmarks] = useState(
+    () => typeof fetchCommunityBenchmarks === 'function'
+  )
+  const [benchmarksError, setBenchmarksError] = useState(false)
+
+  useEffect(() => {
+    if (typeof fetchCommunityBenchmarks !== 'function') {
+      return
+    }
+    let cancelled = false
+    Promise.resolve().then(async () => {
+      if (cancelled) return
+      setIsLoadingBenchmarks(true)
+      setBenchmarksError(false)
+      try {
+        const data = await fetchCommunityBenchmarks({
+          instrument: instrumentFilter,
+          pieceId: selectedSongFilter,
+        })
+        if (!cancelled && data && typeof data === 'object' && 'distributions' in data) {
+          setBenchmarks(data)
+        }
+      } catch {
+        if (!cancelled) {
+          setBenchmarks(null)
+          setBenchmarksError(true)
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingBenchmarks(false)
+        }
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [instrumentFilter, selectedSongFilter])
+
+  const isBaselineFallback = benchmarks ? benchmarks.is_baseline_fallback : true
+
+  const pieceOptions = useMemo(() => {
+    const map = new Map<string, string>([
+      ['ex_piano_shostakovich_waltz_2', 'Waltz No. 2 in C Minor'],
+      ['ex_piano_canon', "Pachelbel's Canon in D"],
+      ['ex_guitar_rising_sun', 'The House of the Rising Sun'],
+      ['ex_guitar_knockin', "Knockin' on Heaven's Door"],
+    ])
+    for (const item of benchmarks?.leaderboard ?? []) {
+      if (!map.has(item.exercise_id)) {
+        map.set(item.exercise_id, item.exercise_title)
+      }
+    }
+    return Array.from(map.entries())
+  }, [benchmarks])
+
   const entries = useMemo(() => {
-
-    const updated = PEER_LEADERBOARD_ENTRIES.filter((e) => hasRecordedTakes || !e.isCurrentUser).map((entry) =>
-
-      entry.isCurrentUser
-
-        ? {
-
-            ...entry,
-
-            alignmentScorePct: userAccuracyPct,
-
-            meanOnsetDeltaMs: Math.abs(userMeanLatencyMs),
-
-            voicingCompletenessPct: userVoicingPct,
-
-          }
-
-        : entry
-
-    )
-
-    return updated
-
+    const liveEntries = (benchmarks?.leaderboard ?? []).map(mapBackendEntry)
+    return liveEntries
       .filter((e) => instrumentFilter === 'all' || e.instrument === instrumentFilter)
-
       .filter((e) => selectedSongFilter === 'all' || e.songId === selectedSongFilter)
-
       .filter((e) => tempoTierFilter === 'all' || e.tempoTier === tempoTierFilter)
-
       .sort((a, b) => b.alignmentScorePct - a.alignmentScorePct)
-
       .map((e, i) => ({ ...e, rank: i + 1 }))
+  }, [
+    benchmarks,
+    instrumentFilter,
+    selectedSongFilter,
+    tempoTierFilter,
+  ])
 
-  }, [instrumentFilter, selectedSongFilter, tempoTierFilter, userAccuracyPct, userMeanLatencyMs, userVoicingPct, hasRecordedTakes])
+  const liveTiming = !isBaselineFallback ? benchmarks?.distributions.timing_ms : null
+  const liveVoicing = !isBaselineFallback ? benchmarks?.distributions.voicing_pct : null
+  const liveAccuracy = !isBaselineFallback ? benchmarks?.distributions.accuracy_pct : null
 
-  // Compute user percentiles
-
-  const timingPercentile = Math.max(5, Math.min(99, Math.round(100 - Math.abs(userMeanLatencyMs) * 0.65)))
-
-  const voicingPercentile = Math.max(5, Math.min(99, Math.round(userVoicingPct * 0.92)))
-
-  const overallPercentile = Math.max(5, Math.min(99, Math.round((timingPercentile + voicingPercentile) / 2)))
+  // Compute user percentiles (prefer backend empirical percentile when live)
+  const fallbackTimingPct = Math.max(5, Math.min(99, Math.round(100 - Math.abs(userMeanLatencyMs) * 0.65)))
+  const fallbackVoicingPct = Math.max(5, Math.min(99, Math.round(userVoicingPct * 0.92)))
+  const timingPercentile = liveTiming?.user_percentile ?? fallbackTimingPct
+  const voicingPercentile = liveVoicing?.user_percentile ?? fallbackVoicingPct
+  const overallPercentile = liveAccuracy?.user_percentile ?? Math.max(5, Math.min(99, Math.round((timingPercentile + voicingPercentile) / 2)))
 
   return (
 
@@ -154,7 +222,15 @@ export function PeerComparisonPage({
 
           <span className="hidden sm:inline text-xs font-mono text-zinc-400 truncate">
 
-            • Empirical Community Distributions &amp; Accuracy Percentiles
+            •{' '}
+            {isLoadingBenchmarks
+              ? 'Loading Cohort Benchmarks'
+              : benchmarksError
+                ? 'Cohort Offline'
+                : isBaselineFallback
+                  ? 'Simulated Reference Baseline'
+                  : 'Empirical Community Distributions'}{' '}
+            &amp; Accuracy Percentiles
 
           </span>
 
@@ -190,9 +266,32 @@ export function PeerComparisonPage({
 
             <div>
 
-              <span className="text-xs font-mono uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-semibold">
+              <span
+                data-testid="benchmarks-status-label"
+                className="text-xs font-mono uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-semibold inline-flex items-center gap-2"
+              >
 
-                Cohort Percentile Distributions (N = 1,420 Active Musicians)
+                {isLoadingBenchmarks ? (
+                  <>
+                    <Loader2 className="size-3.5 animate-spin text-amber-500" />
+                    <span>Loading Live Cohort Benchmarks...</span>
+                  </>
+                ) : benchmarksError ? (
+                  <>
+                    Live Cohort Unavailable (Offline)
+                  </>
+                ) : isBaselineFallback ? (
+                  <>
+                    Simulated Reference Baseline
+                    {benchmarks && benchmarks.total_completed_sessions > 0
+                      ? ` · ${benchmarks.cohort_size} Active Musicians (${benchmarks.total_completed_sessions}/${benchmarks.min_cohort_sessions} Verified Takes)`
+                      : ''}
+                  </>
+                ) : (
+                  <>
+                    Cohort Percentile Distributions (N = {benchmarks?.cohort_size ?? 0} Active Musicians · {benchmarks?.total_completed_sessions ?? 0} Verified Takes)
+                  </>
+                )}
 
               </span>
 
@@ -201,6 +300,19 @@ export function PeerComparisonPage({
                 Compare Your Timing &amp; Chord Voicing Against Peers
 
               </h1>
+
+              {!isSignedIn && (
+                <div className="mt-3 inline-flex flex-wrap items-center gap-3 px-3.5 py-2 rounded-xl border border-amber-500/40 bg-amber-500/10 text-xs font-mono text-amber-800 dark:text-amber-300">
+                  <span>Practicing in guest mode. Verified cohort placement requires an account.</span>
+                  <button
+                    type="button"
+                    onClick={() => onRequestSignIn?.()}
+                    className="px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold uppercase tracking-wider cursor-pointer transition-colors"
+                  >
+                    Sign in to rank your own takes
+                  </button>
+                </div>
+              )}
 
             </div>
 
@@ -238,9 +350,23 @@ export function PeerComparisonPage({
 
                 userValLabel: hasRecordedTakes ? `+${Math.round(Math.abs(userMeanLatencyMs))}ms` : '—',
 
-                medianLabel: 'Peer Median: +62ms',
+                medianLabel:
+                  isLoadingBenchmarks && !benchmarks
+                    ? 'Loading peer median...'
+                    : benchmarksError && !benchmarks
+                      ? 'Peer Median: Unavailable'
+                      : liveTiming?.median != null
+                        ? `Peer Median: ±${liveTiming.median.toFixed(1)}ms`
+                        : 'Simulated Median: +62ms',
 
-                top10Label: 'Top 10%: ±14ms',
+                top10Label:
+                  isLoadingBenchmarks && !benchmarks
+                    ? 'Loading top 10%...'
+                    : benchmarksError && !benchmarks
+                      ? 'Top 10%: Unavailable'
+                      : liveTiming?.top_10_pct != null
+                        ? `Top 10%: ±${liveTiming.top_10_pct.toFixed(1)}ms`
+                        : 'Top 10%: ±14ms',
 
                 percentile: hasRecordedTakes ? timingPercentile : null,
 
@@ -260,9 +386,23 @@ export function PeerComparisonPage({
 
                 userValLabel: hasRecordedTakes ? `${userVoicingPct.toFixed(1)}%` : '—',
 
-                medianLabel: 'Peer Median: 84.0%',
+                medianLabel:
+                  isLoadingBenchmarks && !benchmarks
+                    ? 'Loading peer median...'
+                    : benchmarksError && !benchmarks
+                      ? 'Peer Median: Unavailable'
+                      : liveVoicing?.median != null
+                        ? `Peer Median: ${liveVoicing.median.toFixed(1)}%`
+                        : 'Simulated Median: 84.0%',
 
-                top10Label: 'Top 10%: 98.0%',
+                top10Label:
+                  isLoadingBenchmarks && !benchmarks
+                    ? 'Loading top 10%...'
+                    : benchmarksError && !benchmarks
+                      ? 'Top 10%: Unavailable'
+                      : liveVoicing?.top_10_pct != null
+                        ? `Top 10%: ${liveVoicing.top_10_pct.toFixed(1)}%`
+                        : 'Top 10%: 98.0%',
 
                 percentile: hasRecordedTakes ? voicingPercentile : null,
 
@@ -282,9 +422,23 @@ export function PeerComparisonPage({
 
                 userValLabel: hasRecordedTakes ? `${userAccuracyPct.toFixed(1)}%` : '—',
 
-                medianLabel: 'Peer Median: 81.5%',
+                medianLabel:
+                  isLoadingBenchmarks && !benchmarks
+                    ? 'Loading peer median...'
+                    : benchmarksError && !benchmarks
+                      ? 'Peer Median: Unavailable'
+                      : liveAccuracy?.median != null
+                        ? `Peer Median: ${liveAccuracy.median.toFixed(1)}%`
+                        : 'Simulated Median: 81.5%',
 
-                top10Label: 'Top 10%: 96.2%',
+                top10Label:
+                  isLoadingBenchmarks && !benchmarks
+                    ? 'Loading top 10%...'
+                    : benchmarksError && !benchmarks
+                      ? 'Top 10%: Unavailable'
+                      : liveAccuracy?.top_10_pct != null
+                        ? `Top 10%: ${liveAccuracy.top_10_pct.toFixed(1)}%`
+                        : 'Top 10%: 96.2%',
 
                 percentile: hasRecordedTakes ? overallPercentile : null,
 
@@ -580,13 +734,11 @@ export function PeerComparisonPage({
 
                 <option value="all">All Pieces</option>
 
-                <option value="ex_piano_shostakovich_waltz_2">Waltz No. 2 in C Minor</option>
-
-                <option value="ex_piano_canon">Pachelbel&apos;s Canon in D</option>
-
-                <option value="ex_guitar_rising_sun">The House of the Rising Sun</option>
-
-                <option value="ex_guitar_knockin">Knockin&apos; on Heaven&apos;s Door</option>
+                {pieceOptions.map(([id, title]) => (
+                  <option key={id} value={id}>
+                    {title}
+                  </option>
+                ))}
 
               </select>
 
@@ -670,7 +822,40 @@ export function PeerComparisonPage({
 
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
 
-                {entries.map((row: PeerLeaderboardEntry) => (
+                {isLoadingBenchmarks ? (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      data-testid="leaderboard-loading-state"
+                      className="py-10 px-4 text-center text-xs font-mono text-zinc-500"
+                    >
+                      <span className="inline-flex items-center justify-center gap-2">
+                        <Loader2 className="size-4 animate-spin text-amber-500" />
+                        <span>Loading verified cohort rankings...</span>
+                      </span>
+                    </td>
+                  </tr>
+                ) : benchmarksError && entries.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      data-testid="leaderboard-error-state"
+                      className="py-10 px-4 text-center text-xs font-mono text-zinc-500"
+                    >
+                      Unable to reach live cohort benchmarks right now. Check your connection or refresh to retry.
+                    </td>
+                  </tr>
+                ) : entries.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      data-testid="leaderboard-empty-state"
+                      className="py-10 px-4 text-center text-xs font-mono text-zinc-500"
+                    >
+                      No verified takes match the selected filters yet. Complete a practice take in the Practice Room to post a verified score.
+                    </td>
+                  </tr>
+                ) : entries.map((row: PeerLeaderboardEntry) => (
 
                   <tr
 
@@ -734,6 +919,12 @@ export function PeerComparisonPage({
 
                           </span>
 
+                        )}
+
+                        {row.isSimulatedBaseline && (
+                          <span className="px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-[9px] font-mono uppercase">
+                            Simulated
+                          </span>
                         )}
 
                       </div>

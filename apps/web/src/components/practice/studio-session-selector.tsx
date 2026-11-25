@@ -1,5 +1,4 @@
-import React, { useState, useMemo } from 'react'
-import { motion } from 'motion/react'
+import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
 import { type ExerciseDto } from '@/api/sessions'
 import { Search, Music, ArrowRight, X, Sparkles } from 'lucide-react'
@@ -21,6 +20,9 @@ export function StudioSessionSelector({
 }: StudioSessionSelectorProps): React.JSX.Element | null {
   const [selectedInstrument, setSelectedInstrument] = useState<'guitar' | 'piano'>('piano')
   const [searchQuery, setSearchQuery] = useState('')
+  const dialogRef = useRef<HTMLDialogElement | null>(null)
+  const closingFromEffectRef = useRef(false)
+  const pointerStartedOutsideRef = useRef(false)
 
   const baseSongs =
     availableExercises && availableExercises.length > 0 ? availableExercises : BUILTIN_FULL_SONGS
@@ -47,50 +49,108 @@ export function StudioSessionSelector({
     })
   }, [baseSongs, selectedInstrument, searchQuery])
 
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    if (isOpen) {
+      if (!dialog.open) {
+        try {
+          if (typeof dialog.showModal === 'function') {
+            dialog.showModal()
+          } else {
+            dialog.setAttribute('open', '')
+          }
+        } catch {
+          dialog.setAttribute('open', '')
+        }
+      }
+    } else if (dialog.open) {
+      closingFromEffectRef.current = true
+      try {
+        dialog.close?.()
+      } finally {
+        closingFromEffectRef.current = false
+      }
+    }
+
+    return () => {
+      if (dialog.open) {
+        closingFromEffectRef.current = true
+        try {
+          dialog.close?.()
+        } catch {
+          // ignore teardown errors
+        } finally {
+          closingFromEffectRef.current = false
+        }
+      }
+    }
+  }, [isOpen])
+
   if (!isOpen) return null
 
   return (
-    <motion.div
+    <dialog
+      ref={dialogRef}
       data-testid="studio-session-selector-overlay"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.16 }}
-      className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4 font-sans"
+      aria-labelledby="session-selector-title"
+      closedby="any"
+      onClose={() => {
+        if (!closingFromEffectRef.current) {
+          onClose?.()
+        }
+      }}
+      onPointerDown={(e) => {
+        const dialog = dialogRef.current
+        if (!dialog || 'closedBy' in HTMLDialogElement.prototype || !onClose) {
+          pointerStartedOutsideRef.current = false
+          return
+        }
+        const r = dialog.getBoundingClientRect()
+        pointerStartedOutsideRef.current =
+          e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom
+      }}
+      onPointerUp={(e) => {
+        const dialog = dialogRef.current
+        if (!dialog || 'closedBy' in HTMLDialogElement.prototype || !onClose) return
+        if (!pointerStartedOutsideRef.current) return
+        pointerStartedOutsideRef.current = false
+        const r = dialog.getBoundingClientRect()
+        const outside =
+          e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom
+        if (outside) {
+          onClose()
+        }
+      }}
+      className="m-auto w-[calc(100%-2rem)] max-w-3xl bg-white dark:bg-[#111114] text-zinc-900 dark:text-zinc-100 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden open:flex flex-col max-h-[90vh] p-0 font-sans backdrop:bg-black/75"
     >
-      <motion.div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="session-selector-title"
-        initial={{ opacity: 0, scale: 0.97, y: 8 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-3xl bg-white dark:bg-[#111114] text-zinc-900 dark:text-zinc-100 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
-      >
-        {/* Header */}
-        <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 bg-[#F8F8F6] dark:bg-[#09090B] flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-amber-600 dark:text-amber-500 block">
-              PRACTICE ROOM ENTRANCE
-            </span>
-            <h2 id="session-selector-title" className="text-xl sm:text-2xl font-bold tracking-tight">
-              Choose Your Session
-            </h2>
-            <p className="text-xs text-zinc-500">
-              Select your instrument and piece before entering the practice stage.
-            </p>
-          </div>
-
-          {onClose && (
-            <button
-              type="button"
-              data-testid="close-session-selector-btn"
-              onClick={onClose}
-              className="p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
-            >
-              <X className="size-4" />
-            </button>
-          )}
+      {/* Header */}
+      <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 bg-[#F8F8F6] dark:bg-[#09090B] flex items-center justify-between">
+        <div className="space-y-1">
+          <span className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-amber-600 dark:text-amber-500 block">
+            PRACTICE ROOM ENTRANCE
+          </span>
+          <h2 id="session-selector-title" className="text-xl sm:text-2xl font-bold tracking-tight">
+            Choose Your Session
+          </h2>
+          <p className="text-xs text-zinc-500">
+            Select your instrument and piece before entering the practice stage.
+          </p>
         </div>
+
+        {onClose && (
+          <button
+            type="button"
+            data-testid="close-session-selector-btn"
+            aria-label="Close session selector"
+            onClick={onClose}
+            className="p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
+          >
+            <X className="size-4" />
+          </button>
+        )}
+      </div>
 
         {/* Step 1: Tactile Instrument Choice */}
         <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 space-y-3">
@@ -188,39 +248,41 @@ export function StudioSessionSelector({
                 const isSelected = selectedSong?.id === song.id
                 const measures = song.progression?.chords?.length ?? 0
                 return (
-                  <div
+                  <button
                     key={song.id}
+                    type="button"
                     data-testid={`session-song-${song.id}`}
+                    aria-pressed={isSelected}
                     onClick={() => setSelectedSong(song)}
-                    className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-2.5 ${
+                    className={`w-full text-left p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-2.5 ${
                       isSelected
                         ? 'bg-amber-500/10 border-amber-500 shadow-sm'
                         : 'bg-[#F8F8F6] dark:bg-[#09090B] border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700'
                     }`}
                   >
-                    <div>
+                    <div className="w-full">
                       <div className="flex items-center justify-between text-[10px] font-mono mb-1">
                         <span className="text-amber-600 dark:text-amber-400 font-bold uppercase">
                           Key of {song.progression?.key || 'C'}
                         </span>
                         <span className="text-zinc-500">{song.tempo_bpm} BPM</span>
                       </div>
-                      <h4 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
+                      <span className="block font-bold text-sm text-zinc-900 dark:text-zinc-100">
                         {song.title}
-                      </h4>
+                      </span>
                       {(song.artist || song.composer) && (
-                        <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+                        <span className="block text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
                           {song.artist || song.composer}
-                        </p>
+                        </span>
                       )}
                       {song.description && (
-                        <p className="text-[11px] text-zinc-600 dark:text-zinc-400 line-clamp-2 mt-1 leading-relaxed">
+                        <span className="block text-[11px] text-zinc-600 dark:text-zinc-400 line-clamp-2 mt-1 leading-relaxed">
                           {song.description}
-                        </p>
+                        </span>
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-zinc-200 dark:border-zinc-800/80 text-[10px] font-mono text-zinc-500">
+                    <div className="w-full flex items-center justify-between pt-2 border-t border-zinc-200 dark:border-zinc-800/80 text-[10px] font-mono text-zinc-500">
                       <span>{measures > 0 ? `${measures} Measures` : 'Continuous'}</span>
                       {isSelected && (
                         <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
@@ -229,7 +291,7 @@ export function StudioSessionSelector({
                         </span>
                       )}
                     </div>
-                  </div>
+                  </button>
                 )
               })
             )}
@@ -254,7 +316,6 @@ export function StudioSessionSelector({
             <ArrowRight className="size-4 ml-1" />
           </button>
         </div>
-      </motion.div>
-    </motion.div>
+    </dialog>
   )
 }

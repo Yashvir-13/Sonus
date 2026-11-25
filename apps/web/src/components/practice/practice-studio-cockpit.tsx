@@ -30,6 +30,8 @@ import {
 
   submitChordsTake,
 
+  createSessionDrill,
+
   fetchUserHabits,
 
   ApiError,
@@ -51,6 +53,10 @@ import { resolveChordVoicing } from '@/lib/music/chord-voicings'
 import { PracticeAudioEngine } from '@/lib/audio/practice-audio-engine'
 
 import { RealtimePitchTracker, type PitchDetectionResult } from '@/lib/audio/realtime-pitch-tracker'
+
+import { createPcmCaptureHandle, type PcmCaptureHandle } from '@/lib/audio/worklet-loader'
+
+import { loadStoredPreferences, type StudioPreferences } from '@/components/settings/settings-modal'
 
 import { chromaToChord } from '@/lib/audio/chord-detector'
 
@@ -76,7 +82,10 @@ import {
 
   AlertCircle,
 
+  Loader2,
+
 } from 'lucide-react'
+import { AudioProcessingHud } from '@/components/ui/loading-screen'
 
 export interface PracticeStudioCockpitProps {
 
@@ -146,6 +155,8 @@ export interface PracticeStudioCockpitProps {
 
   isDeveloper?: boolean
 
+  studioPrefs?: StudioPreferences
+
 }
 
 type DiagnosticPresetMode = 'clean' | 'transition_lag' | 'voicing_drop' | 'tempo_rushing'
@@ -198,7 +209,11 @@ export function PracticeStudioCockpit({
 
   isDeveloper = false,
 
+  studioPrefs,
+
 }: PracticeStudioCockpitProps): React.JSX.Element {
+
+  const effectivePrefs = studioPrefs ?? loadStoredPreferences()
 
   const isDevHarnessVisible = Boolean(
     import.meta.env.DEV ||
@@ -238,6 +253,18 @@ export function PracticeStudioCockpit({
     )
   })
 
+  const [internalInstrument, setInternalInstrument] = useState<'guitar' | 'piano'>(
+    propInstrument ?? (selectedSong.instrument.toLowerCase() === 'guitar' ? 'guitar' : 'piano')
+  )
+  const instrument = propInstrument ?? internalInstrument
+  const setInstrument = useCallback(
+    (inst: 'guitar' | 'piano') => {
+      setInternalInstrument(inst)
+      onInstrumentChange?.(inst)
+    },
+    [onInstrumentChange]
+  )
+
   const prevInitialSongIdRef = useRef<string | undefined>(initialSongId)
 
   useEffect(() => {
@@ -266,22 +293,10 @@ export function PracticeStudioCockpit({
     } else if (initialSongId !== prevInitialSongIdRef.current) {
       prevInitialSongIdRef.current = initialSongId
     }
-  }, [initialSongId, availableExercises, initialLoopDrill, selectedSong.id, propInstrument])
-
-  const [internalInstrument, setInternalInstrument] = useState<'guitar' | 'piano'>(
-    propInstrument ?? (selectedSong.instrument.toLowerCase() === 'guitar' ? 'guitar' : 'piano')
-  )
-  const instrument = propInstrument ?? internalInstrument
-  const setInstrument = useCallback(
-    (inst: 'guitar' | 'piano') => {
-      setInternalInstrument(inst)
-      onInstrumentChange?.(inst)
-    },
-    [onInstrumentChange]
-  )
+  }, [initialSongId, availableExercises, initialLoopDrill, selectedSong.id, propInstrument, setInstrument])
 
   const [internalPianoNotationMode, setInternalPianoNotationMode] = useState<'staff' | 'keys'>(
-    propPianoNotationMode ?? 'staff'
+    propPianoNotationMode ?? effectivePrefs.defaultNotation ?? 'staff'
   )
   const pianoNotationMode = propPianoNotationMode ?? internalPianoNotationMode
   const setPianoNotationMode = useCallback(
@@ -467,6 +482,7 @@ export function PracticeStudioCockpit({
   const [micSeconds, setMicSeconds] = useState(0)
 
   const [isEvaluating, setIsEvaluating] = useState(false)
+  const [isStartingMic, setIsStartingMic] = useState(false)
 
   const [evaluationResult, setEvaluationResult] = useState<TakeEvaluationResponse | null>(null)
 
@@ -476,16 +492,25 @@ export function PracticeStudioCockpit({
 
   const mediaStreamRef = useRef<MediaStream | null>(null)
 
-  const scriptProcessorRef = useRef<ScriptProcessorNode | null>(null)
+  const scriptProcessorRef = useRef<PcmCaptureHandle | null>(null)
+
+  const micAudioContextRef = useRef<AudioContext | null>(null)
+
+  const pitchTrackerRef = useRef<RealtimePitchTracker | null>(null)
 
   const recordedSamplesRef = useRef<Float32Array[]>([])
 
   const recordingTimerRef = useRef<number | null>(null)
 
+  const countInTimerRef = useRef<number | null>(null)
+
   const activeSessionIdRef = useRef<string | null>(null)
   const recordedSampleRateRef = useRef<number>(44100)
   const recordingStartMsRef = useRef<number>(0)
   const downbeatMsRef = useRef<number>(0)
+
+  const concertPitchHzRef = useRef<number>(effectivePrefs.concertPitchHz)
+  const micSensitivityDbRef = useRef<number>(effectivePrefs.micSensitivityDb)
 
   // Parse current song progression (or active 2-bar loop slice)
   // Parse current song progression (or active 2-bar loop slice) via Instrument Lens
@@ -588,12 +613,43 @@ export function PracticeStudioCockpit({
   }, [flowingProgression, currentMeasureIdx])
 
   const activeChordRef = useRef(activeChord)
+  const instrumentRef = useRef(instrument)
+  const currentMeasureIdxRef = useRef(currentMeasureIdx)
+  const flowingProgressionRef = useRef(flowingProgression)
+  const beatsPerMeasureRef = useRef(beatsPerMeasure)
 
   useEffect(() => {
-
     activeChordRef.current = activeChord
-
   }, [activeChord])
+
+  useEffect(() => {
+    instrumentRef.current = instrument
+  }, [instrument])
+
+  useEffect(() => {
+    currentMeasureIdxRef.current = currentMeasureIdx
+  }, [currentMeasureIdx])
+
+  useEffect(() => {
+    flowingProgressionRef.current = flowingProgression
+  }, [flowingProgression])
+
+  useEffect(() => {
+    beatsPerMeasureRef.current = beatsPerMeasure
+  }, [beatsPerMeasure])
+
+  useEffect(() => {
+    concertPitchHzRef.current = effectivePrefs.concertPitchHz
+    micSensitivityDbRef.current = effectivePrefs.micSensitivityDb
+    if (audioEngineRef.current) {
+      audioEngineRef.current.setConcertPitchHz(effectivePrefs.concertPitchHz)
+      audioEngineRef.current.setMetronomeSound(effectivePrefs.metronomeSound)
+    }
+    if (pitchTrackerRef.current) {
+      pitchTrackerRef.current.concertPitchHz = effectivePrefs.concertPitchHz
+      pitchTrackerRef.current.noiseGateDb = effectivePrefs.micSensitivityDb
+    }
+  }, [effectivePrefs.concertPitchHz, effectivePrefs.micSensitivityDb, effectivePrefs.metronomeSound])
 
   const nextMeasureIdx = useMemo(() => {
 
@@ -613,21 +669,51 @@ export function PracticeStudioCockpit({
 
   const [countInBeat, setCountInBeat] = useState(1)
 
+  const clearCountInTimer = useCallback(() => {
+    if (countInTimerRef.current !== null) {
+      clearInterval(countInTimerRef.current)
+      countInTimerRef.current = null
+    }
+  }, [])
+
+  const clearRecordingResources = useCallback(() => {
+    if (recordingTimerRef.current !== null) {
+      clearInterval(recordingTimerRef.current)
+      recordingTimerRef.current = null
+    }
+    if (scriptProcessorRef.current) {
+      scriptProcessorRef.current.disconnect()
+      scriptProcessorRef.current = null
+    }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((t) => t.stop())
+      mediaStreamRef.current = null
+    }
+    if (micAudioContextRef.current) {
+      const ctx = micAudioContextRef.current
+      micAudioContextRef.current = null
+      if (ctx.state !== 'closed' && typeof ctx.close === 'function') {
+        ctx.close().catch(() => {})
+      }
+    }
+    pitchTrackerRef.current?.stop()
+    pitchTrackerRef.current = null
+  }, [])
+
   useEffect(() => {
-
     const engine = new PracticeAudioEngine()
-
+    engine.setConcertPitchHz(concertPitchHzRef.current)
+    engine.setMetronomeSound(effectivePrefs.metronomeSound)
     audioEngineRef.current = engine
 
     return () => {
-
+      clearCountInTimer()
+      clearRecordingResources()
       engine.dispose()
-
       audioEngineRef.current = null
-
     }
-
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clearCountInTimer, clearRecordingResources])
 
   // ───────────────────────────────────────────────────────────────────────────
 
@@ -698,12 +784,14 @@ export function PracticeStudioCockpit({
       audioEngineRef.current.unlock()
     }
 
-    if (isPlaying) {
+    if (isPlaying || isCountingIn) {
+      clearCountInTimer()
       setIsPlaying(false)
       setIsCountingIn(false)
       return
     }
 
+    clearCountInTimer()
     const startFromBeat = currentBeatRef.current >= totalBeats ? 0 : currentBeatRef.current
     setIsCountingIn(true)
     setCountInBeat(1)
@@ -715,7 +803,7 @@ export function PracticeStudioCockpit({
       audioEngineRef.current.playClick(true)
     }
 
-    const countTimer = window.setInterval(() => {
+    countInTimerRef.current = window.setInterval(() => {
       currentCount += 1
       if (currentCount <= beatsPerMeasure) {
         setCountInBeat(currentCount)
@@ -723,7 +811,7 @@ export function PracticeStudioCockpit({
           audioEngineRef.current.playClick(false)
         }
       } else {
-        clearInterval(countTimer)
+        clearCountInTimer()
         setIsCountingIn(false)
         downbeatMsRef.current = performance.now()
         if (audioEngineRef.current) {
@@ -741,13 +829,14 @@ export function PracticeStudioCockpit({
         setIsPlaying(true)
       }
     }, msPerBeat)
-  }, [isPlaying, totalBeats, tempoBpm, beatsPerMeasure, isMetronomeEnabled])
+  }, [isPlaying, isCountingIn, clearCountInTimer, totalBeats, tempoBpm, beatsPerMeasure, isMetronomeEnabled])
 
   const toggleListenPlay = useCallback(() => {
     if (audioEngineRef.current) {
       audioEngineRef.current.unlock()
     }
 
+    clearCountInTimer()
     if (isPlaying) {
       setIsPlaying(false)
       setIsCountingIn(false)
@@ -768,7 +857,7 @@ export function PracticeStudioCockpit({
     lastChordIdxRef.current = -1
     lastTickBeatRef.current = -1
     setIsPlaying(true)
-  }, [isPlaying, totalBeats])
+  }, [isPlaying, totalBeats, clearCountInTimer])
 
   useEffect(() => {
 
@@ -776,7 +865,7 @@ export function PracticeStudioCockpit({
 
     const stepIntervalMs = 25
     const fallbackWallStart = performance.now()
-    const fallbackBeatStart = currentBeat
+    const fallbackBeatStart = currentBeatRef.current
 
     const timer = setInterval(() => {
       if (audioEngineRef.current) {
@@ -1143,28 +1232,39 @@ export function PracticeStudioCockpit({
 
         const rawDrill = evalResp.coaching_report?.tailored_drills?.[0]
         if (rawDrill) {
-          const isoBpm = Math.max(40, Math.round(rawDrill.target_tempo * 0.7))
-          setGeneratedDrill({
-            id: `drill_${sess.id}`,
-            user_id: sess.user_id || 'user',
-            pattern_id: `pat_${sess.id}`,
-            drill_type: rawDrill.drill_type,
-            target_tempo: rawDrill.target_tempo,
-            target_repetitions: rawDrill.target_repetitions,
-            completed: false,
-            measured_improvement: null,
-            progression: [
-              { name: secondChord, beats: beatsPerMeasure },
-              { name: thirdChord, beats: beatsPerMeasure },
-            ],
-            tempo_stages: {
-              isolation_bpm: isoBpm,
-              step_bpm: Math.max(45, Math.round(rawDrill.target_tempo * 0.85)),
-              target_bpm: rawDrill.target_tempo,
-              goal_bpm: Math.min(220, Math.round(rawDrill.target_tempo * 1.05)),
-            },
-            description: rawDrill.description,
-          })
+          let resolvedDrill: AdaptiveInterventionDto | null = null
+          if (typeof createSessionDrill === 'function') {
+            try {
+              resolvedDrill = await createSessionDrill(sess.id)
+            } catch {
+              resolvedDrill = null
+            }
+          }
+          if (!resolvedDrill) {
+            const isoBpm = Math.max(40, Math.round(rawDrill.target_tempo * 0.7))
+            resolvedDrill = {
+              id: `drill_${sess.id}`,
+              user_id: sess.user_id || 'user',
+              pattern_id: `pat_${sess.id}`,
+              drill_type: rawDrill.drill_type,
+              target_tempo: rawDrill.target_tempo,
+              target_repetitions: rawDrill.target_repetitions,
+              completed: false,
+              measured_improvement: null,
+              progression: [
+                { name: secondChord, beats: beatsPerMeasure },
+                { name: thirdChord, beats: beatsPerMeasure },
+              ],
+              tempo_stages: {
+                isolation_bpm: isoBpm,
+                step_bpm: Math.max(45, Math.round(rawDrill.target_tempo * 0.85)),
+                target_bpm: rawDrill.target_tempo,
+                goal_bpm: Math.min(220, Math.round(rawDrill.target_tempo * 1.05)),
+              },
+              description: rawDrill.description,
+            }
+          }
+          setGeneratedDrill(resolvedDrill)
         } else {
           setGeneratedDrill(null)
         }
@@ -1208,7 +1308,7 @@ export function PracticeStudioCockpit({
 
   // ───────────────────────────────────────────────────────────────────────────
 
-  const startMicRecording = useCallback(async () => {
+  const startMicRecording = useCallback(async (): Promise<boolean> => {
 
     if (!isSignedIn) {
 
@@ -1216,9 +1316,13 @@ export function PracticeStudioCockpit({
 
       setEvaluationError('Sign in to record your take, unlock AI chord feedback, and save your practice history.')
 
-      return
+      return false
 
     }
+
+    clearRecordingResources()
+
+    setIsStartingMic(true)
 
     try {
 
@@ -1244,6 +1348,8 @@ export function PracticeStudioCockpit({
 
       const ctx = new AudioCtx()
 
+      micAudioContextRef.current = ctx
+
       const actualSampleRate = ctx.sampleRate || 44100
 
       recordedSampleRateRef.current = actualSampleRate
@@ -1256,21 +1362,15 @@ export function PracticeStudioCockpit({
 
       source.connect(analyser)
 
-      const processor = ctx.createScriptProcessor(4096, 1, 1)
-
-      analyser.connect(processor)
-
-      // Safe muted output: keeps Web Audio graph running without routing mic to speakers
-
-      const muteGain = ctx.createGain()
-
-      muteGain.gain.setValueAtTime(0, ctx.currentTime)
-
-      processor.connect(muteGain)
-
-      muteGain.connect(ctx.destination)
-
-      const tracker = new RealtimePitchTracker(actualSampleRate)
+      const tracker = new RealtimePitchTracker(
+        actualSampleRate,
+        65,
+        1100,
+        micSensitivityDbRef.current,
+        0.35,
+        concertPitchHzRef.current
+      )
+      pitchTrackerRef.current = tracker
 
       const bufferLength = analyser.frequencyBinCount
 
@@ -1282,225 +1382,193 @@ export function PracticeStudioCockpit({
       recordingStartMsRef.current = performance.now()
       downbeatMsRef.current = 0
 
-      processor.onaudioprocess = (e) => {
+      const captureHandle = await createPcmCaptureHandle(
+        ctx,
+        (inputData) => {
+          recordedSamplesRef.current.push(new Float32Array(inputData))
 
-        const inputData = e.inputBuffer.getChannelData(0)
+          analyser.getFloatFrequencyData(freqData)
 
-        recordedSamplesRef.current.push(new Float32Array(inputData))
+          const pitchRes = tracker.detectPitch(inputData)
 
-        analyser.getFloatFrequencyData(freqData)
+          const rms = tracker.computeRmsDb(inputData)
 
-        // Monophonic pitch tracking
+          const instantChroma = new Array(12).fill(0)
 
-        const pitchRes = tracker.detectPitch(inputData)
+          const minBin = Math.max(2, Math.floor(65 / binHz))
 
-        const rms = tracker.computeRmsDb(inputData)
+          const maxBin = Math.min(bufferLength - 2, Math.ceil(1400 / binHz))
 
-        // 12-semitone polyphonic chromagram extraction
+          let maxDbInZone = -100
 
-        const instantChroma = new Array(12).fill(0)
-
-        const minBin = Math.max(2, Math.floor(65 / binHz))
-
-        const maxBin = Math.min(bufferLength - 2, Math.ceil(1400 / binHz))
-
-        let maxDbInZone = -100
-
-        for (let b = minBin; b <= maxBin; b++) {
-
-          const db = freqData[b] ?? -100
-
-          if (db > maxDbInZone) maxDbInZone = db
-
-        }
-
-        const peakThreshold = Math.max(-60, maxDbInZone - 28)
-
-        for (let b = minBin; b <= maxBin; b++) {
-
-          const prev = freqData[b - 1] ?? -100
-
-          const curr = freqData[b] ?? -100
-
-          const next = freqData[b + 1] ?? -100
-
-          if (curr > prev && curr > next && curr > peakThreshold) {
-
-            const alpha = Math.pow(10, (prev + 100) / 20)
-
-            const beta = Math.pow(10, (curr + 100) / 20)
-
-            const gamma = Math.pow(10, (next + 100) / 20)
-
-            const denom = alpha - 2 * beta + gamma
-
-            const delta = denom !== 0 ? (0.5 * (alpha - gamma)) / denom : 0
-
-            const trueFreq = (b + delta) * binHz
-
-            if (trueFreq >= 65 && trueFreq <= 1400) {
-
-              const midi = 69 + 12 * Math.log2(trueFreq / 440)
-
-              const pc = ((Math.round(midi) % 12) + 12) % 12
-
-              instantChroma[pc] += beta
-
-            }
-
+          for (let b = minBin; b <= maxBin; b++) {
+            const db = freqData[b] ?? -100
+            if (db > maxDbInZone) maxDbInZone = db
           }
 
-        }
+          const peakThreshold = Math.max(-60, maxDbInZone - 28)
+          const refPitchHz = concertPitchHzRef.current
 
-        const chordMatch = chromaToChord(instantChroma)
+          for (let b = minBin; b <= maxBin; b++) {
+            const prev = freqData[b - 1] ?? -100
+            const curr = freqData[b] ?? -100
+            const next = freqData[b + 1] ?? -100
 
-        // Real polyphonic or single-note voicing completeness against currently active chord/pluck/melody
-        const currentTarget = activeChordRef.current
-        const plucks = currentTarget?.plucked_notes ?? currentTarget?.pluckedNotes
-        const melodies = currentTarget?.melodyNotes
-        let targetPcs = currentTarget?.pitchClasses || []
-        let isSingleNoteMatch = false
+            if (curr > prev && curr > next && curr > peakThreshold) {
+              const alpha = Math.pow(10, (prev + 100) / 20)
+              const beta = Math.pow(10, (curr + 100) / 20)
+              const gamma = Math.pow(10, (next + 100) / 20)
+              const denom = alpha - 2 * beta + gamma
+              const delta = denom !== 0 ? (0.5 * (alpha - gamma)) / denom : 0
+              const trueFreq = (b + delta) * binHz
 
-        if (instrument === 'guitar' && plucks && plucks.length > 0) {
-          const mDuration = currentTarget.duration_beats ?? beatsPerMeasure
-          const curBeat = currentBeatRef.current
-          let mStart = 0
-          for (let m = 0; m < currentMeasureIdx; m++) {
-            mStart += flowingProgression[m]?.duration_beats ?? beatsPerMeasure
-          }
-          const offsetInMeasure = Math.max(0, curBeat - mStart)
-          const sorted = [...plucks].sort((a, b) => a.beatOffset - b.beatOffset)
-          let activePluck = sorted[0]
-          for (let i = 0; i < sorted.length; i++) {
-            const nextOffset = i + 1 < sorted.length ? sorted[i + 1].beatOffset : mDuration
-            if (offsetInMeasure >= sorted[i].beatOffset && offsetInMeasure < nextOffset) {
-              activePluck = sorted[i]
-              break
+              if (trueFreq >= 65 && trueFreq <= 1400) {
+                const midi = 69 + 12 * Math.log2(trueFreq / refPitchHz)
+                const pc = ((Math.round(midi) % 12) + 12) % 12
+                instantChroma[pc] += beta
+              }
             }
           }
-          if (activePluck && activePluck.fret !== 'x') {
-            targetPcs = [activePluck.pitch % 12]
-            isSingleNoteMatch = true
-          }
-        } else if (instrument === 'piano' && melodies && melodies.length > 0) {
-          const mDuration = currentTarget.duration_beats ?? beatsPerMeasure
-          const curBeat = currentBeatRef.current
-          let mStart = 0
-          for (let m = 0; m < currentMeasureIdx; m++) {
-            mStart += flowingProgression[m]?.duration_beats ?? beatsPerMeasure
-          }
-          const offsetInMeasure = Math.max(0, curBeat - mStart)
-          const sorted = [...melodies].sort((a, b) => a.beatOffset - b.beatOffset)
-          let activeNote = sorted[0]
-          for (let i = 0; i < sorted.length; i++) {
-            const nextOffset = i + 1 < sorted.length ? sorted[i + 1].beatOffset : mDuration
-            if (offsetInMeasure >= sorted[i].beatOffset && offsetInMeasure < nextOffset) {
-              activeNote = sorted[i]
-              break
+
+          const chordMatch = chromaToChord(instantChroma)
+
+          // Live target lookup through refs prevents stale closure drift during multi-bar takes
+          const liveProgression = flowingProgressionRef.current
+          const liveMeasureIdx = currentMeasureIdxRef.current
+          const liveInstrument = instrumentRef.current
+          const liveBeatsPerMeasure = beatsPerMeasureRef.current
+          const gateDb = micSensitivityDbRef.current
+
+          const currentTarget = activeChordRef.current
+          const plucks = currentTarget?.plucked_notes ?? currentTarget?.pluckedNotes
+          const melodies = currentTarget?.melodyNotes
+          let targetPcs = currentTarget?.pitchClasses || []
+          let isSingleNoteMatch = false
+
+          if (liveInstrument === 'guitar' && plucks && plucks.length > 0) {
+            const mDuration = currentTarget.duration_beats ?? liveBeatsPerMeasure
+            const curBeat = currentBeatRef.current
+            let mStart = 0
+            for (let m = 0; m < liveMeasureIdx; m++) {
+              mStart += liveProgression[m]?.duration_beats ?? liveBeatsPerMeasure
+            }
+            const offsetInMeasure = Math.max(0, curBeat - mStart)
+            const sorted = plucks.toSorted((a, b) => a.beatOffset - b.beatOffset)
+            let activePluck = sorted[0]
+            for (let i = 0; i < sorted.length; i++) {
+              const nextOffset = i + 1 < sorted.length ? sorted[i + 1].beatOffset : mDuration
+              if (offsetInMeasure >= sorted[i].beatOffset && offsetInMeasure < nextOffset) {
+                activePluck = sorted[i]
+                break
+              }
+            }
+            if (activePluck && activePluck.fret !== 'x') {
+              targetPcs = [activePluck.pitch % 12]
+              isSingleNoteMatch = true
+            }
+          } else if (liveInstrument === 'piano' && melodies && melodies.length > 0) {
+            const mDuration = currentTarget.duration_beats ?? liveBeatsPerMeasure
+            const curBeat = currentBeatRef.current
+            let mStart = 0
+            for (let m = 0; m < liveMeasureIdx; m++) {
+              mStart += liveProgression[m]?.duration_beats ?? liveBeatsPerMeasure
+            }
+            const offsetInMeasure = Math.max(0, curBeat - mStart)
+            const sorted = melodies.toSorted((a, b) => a.beatOffset - b.beatOffset)
+            let activeNote = sorted[0]
+            for (let i = 0; i < sorted.length; i++) {
+              const nextOffset = i + 1 < sorted.length ? sorted[i + 1].beatOffset : mDuration
+              if (offsetInMeasure >= sorted[i].beatOffset && offsetInMeasure < nextOffset) {
+                activeNote = sorted[i]
+                break
+              }
+            }
+            if (activeNote) {
+              const midi = typeof activeNote.pitch === 'number' ? activeNote.pitch : noteToMidi(activeNote.pitch)
+              targetPcs = [midi % 12]
+              isSingleNoteMatch = true
             }
           }
-          if (activeNote) {
-            const midi = typeof activeNote.pitch === 'number' ? activeNote.pitch : noteToMidi(activeNote.pitch)
-            targetPcs = [midi % 12]
-            isSingleNoteMatch = true
-          }
-        }
 
-        const maxChromaVal = Math.max(...instantChroma)
-        const activeThreshold = Math.max(0.05, maxChromaVal * 0.25)
-        let matchedPcs: number[] = []
-        let missingPcs: number[] = []
-        let voicingCompleteness = 1.0
+          const maxChromaVal = Math.max(...instantChroma)
+          const activeThreshold = Math.max(0.05, maxChromaVal * 0.25)
+          let matchedPcs: number[] = []
+          let missingPcs: number[] = []
+          let voicingCompleteness = 1.0
 
-        if (isSingleNoteMatch && pitchRes) {
-          const detectedMidi = Math.round(69 + 12 * Math.log2(pitchRes.freq / 440))
-          const detectedPc = ((detectedMidi % 12) + 12) % 12
-          if (targetPcs.includes(detectedPc)) {
-            matchedPcs = targetPcs
-            missingPcs = []
-            voicingCompleteness = 1.0
+          if (isSingleNoteMatch && pitchRes) {
+            const detectedMidi = Math.round(69 + 12 * Math.log2(pitchRes.freq / refPitchHz))
+            const detectedPc = ((detectedMidi % 12) + 12) % 12
+            if (targetPcs.includes(detectedPc)) {
+              matchedPcs = targetPcs
+              missingPcs = []
+              voicingCompleteness = 1.0
+            } else {
+              matchedPcs = []
+              missingPcs = targetPcs
+              voicingCompleteness = 0.0
+            }
           } else {
-            matchedPcs = []
-            missingPcs = targetPcs
-            voicingCompleteness = 0.0
+            matchedPcs = targetPcs.filter((pc) => (instantChroma[pc] ?? 0) >= activeThreshold)
+            missingPcs = targetPcs.filter((pc) => !matchedPcs.includes(pc))
+            voicingCompleteness = targetPcs.length > 0 ? matchedPcs.length / targetPcs.length : 1.0
           }
-        } else {
-          matchedPcs = targetPcs.filter((pc) => (instantChroma[pc] ?? 0) >= activeThreshold)
-          missingPcs = targetPcs.filter((pc) => !matchedPcs.includes(pc))
-          voicingCompleteness = targetPcs.length > 0 ? matchedPcs.length / targetPcs.length : 1.0
-        }
 
-        if (pitchRes || chordMatch.chord !== 'None' || rms > -45) {
+          if (pitchRes || chordMatch.chord !== 'None' || rms >= gateDb) {
+            setLivePitchResult({
+              detectedFreqHz: pitchRes?.freq ?? (chordMatch.chord !== 'None' ? 220 : null),
+              detectedNote: chordMatch.chord !== 'None' ? chordMatch.chord : (pitchRes?.note ?? null),
+              centsDeviation: pitchRes?.cents ?? 0,
+              rmsDb: rms,
+              voicingCompleteness: Math.round(voicingCompleteness * 100) / 100,
+              matchedPitchClasses: matchedPcs,
+              missingPitchClasses: missingPcs,
+              timingDeltaMs: 0,
+              isSoundDetected: rms >= gateDb,
+              clarityScore: chordMatch.confidence || (pitchRes?.clarity ?? 0.5),
+            })
+          }
+        },
+        4096
+      )
 
-          setLivePitchResult({
+      analyser.connect(captureHandle.node)
+      captureHandle.connectSilent(ctx)
 
-            detectedFreqHz: pitchRes?.freq ?? (chordMatch.chord !== 'None' ? 220 : null),
-
-            detectedNote: chordMatch.chord !== 'None' ? chordMatch.chord : (pitchRes?.note ?? null),
-
-            centsDeviation: pitchRes?.cents ?? 0,
-
-            rmsDb: rms,
-
-            voicingCompleteness: Math.round(voicingCompleteness * 100) / 100,
-
-            matchedPitchClasses: matchedPcs,
-
-            missingPitchClasses: missingPcs,
-
-            timingDeltaMs: 0,
-
-            isSoundDetected: rms > -45,
-
-            clarityScore: chordMatch.confidence || (pitchRes?.clarity ?? 0.5),
-
-          })
-
-        }
-
-      }
-
-      scriptProcessorRef.current = processor
+      scriptProcessorRef.current = captureHandle
 
       setIsRecordingMic(true)
 
       setMicSeconds(0)
 
       recordingTimerRef.current = window.setInterval(() => {
-
         setMicSeconds((s) => s + 1)
-
       }, 1000)
 
+      return true
+
     } catch (err: unknown) {
+      clearRecordingResources()
+      activeSessionIdRef.current = null
+      setIsRecordingMic(false)
       const msg =
         err instanceof ApiError
           ? `Unable to start practice session (${err.message}).`
           : 'Microphone permission denied or audio device unavailable.'
       setEvaluationError(msg)
+      return false
+    } finally {
+      setIsStartingMic(false)
     }
 
-  }, [selectedSong.id, tempoBpm, isSignedIn, onRequestSignIn])
+  }, [selectedSong.id, tempoBpm, isSignedIn, onRequestSignIn, clearRecordingResources])
 
   const stopMicAndSubmitTake = useCallback(async () => {
 
-    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current)
+    clearRecordingResources()
+    clearCountInTimer()
 
-    if (scriptProcessorRef.current) {
-
-      scriptProcessorRef.current.disconnect()
-
-      scriptProcessorRef.current = null
-
-    }
-
-    if (mediaStreamRef.current) {
-
-      mediaStreamRef.current.getTracks().forEach((t) => t.stop())
-
-      mediaStreamRef.current = null
-
-    }
+    setIsCountingIn(false)
 
     setIsRecordingMic(false)
 
@@ -1566,46 +1634,39 @@ export function PracticeStudioCockpit({
 
       onTakeCompleted?.(evalResp, selectedSong.title, instrument, tempoBpm)
 
-      if (evalResp.coaching_report?.tailored_drills?.[0]) {
-
-        const d = evalResp.coaching_report.tailored_drills[0]
-
-        const isoBpm = Math.max(40, Math.round(d.target_tempo * 0.7))
-
-        setGeneratedDrill({
-
-          id: `drill_${Date.now()}`,
-
-          user_id: 'user',
-
-          pattern_id: 'pattern_transition',
-
-          drill_type: d.drill_type,
-
-          target_tempo: d.target_tempo,
-
-          target_repetitions: d.target_repetitions,
-
-          completed: false,
-
-          measured_improvement: null,
-
-          tempo_stages: {
-
-            isolation_bpm: isoBpm,
-
-            step_bpm: Math.round(d.target_tempo * 0.85),
-
-            target_bpm: d.target_tempo,
-
-            goal_bpm: Math.round(d.target_tempo * 1.05),
-
-          },
-
-          description: d.description,
-
-        })
-
+      const firstDrill = evalResp.coaching_report?.tailored_drills?.[0]
+      if (firstDrill) {
+        let resolvedDrill: AdaptiveInterventionDto | null = null
+        if (typeof createSessionDrill === 'function') {
+          try {
+            resolvedDrill = await createSessionDrill(sessionId)
+          } catch {
+            resolvedDrill = null
+          }
+        }
+        if (!resolvedDrill) {
+          const isoBpm = Math.max(40, Math.round(firstDrill.target_tempo * 0.7))
+          resolvedDrill = {
+            id: `drill_${sessionId}`,
+            user_id: 'user',
+            pattern_id: `pat_${sessionId}`,
+            drill_type: firstDrill.drill_type,
+            target_tempo: firstDrill.target_tempo,
+            target_repetitions: firstDrill.target_repetitions,
+            completed: false,
+            measured_improvement: null,
+            tempo_stages: {
+              isolation_bpm: isoBpm,
+              step_bpm: Math.round(firstDrill.target_tempo * 0.85),
+              target_bpm: firstDrill.target_tempo,
+              goal_bpm: Math.round(firstDrill.target_tempo * 1.05),
+            },
+            description: firstDrill.description,
+          }
+        }
+        setGeneratedDrill(resolvedDrill)
+      } else {
+        setGeneratedDrill(null)
       }
 
       setIsTakeDrawerOpen(true)
@@ -1622,9 +1683,13 @@ export function PracticeStudioCockpit({
 
     }
 
-  }, [selectedSong.title, instrument, tempoBpm, onTakeCompleted])
+  }, [selectedSong.title, instrument, tempoBpm, onTakeCompleted, clearRecordingResources, clearCountInTimer])
 
   const handleSelectSong = (song: ExerciseDto) => {
+
+    clearCountInTimer()
+
+    setIsCountingIn(false)
 
     prevInitialSongIdRef.current = song.id
 
@@ -2652,7 +2717,11 @@ export function PracticeStudioCockpit({
 
               onClick={() => {
 
-                if (isPlaying) {
+                if (isPlaying || isCountingIn) {
+
+                  clearCountInTimer()
+
+                  setIsCountingIn(false)
 
                   setIsPlaying(false)
 
@@ -2704,6 +2773,10 @@ export function PracticeStudioCockpit({
 
               onClick={() => {
 
+                clearCountInTimer()
+
+                setIsCountingIn(false)
+
                 setIsPlaying(false)
 
                 setCurrentBeat(0)
@@ -2742,7 +2815,7 @@ export function PracticeStudioCockpit({
 
                 data-testid="record-take-btn"
 
-                disabled={isEvaluating}
+                disabled={isEvaluating || isStartingMic}
 
                 onClick={async () => {
 
@@ -2756,9 +2829,9 @@ export function PracticeStudioCockpit({
 
                   }
 
-                  await startMicRecording()
+                  const started = await startMicRecording()
 
-                  if (!isPlaying) {
+                  if (started && !isPlaying) {
 
                     startCountInThenPlay()
 
@@ -2766,13 +2839,23 @@ export function PracticeStudioCockpit({
 
                 }}
 
-                className="flex-1 py-2.5 px-4 rounded-xl bg-[#C5A059] hover:bg-[#b58f48] text-[#141312] font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
+                className="flex-1 py-2.5 px-4 rounded-xl bg-[#C5A059] hover:bg-[#b58f48] text-[#141312] font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
 
               >
 
-                <Mic className="size-4" />
+                {isEvaluating || isStartingMic ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Mic className="size-4" />
+                )}
 
-                <span>{isEvaluating ? 'Checking...' : 'Record Take'}</span>
+                <span>
+                  {isEvaluating
+                    ? 'Analyzing Take...'
+                    : isStartingMic
+                      ? 'Starting Mic...'
+                      : 'Record Take'}
+                </span>
 
               </button>
 
@@ -3000,6 +3083,12 @@ export function PracticeStudioCockpit({
 
         }}
 
+      />
+
+      <AudioProcessingHud
+        isProcessing={isEvaluating}
+        statusMessage="Transcribing audio take & computing chord alignment..."
+        timingStage="aligning"
       />
 
     </div>

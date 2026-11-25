@@ -365,7 +365,7 @@ export function projectToGuitar(measure: FullSongChordItem): FlowingChordItem {
   }
 
   const notes = extractCanonicalNotes(measure)
-  const sortedNotes = [...notes].sort((a, b) => a.beatOffset - b.beatOffset)
+  const sortedNotes = notes.toSorted((a, b) => a.beatOffset - b.beatOffset)
   const chordBias = CHORD_FRET_BIAS[measure.name]
 
   // Dynamic Programming Viterbi Search

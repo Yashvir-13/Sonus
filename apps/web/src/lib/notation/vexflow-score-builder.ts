@@ -466,7 +466,7 @@ function generateSafeBeams(notes: StemmableNote[], color: string, isTab = false)
 }
 
 function finalizeAnchors(rawAnchors: BeatAnchor[]): BeatAnchor[] {
-  const sorted = [...rawAnchors].sort((a, b) => a.beat - b.beat || a.x - b.x)
+  const sorted = rawAnchors.toSorted((a, b) => a.beat - b.beat || a.x - b.x)
   const deduped: BeatAnchor[] = []
 
   for (const anchor of sorted) {
@@ -519,7 +519,7 @@ function renderPianoGrandStaff(
     leftOriginX + measureWidths.reduce((sum, w) => sum + w, 0) + 40
   )
 
-  container.innerHTML = ''
+  container.replaceChildren()
   const renderer = new Renderer(container as HTMLDivElement, Renderer.Backends.SVG)
   renderer.resize(totalWidth, totalHeight)
   const ctx = renderer.getContext() as SVGContext
@@ -807,7 +807,7 @@ function renderGuitarTablature(
     leftOriginX + measureWidths.reduce((sum, w) => sum + w, 0) + 40
   )
 
-  container.innerHTML = ''
+  container.replaceChildren()
   const renderer = new Renderer(container as HTMLDivElement, Renderer.Backends.SVG)
   renderer.resize(totalWidth, totalHeight)
   const ctx = renderer.getContext() as SVGContext

@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { Loader2 } from 'lucide-react'
 import { chromaToChord, type ChordDetectionResult } from '@/lib/audio/chord-detector'
+import { createPcmCaptureHandle, type PcmCaptureHandle } from '@/lib/audio/worklet-loader'
 import { encodeMonoWav } from '@/lib/audio/wav-encoder'
 import { apiBaseUrl } from '@/lib/api/config'
 
@@ -65,7 +67,7 @@ export function AudioTestBench() {
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null)
   const animFrameIdRef = useRef<number | null>(null)
   const recordedSamplesRef = useRef<Float32Array[]>([])
-  const recordingProcessorRef = useRef<ScriptProcessorNode | null>(null)
+  const recordingProcessorRef = useRef<PcmCaptureHandle | null>(null)
 
   // Temporal smoothing and debouncing refs
   const smoothedChromaRef = useRef<number[]>(new Array(12).fill(0))
@@ -302,30 +304,26 @@ export function AudioTestBench() {
       }
 
       const source = ctx.createMediaStreamSource(stream)
-      // Use ScriptProcessorNode to collect raw PCM samples
-      const processor = ctx.createScriptProcessor(4096, 1, 1)
-      recordingProcessorRef.current = processor
+      const captureHandle = await createPcmCaptureHandle(
+        ctx,
+        (inputData) => {
+          recordedSamplesRef.current.push(new Float32Array(inputData))
+        },
+        4096
+      )
+      recordingProcessorRef.current = captureHandle
 
-      processor.onaudioprocess = (e) => {
-        const inputData = e.inputBuffer.getChannelData(0)
-        recordedSamplesRef.current.push(new Float32Array(inputData))
-      }
-
-      source.connect(processor)
-      // Connect to zero-gain node to prevent speaker feedback while keeping processor alive
-      const silentGain = ctx.createGain()
-      silentGain.gain.value = 0
-      processor.connect(silentGain)
-      silentGain.connect(ctx.destination)
+      source.connect(captureHandle.node)
+      captureHandle.connectSilent(ctx)
 
       setIsRecordingTake(true)
       setRecordingCountdown(5)
 
-      let remaining = 5
+      const timerState = { remaining: 5 }
       const interval = setInterval(() => {
-        remaining -= 1
-        setRecordingCountdown(remaining)
-        if (remaining <= 0) {
+        timerState.remaining -= 1
+        setRecordingCountdown(timerState.remaining)
+        if (timerState.remaining <= 0) {
           clearInterval(interval)
           finishTake(ctx.sampleRate)
         }
@@ -622,8 +620,9 @@ export function AudioTestBench() {
               Deep Spotify Basic Pitch Transcription Results
             </h3>
             {isTranscribing && (
-              <span className="text-xs font-medium text-primary animate-pulse">
-                Transcribing polyphonic take...
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary animate-pulse">
+                <Loader2 className="size-3.5 animate-spin" />
+                <span>Transcribing polyphonic take...</span>
               </span>
             )}
           </div>

@@ -21,17 +21,26 @@ export class RealtimePitchTracker {
   private readonly maxFreq: number
   public noiseGateDb: number
   public clarityThreshold: number
+  public concertPitchHz: number
   private mediaStream: MediaStream | null = null
   private audioContext: AudioContext | null = null
   private animFrameId: number | null = null
   private pitchHistory: number[] = []
 
-  constructor(sampleRate = 44100, minFreq = 70, maxFreq = 1200, noiseGateDb = -34, clarityThreshold = 0.35) {
+  constructor(
+    sampleRate = 44100,
+    minFreq = 70,
+    maxFreq = 1200,
+    noiseGateDb = -34,
+    clarityThreshold = 0.35,
+    concertPitchHz = 440
+  ) {
     this.sampleRate = sampleRate
     this.minFreq = minFreq
     this.maxFreq = maxFreq
     this.noiseGateDb = noiseGateDb
     this.clarityThreshold = clarityThreshold
+    this.concertPitchHz = concertPitchHz
   }
 
   public getSampleRate(): number {
@@ -59,7 +68,7 @@ export class RealtimePitchTracker {
     if (this.pitchHistory.length > maxHistory) {
       this.pitchHistory.shift()
     }
-    const sorted = [...this.pitchHistory].sort((a, b) => a - b)
+    const sorted = this.pitchHistory.toSorted((a, b) => a - b)
     const mid = Math.floor(sorted.length / 2)
     if (sorted.length % 2 !== 0) {
       return sorted[mid]!
@@ -273,7 +282,7 @@ export class RealtimePitchTracker {
     }
 
     // MIDI and Note conversion
-    const midiFloat = 12 * Math.log2(freq / 440) + 69
+    const midiFloat = 12 * Math.log2(freq / this.concertPitchHz) + 69
     const midiRound = Math.round(midiFloat)
     const cents = Math.round((midiFloat - midiRound) * 100)
 
@@ -313,7 +322,7 @@ export class RealtimePitchTracker {
     }
 
     // Pitch class of the detected fundamental
-    const detectedMidi = Math.round(12 * Math.log2(pitch.freq / 440) + 69)
+    const detectedMidi = Math.round(12 * Math.log2(pitch.freq / this.concertPitchHz) + 69)
     const detectedPc = ((detectedMidi % 12) + 12) % 12
 
     const matchedPitchClasses: number[] = []

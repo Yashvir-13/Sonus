@@ -8,7 +8,7 @@ import {
   computePointerParallax,
   computeForegroundParallax,
   resolveScrollTargetTop,
-} from './scroll-choreography'
+} from './scroll-choreography.ts'
 
 test('defines tightly paced 5-act waypoints with ascending snap ratios and instrument-targeted camera moves', () => {
   assert.equal(LANDING_ACT_WAYPOINTS.length, 5)

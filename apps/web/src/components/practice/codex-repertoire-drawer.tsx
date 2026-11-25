@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { BUILTIN_FULL_SONGS } from '@/lib/music/song-catalog'
 import { fetchExercises, type ExerciseDto } from '@/api/sessions'
-import { X, Search, Play, Check } from 'lucide-react'
+import { X, Search, Play, Check, Loader2 } from 'lucide-react'
 
 export type CodexRepertoireDrawerProps = {
   isOpen: boolean
@@ -23,19 +22,46 @@ export function CodexRepertoireDrawer({
 }: CodexRepertoireDrawerProps): React.JSX.Element | null {
   const [searchQuery, setSearchQuery] = useState('')
   const [instrumentFilter, setInstrumentFilter] = useState<'all' | 'piano' | 'guitar'>('all')
-  const [dbExercises, setDbExercises] = useState<ExerciseDto[]>(availableExercises || [])
+  const [fetchedExercises, setFetchedExercises] = useState<ExerciseDto[] | null>(null)
+  const [isLoadingExercises, setIsLoadingExercises] = useState(false)
+  const dialogRef = useRef<HTMLDialogElement | null>(null)
+  const closingFromEffectRef = useRef(false)
+  const pointerStartedOutsideRef = useRef(false)
 
   useEffect(() => {
-    if (availableExercises && availableExercises.length > 0) {
-      setDbExercises(availableExercises)
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    if (isOpen) {
+      if (!dialog.open) {
+        try {
+          if (typeof dialog.showModal === 'function') {
+            dialog.showModal()
+          } else {
+            dialog.setAttribute('open', '')
+          }
+        } catch {
+          dialog.setAttribute('open', '')
+        }
+      }
+    } else if (dialog.open) {
+      closingFromEffectRef.current = true
+      try {
+        dialog.close?.()
+      } finally {
+        closingFromEffectRef.current = false
+      }
     }
-  }, [availableExercises])
+  }, [isOpen])
 
   useEffect(() => {
     if (!isOpen) return
     let isMounted = true
-    fetchExercises()
-      .then((data) => {
+    Promise.resolve().then(async () => {
+      if (!isMounted) return
+      setIsLoadingExercises(true)
+      try {
+        const data = await fetchExercises()
         if (isMounted && data && data.length > 0) {
           const enriched = data.map((ex) => {
             const builtinMatch = BUILTIN_FULL_SONGS.find(
@@ -43,18 +69,27 @@ export function CodexRepertoireDrawer({
             )
             return builtinMatch ? { ...builtinMatch, id: ex.id } : ex
           })
-          setDbExercises(enriched)
+          setFetchedExercises(enriched)
         }
-      })
-      .catch(() => {
+      } catch {
         // Fallback to built-in full songs when backend is offline
-      })
+      } finally {
+        if (isMounted) {
+          setIsLoadingExercises(false)
+        }
+      }
+    })
     return () => {
       isMounted = false
     }
   }, [isOpen])
 
-  const baseSongList = dbExercises.length > 0 ? dbExercises : BUILTIN_FULL_SONGS
+  const baseSongList =
+    fetchedExercises && fetchedExercises.length > 0
+      ? fetchedExercises
+      : availableExercises && availableExercises.length > 0
+      ? availableExercises
+      : BUILTIN_FULL_SONGS
 
   const filteredSongs = useMemo(() => {
     const q = searchQuery.toLowerCase().trim()
@@ -75,40 +110,59 @@ export function CodexRepertoireDrawer({
   }, [baseSongList, searchQuery, instrumentFilter])
 
   return (
-    <>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            key="repertoire-drawer-backdrop"
-            data-testid="repertoire-drawer-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/65 z-40"
-          />
-        )}
-      </AnimatePresence>
-
-      <motion.div
-        data-testid="codex-repertoire-drawer"
-        aria-label="Repertoire Codex Library"
-        role="dialog"
-        aria-modal="true"
-        aria-hidden={!isOpen}
-        initial={false}
-        animate={{ x: isOpen ? 0 : '-100%' }}
-        transition={{ type: 'spring', stiffness: 380, damping: 36 }}
-        className={`fixed inset-y-0 left-0 w-full max-w-md bg-white dark:bg-[#111114] text-zinc-900 dark:text-zinc-100 border-r border-zinc-200 dark:border-zinc-800 shadow-2xl z-50 flex flex-col font-sans ${
-          isOpen ? 'translate-x-0' : '-translate-x-full pointer-events-none'
-        } ${className}`}
-      >
+    <dialog
+      ref={dialogRef}
+      data-testid="codex-repertoire-drawer"
+      aria-label="Repertoire Codex Library"
+      aria-hidden={!isOpen}
+      closedby="any"
+      onClose={() => {
+        if (!closingFromEffectRef.current && isOpen) {
+          onClose()
+        }
+      }}
+      onPointerDown={(e) => {
+        const dialog = dialogRef.current
+        if (!dialog || 'closedBy' in HTMLDialogElement.prototype) {
+          pointerStartedOutsideRef.current = false
+          return
+        }
+        const r = dialog.getBoundingClientRect()
+        pointerStartedOutsideRef.current =
+          e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom
+      }}
+      onPointerUp={(e) => {
+        const dialog = dialogRef.current
+        if (!dialog || 'closedBy' in HTMLDialogElement.prototype) return
+        if (!pointerStartedOutsideRef.current) return
+        pointerStartedOutsideRef.current = false
+        const r = dialog.getBoundingClientRect()
+        const outside =
+          e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom
+        if (outside) {
+          onClose()
+        }
+      }}
+      className={`fixed inset-y-0 left-0 right-auto m-0 h-dvh max-h-dvh w-full max-w-md bg-white dark:bg-[#111114] text-zinc-900 dark:text-zinc-100 border-0 border-r border-zinc-200 dark:border-zinc-800 shadow-2xl p-0 flex-col font-sans backdrop:bg-black/65 transition-transform duration-200 ease-out ${
+        isOpen ? 'open:flex translate-x-0' : '-translate-x-full pointer-events-none'
+      } ${className}`}
+    >
         <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-[#F8F8F6] dark:bg-[#09090B]">
           <div className="space-y-0.5">
-            <span className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-amber-600 dark:text-amber-500 block">
-              SONG LIBRARY
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-amber-600 dark:text-amber-500 block">
+                SONG LIBRARY
+              </span>
+              {isLoadingExercises && (
+                <span
+                  data-testid="repertoire-loading-indicator"
+                  className="inline-flex items-center gap-1 text-[10px] font-mono text-zinc-500"
+                >
+                  <Loader2 className="size-3 animate-spin text-amber-500" />
+                  <span>Syncing...</span>
+                </span>
+              )}
+            </div>
             <h2 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
               Choose a Piece to Practice
             </h2>
@@ -167,20 +221,22 @@ export function CodexRepertoireDrawer({
               const chordsCount = song.progression?.chords?.length ?? 0
 
               return (
-                <div
+                <button
                   key={song.id}
+                  type="button"
                   data-testid={`codex-song-${song.id}`}
+                  aria-pressed={isSelected}
                   onClick={() => {
                     onSelectSong(song)
                     onClose()
                   }}
-                  className={`p-3.5 rounded-xl border transition-all cursor-pointer group flex flex-col gap-2 ${
+                  className={`w-full text-left p-3.5 rounded-xl border transition-all cursor-pointer group flex flex-col gap-2 ${
                     isSelected
                       ? 'bg-amber-500/10 border-amber-500/60'
                       : 'bg-[#F8F8F6] dark:bg-[#09090B] border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start justify-between gap-2 w-full">
                     <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-1.5">
                         <span
@@ -198,13 +254,13 @@ export function CodexRepertoireDrawer({
                           </span>
                         )}
                       </div>
-                      <h3 className="font-sans font-bold text-sm text-zinc-900 dark:text-zinc-100 truncate group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                      <span className="block font-sans font-bold text-sm text-zinc-900 dark:text-zinc-100 truncate group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                         {song.title}
-                      </h3>
+                      </span>
                       {(song.artist || song.composer) && (
-                        <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 truncate">
+                        <span className="block text-[11px] font-medium text-zinc-500 dark:text-zinc-400 truncate">
                           {song.artist || song.composer}
-                        </p>
+                        </span>
                       )}
                     </div>
 
@@ -220,21 +276,20 @@ export function CodexRepertoireDrawer({
                   </div>
 
                   {song.description && (
-                    <p className="text-[11px] text-zinc-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                    <span className="block text-[11px] text-zinc-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">
                       {song.description}
-                    </p>
+                    </span>
                   )}
 
-                  <div className="flex items-center justify-between pt-1.5 border-t border-zinc-200/70 dark:border-zinc-800/70 text-[10px] font-mono text-zinc-500">
+                  <div className="flex items-center justify-between pt-1.5 border-t border-zinc-200/70 dark:border-zinc-800/70 text-[10px] font-mono text-zinc-500 w-full">
                     <span>{song.tempo_bpm} BPM</span>
                     <span>{chordsCount > 0 ? `${chordsCount} measures` : 'Continuous'}</span>
                   </div>
-                </div>
+                </button>
               )
             })
           )}
         </div>
-      </motion.div>
-    </>
+    </dialog>
   )
 }

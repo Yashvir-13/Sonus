@@ -16,7 +16,8 @@ function attachErrorCollectors(page: Page) {
       if (
         text.includes('WebSocket') ||
         text.includes('favicon.ico') ||
-        text.includes('ERR_NAME_NOT_RESOLVED')
+        text.includes('ERR_NAME_NOT_RESOLVED') ||
+        text.includes('ERR_CONNECTION_REFUSED')
       ) {
         return
       }
@@ -125,6 +126,12 @@ test.describe('SONUS Immersive Frontend & Studio Navigation', () => {
     await page.waitForTimeout(250)
     await page.getByRole('button', { name: /Enter Practice Studio/i }).first().click()
 
+    // Dismiss or launch through native <dialog> session selector when opened
+    const selectorDialog = page.getByTestId('studio-session-selector-overlay')
+    if (await selectorDialog.isVisible()) {
+      await page.getByTestId('launch-session-btn').click()
+    }
+
     await expect(page.getByTestId('global-navigation-header')).toBeVisible()
     await expect(page.getByTestId('practice-studio-cockpit')).toBeVisible()
     await assertNoHorizontalOverflow(page)
@@ -180,6 +187,9 @@ test.describe('SONUS Immersive Frontend & Studio Navigation', () => {
     await assertNoHorizontalOverflow(page)
 
     await page.getByRole('button', { name: /Enter Practice Studio/i }).first().click()
+    if (await page.getByTestId('studio-session-selector-overlay').isVisible()) {
+      await page.getByTestId('launch-session-btn').click()
+    }
     await expect(page.getByTestId('practice-studio-cockpit')).toBeVisible()
     await assertNoHorizontalOverflow(page)
 
@@ -198,6 +208,9 @@ test.describe('SONUS Immersive Frontend & Studio Navigation', () => {
     await assertNoHorizontalOverflow(page)
 
     await page.getByRole('button', { name: /Enter Practice Studio/i }).first().click()
+    if (await page.getByTestId('studio-session-selector-overlay').isVisible()) {
+      await page.getByTestId('launch-session-btn').click()
+    }
     await expect(page.getByTestId('practice-studio-cockpit')).toBeVisible()
     await assertNoHorizontalOverflow(page)
 

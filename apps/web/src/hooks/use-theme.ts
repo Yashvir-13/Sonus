@@ -5,13 +5,19 @@ export type Theme = 'dark' | 'light' | 'system'
 const THEME_STORAGE_KEY = 'sonus_theme'
 const THEME_CHANGE_EVENT = 'sonus-theme-change'
 
+function resolveIsDark(t: Theme): boolean {
+  if (t === 'dark') return true
+  if (t === 'light') return false
+  if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+  }
+  return true
+}
+
 function applyDocumentTheme(t: Theme) {
   if (typeof document === 'undefined' || typeof window === 'undefined') return
   const root = document.documentElement
-  let isDark = t === 'dark'
-  if (t === 'system' && typeof window.matchMedia === 'function') {
-    isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  }
+  const isDark = resolveIsDark(t)
   if (isDark) {
     root.classList.add('dark')
     root.style.colorScheme = 'dark'
@@ -26,7 +32,7 @@ export function useTheme() {
     if (typeof window === 'undefined') return 'dark'
     try {
       const saved = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null
-      return saved === 'light' || saved === 'dark' ? saved : 'dark'
+      return saved === 'light' || saved === 'dark' || saved === 'system' ? saved : 'dark'
     } catch {
       return 'dark'
     }
@@ -39,6 +45,14 @@ export function useTheme() {
     } catch {
       // Ignore storage errors
     }
+
+    if (theme === 'system' && typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      const mql = window.matchMedia('(prefers-color-scheme: dark)')
+      const onChange = () => applyDocumentTheme('system')
+      mql.addEventListener('change', onChange)
+      return () => mql.removeEventListener('change', onChange)
+    }
+    return undefined
   }, [theme])
 
   useEffect(() => {
@@ -66,9 +80,9 @@ export function useTheme() {
   }, [])
 
   const toggleTheme = useCallback(() => {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark'
-    setTheme(next)
+    const currentlyDark = resolveIsDark(theme)
+    setTheme(currentlyDark ? 'light' : 'dark')
   }, [theme, setTheme])
 
-  return { theme, setTheme, toggleTheme, isDark: theme === 'dark' }
+  return { theme, setTheme, toggleTheme, isDark: resolveIsDark(theme) }
 }

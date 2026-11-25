@@ -91,6 +91,7 @@ export type PeerLeaderboardEntry = {
   performerName: string
   handle: string
   isCurrentUser?: boolean
+  isSimulatedBaseline?: boolean
   instrument: 'piano' | 'guitar'
   songId: string
   songTitle: string

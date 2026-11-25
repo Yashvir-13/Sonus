@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { SignIn, SignUp } from '@clerk/react'
 
 export type SignInModalProps = {
@@ -20,6 +20,9 @@ export function SignInModal({
 }: SignInModalProps): React.JSX.Element | null {
   const [authMode, setAuthMode] = useState<'sign-in' | 'sign-up'>(initialMode)
   const [prevInitialMode, setPrevInitialMode] = useState(initialMode)
+  const dialogRef = useRef<HTMLDialogElement | null>(null)
+  const closingFromEffectRef = useRef(false)
+  const pointerStartedOutsideRef = useRef(false)
 
   useEffect(() => {
     if (isSignedIn && isOpen) {
@@ -27,6 +30,45 @@ export function SignInModal({
       onClose()
     }
   }, [isSignedIn, isOpen, onSuccess, onClose])
+
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    if (isOpen) {
+      if (!dialog.open) {
+        try {
+          if (typeof dialog.showModal === 'function') {
+            dialog.showModal()
+          } else {
+            dialog.setAttribute('open', '')
+          }
+        } catch {
+          dialog.setAttribute('open', '')
+        }
+      }
+    } else if (dialog.open) {
+      closingFromEffectRef.current = true
+      try {
+        dialog.close?.()
+      } finally {
+        closingFromEffectRef.current = false
+      }
+    }
+
+    return () => {
+      if (dialog.open) {
+        closingFromEffectRef.current = true
+        try {
+          dialog.close?.()
+        } catch {
+          // ignore teardown errors
+        } finally {
+          closingFromEffectRef.current = false
+        }
+      }
+    }
+  }, [isOpen])
 
   if (initialMode !== prevInitialMode) {
     setPrevInitialMode(initialMode)
@@ -47,13 +89,39 @@ export function SignInModal({
   }
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
+    <dialog
+      ref={dialogRef}
       aria-label="Sign in to Sonus"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200"
+      closedby="any"
+      onClose={() => {
+        if (!closingFromEffectRef.current) {
+          onClose()
+        }
+      }}
+      onPointerDown={(e) => {
+        const dialog = dialogRef.current
+        if (!dialog || 'closedBy' in HTMLDialogElement.prototype) {
+          pointerStartedOutsideRef.current = false
+          return
+        }
+        const r = dialog.getBoundingClientRect()
+        pointerStartedOutsideRef.current =
+          e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom
+      }}
+      onPointerUp={(e) => {
+        const dialog = dialogRef.current
+        if (!dialog || 'closedBy' in HTMLDialogElement.prototype) return
+        if (!pointerStartedOutsideRef.current) return
+        pointerStartedOutsideRef.current = false
+        const r = dialog.getBoundingClientRect()
+        const outside =
+          e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom
+        if (outside) {
+          onClose()
+        }
+      }}
+      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-xl bg-[#111114] border border-zinc-800 p-6 sm:p-8 shadow-2xl text-zinc-100 max-h-[92vh] overflow-y-auto scrollbar-none backdrop:bg-black/80 backdrop:backdrop-blur-md open:block"
     >
-      <div className="relative rounded-xl bg-[#111114] border border-zinc-800 p-6 sm:p-8 shadow-2xl max-w-md w-full text-zinc-100 max-h-[92vh] overflow-y-auto scrollbar-none">
         {/* Close Button */}
         <button
           type="button"
@@ -153,7 +221,6 @@ export function SignInModal({
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </dialog>
   )
 }

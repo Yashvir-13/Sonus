@@ -1,7 +1,16 @@
-import React from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import React, { useEffect, useRef } from 'react'
 import { X, Activity, Compass, ArrowRight, RotateCcw, AlertTriangle } from 'lucide-react'
 import type { TakeEvaluationResponse, AdaptiveInterventionDto } from '@/api/sessions'
+
+function computeLetterGrade(score: number): string {
+  if (score >= 93) return 'A'
+  if (score >= 90) return 'A-'
+  if (score >= 85) return 'B+'
+  if (score >= 80) return 'B'
+  if (score >= 70) return 'C'
+  if (score >= 60) return 'D'
+  return 'F'
+}
 
 export interface TakeEvaluationDrawerProps {
   isOpen: boolean
@@ -22,6 +31,36 @@ export function TakeEvaluationDrawer({
   onRetake,
   className = '',
 }: TakeEvaluationDrawerProps): React.JSX.Element | null {
+  const dialogRef = useRef<HTMLDialogElement | null>(null)
+  const closingFromEffectRef = useRef(false)
+  const pointerStartedOutsideRef = useRef(false)
+
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    if (isOpen) {
+      if (!dialog.open) {
+        try {
+          if (typeof dialog.showModal === 'function') {
+            dialog.showModal()
+          } else {
+            dialog.setAttribute('open', '')
+          }
+        } catch {
+          dialog.setAttribute('open', '')
+        }
+      }
+    } else if (dialog.open) {
+      closingFromEffectRef.current = true
+      try {
+        dialog.close?.()
+      } finally {
+        closingFromEffectRef.current = false
+      }
+    }
+  }, [isOpen])
+
   if (!evaluation && !isOpen) return null
 
   const raw = evaluation?.overall_accuracy ?? 92
@@ -36,37 +75,46 @@ export function TakeEvaluationDrawer({
     'Your played chords were matched against each measure of the score. Review your per-bar timing and missed chord notes below.'
 
   const isHighFidelity = overallScore >= 85
+  const letterGrade = evaluation?.coaching_report?.letter_grade || computeLetterGrade(overallScore)
 
   return (
-    <>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            key="take-drawer-backdrop"
-            data-testid="take-drawer-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/70 z-40"
-          />
-        )}
-      </AnimatePresence>
-
-      <motion.div
-        data-testid="take-evaluation-drawer"
-        aria-label="Performance Evaluation & Alignment Diagnostics"
-        role="dialog"
-        aria-modal="true"
-        aria-hidden={!isOpen}
-        initial={false}
-        animate={{ x: isOpen ? 0 : '100%' }}
-        transition={{ type: 'spring', stiffness: 380, damping: 36 }}
-        className={`fixed inset-y-0 right-0 w-full max-w-xl bg-white dark:bg-[#111114] text-zinc-900 dark:text-zinc-100 border-l border-zinc-200 dark:border-zinc-800 shadow-2xl z-50 flex flex-col font-sans ${
-          isOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none'
-        } ${className}`}
-      >
+    <dialog
+      ref={dialogRef}
+      data-testid="take-evaluation-drawer"
+      aria-label="Performance Evaluation & Alignment Diagnostics"
+      aria-hidden={!isOpen}
+      closedby="any"
+      onClose={() => {
+        if (!closingFromEffectRef.current && isOpen) {
+          onClose()
+        }
+      }}
+      onPointerDown={(e) => {
+        const dialog = dialogRef.current
+        if (!dialog || 'closedBy' in HTMLDialogElement.prototype) {
+          pointerStartedOutsideRef.current = false
+          return
+        }
+        const r = dialog.getBoundingClientRect()
+        pointerStartedOutsideRef.current =
+          e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom
+      }}
+      onPointerUp={(e) => {
+        const dialog = dialogRef.current
+        if (!dialog || 'closedBy' in HTMLDialogElement.prototype) return
+        if (!pointerStartedOutsideRef.current) return
+        pointerStartedOutsideRef.current = false
+        const r = dialog.getBoundingClientRect()
+        const outside =
+          e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom
+        if (outside) {
+          onClose()
+        }
+      }}
+      className={`fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-dvh w-full max-w-xl bg-white dark:bg-[#111114] text-zinc-900 dark:text-zinc-100 border-0 border-l border-zinc-200 dark:border-zinc-800 shadow-2xl p-0 flex-col font-sans backdrop:bg-black/70 transition-transform duration-200 ease-out ${
+        isOpen ? 'open:flex translate-x-0' : 'translate-x-full pointer-events-none'
+      } ${className}`}
+    >
         {/* Header */}
         <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-[#F8F8F6] dark:bg-[#09090B]">
           <div className="space-y-0.5">
@@ -102,7 +150,7 @@ export function TakeEvaluationDrawer({
                   {overallScore.toFixed(1)}%
                 </span>
                 <span className="text-xs font-mono text-zinc-500">
-                  (Grade {evaluation?.coaching_report?.letter_grade || (isHighFidelity ? 'A' : 'B')})
+                  (Grade {letterGrade})
                 </span>
               </div>
             </div>
@@ -286,7 +334,6 @@ export function TakeEvaluationDrawer({
             <span>BACK TO PRACTICE ROOM</span>
           </button>
         </div>
-      </motion.div>
-    </>
+    </dialog>
   )
 }

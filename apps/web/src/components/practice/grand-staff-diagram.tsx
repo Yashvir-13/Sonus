@@ -189,7 +189,7 @@ export const GrandStaffDiagram: React.FC<GrandStaffDiagramProps> = ({
     const rhItems = resolvedNotes.filter((n) => n.hand === 'rh')
 
     const layoutCluster = (items: typeof resolvedNotes, baseX: number) => {
-      const sorted = [...items].sort((a, b) => a.step - b.step)
+      const sorted = items.toSorted((a, b) => a.step - b.step)
       return sorted.map((item, idx) => {
         let displaced = false
         if (idx > 0 && sorted[idx].step - sorted[idx - 1].step === 1) {

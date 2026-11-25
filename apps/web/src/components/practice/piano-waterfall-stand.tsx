@@ -82,6 +82,19 @@ function createSparkSprite(colorHex: string, size = 32): HTMLCanvasElement {
   return canvas
 }
 
+// Geometry: 52 White keys in standard 1040 coordinate space
+// White Key: 20px wide, 110px high (Authentic concert grand proportions ~5.5:1)
+// Black Key: 12px wide, 70px high
+const TOTAL_WIDTH = 1040
+const WATERFALL_HEIGHT = 220
+const WHITE_KEY_HEIGHT = 110
+const BLACK_KEY_HEIGHT = 70
+const TOTAL_HEIGHT = WATERFALL_HEIGHT + WHITE_KEY_HEIGHT // 330
+const STRIKE_LINE_Y = WATERFALL_HEIGHT - 6 // 214
+const WHITE_KEY_WIDTH = 20
+const BLACK_KEY_WIDTH = 12
+const PX_PER_BEAT = 75
+
 export function PianoWaterfallStand({
   progression,
   currentBeat,
@@ -96,21 +109,11 @@ export function PianoWaterfallStand({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const particlesRef = useRef<SparkParticle[]>([])
   const sparkSpritesRef = useRef<Record<string, HTMLCanvasElement> | null>(null)
+  const isPlayingRef = useRef(isPlaying)
+  const animIdRef = useRef<number | null>(null)
+  const startLoopRef = useRef<(() => void) | null>(null)
   const { theme } = useTheme()
   const isDark = theme === 'dark'
-
-  // Geometry: 52 White keys in standard 1040 coordinate space
-  // White Key: 20px wide, 110px high (Authentic concert grand proportions ~5.5:1)
-  // Black Key: 12px wide, 70px high
-  const TOTAL_WIDTH = 1040
-  const WATERFALL_HEIGHT = 220
-  const WHITE_KEY_HEIGHT = 110
-  const BLACK_KEY_HEIGHT = 70
-  const TOTAL_HEIGHT = WATERFALL_HEIGHT + WHITE_KEY_HEIGHT // 330
-  const STRIKE_LINE_Y = WATERFALL_HEIGHT - 6 // 214
-  const WHITE_KEY_WIDTH = 20
-  const BLACK_KEY_WIDTH = 12
-  const PX_PER_BEAT = 75
 
   // Initialize cached offscreen spark sprites once
   useEffect(() => {
@@ -286,6 +289,7 @@ export function PianoWaterfallStand({
       const cx = (coord.x + coord.width / 2) * scaleX
       const cy = STRIKE_LINE_Y * scaleY
       spawnSparks(cx, cy, '#FACC15', 24)
+      startLoopRef.current?.()
     }
     onKeyClick?.(midi)
   }
@@ -297,12 +301,12 @@ export function PianoWaterfallStand({
   // 3. Laser Strike Lens Flare Hotspots
   // ─────────────────────────────────────────────────────────────────────────────
   useEffect(() => {
+    isPlayingRef.current = isPlaying
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    let animId: number
     const activeArray = Array.from(activeKeysAtStrike.entries())
 
     const render = () => {
@@ -318,84 +322,86 @@ export function PianoWaterfallStand({
       ctx.globalCompositeOperation = 'lighter'
 
       // 1. VOLUMETRIC SPOTLIGHT BEAMS (Dual-Directional: Skywards + Onto Keys)
-      activeArray.forEach(([midi, hand]) => {
-        const coord = keyCoordByMidi.get(midi)
-        if (!coord) return
-        const cx = (coord.x + coord.width / 2) * scaleX
-        const isLh = hand === 'lh'
-        const baseColorRgb = isLh ? '236, 72, 153' : '250, 204, 21'
-        const hexColor = isLh ? '#EC4899' : '#FACC15'
+      if (isPlayingRef.current) {
+        activeArray.forEach(([midi, hand]) => {
+          const coord = keyCoordByMidi.get(midi)
+          if (!coord) return
+          const cx = (coord.x + coord.width / 2) * scaleX
+          const isLh = hand === 'lh'
+          const baseColorRgb = isLh ? '236, 72, 153' : '250, 204, 21'
+          const hexColor = isLh ? '#EC4899' : '#FACC15'
 
-        // A. Continuous spark emission at strike line
-        if (Math.random() < 0.65) {
-          spawnSparks(cx, strikeY, hexColor, 2)
-        }
+          // A. Continuous spark emission at strike line
+          if (Math.random() < 0.65) {
+            spawnSparks(cx, strikeY, hexColor, 2)
+          }
 
-        // B. Upward Soft Gaussian-Feathered Skyward Column
-        const beamW = Math.max(18, coord.width * scaleX * 1.6)
-        
-        // Multi-pass feathered vertical column (prevents harsh polygon edges)
-        const upGrad = ctx.createLinearGradient(cx, strikeY, cx, 0)
-        upGrad.addColorStop(0, `rgba(${baseColorRgb}, 0.8)`)
-        upGrad.addColorStop(0.25, `rgba(${baseColorRgb}, 0.4)`)
-        upGrad.addColorStop(0.65, `rgba(${baseColorRgb}, 0.12)`)
-        upGrad.addColorStop(1, `rgba(${baseColorRgb}, 0.0)`)
+          // B. Upward Soft Gaussian-Feathered Skyward Column
+          const beamW = Math.max(18, coord.width * scaleX * 1.6)
 
-        ctx.fillStyle = upGrad
-        // Smooth parabolic / tapered path
-        ctx.beginPath()
-        ctx.moveTo(cx - beamW * 0.5, strikeY)
-        ctx.bezierCurveTo(
-          cx - beamW * 0.45, strikeY * 0.6,
-          cx - beamW * 0.35, strikeY * 0.2,
-          cx - beamW * 0.25, 0
-        )
-        ctx.lineTo(cx + beamW * 0.25, 0)
-        ctx.bezierCurveTo(
-          cx + beamW * 0.35, strikeY * 0.2,
-          cx + beamW * 0.45, strikeY * 0.6,
-          cx + beamW * 0.5, strikeY
-        )
-        ctx.closePath()
-        ctx.fill()
+          // Multi-pass feathered vertical column (prevents harsh polygon edges)
+          const upGrad = ctx.createLinearGradient(cx, strikeY, cx, 0)
+          upGrad.addColorStop(0, `rgba(${baseColorRgb}, 0.8)`)
+          upGrad.addColorStop(0.25, `rgba(${baseColorRgb}, 0.4)`)
+          upGrad.addColorStop(0.65, `rgba(${baseColorRgb}, 0.12)`)
+          upGrad.addColorStop(1, `rgba(${baseColorRgb}, 0.0)`)
 
-        // Intense core ray
-        const coreGrad = ctx.createLinearGradient(cx, strikeY, cx, strikeY * 0.3)
-        coreGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)')
-        coreGrad.addColorStop(0.3, `rgba(${baseColorRgb}, 0.6)`)
-        coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)')
-        ctx.fillStyle = coreGrad
-        ctx.fillRect(cx - beamW * 0.15, 0, beamW * 0.3, strikeY)
+          ctx.fillStyle = upGrad
+          // Smooth parabolic / tapered path
+          ctx.beginPath()
+          ctx.moveTo(cx - beamW * 0.5, strikeY)
+          ctx.bezierCurveTo(
+            cx - beamW * 0.45, strikeY * 0.6,
+            cx - beamW * 0.35, strikeY * 0.2,
+            cx - beamW * 0.25, 0
+          )
+          ctx.lineTo(cx + beamW * 0.25, 0)
+          ctx.bezierCurveTo(
+            cx + beamW * 0.35, strikeY * 0.2,
+            cx + beamW * 0.45, strikeY * 0.6,
+            cx + beamW * 0.5, strikeY
+          )
+          ctx.closePath()
+          ctx.fill()
 
-        // C. Downward Key Spotlight Cone (Illuminates the Piano Keys Below!)
-        const downGrad = ctx.createLinearGradient(cx, strikeY, cx, height)
-        downGrad.addColorStop(0, 'rgba(255, 255, 255, 0.95)') // strike point flash
-        downGrad.addColorStop(0.12, `rgba(${baseColorRgb}, 0.75)`)
-        downGrad.addColorStop(0.55, `rgba(${baseColorRgb}, 0.4)`)
-        downGrad.addColorStop(1, `rgba(${baseColorRgb}, 0.08)`)
+          // Intense core ray
+          const coreGrad = ctx.createLinearGradient(cx, strikeY, cx, strikeY * 0.3)
+          coreGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)')
+          coreGrad.addColorStop(0.3, `rgba(${baseColorRgb}, 0.6)`)
+          coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)')
+          ctx.fillStyle = coreGrad
+          ctx.fillRect(cx - beamW * 0.15, 0, beamW * 0.3, strikeY)
 
-        const coneBottomW = coord.width * scaleX * 1.85
-        ctx.fillStyle = downGrad
-        ctx.beginPath()
-        ctx.moveTo(cx - coord.width * scaleX * 0.5, strikeY)
-        ctx.lineTo(cx + coord.width * scaleX * 0.5, strikeY)
-        ctx.lineTo(cx + coneBottomW * 0.5, height)
-        ctx.lineTo(cx - coneBottomW * 0.5, height)
-        ctx.closePath()
-        ctx.fill()
+          // C. Downward Key Spotlight Cone (Illuminates the Piano Keys Below!)
+          const downGrad = ctx.createLinearGradient(cx, strikeY, cx, height)
+          downGrad.addColorStop(0, 'rgba(255, 255, 255, 0.95)') // strike point flash
+          downGrad.addColorStop(0.12, `rgba(${baseColorRgb}, 0.75)`)
+          downGrad.addColorStop(0.55, `rgba(${baseColorRgb}, 0.4)`)
+          downGrad.addColorStop(1, `rgba(${baseColorRgb}, 0.08)`)
 
-        // D. High-Intensity Lens Flare Hotspot at the Strike Collision
-        const flare = ctx.createRadialGradient(cx, strikeY, 1, cx, strikeY, 34 * scaleX)
-        flare.addColorStop(0, 'rgba(255, 255, 255, 1.0)')
-        flare.addColorStop(0.2, `rgba(${baseColorRgb}, 0.9)`)
-        flare.addColorStop(0.6, `rgba(${baseColorRgb}, 0.25)`)
-        flare.addColorStop(1, 'rgba(0, 0, 0, 0)')
+          const coneBottomW = coord.width * scaleX * 1.85
+          ctx.fillStyle = downGrad
+          ctx.beginPath()
+          ctx.moveTo(cx - coord.width * scaleX * 0.5, strikeY)
+          ctx.lineTo(cx + coord.width * scaleX * 0.5, strikeY)
+          ctx.lineTo(cx + coneBottomW * 0.5, height)
+          ctx.lineTo(cx - coneBottomW * 0.5, height)
+          ctx.closePath()
+          ctx.fill()
 
-        ctx.fillStyle = flare
-        ctx.beginPath()
-        ctx.arc(cx, strikeY, 34 * scaleX, 0, Math.PI * 2)
-        ctx.fill()
-      })
+          // D. High-Intensity Lens Flare Hotspot at the Strike Collision
+          const flare = ctx.createRadialGradient(cx, strikeY, 1, cx, strikeY, 34 * scaleX)
+          flare.addColorStop(0, 'rgba(255, 255, 255, 1.0)')
+          flare.addColorStop(0.2, `rgba(${baseColorRgb}, 0.9)`)
+          flare.addColorStop(0.6, `rgba(${baseColorRgb}, 0.25)`)
+          flare.addColorStop(1, 'rgba(0, 0, 0, 0)')
+
+          ctx.fillStyle = flare
+          ctx.beginPath()
+          ctx.arc(cx, strikeY, 34 * scaleX, 0, Math.PI * 2)
+          ctx.fill()
+        })
+      }
 
       // 2. DYNAMIC SPARK PARTICLES: Blazing Fast Sprite Blitting
       const remainingParticles: SparkParticle[] = []
@@ -438,11 +444,33 @@ export function PianoWaterfallStand({
       particlesRef.current = remainingParticles.slice(-320) // generous particle pool
       ctx.restore()
 
-      animId = requestAnimationFrame(render)
+      if (isPlayingRef.current || particlesRef.current.length > 0) {
+        animIdRef.current = requestAnimationFrame(render)
+      } else {
+        animIdRef.current = null
+      }
     }
 
-    animId = requestAnimationFrame(render)
-    return () => cancelAnimationFrame(animId)
+    const ensureRunning = () => {
+      if (animIdRef.current === null) {
+        animIdRef.current = requestAnimationFrame(render)
+      }
+    }
+    startLoopRef.current = ensureRunning
+
+    if (isPlaying || particlesRef.current.length > 0) {
+      ensureRunning()
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+    }
+
+    return () => {
+      if (animIdRef.current !== null) {
+        cancelAnimationFrame(animIdRef.current)
+        animIdRef.current = null
+      }
+      startLoopRef.current = null
+    }
   }, [activeKeysAtStrike, isPlaying, keyCoordByMidi, spawnSparks])
 
   // Resize canvas according to container with clamped Retina DPR

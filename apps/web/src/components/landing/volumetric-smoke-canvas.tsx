@@ -56,17 +56,17 @@ export function VolumetricSmokeCanvas({
     if (!ctx) return
 
     const scale = 0.5
-    let viewWidth = window.innerWidth || 1280
-    let viewHeight = window.innerHeight || 800
-    let width = (canvas.width = Math.max(320, Math.round(viewWidth * scale)))
-    let height = (canvas.height = Math.max(240, Math.round(viewHeight * scale)))
+    const dims = {
+      width: (canvas.width = Math.max(320, Math.round((window.innerWidth || 1280) * scale))),
+      height: (canvas.height = Math.max(240, Math.round((window.innerHeight || 800) * scale))),
+    }
 
     const handleResize = () => {
       if (!canvas) return
-      viewWidth = window.innerWidth || 1280
-      viewHeight = window.innerHeight || 800
-      width = canvas.width = Math.max(320, Math.round(viewWidth * scale))
-      height = canvas.height = Math.max(240, Math.round(viewHeight * scale))
+      const vw = window.innerWidth || 1280
+      const vh = window.innerHeight || 800
+      dims.width = canvas.width = Math.max(320, Math.round(vw * scale))
+      dims.height = canvas.height = Math.max(240, Math.round(vh * scale))
     }
     window.addEventListener('resize', handleResize)
 
@@ -77,9 +77,9 @@ export function VolumetricSmokeCanvas({
         ? ['silver', 'silver', 'silver', 'silver']
         : ['amber', 'amber', 'silver', 'amber']
       return {
-        x: ((i * 197) % 100) * 0.01 * width,
-        y: ((i * 311) % 100) * 0.01 * height,
-        radius: Math.max(width, height) * (0.2 + (i % 4) * 0.05),
+        x: ((i * 197) % 100) * 0.01 * dims.width,
+        y: ((i * 311) % 100) * 0.01 * dims.height,
+        radius: Math.max(dims.width, dims.height) * (0.2 + (i % 4) * 0.05),
         vx: (i % 2 === 0 ? 1 : -1) * (0.16 + (i % 4) * 0.08),
         vy: -0.11 - (i % 3) * 0.06,
         phase: i * 0.7,
@@ -91,15 +91,13 @@ export function VolumetricSmokeCanvas({
 
     // Initialize 36 floating atmospheric dust motes
     const motes: DustMote[] = Array.from({ length: 36 }, (_, i) => ({
-      x: ((i * 131) % 100) * 0.01 * width,
-      y: ((i * 257) % 100) * 0.01 * height,
+      x: ((i * 131) % 100) * 0.01 * dims.width,
+      y: ((i * 257) % 100) * 0.01 * dims.height,
       size: 0.8 + (i % 3) * 0.45,
       vx: i % 2 === 0 ? 0.14 : -0.14,
       vy: -0.16 - (i % 4) * 0.08,
       alpha: isDark ? 0.42 + (i % 5) * 0.11 : 0.28 + (i % 5) * 0.1,
     }))
-
-    let rafId = 0
 
     const makePlumeSprite = (tint: 'amber' | 'silver' | 'emerald'): HTMLCanvasElement => {
       const sprite = document.createElement('canvas')
@@ -136,14 +134,15 @@ export function VolumetricSmokeCanvas({
       emerald: makePlumeSprite('emerald'),
     }
 
-    let lastRenderTime = 0
+    const animState = { rafId: 0, lastRenderTime: 0 }
     const renderFrame = (now: number) => {
       if (!ctx) return
-      if (document.hidden || (lastRenderTime !== 0 && now - lastRenderTime < 42)) {
-        rafId = requestAnimationFrame(renderFrame)
+      if (document.hidden || (animState.lastRenderTime !== 0 && now - animState.lastRenderTime < 42)) {
+        animState.rafId = requestAnimationFrame(renderFrame)
         return
       }
-      lastRenderTime = now
+      animState.lastRenderTime = now
+      const { width, height } = dims
 
       ctx.clearRect(0, 0, width, height)
 
@@ -207,13 +206,13 @@ export function VolumetricSmokeCanvas({
         ctx.fill()
       }
 
-      rafId = requestAnimationFrame(renderFrame)
+      animState.rafId = requestAnimationFrame(renderFrame)
     }
 
-    rafId = requestAnimationFrame(renderFrame)
+    animState.rafId = requestAnimationFrame(renderFrame)
 
     return () => {
-      cancelAnimationFrame(rafId)
+      cancelAnimationFrame(animState.rafId)
       window.removeEventListener('resize', handleResize)
     }
   }, [theme])

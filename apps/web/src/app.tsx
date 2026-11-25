@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, useRef, lazy, Suspense } from 'react'
 import { MotionConfig, AnimatePresence, motion } from 'motion/react'
 import { UserButton } from '@clerk/react'
-import { PracticeStudioCockpit } from '@/components/practice/practice-studio-cockpit'
 import { SignInModal } from '@/components/auth/sign-in-modal'
 import { AuthShell } from '@/components/auth/auth-shell'
 import {
@@ -43,6 +42,7 @@ import { Music, BookOpen, Disc, TrendingUp, Users, Sliders, ChevronDown, Sliders
 
 // Code-split heavy views to prevent monolithic bundle and ensure instantaneous initial load
 const LandingPage = lazy(() => import('@/components/landing/landing-page').then((m) => ({ default: m.LandingPage })))
+const PracticeStudioCockpit = lazy(() => import('@/components/practice/practice-studio-cockpit').then((m) => ({ default: m.PracticeStudioCockpit })))
 const ProgressDashboardPage = lazy(() => import('@/components/progress/progress-dashboard-page').then((m) => ({ default: m.ProgressDashboardPage })))
 const PeerComparisonPage = lazy(() => import('@/components/community/peer-comparison-page').then((m) => ({ default: m.PeerComparisonPage })))
 const ChordsScalesPage = lazy(() => import('@/components/theory/chords-scales-page').then((m) => ({ default: m.ChordsScalesPage })))
@@ -312,29 +312,14 @@ export default function App({
   }, [initialView])
 
   const [activeView, setActiveView] = useState<AppViewMode>(initialRoute.view)
-  const [internalSignedIn, setInternalSignedIn] = useState(
-    defaultSignedIn || Boolean(userButtonSlot)
-  )
-
-  useEffect(() => {
-    if (controlledIsSignedIn !== undefined) {
-      setInternalSignedIn(controlledIsSignedIn)
-    } else if (defaultSignedIn || Boolean(userButtonSlot)) {
-      setInternalSignedIn(true)
-    }
-  }, [controlledIsSignedIn, defaultSignedIn, userButtonSlot])
+  const [demoSignedIn, setDemoSignedIn] = useState(false)
 
   const isSignedIn = controlledIsSignedIn !== undefined
     ? controlledIsSignedIn
-    : (internalSignedIn || Boolean(userButtonSlot))
+    : Boolean(defaultSignedIn || userButtonSlot || demoSignedIn)
 
   const [showSignInModal, setShowSignInModal] = useState(false)
-
-  useEffect(() => {
-    if (isSignedIn && showSignInModal) {
-      setShowSignInModal(false)
-    }
-  }, [isSignedIn, showSignInModal])
+  const effectiveShowSignInModal = showSignInModal && !isSignedIn
   const [authReturnUrl, setAuthReturnUrl] = useState<string>('/practice')
   const [selectedSongId, setSelectedSongId] = useState<string>(initialRoute.songId || 'ex_guitar_knockin')
   const [pendingLoopDrill, setPendingLoopDrill] = useState<{
@@ -361,6 +346,7 @@ export default function App({
   })
   const [userStats, setUserStats] = useState<UserStatsDto | null>(null)
   const [userHabits, setUserHabits] = useState<HabitPatternDto[]>([])
+  const [isHydratingBackend, setIsHydratingBackend] = useState(true)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isSessionSelectorOpen, setIsSessionSelectorOpen] = useState(false)
   const [isStudioSetupOpen, setIsStudioSetupOpen] = useState(false)
@@ -386,7 +372,9 @@ export default function App({
     studioPrefs.defaultInstrument || 'guitar'
   )
   const [practiceMode, setPracticeMode] = useState<'listen' | 'practice'>('practice')
-  const [practiceNotationMode, setPracticeNotationMode] = useState<'staff' | 'keys'>('staff')
+  const [practiceNotationMode, setPracticeNotationMode] = useState<'staff' | 'keys'>(
+    studioPrefs.defaultNotation || 'staff'
+  )
   const [isRepertoireOpen, setIsRepertoireOpen] = useState(false)
 
   const selectedSong = useMemo(() => {
@@ -412,14 +400,17 @@ export default function App({
     )
   }, [availableExercises, selectedSongId, studioPrefs.defaultInstrument])
 
-  useEffect(() => {
-    if (selectedSong?.instrument) {
+  const [prevSyncedSongId, setPrevSyncedSongId] = useState(selectedSong?.id)
+  if (selectedSong && selectedSong.id !== prevSyncedSongId) {
+    setPrevSyncedSongId(selectedSong.id)
+    if (selectedSong.instrument) {
       setPracticeInstrument(selectedSong.instrument.toLowerCase() === 'guitar' ? 'guitar' : 'piano')
     }
-  }, [selectedSong?.id, selectedSong?.instrument])
+  }
 
   // Hydrate authentic repertoire catalogue and user history from PostgreSQL backend
   const loadBackendData = useCallback(async () => {
+    setIsHydratingBackend(true)
     try {
       if (!isSignedIn) {
         try {
@@ -537,11 +528,21 @@ export default function App({
       }
     } catch {
       // Preserve existing state on transient network failure without synthesizing mock takes
+    } finally {
+      setIsHydratingBackend(false)
     }
   }, [isSignedIn])
 
   useEffect(() => {
-    void loadBackendData()
+    let active = true
+    Promise.resolve().then(() => {
+      if (active) {
+        void loadBackendData()
+      }
+    })
+    return () => {
+      active = false
+    }
   }, [loadBackendData])
 
   // Synchronize browser history navigation (Back / Forward buttons)
@@ -593,13 +594,6 @@ export default function App({
       </button>
     ))
 
-  const isDeveloper = Boolean(
-    isSignedIn &&
-      userProfile?.email &&
-      (userProfile.email.toLowerCase() === 'yashvir.126@gmail.com' ||
-        userProfile.email.toLowerCase() === 'yashvir13112004@gmail.com')
-  )
-
   // Dynamically update BKT mastery, SM-2 schedule, and session history when a take completes
   const handleTakeCompleted = useCallback(
     (
@@ -639,8 +633,8 @@ export default function App({
       })
 
       setTransitions((prev) =>
-        prev.map((t, idx) => {
-          if (idx !== 0 && t.songId !== selectedSongId) return t
+        prev.map((t) => {
+          if (t.songId !== selectedSongId) return t
           const isClean = acc >= 85 && absLag <= 45 && vox >= 80
           const bkt = updateBktMastery(t.pKnown, isClean)
           const q = metricsToSm2Quality(acc, absLag, vox)
@@ -672,12 +666,6 @@ export default function App({
     const songToUse = targetSongId || selectedSongId
     const targetPath = viewToPath(view, songToUse)
 
-    if (!isSignedIn && view === 'community') {
-      setAuthReturnUrl(targetPath)
-      setShowSignInModal(true)
-      return
-    }
-
     if (typeof window !== 'undefined') {
       if (window.location.pathname !== targetPath) {
         window.history.pushState({ view, songId: songToUse }, '', targetPath)
@@ -688,7 +676,7 @@ export default function App({
     if (targetSongId) {
       setSelectedSongId(targetSongId)
     }
-  }, [selectedSongId, isSignedIn])
+  }, [selectedSongId])
 
   const handleSelectSong = useCallback((songId: string) => {
     setSelectedSongId(songId)
@@ -738,10 +726,10 @@ export default function App({
       {activeView !== 'landing' && (
         <header
           data-testid="global-navigation-header"
-          className="sticky top-0 z-40 w-full h-14 bg-white/95 dark:bg-[#111114]/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-3 sm:px-5 flex items-center justify-between gap-2 sm:gap-4 font-sans shrink-0 overflow-visible"
+          className="sticky top-0 z-40 w-full min-h-14 lg:h-14 py-2 lg:py-0 bg-white/95 dark:bg-[#111114]/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-3 sm:px-5 flex flex-wrap lg:flex-nowrap items-center justify-between gap-2 sm:gap-4 font-sans shrink-0 overflow-visible"
         >
           {/* Zone 1: Brand, Repertoire Selector & Hideable Studio Setup */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+          <div className="order-1 flex items-center gap-2 sm:gap-3 min-w-0 shrink">
             <button
               type="button"
               onClick={() => navigateToView('landing')}
@@ -759,7 +747,7 @@ export default function App({
                   type="button"
                   data-testid="open-repertoire-drawer"
                   onClick={() => setIsRepertoireOpen(true)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F8F8F6] dark:bg-[#18181C] hover:border-amber-500 border border-zinc-300 dark:border-zinc-800 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 transition-all cursor-pointer truncate max-w-[130px] sm:max-w-[180px] lg:max-w-[220px]"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F8F8F6] dark:bg-[#18181C] hover:border-amber-500 border border-zinc-300 dark:border-zinc-800 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 transition-all cursor-pointer truncate max-w-[96px] sm:max-w-[170px] lg:max-w-[220px]"
                   title="Change piece / repertoire"
                 >
                   <span className="text-amber-600 dark:text-amber-400 truncate">
@@ -916,7 +904,7 @@ export default function App({
           </div>
 
           {/* Zone 2: Navigation Tabs with shared layoutId underline */}
-          <nav className="flex items-center gap-1 shrink-0 text-xs font-mono">
+          <nav className="order-3 lg:order-2 w-full lg:w-auto flex items-center gap-1 text-xs font-mono overflow-x-auto scrollbar-none pb-0.5 lg:pb-0">
             {(
               [
                 { id: 'practice', testId: 'nav-pill-practice', label: 'Practice', shortLabel: 'Studio', icon: Music },
@@ -926,12 +914,6 @@ export default function App({
                 { id: 'community', testId: 'nav-pill-community', label: 'Peers', shortLabel: 'Peers', icon: Users },
               ] as const
             )
-              .filter((tab) => {
-                if (!isSignedIn && tab.id === 'community') {
-                  return false
-                }
-                return true
-              })
               .map((tab) => {
                 const Icon = tab.icon
                 const isActive = activeView === tab.id
@@ -964,7 +946,7 @@ export default function App({
           </nav>
 
           {/* Zone 3: Studio Settings, Theme & User */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="order-2 lg:order-3 ml-auto lg:ml-0 flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               type="button"
               data-testid="open-settings-modal-btn"
@@ -1057,7 +1039,7 @@ export default function App({
           onOpenCommunity={() => navigateToView('community')}
           onTakeCompleted={handleTakeCompleted}
           userButtonSlot={effectiveUserButtonSlot}
-          isDeveloper={isDeveloper}
+          studioPrefs={studioPrefs}
         />
         </motion.div>
       )}
@@ -1088,6 +1070,7 @@ export default function App({
         <GuitarTunerPage
           onBackToLanding={() => navigateToView('landing')}
           onOpenStudio={() => navigateToView('practice')}
+          concertPitchHz={studioPrefs.concertPitchHz}
         />
         </motion.div>
       )}
@@ -1104,6 +1087,7 @@ export default function App({
           transitions={transitions}
           sessionHistory={sessionHistory}
           isSignedIn={isSignedIn}
+          isLoading={isHydratingBackend}
           onRequestSignIn={() => {
             setAuthReturnUrl('/progress')
             setShowSignInModal(true)
@@ -1129,6 +1113,11 @@ export default function App({
           userMeanLatencyMs={userStats ? Math.round(Math.abs(userStats.avg_timing_error_ms)) : latestSession?.avgLatencyMs}
           userVoicingPct={userStats ? (userStats.avg_voicing_score <= 1.0 ? Math.round(userStats.avg_voicing_score * 100) : Math.round(userStats.avg_voicing_score)) : latestSession?.voicingPct}
           hasRecordedTakes={Boolean((userStats && userStats.total_sessions_completed > 0) || sessionHistory.length > 0)}
+          isSignedIn={isSignedIn}
+          onRequestSignIn={() => {
+            setAuthReturnUrl('/community')
+            setShowSignInModal(true)
+          }}
           onBackToLanding={() => navigateToView('landing')}
           onOpenProgress={() => navigateToView('progress')}
           onPracticePiece={(songId, _targetBpm) => {
@@ -1164,6 +1153,7 @@ export default function App({
         }}
         onSavePreferences={(prefs) => {
           setStudioPrefs(prefs)
+          setPracticeNotationMode(prefs.defaultNotation)
         }}
       />
 
@@ -1222,12 +1212,12 @@ export default function App({
       )}
 
       <SignInModal
-        isOpen={showSignInModal}
+        isOpen={effectiveShowSignInModal}
         returnUrl={authReturnUrl}
         isSignedIn={isSignedIn}
         onClose={() => setShowSignInModal(false)}
         onSuccess={() => {
-          setInternalSignedIn(true)
+          setDemoSignedIn(true)
           setShowSignInModal(false)
           if (authReturnUrl) {
             const { view, songId } = parseRouteFromPath(authReturnUrl, availableExercises)

@@ -109,7 +109,7 @@ export function MastheadNav({
             Progress &amp; Coach
           </button>
         )}
-        {isSignedIn && onOpenCommunity && (
+        {onOpenCommunity && (
           <button
             type="button"
             onClick={onOpenCommunity}
@@ -126,12 +126,10 @@ export function MastheadNav({
         <button
           type="button"
           onClick={() => {
-            if (isSignedIn && onEnterStudio) {
+            if (onEnterStudio) {
               onEnterStudio()
             } else if (onSignIn) {
               onSignIn()
-            } else if (onEnterStudio) {
-              onEnterStudio()
             }
           }}
           className="px-3.5 sm:px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono text-xs font-semibold tracking-wide flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"

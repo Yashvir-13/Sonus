@@ -1,5 +1,5 @@
 /**
- * Sonus Hardware Design Tokens — Obsidian Monochrome, Anodized Aluminum & Amber LED
+ * Sonus Hardware Design Tokens — Dual-Theme Acoustic Studio (Light Alabaster & Obsidian)
  */
 
 :root {
@@ -9,23 +9,23 @@
   --font-waldenburgfh: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-geist-mono: "Geist Mono", ui-monospace, monospace;
 
-  --color-parchment-white: #111114;
-  --color-warm-sand: #09090B;
-  --color-ash-border: #27272A;
-  --color-midnight-ink: #F4F4F5;
-  --color-driftwood: #A1A1AA;
+  --color-parchment-white: #FFFFFF;
+  --color-warm-sand: #F8F8F6;
+  --color-ash-border: #E4E4E0;
+  --color-midnight-ink: #18181B;
+  --color-driftwood: #52525B;
   --color-fog: #71717A;
-  --color-silver-mist: #3F3F46;
-  --color-brass: #F59E0B;
-  --color-brass-light: #FBBF24;
-  --color-brass-dark: #D97706;
-  --color-void-violet: #F59E0B;
-  --color-ember-orange: #EF4444;
+  --color-silver-mist: #D4D4D8;
+  --color-brass: #D97706;
+  --color-brass-light: #F59E0B;
+  --color-brass-dark: #B45309;
+  --color-void-violet: #D97706;
+  --color-ember-orange: #DC2626;
 
-  --surface-canvas: #09090B;
-  --surface-card: #111114;
-  --surface-border: #27272A;
-  --surface-elevated: #18181C;
+  --surface-canvas: #F8F8F6;
+  --surface-card: #FFFFFF;
+  --surface-border: #E4E4E0;
+  --surface-elevated: #F1F1EE;
 
   --radius-inputs: 6px;
   --radius-buttons: 8px;
@@ -59,6 +59,8 @@
   --color-brass: #F59E0B;
   --color-brass-light: #FBBF24;
   --color-brass-dark: #D97706;
+  --color-void-violet: #F59E0B;
+  --color-ember-orange: #EF4444;
 
   --surface-canvas: #09090B;
   --surface-card: #111114;
@@ -71,17 +73,17 @@
 }
 
 @theme inline {
-  --color-parchment-white: #111114;
-  --color-warm-sand: #09090B;
-  --color-ash-border: #27272A;
-  --color-midnight-ink: #F4F4F5;
-  --color-driftwood: #A1A1AA;
-  --color-fog: #71717A;
-  --color-void-violet: #F59E0B;
-  --color-ember-orange: #EF4444;
-  --color-brass: #F59E0B;
-  --color-brass-light: #FBBF24;
-  --color-brass-dark: #D97706;
+  --color-parchment-white: var(--color-parchment-white);
+  --color-warm-sand: var(--color-warm-sand);
+  --color-ash-border: var(--color-ash-border);
+  --color-midnight-ink: var(--color-midnight-ink);
+  --color-driftwood: var(--color-driftwood);
+  --color-fog: var(--color-fog);
+  --color-void-violet: var(--color-void-violet);
+  --color-ember-orange: var(--color-ember-orange);
+  --color-brass: var(--color-brass);
+  --color-brass-light: var(--color-brass-light);
+  --color-brass-dark: var(--color-brass-dark);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-border: var(--border);
@@ -126,4 +128,13 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+}
+
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
 }

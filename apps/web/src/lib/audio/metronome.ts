@@ -106,6 +106,53 @@ export function playWoodenClick(
 }
 
 /**
+ * Synthesize a crisp digital rimshot/electronic metronome pulse.
+ */
+export function playDigitalClick(
+  ctx: AudioContext,
+  isDownbeatOrOptions: boolean | WoodenClickOptions = false,
+  time?: number
+): void {
+  if (!ctx) return
+
+  try {
+    const isDownbeat =
+      typeof isDownbeatOrOptions === 'boolean'
+        ? isDownbeatOrOptions
+        : (isDownbeatOrOptions?.isDownbeat ?? false)
+
+    const scheduledTime =
+      typeof isDownbeatOrOptions === 'object' && isDownbeatOrOptions.time !== undefined
+        ? isDownbeatOrOptions.time
+        : (time ?? ctx.currentTime)
+
+    const scale =
+      typeof isDownbeatOrOptions === 'object' && isDownbeatOrOptions.gainScale !== undefined
+        ? Math.max(0, Math.min(2, isDownbeatOrOptions.gainScale))
+        : 1.0
+
+    const t0 = Math.max(0, scheduledTime)
+    const freq = isDownbeat ? 1760 : 880
+    const peak = (isDownbeat ? 0.35 : 0.22) * scale
+
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(freq, t0)
+
+    gain.gain.setValueAtTime(peak, t0)
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.018)
+
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.start(t0)
+    osc.stop(t0 + 0.022)
+  } catch {
+    // AudioContext might be restricted or closed before user gesture
+  }
+}
+
+/**
  * High-precision lookahead metronome timer that dispatches beat callbacks and synthesizes audio clicks.
  *
  * @param bpm Beats per minute (clamped to 30..300).

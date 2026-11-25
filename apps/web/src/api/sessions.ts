@@ -121,11 +121,13 @@ export type CoachingReportDto = {
   growth_areas: string[]
   habit_alerts: string[]
   recommended_tempo_adjustment_bpm: number
+  recommended_tempo_adjustment?: number
   tailored_drills: Array<{
     drill_type: string
     target_tempo: number
     target_repetitions: number
     description: string
+    instructions?: string
   }>
 }
 
@@ -637,4 +639,75 @@ export async function fetchUserMastery(token?: string): Promise<UserMasteryRespo
     throw new ApiError(`GET /api/me/mastery failed: ${res.status}`, res.status)
   }
   return res.json() as Promise<UserMasteryResponseDto>
+}
+
+export type DistributionMetricDto = {
+  median: number | null
+  top_10_pct: number | null
+  p25: number | null
+  p75: number | null
+  user_percentile: number | null
+}
+
+export type CommunityLeaderboardEntryDto = {
+  rank: number
+  performer_name: string
+  handle: string
+  is_current_user: boolean
+  instrument: 'piano' | 'guitar'
+  exercise_id: string
+  exercise_title: string
+  tempo_tier: '70%' | '100%' | '105%'
+  tempo_bpm: number
+  accuracy_pct: number
+  abs_timing_error_ms: number
+  voicing_pct: number
+  bkt_mastered_count: number
+  verified_takes_count: number
+  challenge_score: number
+}
+
+export type CommunityBenchmarksDto = {
+  is_baseline_fallback: boolean
+  baseline_label: string | null
+  cohort_size: number
+  total_completed_sessions: number
+  min_cohort_sessions: number
+  distributions: {
+    timing_ms: DistributionMetricDto
+    voicing_pct: DistributionMetricDto
+    accuracy_pct: DistributionMetricDto
+  }
+  leaderboard: CommunityLeaderboardEntryDto[]
+}
+
+/**
+ * Fetch anonymized peer percentile distributions and piece leaderboard.
+ */
+export async function fetchCommunityBenchmarks(
+  params: {
+    instrument?: 'all' | 'piano' | 'guitar'
+    pieceId?: string
+    limit?: number
+    token?: string
+  } = {}
+): Promise<CommunityBenchmarksDto> {
+  const query = new URLSearchParams()
+  if (params.instrument && params.instrument !== 'all') {
+    query.set('instrument', params.instrument)
+  }
+  if (params.pieceId && params.pieceId !== 'all') {
+    query.set('piece_id', params.pieceId)
+  }
+  if (params.limit !== undefined) {
+    query.set('limit', String(params.limit))
+  }
+  const suffix = query.toString() ? `?${query.toString()}` : ''
+  const res = await fetch(`${apiBaseUrl()}/api/community/benchmarks${suffix}`, {
+    headers: { ...(await resolveAuthHeader(params.token)) },
+  })
+  if (!res.ok) {
+    throw new ApiError(`GET /api/community/benchmarks failed: ${res.status}`, res.status)
+  }
+  return res.json() as Promise<CommunityBenchmarksDto>
 }

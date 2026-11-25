@@ -37,7 +37,11 @@ import {
 
   ArrowRight,
 
+  Loader2,
+
 } from 'lucide-react'
+
+import { MusicianLoadingScreen } from '@/components/ui/loading-screen'
 
 export type ProgressDashboardPageProps = {
 
@@ -54,6 +58,8 @@ export type ProgressDashboardPageProps = {
   userButtonSlot?: React.ReactNode
 
   isSignedIn?: boolean
+
+  isLoading?: boolean
 
   onRequestSignIn?: () => void
 
@@ -75,11 +81,17 @@ export function ProgressDashboardPage({
 
   isSignedIn = true,
 
+  isLoading = false,
+
   onRequestSignIn,
 
 }: ProgressDashboardPageProps): React.JSX.Element {
 
   const [liveTransitions, setLiveTransitions] = useState<TransitionMasteryState[] | null>(null)
+
+  const [isLoadingMastery, setIsLoadingMastery] = useState(
+    () => Boolean(isSignedIn && typeof fetchUserMastery === 'function')
+  )
 
   const [instrumentFilter, setInstrumentFilter] = useState<'all' | 'piano' | 'guitar'>('all')
 
@@ -87,11 +99,23 @@ export function ProgressDashboardPage({
 
   useEffect(() => {
 
+    if (!isSignedIn || typeof fetchUserMastery !== 'function') {
+
+      return
+
+    }
+
     let isMounted = true
 
-    fetchUserMastery()
+    Promise.resolve().then(async () => {
 
-      .then((data) => {
+      if (!isMounted) return
+
+      setIsLoadingMastery(true)
+
+      try {
+
+        const data = await fetchUserMastery()
 
         if (!isMounted) return
 
@@ -103,13 +127,21 @@ export function ProgressDashboardPage({
 
         }
 
-      })
-
-      .catch(() => {
+      } catch {
 
         // Fall back gracefully to local props or catalog baseline if API is offline
 
-      })
+      } finally {
+
+        if (isMounted) {
+
+          setIsLoadingMastery(false)
+
+        }
+
+      }
+
+    })
 
     return () => {
 
@@ -117,17 +149,17 @@ export function ProgressDashboardPage({
 
     }
 
-  }, [])
+  }, [isSignedIn])
 
   const effectiveTransitions = useMemo(() => {
 
-    if (liveTransitions && liveTransitions.length > 0) return liveTransitions
+    if (isSignedIn && liveTransitions && liveTransitions.length > 0) return liveTransitions
 
     if (transitions && transitions.length > 0) return transitions
 
     return []
 
-  }, [liveTransitions, transitions])
+  }, [isSignedIn, liveTransitions, transitions])
 
   const filteredTransitions = useMemo(() => {
 
@@ -155,9 +187,13 @@ export function ProgressDashboardPage({
 
     : 0
 
-  const masteredCount = effectiveTransitions.filter((t) => t.isMastered || t.pKnown >= 0.95).length
+  const masteredCount = filteredTransitions.filter((t) => t.isMastered || t.pKnown >= 0.95).length
 
-  const dueOrOverdueCount = effectiveTransitions.filter((t) => t.dueStatus !== 'scheduled').length
+  const dueOrOverdueCount = filteredTransitions.filter((t) => t.dueStatus !== 'scheduled').length
+
+  const isSyncingBackend = Boolean(isLoading || (isSignedIn && isLoadingMastery))
+  const showInitialLoading =
+    isSyncingBackend && effectiveTransitions.length === 0 && sessionHistory.length === 0
 
   return (
 
@@ -187,6 +223,16 @@ export function ProgressDashboardPage({
 
           </span>
 
+          {isSyncingBackend && !showInitialLoading && (
+            <span
+              data-testid="progress-syncing-indicator"
+              className="inline-flex items-center gap-1.5 text-[11px] font-mono text-amber-600 dark:text-amber-400 whitespace-nowrap"
+            >
+              <Loader2 className="size-3.5 animate-spin" />
+              <span>Syncing BKT mastery...</span>
+            </span>
+          )}
+
         </div>
 
         {topThreeRecommendations[0] && (
@@ -214,6 +260,17 @@ export function ProgressDashboardPage({
       </div>
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 py-8 space-y-10">
+
+        {showInitialLoading ? (
+          <div data-testid="progress-loading-screen">
+            <MusicianLoadingScreen
+              fullscreen={false}
+              headline="Loading Practice History & BKT Mastery"
+              subtext="Syncing your chord transition latencies, spaced-repetition intervals, and personalized drills..."
+            />
+          </div>
+        ) : (
+        <>
 
         {/* Guest Musician Showcase Banner */}
         {!isSignedIn && (
@@ -430,7 +487,7 @@ export function ProgressDashboardPage({
 
                 <span className="text-3xl font-mono font-bold text-zinc-900 dark:text-zinc-100">
 
-                  {masteredCount} / {transitions.length}
+                  {masteredCount} / {filteredTransitions.length}
 
                 </span>
 
@@ -1323,7 +1380,7 @@ export function ProgressDashboardPage({
 
               ) : (
 
-                [...sessionHistory].reverse().map((sess) => (
+                sessionHistory.toReversed().map((sess) => (
 
                 <div key={sess.sessionIndex} className="p-4 space-y-1.5">
 
@@ -1390,6 +1447,9 @@ export function ProgressDashboardPage({
           </div>
 
         </div>
+
+        </>
+        )}
 
       </main>
 

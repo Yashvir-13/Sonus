@@ -28,6 +28,8 @@ import {
 } from './scroll-choreography'
 
 import rehearsalStudioImg from '@/assets/images/rehearsal_studio_sunlit_1794836089749.jpg'
+import rehearsalStudioWebp from '@/assets/images/rehearsal_studio_sunlit_1794836089749.webp'
+import rehearsalStudioAvif from '@/assets/images/rehearsal_studio_sunlit_1794836089749.avif'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -542,16 +544,24 @@ export function CinematicCameraStage({
           >
             {/* Locked 16:9 World-Space Container so Room Photo & Pinned Notations align pixel-for-pixel */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 aspect-video min-w-full min-h-full">
-              <img
-                src={rehearsalStudioImg}
-                alt="Sunlit rehearsal room with grand piano, open sheet music stand, acoustic guitar, tall window, and wooden metronome"
-                referrerPolicy="no-referrer"
-                onLoad={() => setRoomLoaded(true)}
-                onError={() => setRoomLoaded(false)}
-                className={`w-full h-full object-cover object-center brightness-[1.03] contrast-[1.04] saturate-[1.06] dark:grayscale dark:contrast-[1.24] dark:brightness-[0.44] transition-opacity duration-500 ${
-                  roomLoaded ? 'opacity-100' : 'opacity-0'
-                }`}
-              />
+              <picture className="block w-full h-full">
+                <source srcSet={rehearsalStudioAvif} type="image/avif" />
+                <source srcSet={rehearsalStudioWebp} type="image/webp" />
+                <img
+                  src={rehearsalStudioImg}
+                  alt="Sunlit rehearsal room with grand piano, open sheet music stand, acoustic guitar, tall window, and wooden metronome"
+                  width={1376}
+                  height={768}
+                  fetchPriority="high"
+                  decoding="async"
+                  referrerPolicy="no-referrer"
+                  onLoad={() => setRoomLoaded(true)}
+                  onError={() => setRoomLoaded(false)}
+                  className={`w-full h-full object-cover object-center brightness-[1.03] contrast-[1.04] saturate-[1.06] dark:grayscale dark:contrast-[1.24] dark:brightness-[0.44] transition-opacity duration-500 ${
+                    roomLoaded ? 'opacity-100' : 'opacity-0'
+                  }`}
+                />
+              </picture>
 
               {/* Balanced Directional Reading Margin: Subtle warm fade along left/bottom edges only; center piano, guitar & window sunlight remain clear */}
               <div

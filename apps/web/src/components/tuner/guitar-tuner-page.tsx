@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { PracticeAudioEngine } from '@/lib/audio/practice-audio-engine'
 import { RealtimePitchTracker } from '@/lib/audio/realtime-pitch-tracker'
@@ -6,6 +6,7 @@ import { Mic, MicOff, Volume2, CheckCircle2, Disc, HelpCircle } from 'lucide-rea
 
 export interface GuitarStringDef {
   stringNum: number // 6 to 1
+  midi: number
   name: string
   note: string
   octave: number
@@ -13,38 +14,60 @@ export interface GuitarStringDef {
   gaugeLabel: string
 }
 
-export const GUITAR_STANDARD_STRINGS: GuitarStringDef[] = [
-  { stringNum: 6, name: 'E2', note: 'E', octave: 2, targetHz: 82.41, gaugeLabel: '6th • Low E' },
-  { stringNum: 5, name: 'A2', note: 'A', octave: 2, targetHz: 110.0, gaugeLabel: '5th • A' },
-  { stringNum: 4, name: 'D3', note: 'D', octave: 3, targetHz: 146.83, gaugeLabel: '4th • D' },
-  { stringNum: 3, name: 'G3', note: 'G', octave: 3, targetHz: 196.0, gaugeLabel: '3rd • G' },
-  { stringNum: 2, name: 'B3', note: 'B', octave: 3, targetHz: 246.94, gaugeLabel: '2nd • B' },
-  { stringNum: 1, name: 'E4', note: 'E', octave: 4, targetHz: 329.63, gaugeLabel: '1st • High E' },
+const GUITAR_STRING_BASE: Array<Omit<GuitarStringDef, 'targetHz'>> = [
+  { stringNum: 6, midi: 40, name: 'E2', note: 'E', octave: 2, gaugeLabel: '6th • Low E' },
+  { stringNum: 5, midi: 45, name: 'A2', note: 'A', octave: 2, gaugeLabel: '5th • A' },
+  { stringNum: 4, midi: 50, name: 'D3', note: 'D', octave: 3, gaugeLabel: '4th • D' },
+  { stringNum: 3, midi: 55, name: 'G3', note: 'G', octave: 3, gaugeLabel: '3rd • G' },
+  { stringNum: 2, midi: 59, name: 'B3', note: 'B', octave: 3, gaugeLabel: '2nd • B' },
+  { stringNum: 1, midi: 64, name: 'E4', note: 'E', octave: 4, gaugeLabel: '1st • High E' },
 ]
+
+export function buildGuitarStrings(concertPitchHz = 440): GuitarStringDef[] {
+  const safePitch = Number.isFinite(concertPitchHz) && concertPitchHz >= 380 && concertPitchHz <= 480
+    ? concertPitchHz
+    : 440
+  return GUITAR_STRING_BASE.map((base) => ({
+    ...base,
+    targetHz: Number((safePitch * Math.pow(2, (base.midi - 69) / 12)).toFixed(2)),
+  }))
+}
+
+export const GUITAR_STANDARD_STRINGS: GuitarStringDef[] = buildGuitarStrings(440)
 
 export interface GuitarTunerPageProps {
   onBackToLanding?: () => void
   onOpenStudio?: () => void
+  concertPitchHz?: number
   className?: string
 }
 
 export function GuitarTunerPage({
   onBackToLanding,
   onOpenStudio,
+  concertPitchHz = 440,
   className = '',
 }: GuitarTunerPageProps): React.JSX.Element {
-  const [selectedString, setSelectedString] = useState<GuitarStringDef>(GUITAR_STANDARD_STRINGS[0]!)
+  const strings = useMemo(() => buildGuitarStrings(concertPitchHz), [concertPitchHz])
+  const [selectedStringNum, setSelectedStringNum] = useState<number>(6)
+  const selectedString = useMemo(
+    () => strings.find((s) => s.stringNum === selectedStringNum) ?? strings[0]!,
+    [strings, selectedStringNum]
+  )
   const [isAutoDetect, setIsAutoDetect] = useState(true)
   const [isMicListening, setIsMicListening] = useState(false)
   const [micError, setMicError] = useState<string | null>(null)
 
   // Mutable refs to prevent stale closure capture in continuous audio processing callbacks
+  const stringsRef = useRef(strings)
   const selectedStringRef = useRef(selectedString)
   const isAutoDetectRef = useRef(isAutoDetect)
+  const concertPitchHzRef = useRef(concertPitchHz)
 
   useEffect(() => {
+    stringsRef.current = strings
     selectedStringRef.current = selectedString
-  }, [selectedString])
+  }, [strings, selectedString])
 
   useEffect(() => {
     isAutoDetectRef.current = isAutoDetect
@@ -61,7 +84,8 @@ export function GuitarTunerPage({
 
   useEffect(() => {
     audioEngineRef.current = new PracticeAudioEngine()
-    pitchTrackerRef.current = new RealtimePitchTracker(44100, 65, 450, -42, 0.35)
+    audioEngineRef.current.setConcertPitchHz(concertPitchHz)
+    pitchTrackerRef.current = new RealtimePitchTracker(44100, 65, 450, -42, 0.35, concertPitchHz)
 
     return () => {
       audioEngineRef.current?.dispose()
@@ -69,7 +93,16 @@ export function GuitarTunerPage({
       pitchTrackerRef.current?.stop()
       pitchTrackerRef.current = null
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    concertPitchHzRef.current = concertPitchHz
+    audioEngineRef.current?.setConcertPitchHz(concertPitchHz)
+    if (pitchTrackerRef.current) {
+      pitchTrackerRef.current.concertPitchHz = concertPitchHz
+    }
+  }, [concertPitchHz])
 
   // Pluck reference tone using Karplus-Strong string synthesis
   const pluckString = useCallback((target: GuitarStringDef) => {
@@ -95,19 +128,20 @@ export function GuitarTunerPage({
             setDetectedHz(smoothedHz)
 
             // Calculate note synchronously from smoothed frequency to eliminate visual glitch desync
-            const midiVal = Math.round(12 * Math.log2(smoothedHz / 440) + 69)
+            const midiVal = Math.round(12 * Math.log2(smoothedHz / concertPitchHzRef.current) + 69)
             const noteIdx = ((midiVal % 12) + 12) % 12
             const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
             setDetectedNote(noteNames[noteIdx] ?? res.note)
 
             const activeAutoDetect = isAutoDetectRef.current
             const activeSelected = selectedStringRef.current
+            const currentStrings = stringsRef.current
 
             if (activeAutoDetect) {
               // Find closest guitar string using logarithmic musical distance (cents)
-              let closest = GUITAR_STANDARD_STRINGS[0]!
+              let closest = currentStrings[0]!
               let minCentsDiff = Infinity
-              for (const s of GUITAR_STANDARD_STRINGS) {
+              for (const s of currentStrings) {
                 const centsDistance = Math.abs(1200 * Math.log2(smoothedHz / s.targetHz))
                 if (centsDistance < minCentsDiff) {
                   minCentsDiff = centsDistance
@@ -121,9 +155,9 @@ export function GuitarTunerPage({
                   ? closest
                   : activeSelected
 
-              if (targetString !== activeSelected) {
+              if (targetString.stringNum !== activeSelected.stringNum) {
                 selectedStringRef.current = targetString
-                setSelectedString(targetString)
+                setSelectedStringNum(targetString.stringNum)
               }
               const cents = 1200 * Math.log2(smoothedHz / targetString.targetHz)
               setCentsDeviation(Math.max(-50, Math.min(50, cents)))
@@ -174,7 +208,7 @@ export function GuitarTunerPage({
                 PRECISION ACOUSTIC UTILITY
               </span>
               <span className="text-zinc-400">•</span>
-              <span className="text-[11px] font-mono text-zinc-500">Standard E-A-D-G-B-E (440 Hz)</span>
+              <span className="text-[11px] font-mono text-zinc-500">Standard E-A-D-G-B-E ({concertPitchHz} Hz)</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 flex items-center gap-2.5">
               <Disc className="size-6 text-amber-500" />
@@ -442,24 +476,28 @@ export function GuitarTunerPage({
 
             {/* String Peg List */}
             <div className="space-y-2">
-              {GUITAR_STANDARD_STRINGS.map((str) => {
+              {strings.map((str) => {
                 const isSelected = selectedString.stringNum === str.stringNum
                 return (
-                  <motion.div
+                  <div
                     key={str.stringNum}
-                    data-testid={`tuner-peg-${str.stringNum}`}
-                    whileTap={{ scale: 0.99 }}
-                    onClick={() => {
-                      setSelectedString(str)
-                      setIsAutoDetect(false)
-                    }}
-                    className={`p-3 rounded-xl border transition-colors cursor-pointer flex items-center justify-between gap-3 ${
+                    className={`p-3 rounded-xl border transition-colors flex items-center justify-between gap-3 ${
                       isSelected
                         ? 'bg-amber-500/10 border-amber-500 shadow-xs'
                         : 'bg-[#F8F8F6] dark:bg-[#09090B] border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    <motion.button
+                      type="button"
+                      data-testid={`tuner-peg-${str.stringNum}`}
+                      aria-pressed={isSelected}
+                      whileTap={{ scale: 0.99 }}
+                      onClick={() => {
+                        setSelectedStringNum(str.stringNum)
+                        setIsAutoDetect(false)
+                      }}
+                      className="flex-1 flex items-center gap-3 text-left cursor-pointer"
+                    >
                       <span
                         className={`size-7 rounded-lg font-mono text-xs font-black flex items-center justify-center transition-colors ${
                           isSelected
@@ -480,14 +518,13 @@ export function GuitarTunerPage({
                         </div>
                         <span className="text-[10px] font-mono text-zinc-400">{str.gaugeLabel}</span>
                       </div>
-                    </div>
+                    </motion.button>
 
                     <button
                       type="button"
                       data-testid={`pluck-peg-${str.stringNum}`}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setSelectedString(str)
+                      onClick={() => {
+                        setSelectedStringNum(str.stringNum)
                         setIsAutoDetect(false)
                         pluckString(str)
                       }}
@@ -496,7 +533,7 @@ export function GuitarTunerPage({
                       <Volume2 className="size-3.5" />
                       <span>Pluck</span>
                     </button>
-                  </motion.div>
+                  </div>
                 )
               })}
             </div>

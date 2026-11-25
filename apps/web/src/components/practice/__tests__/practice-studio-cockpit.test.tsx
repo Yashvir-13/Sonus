@@ -65,6 +65,19 @@ vi.mock('@/api/sessions', () => {
     uploadSessionTake: vi.fn().mockResolvedValue(mockTake),
     submitChordsTake: vi.fn().mockResolvedValue(mockTake),
     fetchUserMastery: vi.fn().mockResolvedValue({ records: [], recommendations: [] }),
+    fetchCommunityBenchmarks: vi.fn().mockResolvedValue({
+      is_baseline_fallback: true,
+      baseline_label: 'Simulated Reference Baseline',
+      cohort_size: 0,
+      total_completed_sessions: 0,
+      min_cohort_sessions: 10,
+      distributions: {
+        timing_ms: { median: null, top_10_pct: null, p25: null, p75: null, user_percentile: null },
+        voicing_pct: { median: null, top_10_pct: null, p25: null, p75: null, user_percentile: null },
+        accuracy_pct: { median: null, top_10_pct: null, p25: null, p75: null, user_percentile: null },
+      },
+      leaderboard: [],
+    }),
   }
 })
 
@@ -147,14 +160,14 @@ describe('PracticeStudioCockpit, ProgressDashboardPage & PeerComparisonPage', ()
     expect(onLaunch).toHaveBeenCalledTimes(1)
   })
 
-  it('renders PeerComparisonPage with percentile bell curves and piece leaderboards', () => {
+  it('renders PeerComparisonPage with percentile bell curves and loading leaderboard state', () => {
     const onPracticePiece = vi.fn()
     render(<PeerComparisonPage onPracticePiece={onPracticePiece} />)
 
     expect(screen.getByTestId('peer-comparison-page')).toBeDefined()
     expect(screen.getByTestId('dist-timing')).toBeDefined()
     expect(screen.getByTestId('dist-voicing')).toBeDefined()
-    expect(screen.getByTestId('leaderboard-current-user-row')).toBeDefined()
+    expect(screen.getByTestId('leaderboard-loading-state')).toBeDefined()
   })
 
   it('correctly configures 3/4 waltz time signature and beats per measure', () => {

@@ -9,9 +9,9 @@
  * 5. Safe lifecycle management (browser gesture unlocking & cleanup).
  */
 
-import { playWoodenClick, type WoodenClickOptions } from './metronome'
+import { playDigitalClick, playWoodenClick, type WoodenClickOptions } from './metronome'
 
-export { playWoodenClick, type WoodenClickOptions }
+export { playDigitalClick, playWoodenClick, type WoodenClickOptions }
 
 const NOTE_SEMITONES: Record<string, number> = {
   C: 0, 'C#': 1, Db: 1,
@@ -37,8 +37,8 @@ export function parsePitchToMidi(pitch: string | number): number {
   return (octave + 1) * 12 + semitone
 }
 
-export function midiToFreq(midi: number): number {
-  return 440 * Math.pow(2, (midi - 69) / 12)
+export function midiToFreq(midi: number, concertPitchHz = 440): number {
+  return concertPitchHz * Math.pow(2, (midi - 69) / 12)
 }
 
 export const DEFAULT_CHORD_PITCHES: Record<string, number[]> = {
@@ -219,7 +219,8 @@ export function generatePianoNoteBuffer(
   durationSecOrMidi: number | string = 1.0,
   velocityOrDurationSec = 0.7,
   isBassOrVelocity: boolean | number = false,
-  sampleRateOrIsBass: number | boolean = 44100
+  sampleRateOrIsBass: number | boolean = 44100,
+  concertPitchHz = 440
 ): Float32Array {
   let sampleRate = 44100
   let pitch: number | string = 60
@@ -250,14 +251,14 @@ export function generatePianoNoteBuffer(
   let f0 = 261.63
   if (typeof pitch === 'string') {
     midi = parsePitchToMidi(pitch)
-    f0 = midiToFreq(midi)
+    f0 = midiToFreq(midi, concertPitchHz)
   } else if (typeof pitch === 'number') {
     if (pitch <= 127) {
       midi = Math.round(pitch)
-      f0 = midiToFreq(midi)
+      f0 = midiToFreq(midi, concertPitchHz)
     } else {
       f0 = pitch
-      midi = Math.round(69 + 12 * Math.log2(pitch / 440))
+      midi = Math.round(69 + 12 * Math.log2(pitch / concertPitchHz))
     }
   }
 
@@ -383,11 +384,31 @@ export function generatePianoNoteBuffer(
 export class PracticeAudioEngine {
   private ctx: AudioContext | null = null
   private isUnlocked = false
+  private concertPitchHz = 440
+  private metronomeSound: 'wooden' | 'digital' = 'wooden'
   private activeGains: Set<GainNode> = new Set()
   private activeSources: Set<AudioBufferSourceNode> = new Set()
   private pluckBufferCache: Map<string, AudioBuffer> = new Map()
   private pianoBufferCache: Map<string, AudioBuffer> = new Map()
   private guitarStringCache: Map<string, AudioBuffer> = new Map()
+
+  public setConcertPitchHz(hz: number): void {
+    const safeHz = Number.isFinite(hz) && hz >= 380 && hz <= 480 ? hz : 440
+    if (safeHz !== this.concertPitchHz) {
+      this.concertPitchHz = safeHz
+      this.pluckBufferCache.clear()
+      this.pianoBufferCache.clear()
+      this.guitarStringCache.clear()
+    }
+  }
+
+  public getConcertPitchHz(): number {
+    return this.concertPitchHz
+  }
+
+  public setMetronomeSound(sound: 'wooden' | 'digital'): void {
+    this.metronomeSound = sound === 'digital' ? 'digital' : 'wooden'
+  }
 
   private registerGain(gain: GainNode | null): GainNode | null {
     if (!gain) return null
@@ -477,7 +498,11 @@ export class PracticeAudioEngine {
   public playClick(isDownbeat = false, time?: number): void {
     const ctx = this.getContext()
     if (!ctx) return
-    playWoodenClick(ctx, isDownbeat, time)
+    if (this.metronomeSound === 'digital') {
+      playDigitalClick(ctx, isDownbeat, time)
+    } else {
+      playWoodenClick(ctx, isDownbeat, time)
+    }
   }
 
   /**
@@ -497,7 +522,7 @@ export class PracticeAudioEngine {
 
     try {
       const midi = parsePitchToMidi(pitch)
-      const freq = midiToFreq(midi)
+      const freq = midiToFreq(midi, this.concertPitchHz)
       const sampleRate = ctx.sampleRate || 44100
       const startTime = time !== undefined ? Math.max(0, time) : ctx.currentTime
 
@@ -511,7 +536,7 @@ export class PracticeAudioEngine {
 
       // Cache reference pluck AudioBuffers so repeated clicks are guaranteed to reuse
       // the exact same buffer and produce 100% deterministic acoustic reference sound.
-      const cacheKey = `${pitch}_${freq.toFixed(2)}_${durationSec}_${sampleRate}_${velocity.toFixed(2)}`
+      const cacheKey = `${pitch}_${freq.toFixed(2)}_${durationSec}_${sampleRate}_${velocity.toFixed(2)}_${this.concertPitchHz}`
       let audioBuffer = this.pluckBufferCache.get(cacheKey)
       if (!audioBuffer) {
         const samples = generateKarplusStrongBuffer(freq, durationSec, sampleRate, velocity)
@@ -626,7 +651,7 @@ export class PracticeAudioEngine {
       const now = time !== undefined ? Math.max(0, time) : ctx.currentTime
       const sampleRate = ctx.sampleRate || 44100
       // Order strings based on strum direction
-      const strumPitches = direction === 'down' ? parsedMidis : [...parsedMidis].reverse()
+      const strumPitches = direction === 'down' ? parsedMidis : parsedMidis.toReversed()
       const sweepStep = isAccented ? 0.004 : 0.006 // 4ms (accented) or 6ms (normal)
       const velocity = isAccented ? 0.85 : 0.65
 
@@ -658,10 +683,10 @@ export class PracticeAudioEngine {
         const stringDelay = idx * sweepStep
         const noteStart = now + stringDelay
         const ringDuration = Math.max(0.2, durationSec - stringDelay)
-        const freq = midiToFreq(midi)
+        const freq = midiToFreq(midi, this.concertPitchHz)
 
         // Cache or synthesize physical string buffer to eliminate main-thread stutter
-        const cacheKey = `${midi}_${ringDuration.toFixed(2)}_${velocity.toFixed(1)}_${sampleRate}`
+        const cacheKey = `${midi}_${ringDuration.toFixed(2)}_${velocity.toFixed(1)}_${sampleRate}_${this.concertPitchHz}`
         let audioBuffer = this.guitarStringCache.get(cacheKey)
         if (!audioBuffer) {
           const samples = generateKarplusStrongBuffer(freq, ringDuration, sampleRate, velocity)
@@ -726,11 +751,18 @@ export class PracticeAudioEngine {
       // 2. Cache-accelerated multi-partial inharmonic AudioBuffer lookup (O(1) memory pointer)
       const durKey = durationSec.toFixed(2)
       const velKey = velocity.toFixed(1)
-      const cacheKey = `${midi}_${durKey}_${velKey}_${isBass ? '1' : '0'}_${sampleRate}`
+      const cacheKey = `${midi}_${durKey}_${velKey}_${isBass ? '1' : '0'}_${sampleRate}_${this.concertPitchHz}`
 
       let audioBuffer = this.pianoBufferCache.get(cacheKey)
       if (!audioBuffer) {
-        const pcmData = generatePianoNoteBuffer(midi, durationSec, velocity, isBass, sampleRate)
+        const pcmData = generatePianoNoteBuffer(
+          midi,
+          durationSec,
+          velocity,
+          isBass,
+          sampleRate,
+          this.concertPitchHz
+        )
         audioBuffer = ctx.createBuffer(1, pcmData.length, sampleRate)
         const channelData = audioBuffer.getChannelData(0)
         channelData.set(pcmData)
