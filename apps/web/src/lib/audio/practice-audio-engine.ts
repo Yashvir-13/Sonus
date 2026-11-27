@@ -127,16 +127,19 @@ export function generateKarplusStrongBuffer(
   const numSamples = Math.max(1, Math.floor(durationSec * safeSampleRate))
   const out = new Float32Array(numSamples)
 
-  // 1. Delay line length N = max(2, floor(fs / f0 - 0.5))
-  // Half-sample delay (0.5) compensates for the 2-point averaging filter phase delay.
-  const N = Math.max(2, Math.floor(safeSampleRate / safeFreq - 0.5))
+  // 1. Exact fractional delay length = fs / f0 - 0.5
+  // Half-sample delay (0.5) compensates for the 2-point averaging filter phase delay,
+  // and linear fractional interpolation prevents +/-25 cent detuning on high frets.
+  const exactDelay = Math.max(2.0, safeSampleRate / safeFreq - 0.5)
+  const N = Math.max(2, Math.floor(exactDelay))
+  const frac = exactDelay - N
 
   // 2. Frequency-dependent damping factor alpha in [0.990, 0.996]
   const alpha =
     opts?.damping ??
     Math.max(0.990, Math.min(0.996, 0.996 - 0.005 * Math.min(1.0, safeFreq / 1000)))
 
-  const pluckSmoothing = opts?.pluckSmoothing ?? 0.15
+  const pluckSmoothing = opts?.pluckSmoothing ?? 0.22
 
   // 3. Initial excitation: deterministic seeded excitation with physical windowing
   // Uses a fixed, deterministic pseudo-random seed per note frequency to eliminate random timbre
@@ -146,9 +149,10 @@ export function generateKarplusStrongBuffer(
   let seed = (Math.round(safeFreq * 1000) ^ 0x4b5a) & 0x7fffffff
   if (seed === 0) seed = 1234567
 
-  for (let i = 0; i < N; i++) {
+  const initLen = Math.min(numSamples, N + 2)
+  for (let i = 0; i < initLen; i++) {
     // Half-sine window eliminates edge boundary clicks
-    const window = Math.sin((Math.PI * (i + 0.5)) / N)
+    const window = Math.sin((Math.PI * (i + 0.5)) / initLen)
     seed = (seed * 1103515245 + 12345) & 0x7fffffff
     const noise = ((seed / 0x7fffffff) * 2.0 - 1.0) * window
     out[i] = noise
@@ -156,30 +160,35 @@ export function generateKarplusStrongBuffer(
   }
 
   // Remove DC bias
-  const dcMean = dcSum / N
-  for (let i = 0; i < N; i++) {
+  const dcMean = dcSum / initLen
+  for (let i = 0; i < initLen; i++) {
     out[i] -= dcMean
   }
 
   // 1-pole plectrum filter for realistic pick stiffness
   let prevExc = out[0]
-  for (let i = 1; i < N; i++) {
+  for (let i = 1; i < initLen; i++) {
     out[i] = (1 - pluckSmoothing) * out[i] + pluckSmoothing * prevExc
     prevExc = out[i]
   }
 
-  // 4. Feedback loop: y[n] = alpha * (y[n - N] + y[n - N - 1]) / 2
+  // 4. Feedback loop with fractional-delay linear interpolation
   // Higher harmonics decay exponentially faster than the fundamental.
-  for (let n = N; n < numSamples; n++) {
-    const prev1 = out[n - N]
-    const prev2 = n - N - 1 >= 0 ? out[n - N - 1] : out[N - 1]
-    out[n] = alpha * 0.5 * (prev1 + prev2)
+  for (let n = initLen; n < numSamples; n++) {
+    const p0 = out[n - N]
+    const p1 = n - N - 1 >= 0 ? out[n - N - 1] : out[0]
+    const p2 = n - N - 2 >= 0 ? out[n - N - 2] : p1
+    const avg0 = 0.5 * (p0 + p1)
+    const avg1 = 0.5 * (p1 + p2)
+    out[n] = alpha * ((1 - frac) * avg0 + frac * avg1)
   }
 
-  // 5. Velocity scaling and soft headroom clamp
+  // 5. Smooth 10ms tail fade-out, velocity scaling, and soft headroom clamp
+  const tailFade = Math.min(numSamples, Math.floor(0.01 * safeSampleRate))
   const gainScale = Math.min(0.9, velocity * 0.75)
   for (let i = 0; i < numSamples; i++) {
-    out[i] = Math.max(-1.0, Math.min(1.0, out[i] * gainScale))
+    const tailEnv = i >= numSamples - tailFade ? (numSamples - i) / tailFade : 1.0
+    out[i] = Math.max(-1.0, Math.min(1.0, out[i] * gainScale * tailEnv))
   }
 
   return out
@@ -304,18 +313,18 @@ export function generatePianoNoteBuffer(
   const totalSamples = Math.max(1, Math.floor(totalDuration * sampleRate))
   const buffer = new Float32Array(totalSamples)
 
-  // Hammer strike attack transient (5ms broadband noise burst highpassed at 2000Hz)
-  const hammerSec = 0.005
+  // Hammer strike attack transient (subtle 3ms felt thump)
+  const hammerSec = 0.003
   const hammerSamples = Math.min(totalSamples, Math.floor(hammerSec * sampleRate))
-  const hammerCutoffHz = 2000
+  const hammerCutoffHz = 1400
   const hpBeta = 1.0 / (1.0 + (2.0 * Math.PI * hammerCutoffHz) / sampleRate)
   let prevNoise = 0
   let prevHpOutput = 0
-  const hammerPeak = 0.15 * velocity
+  const hammerPeak = 0.035 * velocity
   let noiseSeed = (midi * 7919) % 65536
 
-  // Sample computation loop with 4ms attack ramp and 60ms damper release
-  const attackSec = 0.004
+  // Sample computation loop with 8ms attack ramp and 60ms damper release
+  const attackSec = 0.008
   const attackSamples = Math.max(1, Math.floor(attackSec * sampleRate))
   const sustainSamples = Math.floor(durationSec * sampleRate)
   const releaseSamples = Math.max(1, totalSamples - sustainSamples)
@@ -787,7 +796,7 @@ export class PracticeAudioEngine {
       const soundboardFilter = typeof ctx.createBiquadFilter === 'function' ? ctx.createBiquadFilter() : null
       if (soundboardFilter) {
         soundboardFilter.type = 'lowpass'
-        soundboardFilter.frequency.setValueAtTime(isBass ? 2800 : 8000, now)
+        soundboardFilter.frequency.setValueAtTime(isBass ? 1800 : 4200, now)
       }
 
       let lastNode: any = source

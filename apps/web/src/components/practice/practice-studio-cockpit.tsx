@@ -1012,12 +1012,20 @@ export function PracticeStudioCockpit({
                 )
               }
             } else if (instrument === 'piano') {
-              if (
+              if (chord.melodyNotes && chord.melodyNotes.length > 0) {
+                // Play the full Grand Staff (treble + bass) faithfully as notated,
+                // without injecting unnotated block-chord accompaniment on top.
+                audioEngineRef.current.schedulePianoNotes(
+                  chord.melodyNotes,
+                  scheduleTime,
+                  secondsPerBeat
+                )
+              } else if (
                 chord.pianoVoicing &&
                 Array.isArray(chord.pianoVoicing.lhPitches) &&
                 Array.isArray(chord.pianoVoicing.rhPitches)
               ) {
-                // Authentic accompaniment pattern (e.g. 3/4 Waltz Boom-Chick-Chick or ballad chord pulses)
+                // Chord-only lead sheet fallback when no written staff notes exist
                 audioEngineRef.current.schedulePianoAccompaniment(
                   chord.pianoVoicing.lhPitches,
                   chord.pianoVoicing.rhPitches,
@@ -1032,20 +1040,6 @@ export function PracticeStudioCockpit({
                   secondsPerBeat * chordDurationBeats,
                   'piano',
                   scheduleTime
-                )
-              }
-
-              if (chord.melodyNotes && chord.melodyNotes.length > 0) {
-                // Filter to melody notes when bass accompaniment is already handled by schedulePianoAccompaniment
-                const melodyOnly = chord.melodyNotes.some((n) => n.clef === 'bass')
-                  ? chord.melodyNotes.filter((n) => n.clef !== 'bass')
-                  : chord.melodyNotes
-
-                const toSchedule = melodyOnly.length > 0 ? melodyOnly : chord.melodyNotes
-                audioEngineRef.current.schedulePianoNotes(
-                  toSchedule,
-                  scheduleTime,
-                  secondsPerBeat
                 )
               }
             }

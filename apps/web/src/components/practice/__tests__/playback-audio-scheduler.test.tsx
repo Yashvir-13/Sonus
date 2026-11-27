@@ -185,13 +185,13 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
         })
       }
 
-      // In the old buggy scheduler, audio dropped after bar 2 because scheduledAudioTime < currentAudioTime - 0.08
-      // With our fixed lookahead scheduler, schedulePianoAccompaniment continues scheduling every measure!
-      expect(scheduleAccompanimentSpy.mock.calls.length).toBeGreaterThanOrEqual(8)
+      // With our fixed lookahead scheduler, schedulePianoNotes continues scheduling every measure,
+      // and unnotated block-chord accompaniment is NOT layered on top of written staff notes.
+      expect(scheduleAccompanimentSpy).not.toHaveBeenCalled()
       expect(scheduleMelodySpy.mock.calls.length).toBeGreaterThanOrEqual(8)
 
-      // Verify that timestamps passed to schedulePianoAccompaniment are strictly ascending
-      const scheduledTimestamps = scheduleAccompanimentSpy.mock.calls.map((call) => call[3])
+      // Verify that timestamps passed to schedulePianoNotes are strictly ascending
+      const scheduledTimestamps = scheduleMelodySpy.mock.calls.map((call) => call[1])
       for (let i = 1; i < scheduledTimestamps.length; i++) {
         expect(scheduledTimestamps[i]).toBeGreaterThan(scheduledTimestamps[i - 1])
       }
@@ -243,8 +243,8 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
 
     it('tolerates execution jitter without dropping delayed measures', async () => {
       let mockCurrentTime = 100.0
-      const scheduleAccompanimentSpy = vi
-        .spyOn(PracticeAudioEngine.prototype, 'schedulePianoAccompaniment')
+      const scheduleNotesSpy = vi
+        .spyOn(PracticeAudioEngine.prototype, 'schedulePianoNotes')
         .mockImplementation(() => {})
       vi.spyOn(PracticeAudioEngine.prototype, 'getCurrentTime').mockImplementation(
         () => mockCurrentTime
@@ -269,7 +269,7 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       act(() => {
         vi.advanceTimersByTime(25)
       })
-      const initialCount = scheduleAccompanimentSpy.mock.calls.length
+      const initialCount = scheduleNotesSpy.mock.calls.length
 
       // Simulate a severe main-thread lag spike: audio clock jumped ahead by 1.8 seconds while no ticks ran
       mockCurrentTime = 100.05 + 1.8
@@ -279,7 +279,7 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
 
       // The scheduler must NOT drop the measure whose scheduledAudioTime was in the past;
       // it must schedule it at Math.max(currentAudioTime, scheduledAudioTime)
-      expect(scheduleAccompanimentSpy.mock.calls.length).toBeGreaterThan(initialCount)
+      expect(scheduleNotesSpy.mock.calls.length).toBeGreaterThan(initialCount)
 
       vi.useRealTimers()
     }, 35000)
@@ -311,8 +311,8 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
 
     it('loops seamlessly on short 2-bar drills without audio dropouts', async () => {
       let mockCurrentTime = 50.0
-      const scheduleAccompanimentSpy = vi
-        .spyOn(PracticeAudioEngine.prototype, 'schedulePianoAccompaniment')
+      const scheduleNotesSpy = vi
+        .spyOn(PracticeAudioEngine.prototype, 'schedulePianoNotes')
         .mockImplementation(() => {})
       vi.spyOn(PracticeAudioEngine.prototype, 'getCurrentTime').mockImplementation(
         () => mockCurrentTime
@@ -350,15 +350,15 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       }
 
       // Verifies that across multiple loop wraps, scheduling continues for every loop pass
-      expect(scheduleAccompanimentSpy.mock.calls.length).toBeGreaterThanOrEqual(6)
+      expect(scheduleNotesSpy.mock.calls.length).toBeGreaterThanOrEqual(6)
 
       vi.useRealTimers()
     }, 35000)
 
     it('schedules all 32 measures of Shostakovich Waltz No. 2 over the full 36-second duration', async () => {
       let mockCurrentTime = 100.0
-      const scheduleAccompanimentSpy = vi
-        .spyOn(PracticeAudioEngine.prototype, 'schedulePianoAccompaniment')
+      const scheduleNotesSpy = vi
+        .spyOn(PracticeAudioEngine.prototype, 'schedulePianoNotes')
         .mockImplementation(() => {})
       vi.spyOn(PracticeAudioEngine.prototype, 'getCurrentTime').mockImplementation(
         () => mockCurrentTime
@@ -388,15 +388,15 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       }
 
       // Must have scheduled all 32 distinct measures in loop 0
-      expect(scheduleAccompanimentSpy.mock.calls.length).toBeGreaterThanOrEqual(32)
+      expect(scheduleNotesSpy.mock.calls.length).toBeGreaterThanOrEqual(32)
 
       vi.useRealTimers()
     }, 35000)
 
     it('preserves visual position and seamlessly updates scheduling when tempo changes dynamically mid-playback', async () => {
       let mockCurrentTime = 10.0
-      const scheduleAccompanimentSpy = vi
-        .spyOn(PracticeAudioEngine.prototype, 'schedulePianoAccompaniment')
+      const scheduleNotesSpy = vi
+        .spyOn(PracticeAudioEngine.prototype, 'schedulePianoNotes')
         .mockImplementation(() => {})
       vi.spyOn(PracticeAudioEngine.prototype, 'getCurrentTime').mockImplementation(
         () => mockCurrentTime
@@ -456,7 +456,7 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
           vi.advanceTimersByTime(25)
         })
       }
-      expect(scheduleAccompanimentSpy.mock.calls.length).toBeGreaterThan(6)
+      expect(scheduleNotesSpy.mock.calls.length).toBeGreaterThan(6)
 
       vi.useRealTimers()
     }, 35000)
@@ -560,8 +560,8 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
 
     it('schedules full multi-measure Pachelbel Canon in D (16 measures in 4/4) without dropouts', async () => {
       let mockCurrentTime = 400.0
-      const scheduleAccompanimentSpy = vi
-        .spyOn(PracticeAudioEngine.prototype, 'schedulePianoAccompaniment')
+      const scheduleNotesSpy = vi
+        .spyOn(PracticeAudioEngine.prototype, 'schedulePianoNotes')
         .mockImplementation(() => {})
       vi.spyOn(PracticeAudioEngine.prototype, 'getCurrentTime').mockImplementation(
         () => mockCurrentTime
@@ -591,7 +591,7 @@ describe('Playback Audio Scheduler & Web Audio Clock Synchronization', () => {
       }
 
       // Verifies all upcoming measures continue scheduling smoothly
-      expect(scheduleAccompanimentSpy.mock.calls.length).toBeGreaterThanOrEqual(6)
+      expect(scheduleNotesSpy.mock.calls.length).toBeGreaterThanOrEqual(6)
 
       vi.useRealTimers()
     }, 35000)
