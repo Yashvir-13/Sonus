@@ -5907,25 +5907,25 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
   },
   {
     id: "ex_guitar_spanish_romance",
-    title: "Spanish Romance (Romance An\u00f3nimo)",
+    title: "Spanish Romance (Romance Anónimo)",
     artist: "Narciso Yepes",
     composer: "Traditional Spanish Classical",
-    description: "The quintessential classical guitar study. Continuous arpeggio triplets on treble strings against bass pulses.",
+    description: "The quintessential classical guitar study in authentic 9-triplet arpeggios per bar over E minor, A minor, and B7.",
     instrument: "guitar",
-    tempo_bpm: 112,
+    tempo_bpm: 96,
     difficulty: 3,
     progression: {
       "key": "E Minor",
       "time_signature": "3/4",
-      "default_tempo_bpm": 112,
+      "default_tempo_bpm": 96,
       "tempo_range": {
-            "min_bpm": 80,
-            "default_bpm": 112,
-            "max_bpm": 136,
-            "gradual_step_bpm": 6
+            "min_bpm": 68,
+            "default_bpm": 96,
+            "max_bpm": 120,
+            "gradual_step_bpm": 4
       },
       "strumming_pattern": "Continuous Triplet Arpeggio (P-a-m-i)",
-      "educational_focus": "Sustained cantabile melody on top E string while inner voices maintain soft rhythmic balance.",
+      "educational_focus": "Authentic 9-triplet arpeggio per 3/4 bar with cantabile melody on high e string.",
       "artist": "Narciso Yepes",
       "composer": "Traditional Spanish Classical",
       "chords": [
@@ -5962,62 +5962,146 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 0,
                               "pitch": 40,
-                              "duration": 1.0,
+                              "duration": 3.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 7,
                               "pitch": 71,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.333,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 0.667,
                               "string": 3,
                               "fret": 0,
                               "pitch": 55,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 7,
+                              "pitch": 71,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 7,
+                              "pitch": 71,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Romance Theme",
+                  "section": "Romance Theme A",
                   "notes": [
                         {
                               "pitch": 40,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 3.0,
                               "voice": "bass"
                         },
                         {
                               "pitch": 71,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
                               "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "melody"
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
                         },
                         {
                               "pitch": 55,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 71,
+                              "beatOffset": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 71,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
                               "voice": "harmony"
                         }
                   ]
@@ -6027,8 +6111,11 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "beat": 4.0,
                   "duration_beats": 3.0,
                   "expected_pitches": [
+                        40,
                         55,
                         59,
+                        67,
+                        69,
                         71
                   ],
                   "guitar_tabs": {
@@ -6054,48 +6141,146 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
+                              "string": 6,
+                              "fret": 0,
+                              "pitch": 40,
+                              "duration": 3.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 7,
                               "pitch": 71,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.333,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 0.667,
                               "string": 3,
                               "fret": 0,
                               "pitch": 55,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 5,
+                              "pitch": 69,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 3,
+                              "pitch": 67,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Romance Theme",
+                  "section": "Romance Theme A",
                   "notes": [
+                        {
+                              "pitch": 40,
+                              "beatOffset": 0.0,
+                              "duration": 3.0,
+                              "voice": "bass"
+                        },
                         {
                               "pitch": 71,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
                               "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "melody"
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
                         },
                         {
                               "pitch": 55,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 69,
+                              "beatOffset": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 67,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
                               "voice": "harmony"
                         }
                   ]
@@ -6105,86 +6290,11 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "beat": 7.0,
                   "duration_beats": 3.0,
                   "expected_pitches": [
+                        40,
                         55,
                         59,
-                        69
-                  ],
-                  "guitar_tabs": {
-                        "frets": [
-                              0,
-                              2,
-                              2,
-                              0,
-                              0,
-                              5
-                        ],
-                        "strings": "E-A-D-G-B-e",
-                        "fingering": "0-1-2-0-0-4",
-                        "fingers": [
-                              null,
-                              1,
-                              2,
-                              null,
-                              null,
-                              4
-                        ],
-                        "baseFret": 1
-                  },
-                  "plucked_notes": [
-                        {
-                              "beatOffset": 0,
-                              "string": 1,
-                              "fret": 5,
-                              "pitch": 69,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 1,
-                              "string": 2,
-                              "fret": 0,
-                              "pitch": 59,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
-                              "string": 3,
-                              "fret": 0,
-                              "pitch": 55,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        }
-                  ],
-                  "section": "Romance Theme",
-                  "notes": [
-                        {
-                              "pitch": 69,
-                              "beatOffset": 0.0,
-                              "duration": 1.0,
-                              "voice": "melody"
-                        },
-                        {
-                              "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "melody"
-                        },
-                        {
-                              "pitch": 55,
-                              "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
-                        }
-                  ]
-            },
-            {
-                  "name": "Em",
-                  "beat": 10.0,
-                  "duration_beats": 3.0,
-                  "expected_pitches": [
-                        55,
-                        59,
+                        64,
+                        66,
                         67
                   ],
                   "guitar_tabs": {
@@ -6210,48 +6320,325 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
+                              "string": 6,
+                              "fret": 0,
+                              "pitch": 40,
+                              "duration": 3.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 3,
                               "pitch": 67,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.333,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 0.667,
                               "string": 3,
                               "fret": 0,
                               "pitch": 55,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Romance Theme",
+                  "section": "Romance Theme A",
                   "notes": [
+                        {
+                              "pitch": 40,
+                              "beatOffset": 0.0,
+                              "duration": 3.0,
+                              "voice": "bass"
+                        },
                         {
                               "pitch": 67,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
                               "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "melody"
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
                         },
                         {
                               "pitch": 55,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 66,
+                              "beatOffset": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 64,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        }
+                  ]
+            },
+            {
+                  "name": "Em",
+                  "beat": 10.0,
+                  "duration_beats": 3.0,
+                  "expected_pitches": [
+                        40,
+                        55,
+                        59,
+                        64,
+                        67,
+                        71
+                  ],
+                  "guitar_tabs": {
+                        "frets": [
+                              0,
+                              2,
+                              2,
+                              0,
+                              0,
+                              0
+                        ],
+                        "strings": "E-A-D-G-B-e",
+                        "fingering": "0-1-2-0-0-0",
+                        "fingers": [
+                              null,
+                              1,
+                              2,
+                              null,
+                              null,
+                              null
+                        ],
+                        "baseFret": 1
+                  },
+                  "plucked_notes": [
+                        {
+                              "beatOffset": 0.0,
+                              "string": 6,
+                              "fret": 0,
+                              "pitch": 40,
+                              "duration": 3.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.0,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 3,
+                              "pitch": 67,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 7,
+                              "pitch": 71,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        }
+                  ],
+                  "section": "Romance Theme A",
+                  "notes": [
+                        {
+                              "pitch": 40,
+                              "beatOffset": 0.0,
+                              "duration": 3.0,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 0.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 67,
+                              "beatOffset": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 71,
+                              "beatOffset": 2.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
                               "voice": "harmony"
                         }
                   ]
@@ -6262,89 +6649,173 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         45,
-                        57,
                         60,
-                        69
+                        64,
+                        72
                   ],
                   "guitar_tabs": {
                         "frets": [
                               null,
                               0,
-                              2,
-                              2,
-                              1,
-                              5
+                              7,
+                              5,
+                              5,
+                              8
                         ],
-                        "strings": "x-A-D-G-B-e",
-                        "fingering": "x-0-2-3-1-4",
+                        "strings": "E-A-D-G-B-e",
+                        "fingering": "x-0-3-1-1-4",
                         "fingers": [
                               null,
                               null,
-                              2,
                               3,
+                              1,
                               1,
                               4
                         ],
-                        "baseFret": 1
+                        "baseFret": 5
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 5,
                               "fret": 0,
                               "pitch": 45,
-                              "duration": 1.0,
+                              "duration": 3.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 1,
-                              "fret": 5,
-                              "pitch": 69,
-                              "duration": 1.0,
+                              "fret": 8,
+                              "pitch": 72,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.333,
                               "string": 2,
-                              "fret": 1,
-                              "pitch": 60,
-                              "duration": 1.0,
+                              "fret": 5,
+                              "pitch": 64,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 0.667,
                               "string": 3,
-                              "fret": 2,
-                              "pitch": 57,
-                              "duration": 1.0,
+                              "fret": 5,
+                              "pitch": 60,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 8,
+                              "pitch": 72,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 5,
+                              "pitch": 64,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 5,
+                              "pitch": 60,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 8,
+                              "pitch": 72,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 5,
+                              "pitch": 64,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 5,
+                              "pitch": 60,
+                              "duration": 0.333,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Romance Theme",
+                  "section": "Romance Theme A",
                   "notes": [
                         {
                               "pitch": 45,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 3.0,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 69,
+                              "pitch": 72,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
                         },
                         {
                               "pitch": 60,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 72,
                               "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 57,
+                              "pitch": 64,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 60,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 72,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 60,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
                               "voice": "harmony"
                         }
                   ]
@@ -6354,231 +6825,531 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "beat": 16.0,
                   "duration_beats": 3.0,
                   "expected_pitches": [
-                        57,
+                        45,
                         60,
-                        69
+                        64,
+                        69,
+                        71,
+                        72
                   ],
                   "guitar_tabs": {
                         "frets": [
                               null,
                               0,
-                              2,
-                              2,
-                              1,
-                              5
+                              7,
+                              5,
+                              5,
+                              8
                         ],
-                        "strings": "x-A-D-G-B-e",
-                        "fingering": "x-0-2-3-1-4",
+                        "strings": "E-A-D-G-B-e",
+                        "fingering": "x-0-3-1-1-4",
                         "fingers": [
                               null,
                               null,
-                              2,
                               3,
+                              1,
                               1,
                               4
                         ],
-                        "baseFret": 1
+                        "baseFret": 5
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
+                              "string": 5,
+                              "fret": 0,
+                              "pitch": 45,
+                              "duration": 3.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.0,
+                              "string": 1,
+                              "fret": 8,
+                              "pitch": 72,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.333,
+                              "string": 2,
+                              "fret": 5,
+                              "pitch": 64,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.667,
+                              "string": 3,
+                              "fret": 5,
+                              "pitch": 60,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 7,
+                              "pitch": 71,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 5,
+                              "pitch": 64,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 5,
+                              "pitch": 60,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
                               "string": 1,
                               "fret": 5,
                               "pitch": 69,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 2.333,
                               "string": 2,
-                              "fret": 1,
-                              "pitch": 60,
-                              "duration": 1.0,
+                              "fret": 5,
+                              "pitch": 64,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 2.667,
                               "string": 3,
-                              "fret": 2,
-                              "pitch": 57,
-                              "duration": 1.0,
+                              "fret": 5,
+                              "pitch": 60,
+                              "duration": 0.333,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Romance Theme",
+                  "section": "Romance Theme A",
                   "notes": [
                         {
-                              "pitch": 69,
+                              "pitch": 45,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 3.0,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 72,
+                              "beatOffset": 0.0,
+                              "duration": 0.333,
                               "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
                         },
                         {
                               "pitch": 60,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 71,
                               "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 57,
+                              "pitch": 64,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 60,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 69,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 60,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
                               "voice": "harmony"
                         }
                   ]
             },
             {
-                  "name": "Am",
+                  "name": "B7",
                   "beat": 19.0,
                   "duration_beats": 3.0,
                   "expected_pitches": [
-                        57,
-                        60,
-                        67
+                        47,
+                        63,
+                        66,
+                        71
                   ],
                   "guitar_tabs": {
                         "frets": [
-                              null,
+                              7,
+                              9,
+                              7,
+                              8,
+                              7,
+                              7
+                        ],
+                        "strings": "E-A-D-G-B-e",
+                        "fingering": "1-3-1-2-1-1",
+                        "fingers": [
+                              1,
+                              3,
+                              1,
+                              2,
+                              1,
+                              1
+                        ],
+                        "baseFret": 7
+                  },
+                  "plucked_notes": [
+                        {
+                              "beatOffset": 0.0,
+                              "string": 6,
+                              "fret": 7,
+                              "pitch": 47,
+                              "duration": 3.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.0,
+                              "string": 1,
+                              "fret": 7,
+                              "pitch": 71,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.333,
+                              "string": 2,
+                              "fret": 7,
+                              "pitch": 66,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.667,
+                              "string": 3,
+                              "fret": 8,
+                              "pitch": 63,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 7,
+                              "pitch": 71,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 7,
+                              "pitch": 66,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 8,
+                              "pitch": 63,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 7,
+                              "pitch": 71,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 7,
+                              "pitch": 66,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 8,
+                              "pitch": 63,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        }
+                  ],
+                  "section": "Romance Theme A",
+                  "notes": [
+                        {
+                              "pitch": 47,
+                              "beatOffset": 0.0,
+                              "duration": 3.0,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 71,
+                              "beatOffset": 0.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 66,
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 63,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 71,
+                              "beatOffset": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 66,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 63,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 71,
+                              "beatOffset": 2.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 66,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 63,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        }
+                  ]
+            },
+            {
+                  "name": "Em",
+                  "beat": 22.0,
+                  "duration_beats": 3.0,
+                  "expected_pitches": [
+                        40,
+                        55,
+                        59,
+                        71,
+                        72
+                  ],
+                  "guitar_tabs": {
+                        "frets": [
                               0,
                               2,
                               2,
-                              1,
-                              3
+                              0,
+                              0,
+                              7
                         ],
-                        "strings": "x-A-D-G-B-e",
-                        "fingering": "x-0-2-3-1-4",
+                        "strings": "E-A-D-G-B-e",
+                        "fingering": "0-1-2-0-0-4",
                         "fingers": [
                               null,
-                              null,
-                              2,
-                              3,
                               1,
+                              2,
+                              null,
+                              null,
                               4
                         ],
                         "baseFret": 1
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
+                              "string": 6,
+                              "fret": 0,
+                              "pitch": 40,
+                              "duration": 3.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.0,
                               "string": 1,
-                              "fret": 3,
-                              "pitch": 67,
-                              "duration": 1.0,
+                              "fret": 7,
+                              "pitch": 71,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.333,
                               "string": 2,
-                              "fret": 1,
-                              "pitch": 60,
-                              "duration": 1.0,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 0.667,
                               "string": 3,
-                              "fret": 2,
-                              "pitch": 57,
-                              "duration": 1.0,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 8,
+                              "pitch": 72,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 7,
+                              "pitch": 71,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Romance Theme",
+                  "section": "Romance Theme A",
                   "notes": [
                         {
-                              "pitch": 67,
+                              "pitch": 40,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 3.0,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 71,
+                              "beatOffset": 0.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 60,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "melody"
-                        },
-                        {
-                              "pitch": 57,
-                              "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "pitch": 59,
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
                               "voice": "harmony"
-                        }
-                  ]
-            },
-            {
-                  "name": "Am",
-                  "beat": 22.0,
-                  "duration_beats": 3.0,
-                  "expected_pitches": [
-                        57,
-                        60,
-                        66
-                  ],
-                  "guitar_tabs": {
-                        "frets": [
-                              null,
-                              0,
-                              2,
-                              2,
-                              1,
-                              2
-                        ],
-                        "strings": "x-A-D-G-B-e",
-                        "fingering": "x-0-2-3-1-2",
-                        "fingers": [
-                              null,
-                              null,
-                              2,
-                              3,
-                              1,
-                              2
-                        ],
-                        "baseFret": 1
-                  },
-                  "plucked_notes": [
-                        {
-                              "beatOffset": 0,
-                              "string": 1,
-                              "fret": 2,
-                              "pitch": 66,
-                              "duration": 1.0,
-                              "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 2,
-                              "fret": 1,
-                              "pitch": 60,
-                              "duration": 1.0,
-                              "technique": "pick"
+                              "pitch": 55,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
                         },
                         {
-                              "beatOffset": 2,
-                              "string": 3,
-                              "fret": 2,
-                              "pitch": 57,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        }
-                  ],
-                  "section": "Romance Theme",
-                  "notes": [
-                        {
-                              "pitch": 66,
-                              "beatOffset": 0.0,
-                              "duration": 1.0,
-                              "voice": "melody"
-                        },
-                        {
-                              "pitch": 60,
+                              "pitch": 72,
                               "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 57,
+                              "pitch": 59,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 71,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
                               "voice": "harmony"
                         }
                   ]
@@ -6586,6 +7357,362 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
             {
                   "name": "B7",
                   "beat": 25.0,
+                  "duration_beats": 3.0,
+                  "expected_pitches": [
+                        47,
+                        57,
+                        59,
+                        71
+                  ],
+                  "guitar_tabs": {
+                        "frets": [
+                              null,
+                              2,
+                              1,
+                              2,
+                              0,
+                              7
+                        ],
+                        "strings": "E-A-D-G-B-e",
+                        "fingering": "x-2-1-3-0-4",
+                        "fingers": [
+                              null,
+                              2,
+                              1,
+                              3,
+                              null,
+                              4
+                        ],
+                        "baseFret": 1
+                  },
+                  "plucked_notes": [
+                        {
+                              "beatOffset": 0.0,
+                              "string": 5,
+                              "fret": 2,
+                              "pitch": 47,
+                              "duration": 3.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.0,
+                              "string": 1,
+                              "fret": 7,
+                              "pitch": 71,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.667,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 7,
+                              "pitch": 71,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 7,
+                              "pitch": 71,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        }
+                  ],
+                  "section": "Romance Cadence B",
+                  "notes": [
+                        {
+                              "pitch": 47,
+                              "beatOffset": 0.0,
+                              "duration": 3.0,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 71,
+                              "beatOffset": 0.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 57,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 71,
+                              "beatOffset": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 57,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 71,
+                              "beatOffset": 2.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 57,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        }
+                  ]
+            },
+            {
+                  "name": "B7",
+                  "beat": 28.0,
+                  "duration_beats": 3.0,
+                  "expected_pitches": [
+                        47,
+                        57,
+                        59,
+                        67,
+                        69,
+                        71
+                  ],
+                  "guitar_tabs": {
+                        "frets": [
+                              null,
+                              2,
+                              1,
+                              2,
+                              0,
+                              7
+                        ],
+                        "strings": "E-A-D-G-B-e",
+                        "fingering": "x-2-1-3-0-4",
+                        "fingers": [
+                              null,
+                              2,
+                              1,
+                              3,
+                              null,
+                              4
+                        ],
+                        "baseFret": 1
+                  },
+                  "plucked_notes": [
+                        {
+                              "beatOffset": 0.0,
+                              "string": 5,
+                              "fret": 2,
+                              "pitch": 47,
+                              "duration": 3.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.0,
+                              "string": 1,
+                              "fret": 7,
+                              "pitch": 71,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.667,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 5,
+                              "pitch": 69,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 3,
+                              "pitch": 67,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        }
+                  ],
+                  "section": "Romance Cadence B",
+                  "notes": [
+                        {
+                              "pitch": 47,
+                              "beatOffset": 0.0,
+                              "duration": 3.0,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 71,
+                              "beatOffset": 0.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 57,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 69,
+                              "beatOffset": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 57,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 67,
+                              "beatOffset": 2.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 57,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        }
+                  ]
+            },
+            {
+                  "name": "B7",
+                  "beat": 31.0,
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         47,
@@ -6602,7 +7729,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               0,
                               2
                         ],
-                        "strings": "x-A-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-2-1-3-0-4",
                         "fingers": [
                               null,
@@ -6616,152 +7743,160 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 5,
                               "fret": 2,
                               "pitch": 47,
-                              "duration": 1.0,
+                              "duration": 3.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 2,
                               "pitch": 66,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.333,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 0.667,
                               "string": 3,
                               "fret": 2,
                               "pitch": 57,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.333,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Romance Theme",
+                  "section": "Romance Cadence B",
                   "notes": [
                         {
                               "pitch": 47,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 3.0,
                               "voice": "bass"
                         },
                         {
                               "pitch": 66,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
                               "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "melody"
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
                         },
                         {
                               "pitch": 57,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 66,
+                              "beatOffset": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 57,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 66,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 57,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
                               "voice": "harmony"
                         }
                   ]
             },
             {
                   "name": "B7",
-                  "beat": 28.0,
+                  "beat": 34.0,
                   "duration_beats": 3.0,
                   "expected_pitches": [
+                        47,
                         57,
                         59,
+                        66,
                         67
-                  ],
-                  "guitar_tabs": {
-                        "frets": [
-                              null,
-                              2,
-                              1,
-                              2,
-                              0,
-                              3
-                        ],
-                        "strings": "x-A-D-G-B-e",
-                        "fingering": "x-2-1-3-0-4",
-                        "fingers": [
-                              null,
-                              2,
-                              1,
-                              3,
-                              null,
-                              4
-                        ],
-                        "baseFret": 1
-                  },
-                  "plucked_notes": [
-                        {
-                              "beatOffset": 0,
-                              "string": 1,
-                              "fret": 3,
-                              "pitch": 67,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 1,
-                              "string": 2,
-                              "fret": 0,
-                              "pitch": 59,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
-                              "string": 3,
-                              "fret": 2,
-                              "pitch": 57,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        }
-                  ],
-                  "section": "Romance Theme",
-                  "notes": [
-                        {
-                              "pitch": 67,
-                              "beatOffset": 0.0,
-                              "duration": 1.0,
-                              "voice": "melody"
-                        },
-                        {
-                              "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "melody"
-                        },
-                        {
-                              "pitch": 57,
-                              "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
-                        }
-                  ]
-            },
-            {
-                  "name": "B7",
-                  "beat": 31.0,
-                  "duration_beats": 3.0,
-                  "expected_pitches": [
-                        57,
-                        59,
-                        66
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -6772,7 +7907,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               0,
                               2
                         ],
-                        "strings": "x-A-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-2-1-3-0-4",
                         "fingers": [
                               null,
@@ -6786,126 +7921,146 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
+                              "string": 5,
+                              "fret": 2,
+                              "pitch": 47,
+                              "duration": 3.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 2,
                               "pitch": 66,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.333,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 0.667,
                               "string": 3,
                               "fret": 2,
                               "pitch": 57,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 3,
+                              "pitch": 67,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.333,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Romance Theme",
+                  "section": "Romance Cadence B",
                   "notes": [
+                        {
+                              "pitch": 47,
+                              "beatOffset": 0.0,
+                              "duration": 3.0,
+                              "voice": "bass"
+                        },
                         {
                               "pitch": 66,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
                               "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "melody"
-                        },
-                        {
-                              "pitch": 57,
-                              "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
                               "voice": "harmony"
-                        }
-                  ]
-            },
-            {
-                  "name": "B7",
-                  "beat": 34.0,
-                  "duration_beats": 3.0,
-                  "expected_pitches": [
-                        57,
-                        59,
-                        64
-                  ],
-                  "guitar_tabs": {
-                        "frets": [
-                              null,
-                              2,
-                              1,
-                              2,
-                              0,
-                              0
-                        ],
-                        "strings": "x-A-D-G-B-e",
-                        "fingering": "x-2-1-3-0-0",
-                        "fingers": [
-                              null,
-                              2,
-                              1,
-                              3,
-                              null,
-                              null
-                        ],
-                        "baseFret": 1
-                  },
-                  "plucked_notes": [
-                        {
-                              "beatOffset": 0,
-                              "string": 1,
-                              "fret": 0,
-                              "pitch": 64,
-                              "duration": 1.0,
-                              "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 2,
-                              "fret": 0,
-                              "pitch": 59,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
-                              "string": 3,
-                              "fret": 2,
                               "pitch": 57,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        }
-                  ],
-                  "section": "Romance Theme",
-                  "notes": [
-                        {
-                              "pitch": 64,
-                              "beatOffset": 0.0,
-                              "duration": 1.0,
-                              "voice": "melody"
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
                         },
                         {
-                              "pitch": 59,
+                              "pitch": 67,
                               "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
+                              "pitch": 59,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
                               "pitch": 57,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 66,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 57,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
                               "voice": "harmony"
                         }
                   ]
@@ -6930,11 +8085,11 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               0
                         ],
                         "strings": "E-A-D-G-B-e",
-                        "fingering": "0-2-3-0-0-0",
+                        "fingering": "0-1-2-0-0-0",
                         "fingers": [
                               null,
+                              1,
                               2,
-                              3,
                               null,
                               null,
                               null
@@ -6943,62 +8098,146 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 0,
                               "pitch": 40,
-                              "duration": 1.0,
+                              "duration": 3.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 0,
                               "pitch": 64,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.333,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 0.667,
                               "string": 3,
                               "fret": 0,
                               "pitch": 55,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Romance Theme",
+                  "section": "Romance Resolution",
                   "notes": [
                         {
                               "pitch": 40,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 3.0,
                               "voice": "bass"
                         },
                         {
                               "pitch": 64,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
                               "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "melody"
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
                         },
                         {
                               "pitch": 55,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 64,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
                               "voice": "harmony"
                         }
                   ]
@@ -7008,8 +8247,11 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "beat": 40.0,
                   "duration_beats": 3.0,
                   "expected_pitches": [
+                        40,
                         55,
                         59,
+                        64,
+                        66,
                         67
                   ],
                   "guitar_tabs": {
@@ -7019,15 +8261,193 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               2,
                               0,
                               0,
-                              3
+                              0
                         ],
                         "strings": "E-A-D-G-B-e",
-                        "fingering": "0-2-3-0-0-4",
+                        "fingering": "0-1-2-0-0-0",
+                        "fingers": [
+                              null,
+                              1,
+                              2,
+                              null,
+                              null,
+                              null
+                        ],
+                        "baseFret": 1
+                  },
+                  "plucked_notes": [
+                        {
+                              "beatOffset": 0.0,
+                              "string": 6,
+                              "fret": 0,
+                              "pitch": 40,
+                              "duration": 3.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.0,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 3,
+                              "pitch": 67,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        }
+                  ],
+                  "section": "Romance Resolution",
+                  "notes": [
+                        {
+                              "pitch": 40,
+                              "beatOffset": 0.0,
+                              "duration": 3.0,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 0.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 66,
+                              "beatOffset": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 67,
+                              "beatOffset": 2.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        }
+                  ]
+            },
+            {
+                  "name": "B7",
+                  "beat": 43.0,
+                  "duration_beats": 3.0,
+                  "expected_pitches": [
+                        47,
+                        57,
+                        59,
+                        66,
+                        67
+                  ],
+                  "guitar_tabs": {
+                        "frets": [
+                              null,
+                              2,
+                              1,
+                              2,
+                              0,
+                              2
+                        ],
+                        "strings": "E-A-D-G-B-e",
+                        "fingering": "x-2-1-3-0-4",
                         "fingers": [
                               null,
                               2,
+                              1,
                               3,
-                              null,
                               null,
                               4
                         ],
@@ -7035,126 +8455,146 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
-                              "string": 1,
-                              "fret": 3,
-                              "pitch": 67,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 1,
-                              "string": 2,
-                              "fret": 0,
-                              "pitch": 59,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
-                              "string": 3,
-                              "fret": 0,
-                              "pitch": 55,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        }
-                  ],
-                  "section": "Romance Theme",
-                  "notes": [
-                        {
-                              "pitch": 67,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
-                              "voice": "melody"
+                              "string": 5,
+                              "fret": 2,
+                              "pitch": 47,
+                              "duration": 3.0,
+                              "technique": "pick"
                         },
                         {
-                              "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "melody"
-                        },
-                        {
-                              "pitch": 55,
-                              "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
-                        }
-                  ]
-            },
-            {
-                  "name": "Em",
-                  "beat": 43.0,
-                  "duration_beats": 3.0,
-                  "expected_pitches": [
-                        55,
-                        59,
-                        66
-                  ],
-                  "guitar_tabs": {
-                        "frets": [
-                              0,
-                              2,
-                              2,
-                              0,
-                              0,
-                              2
-                        ],
-                        "strings": "E-A-D-G-B-e",
-                        "fingering": "0-2-3-0-0-2",
-                        "fingers": [
-                              null,
-                              2,
-                              3,
-                              null,
-                              null,
-                              2
-                        ],
-                        "baseFret": 1
-                  },
-                  "plucked_notes": [
-                        {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 2,
                               "pitch": 66,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.333,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 0.667,
                               "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 3,
+                              "pitch": 67,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
                               "fret": 0,
-                              "pitch": 55,
-                              "duration": 1.0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.333,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Romance Theme",
+                  "section": "Romance Resolution",
                   "notes": [
+                        {
+                              "pitch": 47,
+                              "beatOffset": 0.0,
+                              "duration": 3.0,
+                              "voice": "bass"
+                        },
                         {
                               "pitch": 66,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
                               "pitch": 59,
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 57,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 67,
                               "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 55,
+                              "pitch": 59,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 57,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 66,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 57,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
                               "voice": "harmony"
                         }
                   ]
@@ -7179,11 +8619,11 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               0
                         ],
                         "strings": "E-A-D-G-B-e",
-                        "fingering": "0-2-3-0-0-0",
+                        "fingering": "0-1-2-0-0-0",
                         "fingers": [
                               null,
+                              1,
                               2,
-                              3,
                               null,
                               null,
                               null
@@ -7192,69 +8632,153 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 0,
                               "pitch": 40,
-                              "duration": 1.0,
+                              "duration": 3.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 0,
                               "pitch": 64,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.333,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 0.667,
                               "string": 3,
                               "fret": 0,
                               "pitch": 55,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.333,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.333,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.667,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.333,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Romance Theme",
+                  "section": "Romance Resolution",
                   "notes": [
                         {
                               "pitch": 40,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 3.0,
                               "voice": "bass"
                         },
                         {
                               "pitch": 64,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
                               "voice": "melody"
                         },
                         {
                               "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "melody"
+                              "beatOffset": 0.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
                         },
                         {
                               "pitch": 55,
+                              "beatOffset": 0.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 1.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 1.667,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 64,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.333,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.333,
+                              "duration": 0.333,
+                              "voice": "harmony"
+                        },
+                        {
+                              "pitch": 55,
+                              "beatOffset": 2.667,
+                              "duration": 0.333,
                               "voice": "harmony"
                         }
                   ]
             }
       ]
 },
-    progression_json: JSON.stringify({"key": "E Minor", "time_signature": "3/4", "default_tempo_bpm": 112, "tempo_range": {"min_bpm": 80, "default_bpm": 112, "max_bpm": 136, "gradual_step_bpm": 6}, "strumming_pattern": "Continuous Triplet Arpeggio (P-a-m-i)", "educational_focus": "Sustained cantabile melody on top E string while inner voices maintain soft rhythmic balance.", "artist": "Narciso Yepes", "composer": "Traditional Spanish Classical", "chords": [{"name": "Em", "beat": 1.0, "duration_beats": 3.0, "expected_pitches": [40, 55, 59, 71], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 7], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-4", "fingers": [null, 1, 2, null, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 7, "pitch": 71, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 71, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Em", "beat": 4.0, "duration_beats": 3.0, "expected_pitches": [55, 59, 71], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 7], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-4", "fingers": [null, 1, 2, null, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 1, "fret": 7, "pitch": 71, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 71, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Em", "beat": 7.0, "duration_beats": 3.0, "expected_pitches": [55, 59, 69], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 5], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-4", "fingers": [null, 1, 2, null, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 1, "fret": 5, "pitch": 69, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 69, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Em", "beat": 10.0, "duration_beats": 3.0, "expected_pitches": [55, 59, 67], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 3], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-4", "fingers": [null, 1, 2, null, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 1, "fret": 3, "pitch": 67, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 67, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Am", "beat": 13.0, "duration_beats": 3.0, "expected_pitches": [45, 57, 60, 69], "guitar_tabs": {"frets": [null, 0, 2, 2, 1, 5], "strings": "x-A-D-G-B-e", "fingering": "x-0-2-3-1-4", "fingers": [null, null, 2, 3, 1, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 5, "fret": 0, "pitch": 45, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 5, "pitch": 69, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 45, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 69, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 60, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Am", "beat": 16.0, "duration_beats": 3.0, "expected_pitches": [57, 60, 69], "guitar_tabs": {"frets": [null, 0, 2, 2, 1, 5], "strings": "x-A-D-G-B-e", "fingering": "x-0-2-3-1-4", "fingers": [null, null, 2, 3, 1, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 1, "fret": 5, "pitch": 69, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 69, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 60, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Am", "beat": 19.0, "duration_beats": 3.0, "expected_pitches": [57, 60, 67], "guitar_tabs": {"frets": [null, 0, 2, 2, 1, 3], "strings": "x-A-D-G-B-e", "fingering": "x-0-2-3-1-4", "fingers": [null, null, 2, 3, 1, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 1, "fret": 3, "pitch": 67, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 67, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 60, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Am", "beat": 22.0, "duration_beats": 3.0, "expected_pitches": [57, 60, 66], "guitar_tabs": {"frets": [null, 0, 2, 2, 1, 2], "strings": "x-A-D-G-B-e", "fingering": "x-0-2-3-1-2", "fingers": [null, null, 2, 3, 1, 2], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 66, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 60, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "B7", "beat": 25.0, "duration_beats": 3.0, "expected_pitches": [47, 57, 59, 66], "guitar_tabs": {"frets": [null, 2, 1, 2, 0, 2], "strings": "x-A-D-G-B-e", "fingering": "x-2-1-3-0-4", "fingers": [null, 2, 1, 3, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 66, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "B7", "beat": 28.0, "duration_beats": 3.0, "expected_pitches": [57, 59, 67], "guitar_tabs": {"frets": [null, 2, 1, 2, 0, 3], "strings": "x-A-D-G-B-e", "fingering": "x-2-1-3-0-4", "fingers": [null, 2, 1, 3, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 1, "fret": 3, "pitch": 67, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 67, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "B7", "beat": 31.0, "duration_beats": 3.0, "expected_pitches": [57, 59, 66], "guitar_tabs": {"frets": [null, 2, 1, 2, 0, 2], "strings": "x-A-D-G-B-e", "fingering": "x-2-1-3-0-4", "fingers": [null, 2, 1, 3, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 66, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "B7", "beat": 34.0, "duration_beats": 3.0, "expected_pitches": [57, 59, 64], "guitar_tabs": {"frets": [null, 2, 1, 2, 0, 0], "strings": "x-A-D-G-B-e", "fingering": "x-2-1-3-0-0", "fingers": [null, 2, 1, 3, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 64, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Em", "beat": 37.0, "duration_beats": 3.0, "expected_pitches": [40, 55, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-0", "fingers": [null, 2, 3, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Em", "beat": 40.0, "duration_beats": 3.0, "expected_pitches": [55, 59, 67], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 3], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-4", "fingers": [null, 2, 3, null, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 1, "fret": 3, "pitch": 67, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 67, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Em", "beat": 43.0, "duration_beats": 3.0, "expected_pitches": [55, 59, 66], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 2], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-2", "fingers": [null, 2, 3, null, null, 2], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 66, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Em", "beat": 46.0, "duration_beats": 3.0, "expected_pitches": [40, 55, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-0", "fingers": [null, 2, 3, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}], "section": "Romance Theme", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}]}]}),
+    progression_json: JSON.stringify({"key": "E Minor", "time_signature": "3/4", "default_tempo_bpm": 96, "tempo_range": {"min_bpm": 68, "default_bpm": 96, "max_bpm": 120, "gradual_step_bpm": 4}, "strumming_pattern": "Continuous Triplet Arpeggio (P-a-m-i)", "educational_focus": "Authentic 9-triplet arpeggio per 3/4 bar with cantabile melody on high e string.", "artist": "Narciso Yepes", "composer": "Traditional Spanish Classical", "chords": [{"name": "Em", "beat": 1.0, "duration_beats": 3.0, "expected_pitches": [40, 55, 59, 71], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 7], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-4", "fingers": [null, 1, 2, null, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}], "section": "Romance Theme A", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 71, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 71, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 71, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "Em", "beat": 4.0, "duration_beats": 3.0, "expected_pitches": [40, 55, 59, 67, 69, 71], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 7], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-4", "fingers": [null, 1, 2, null, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 5, "pitch": 69, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 3, "pitch": 67, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}], "section": "Romance Theme A", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 71, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 69, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 67, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "Em", "beat": 7.0, "duration_beats": 3.0, "expected_pitches": [40, 55, 59, 64, 66, 67], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 3], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-4", "fingers": [null, 1, 2, null, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 3, "pitch": 67, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 2, "pitch": 66, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 0, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}], "section": "Romance Theme A", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 67, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 66, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 64, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "Em", "beat": 10.0, "duration_beats": 3.0, "expected_pitches": [40, 55, 59, 64, 67, 71], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-0", "fingers": [null, 1, 2, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 0, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 3, "pitch": 67, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}], "section": "Romance Theme A", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 67, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 71, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "Am", "beat": 13.0, "duration_beats": 3.0, "expected_pitches": [45, 60, 64, 72], "guitar_tabs": {"frets": [null, 0, 7, 5, 5, 8], "strings": "E-A-D-G-B-e", "fingering": "x-0-3-1-1-4", "fingers": [null, null, 3, 1, 1, 4], "baseFret": 5}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 0, "pitch": 45, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 8, "pitch": 72, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 5, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 5, "pitch": 60, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 8, "pitch": 72, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 5, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 5, "pitch": 60, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 8, "pitch": 72, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 5, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 5, "pitch": 60, "duration": 0.333, "technique": "pick"}], "section": "Romance Theme A", "notes": [{"pitch": 45, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 72, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 64, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 60, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 72, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 64, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 60, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 72, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 64, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 60, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "Am", "beat": 16.0, "duration_beats": 3.0, "expected_pitches": [45, 60, 64, 69, 71, 72], "guitar_tabs": {"frets": [null, 0, 7, 5, 5, 8], "strings": "E-A-D-G-B-e", "fingering": "x-0-3-1-1-4", "fingers": [null, null, 3, 1, 1, 4], "baseFret": 5}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 0, "pitch": 45, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 8, "pitch": 72, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 5, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 5, "pitch": 60, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 5, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 5, "pitch": 60, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 5, "pitch": 69, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 5, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 5, "pitch": 60, "duration": 0.333, "technique": "pick"}], "section": "Romance Theme A", "notes": [{"pitch": 45, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 72, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 64, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 60, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 71, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 64, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 60, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 69, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 64, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 60, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "B7", "beat": 19.0, "duration_beats": 3.0, "expected_pitches": [47, 63, 66, 71], "guitar_tabs": {"frets": [7, 9, 7, 8, 7, 7], "strings": "E-A-D-G-B-e", "fingering": "1-3-1-2-1-1", "fingers": [1, 3, 1, 2, 1, 1], "baseFret": 7}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 7, "pitch": 47, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 7, "pitch": 66, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 8, "pitch": 63, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 7, "pitch": 66, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 8, "pitch": 63, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 7, "pitch": 66, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 8, "pitch": 63, "duration": 0.333, "technique": "pick"}], "section": "Romance Theme A", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 71, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 66, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 63, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 71, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 66, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 63, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 71, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 66, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 63, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "Em", "beat": 22.0, "duration_beats": 3.0, "expected_pitches": [40, 55, 59, 71, 72], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 7], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-4", "fingers": [null, 1, 2, null, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 8, "pitch": 72, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}], "section": "Romance Theme A", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 71, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 72, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 71, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "B7", "beat": 25.0, "duration_beats": 3.0, "expected_pitches": [47, 57, 59, 71], "guitar_tabs": {"frets": [null, 2, 1, 2, 0, 7], "strings": "E-A-D-G-B-e", "fingering": "x-2-1-3-0-4", "fingers": [null, 2, 1, 3, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 2, "pitch": 47, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}], "section": "Romance Cadence B", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 71, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 71, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 71, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "B7", "beat": 28.0, "duration_beats": 3.0, "expected_pitches": [47, 57, 59, 67, 69, 71], "guitar_tabs": {"frets": [null, 2, 1, 2, 0, 7], "strings": "E-A-D-G-B-e", "fingering": "x-2-1-3-0-4", "fingers": [null, 2, 1, 3, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 2, "pitch": 47, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 7, "pitch": 71, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 5, "pitch": 69, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 3, "pitch": 67, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}], "section": "Romance Cadence B", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 71, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 69, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 67, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "B7", "beat": 31.0, "duration_beats": 3.0, "expected_pitches": [47, 57, 59, 66], "guitar_tabs": {"frets": [null, 2, 1, 2, 0, 2], "strings": "E-A-D-G-B-e", "fingering": "x-2-1-3-0-4", "fingers": [null, 2, 1, 3, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 2, "pitch": 47, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 2, "pitch": 66, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 2, "pitch": 66, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 2, "pitch": 66, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}], "section": "Romance Cadence B", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 66, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 66, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 66, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "B7", "beat": 34.0, "duration_beats": 3.0, "expected_pitches": [47, 57, 59, 66, 67], "guitar_tabs": {"frets": [null, 2, 1, 2, 0, 2], "strings": "E-A-D-G-B-e", "fingering": "x-2-1-3-0-4", "fingers": [null, 2, 1, 3, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 2, "pitch": 47, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 2, "pitch": 66, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 3, "pitch": 67, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 2, "pitch": 66, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}], "section": "Romance Cadence B", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 66, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 67, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 66, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "Em", "beat": 37.0, "duration_beats": 3.0, "expected_pitches": [40, 55, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-0", "fingers": [null, 1, 2, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 0, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 0, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 0, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}], "section": "Romance Resolution", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 64, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 64, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "Em", "beat": 40.0, "duration_beats": 3.0, "expected_pitches": [40, 55, 59, 64, 66, 67], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-0", "fingers": [null, 1, 2, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 0, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 2, "pitch": 66, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 3, "pitch": 67, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}], "section": "Romance Resolution", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 66, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 67, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "B7", "beat": 43.0, "duration_beats": 3.0, "expected_pitches": [47, 57, 59, 66, 67], "guitar_tabs": {"frets": [null, 2, 1, 2, 0, 2], "strings": "E-A-D-G-B-e", "fingering": "x-2-1-3-0-4", "fingers": [null, 2, 1, 3, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 2, "pitch": 47, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 2, "pitch": 66, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 3, "pitch": 67, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 2, "pitch": 66, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 2, "pitch": 57, "duration": 0.333, "technique": "pick"}], "section": "Romance Resolution", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 66, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 67, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 66, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 57, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}, {"name": "Em", "beat": 46.0, "duration_beats": 3.0, "expected_pitches": [40, 55, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-0", "fingers": [null, 1, 2, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 3.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 0, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 0.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 0, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 1.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.0, "string": 1, "fret": 0, "pitch": 64, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.333, "string": 2, "fret": 0, "pitch": 59, "duration": 0.333, "technique": "pick"}, {"beatOffset": 2.667, "string": 3, "fret": 0, "pitch": 55, "duration": 0.333, "technique": "pick"}], "section": "Romance Resolution", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 3.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 0.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 64, "beatOffset": 1.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 1.667, "duration": 0.333, "voice": "harmony"}, {"pitch": 64, "beatOffset": 2.0, "duration": 0.333, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.333, "duration": 0.333, "voice": "harmony"}, {"pitch": 55, "beatOffset": 2.667, "duration": 0.333, "voice": "harmony"}]}]}),
   },
   {
     id: "ex_guitar_scarborough_fair",
@@ -10502,25 +12026,25 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
   },
   {
     id: "ex_guitar_bourree",
-    title: "Bourr\u00e9e in E minor (BWV 996)",
+    title: "Bourrée in E minor (BWV 996)",
     artist: "J.S. Bach",
     composer: "Johann Sebastian Bach",
-    description: "Bach's renowned Lute Suite movement in 4/4 meter. Two-voice polyphony on acoustic guitar (simultaneous thumb bass and index/middle melody).",
+    description: "Bach's iconic Baroque lute suite movement in two-voice eighth-note counterpoint.",
     instrument: "guitar",
-    tempo_bpm: 126,
-    difficulty: 4,
+    tempo_bpm: 120,
+    difficulty: 3,
     progression: {
       "key": "E Minor",
       "time_signature": "4/4",
-      "default_tempo_bpm": 126,
+      "default_tempo_bpm": 120,
       "tempo_range": {
-            "min_bpm": 90,
-            "default_bpm": 126,
-            "max_bpm": 150,
+            "min_bpm": 84,
+            "default_bpm": 120,
+            "max_bpm": 152,
             "gradual_step_bpm": 6
       },
-      "strumming_pattern": "Two-Part Baroque Polyphony (Bass + Treble Counterpoint)",
-      "educational_focus": "Contrapuntal hand independence: thumb plays driving bassline while fingers articulate upbeat melody.",
+      "strumming_pattern": "Baroque Two-Voice 8th-Note Counterpoint",
+      "educational_focus": "Independent thumb bass line against continuous eighth-note upper-voice counterpoint.",
       "artist": "J.S. Bach",
       "composer": "Johann Sebastian Bach",
       "chords": [
@@ -10530,9 +12054,11 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 4.0,
                   "expected_pitches": [
                         40,
-                        55,
-                        59,
-                        64
+                        43,
+                        63,
+                        64,
+                        66,
+                        67
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -10541,23 +12067,23 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               2,
                               0,
                               0,
-                              0
+                              3
                         ],
                         "strings": "E-A-D-G-B-e",
-                        "fingering": "0-2-3-0-0-0",
+                        "fingering": "0-1-2-0-0-4",
                         "fingers": [
                               null,
+                              1,
                               2,
-                              3,
                               null,
                               null,
-                              null
+                              4
                         ],
                         "baseFret": 1
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 0,
                               "pitch": 40,
@@ -10565,7 +12091,23 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
+                              "string": 1,
+                              "fret": 3,
+                              "pitch": 67,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.5,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
                               "string": 1,
                               "fret": 0,
                               "pitch": 64,
@@ -10573,39 +12115,39 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 2,
-                              "fret": 0,
-                              "pitch": 59,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
                               "string": 6,
-                              "fret": 0,
-                              "pitch": 40,
+                              "fret": 3,
+                              "pitch": 43,
                               "duration": 1.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
-                              "string": 3,
-                              "fret": 0,
-                              "pitch": 55,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 3,
+                              "beatOffset": 2.0,
                               "string": 2,
+                              "fret": 4,
+                              "pitch": 63,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
                               "fret": 0,
-                              "pitch": 59,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.0,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
                               "duration": 1.0,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 1",
+                  "section": "Bourrée Strain 1",
                   "notes": [
                         {
                               "pitch": 40,
@@ -10614,31 +12156,43 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "voice": "bass"
                         },
                         {
-                              "pitch": 64,
+                              "pitch": 67,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 59,
+                              "pitch": 66,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
                               "beatOffset": 1.0,
                               "duration": 1.0,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 40,
+                              "pitch": 43,
                               "beatOffset": 2.0,
                               "duration": 1.0,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 55,
+                              "pitch": 63,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
-                              "pitch": 59,
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 66,
                               "beatOffset": 3.0,
                               "duration": 1.0,
                               "voice": "melody"
@@ -10650,10 +12204,15 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "beat": 5.0,
                   "duration_beats": 4.0,
                   "expected_pitches": [
+                        45,
                         47,
+                        57,
                         59,
+                        60,
                         62,
-                        66
+                        64,
+                        66,
+                        67
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -10664,7 +12223,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               3,
                               2
                         ],
-                        "strings": "x-A-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-1-3-4-2-1",
                         "fingers": [
                               null,
@@ -10678,7 +12237,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 5,
                               "fret": 2,
                               "pitch": 47,
@@ -10686,47 +12245,71 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
+                              "string": 1,
+                              "fret": 3,
+                              "pitch": 67,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.5,
                               "string": 1,
                               "fret": 2,
                               "pitch": 66,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
                               "string": 2,
                               "fret": 3,
                               "pitch": 62,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
                               "string": 5,
-                              "fret": 2,
-                              "pitch": 47,
+                              "fret": 0,
+                              "pitch": 45,
                               "duration": 1.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
-                              "string": 3,
-                              "fret": 4,
-                              "pitch": 59,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 3,
+                              "beatOffset": 2.0,
                               "string": 2,
-                              "fret": 3,
-                              "pitch": 62,
+                              "fret": 1,
+                              "pitch": 60,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
                               "duration": 1.0,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 1",
+                  "section": "Bourrée Strain 1",
                   "notes": [
                         {
                               "pitch": 47,
@@ -10735,31 +12318,49 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "voice": "bass"
                         },
                         {
-                              "pitch": 66,
+                              "pitch": 67,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 66,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
                               "pitch": 62,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 47,
+                              "pitch": 45,
                               "beatOffset": 2.0,
                               "duration": 1.0,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 59,
+                              "pitch": 60,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
-                              "pitch": 62,
+                              "pitch": 59,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 3.0,
                               "duration": 1.0,
                               "voice": "melody"
@@ -10771,9 +12372,12 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "beat": 9.0,
                   "duration_beats": 4.0,
                   "expected_pitches": [
-                        40,
-                        55,
+                        43,
+                        47,
+                        57,
                         59,
+                        60,
+                        62,
                         64
                   ],
                   "guitar_tabs": {
@@ -10799,88 +12403,130 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
-                              "fret": 0,
-                              "pitch": 40,
+                              "fret": 3,
+                              "pitch": 43,
                               "duration": 1.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.5,
+                              "string": 2,
+                              "fret": 1,
+                              "pitch": 60,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 2,
+                              "fret": 3,
+                              "pitch": 62,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
                               "string": 1,
                               "fret": 0,
                               "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 5,
+                              "fret": 2,
+                              "pitch": 47,
                               "duration": 1.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 2.0,
+                              "string": 2,
+                              "fret": 1,
+                              "pitch": 60,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
-                              "string": 6,
-                              "fret": 0,
-                              "pitch": 40,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
+                              "beatOffset": 3.0,
                               "string": 3,
-                              "fret": 0,
-                              "pitch": 55,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 3,
-                              "string": 2,
-                              "fret": 0,
-                              "pitch": 59,
+                              "fret": 2,
+                              "pitch": 57,
                               "duration": 1.0,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 1",
+                  "section": "Bourrée Strain 1",
                   "notes": [
                         {
-                              "pitch": 40,
+                              "pitch": 43,
                               "beatOffset": 0.0,
                               "duration": 1.0,
                               "voice": "bass"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 0.0,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 60,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 62,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
                               "pitch": 64,
-                              "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "melody"
-                        },
-                        {
-                              "pitch": 40,
+                              "pitch": 47,
                               "beatOffset": 2.0,
                               "duration": 1.0,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 55,
+                              "pitch": 60,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
                               "pitch": 59,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 3.0,
                               "duration": 1.0,
                               "voice": "melody"
@@ -10895,6 +12541,8 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                         48,
                         52,
                         55,
+                        57,
+                        59,
                         60
                   ],
                   "guitar_tabs": {
@@ -10906,7 +12554,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               1,
                               0
                         ],
-                        "strings": "x-A-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-3-2-0-1-0",
                         "fingers": [
                               null,
@@ -10920,7 +12568,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 5,
                               "fret": 3,
                               "pitch": 48,
@@ -10928,23 +12576,31 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 2,
                               "fret": 1,
                               "pitch": 60,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 3,
+                              "beatOffset": 0.5,
+                              "string": 2,
                               "fret": 0,
-                              "pitch": 55,
+                              "pitch": 59,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
                               "duration": 1.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
                               "string": 5,
                               "fret": 3,
                               "pitch": 48,
@@ -10952,15 +12608,23 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
-                              "string": 4,
-                              "fret": 2,
-                              "pitch": 52,
-                              "duration": 1.0,
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 3,
+                              "beatOffset": 2.5,
+                              "string": 4,
+                              "fret": 2,
+                              "pitch": 52,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.0,
                               "string": 3,
                               "fret": 0,
                               "pitch": 55,
@@ -10968,7 +12632,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 1",
+                  "section": "Bourrée Strain 1",
                   "notes": [
                         {
                               "pitch": 48,
@@ -10979,14 +12643,20 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                         {
                               "pitch": 60,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 55,
+                              "pitch": 59,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 1.0,
                               "duration": 1.0,
-                              "voice": "harmony"
+                              "voice": "melody"
                         },
                         {
                               "pitch": 48,
@@ -10995,16 +12665,22 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "voice": "bass"
                         },
                         {
-                              "pitch": 52,
+                              "pitch": 55,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 52,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
                               "pitch": 55,
                               "beatOffset": 3.0,
                               "duration": 1.0,
-                              "voice": "harmony"
+                              "voice": "melody"
                         }
                   ]
             },
@@ -11013,9 +12689,13 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "beat": 17.0,
                   "duration_beats": 4.0,
                   "expected_pitches": [
+                        42,
                         43,
-                        55,
                         59,
+                        60,
+                        62,
+                        64,
+                        66,
                         67
                   ],
                   "guitar_tabs": {
@@ -11041,7 +12721,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 3,
                               "pitch": 43,
@@ -11049,39 +12729,55 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 3,
                               "pitch": 67,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 2,
+                              "beatOffset": 0.5,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
                               "fret": 0,
-                              "pitch": 59,
+                              "pitch": 64,
                               "duration": 1.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
                               "string": 6,
+                              "fret": 2,
+                              "pitch": 42,
+                              "duration": 1.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 2,
                               "fret": 3,
-                              "pitch": 43,
-                              "duration": 1.0,
+                              "pitch": 62,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
-                              "string": 3,
-                              "fret": 0,
-                              "pitch": 55,
-                              "duration": 1.0,
+                              "beatOffset": 2.5,
+                              "string": 2,
+                              "fret": 1,
+                              "pitch": 60,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 3,
+                              "beatOffset": 3.0,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
@@ -11089,7 +12785,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 1",
+                  "section": "Bourrée Strain 1",
                   "notes": [
                         {
                               "pitch": 43,
@@ -11100,26 +12796,38 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                         {
                               "pitch": 67,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 59,
+                              "pitch": 66,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
                               "beatOffset": 1.0,
                               "duration": 1.0,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 43,
+                              "pitch": 42,
                               "beatOffset": 2.0,
                               "duration": 1.0,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 55,
+                              "pitch": 62,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 60,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
                               "pitch": 59,
@@ -11136,7 +12844,10 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "expected_pitches": [
                         50,
                         57,
+                        59,
+                        60,
                         62,
+                        64,
                         66
                   ],
                   "guitar_tabs": {
@@ -11148,7 +12859,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               3,
                               2
                         ],
-                        "strings": "x-x-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-x-0-1-3-2",
                         "fingers": [
                               null,
@@ -11162,7 +12873,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 4,
                               "fret": 0,
                               "pitch": 50,
@@ -11170,15 +12881,23 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 2,
                               "pitch": 66,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
                               "string": 2,
                               "fret": 3,
                               "pitch": 62,
@@ -11186,7 +12905,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
                               "string": 4,
                               "fret": 0,
                               "pitch": 50,
@@ -11194,34 +12913,48 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
+                              "string": 2,
+                              "fret": 1,
+                              "pitch": 60,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.0,
                               "string": 3,
                               "fret": 2,
                               "pitch": 57,
                               "duration": 1.0,
                               "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 3,
-                              "string": 2,
-                              "fret": 3,
-                              "pitch": 62,
-                              "duration": 1.0,
-                              "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 1",
+                  "section": "Bourrée Strain 1",
                   "notes": [
                         {
                               "pitch": 50,
                               "beatOffset": 0.0,
                               "duration": 1.0,
-                              "voice": "harmony"
+                              "voice": "bass"
                         },
                         {
                               "pitch": 66,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
@@ -11234,16 +12967,22 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "pitch": 50,
                               "beatOffset": 2.0,
                               "duration": 1.0,
-                              "voice": "harmony"
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 60,
+                              "beatOffset": 2.0,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
                               "pitch": 57,
-                              "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
-                        },
-                        {
-                              "pitch": 62,
                               "beatOffset": 3.0,
                               "duration": 1.0,
                               "voice": "melody"
@@ -11270,7 +13009,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               0,
                               2
                         ],
-                        "strings": "x-A-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-2-1-3-0-4",
                         "fingers": [
                               null,
@@ -11284,7 +13023,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 5,
                               "fret": 2,
                               "pitch": 47,
@@ -11292,47 +13031,63 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
-                              "string": 1,
-                              "fret": 2,
-                              "pitch": 66,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 1,
+                              "beatOffset": 0.0,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
-                              "string": 5,
-                              "fret": 2,
-                              "pitch": 47,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
+                              "beatOffset": 0.5,
                               "string": 3,
                               "fret": 2,
                               "pitch": 57,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 3,
+                              "beatOffset": 1.0,
                               "string": 4,
                               "fret": 1,
                               "pitch": 51,
                               "duration": 1.0,
                               "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 5,
+                              "fret": 2,
+                              "pitch": 47,
+                              "duration": 1.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.0,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 1.0,
+                              "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 1",
+                  "section": "Bourrée Strain 1",
                   "notes": [
                         {
                               "pitch": 47,
@@ -11341,13 +13096,19 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "voice": "bass"
                         },
                         {
-                              "pitch": 66,
+                              "pitch": 59,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 59,
+                              "pitch": 57,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 51,
                               "beatOffset": 1.0,
                               "duration": 1.0,
                               "voice": "melody"
@@ -11361,14 +13122,20 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                         {
                               "pitch": 57,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
-                              "pitch": 51,
+                              "pitch": 59,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 66,
                               "beatOffset": 3.0,
                               "duration": 1.0,
-                              "voice": "harmony"
+                              "voice": "melody"
                         }
                   ]
             },
@@ -11378,10 +13145,10 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 4.0,
                   "expected_pitches": [
                         40,
-                        52,
                         55,
                         59,
-                        64
+                        64,
+                        66
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -11406,7 +13173,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 0,
                               "pitch": 40,
@@ -11414,7 +13181,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 0,
                               "pitch": 64,
@@ -11422,7 +13189,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 1.0,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
@@ -11430,7 +13197,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
                               "string": 3,
                               "fret": 0,
                               "pitch": 55,
@@ -11438,15 +13205,31 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 3,
-                              "string": 4,
-                              "fret": 2,
-                              "pitch": 52,
+                              "beatOffset": 3.0,
+                              "string": 6,
+                              "fret": 0,
+                              "pitch": 40,
                               "duration": 1.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.0,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.5,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 1",
+                  "section": "Bourrée Strain 1",
                   "notes": [
                         {
                               "pitch": 40,
@@ -11464,7 +13247,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "pitch": 59,
                               "beatOffset": 1.0,
                               "duration": 1.0,
-                              "voice": "melody"
+                              "voice": "harmony"
                         },
                         {
                               "pitch": 55,
@@ -11473,10 +13256,22 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "voice": "harmony"
                         },
                         {
-                              "pitch": 52,
+                              "pitch": 40,
                               "beatOffset": 3.0,
                               "duration": 1.0,
-                              "voice": "harmony"
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 3.0,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 66,
+                              "beatOffset": 3.5,
+                              "duration": 0.5,
+                              "voice": "melody"
                         }
                   ]
             },
@@ -11486,9 +13281,11 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 4.0,
                   "expected_pitches": [
                         40,
-                        55,
-                        59,
-                        64
+                        43,
+                        63,
+                        64,
+                        66,
+                        67
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -11497,23 +13294,23 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               2,
                               0,
                               0,
-                              0
+                              3
                         ],
                         "strings": "E-A-D-G-B-e",
-                        "fingering": "0-2-3-0-0-0",
+                        "fingering": "0-1-2-0-0-4",
                         "fingers": [
                               null,
+                              1,
                               2,
-                              3,
                               null,
                               null,
-                              null
+                              4
                         ],
                         "baseFret": 1
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 0,
                               "pitch": 40,
@@ -11521,7 +13318,23 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
+                              "string": 1,
+                              "fret": 3,
+                              "pitch": 67,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.5,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
                               "string": 1,
                               "fret": 0,
                               "pitch": 64,
@@ -11529,39 +13342,39 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 2,
-                              "fret": 0,
-                              "pitch": 59,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
                               "string": 6,
-                              "fret": 0,
-                              "pitch": 40,
+                              "fret": 3,
+                              "pitch": 43,
                               "duration": 1.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
-                              "string": 3,
-                              "fret": 0,
-                              "pitch": 55,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 3,
+                              "beatOffset": 2.0,
                               "string": 2,
+                              "fret": 4,
+                              "pitch": 63,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
                               "fret": 0,
-                              "pitch": 59,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.0,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
                               "duration": 1.0,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 2",
+                  "section": "Bourrée Strain 2",
                   "notes": [
                         {
                               "pitch": 40,
@@ -11570,31 +13383,43 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "voice": "bass"
                         },
                         {
-                              "pitch": 64,
+                              "pitch": 67,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 59,
+                              "pitch": 66,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
                               "beatOffset": 1.0,
                               "duration": 1.0,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 40,
+                              "pitch": 43,
                               "beatOffset": 2.0,
                               "duration": 1.0,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 55,
+                              "pitch": 63,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
-                              "pitch": 59,
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 66,
                               "beatOffset": 3.0,
                               "duration": 1.0,
                               "voice": "melody"
@@ -11606,10 +13431,15 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "beat": 37.0,
                   "duration_beats": 4.0,
                   "expected_pitches": [
+                        45,
                         47,
+                        57,
                         59,
+                        60,
                         62,
-                        66
+                        64,
+                        66,
+                        67
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -11620,7 +13450,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               3,
                               2
                         ],
-                        "strings": "x-A-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-1-3-4-2-1",
                         "fingers": [
                               null,
@@ -11634,7 +13464,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 5,
                               "fret": 2,
                               "pitch": 47,
@@ -11642,47 +13472,71 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
+                              "string": 1,
+                              "fret": 3,
+                              "pitch": 67,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.5,
                               "string": 1,
                               "fret": 2,
                               "pitch": 66,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 1.0,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
                               "string": 2,
                               "fret": 3,
                               "pitch": 62,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
                               "string": 5,
-                              "fret": 2,
-                              "pitch": 47,
+                              "fret": 0,
+                              "pitch": 45,
                               "duration": 1.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
-                              "string": 3,
-                              "fret": 4,
-                              "pitch": 59,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 3,
+                              "beatOffset": 2.0,
                               "string": 2,
-                              "fret": 3,
-                              "pitch": 62,
+                              "fret": 1,
+                              "pitch": 60,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
                               "duration": 1.0,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 2",
+                  "section": "Bourrée Strain 2",
                   "notes": [
                         {
                               "pitch": 47,
@@ -11691,31 +13545,49 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "voice": "bass"
                         },
                         {
-                              "pitch": 66,
+                              "pitch": 67,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 66,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
                               "pitch": 62,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 47,
+                              "pitch": 45,
                               "beatOffset": 2.0,
                               "duration": 1.0,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 59,
+                              "pitch": 60,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
-                              "pitch": 62,
+                              "pitch": 59,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 3.0,
                               "duration": 1.0,
                               "voice": "melody"
@@ -11727,9 +13599,12 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "beat": 41.0,
                   "duration_beats": 4.0,
                   "expected_pitches": [
-                        40,
-                        55,
+                        43,
+                        47,
+                        57,
                         59,
+                        60,
+                        62,
                         64
                   ],
                   "guitar_tabs": {
@@ -11755,88 +13630,130 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
-                              "fret": 0,
-                              "pitch": 40,
+                              "fret": 3,
+                              "pitch": 43,
                               "duration": 1.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 0.5,
+                              "string": 2,
+                              "fret": 1,
+                              "pitch": 60,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 2,
+                              "fret": 3,
+                              "pitch": 62,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
                               "string": 1,
                               "fret": 0,
                               "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 5,
+                              "fret": 2,
+                              "pitch": 47,
                               "duration": 1.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 2.0,
+                              "string": 2,
+                              "fret": 1,
+                              "pitch": 60,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
-                              "string": 6,
-                              "fret": 0,
-                              "pitch": 40,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
+                              "beatOffset": 3.0,
                               "string": 3,
-                              "fret": 0,
-                              "pitch": 55,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 3,
-                              "string": 2,
-                              "fret": 0,
-                              "pitch": 59,
+                              "fret": 2,
+                              "pitch": 57,
                               "duration": 1.0,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 2",
+                  "section": "Bourrée Strain 2",
                   "notes": [
                         {
-                              "pitch": 40,
+                              "pitch": 43,
                               "beatOffset": 0.0,
                               "duration": 1.0,
                               "voice": "bass"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 0.0,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 60,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 62,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
                               "pitch": 64,
-                              "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "melody"
-                        },
-                        {
-                              "pitch": 40,
+                              "pitch": 47,
                               "beatOffset": 2.0,
                               "duration": 1.0,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 55,
+                              "pitch": 60,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
                               "pitch": 59,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 3.0,
                               "duration": 1.0,
                               "voice": "melody"
@@ -11851,6 +13768,8 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                         48,
                         52,
                         55,
+                        57,
+                        59,
                         60
                   ],
                   "guitar_tabs": {
@@ -11862,7 +13781,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               1,
                               0
                         ],
-                        "strings": "x-A-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-3-2-0-1-0",
                         "fingers": [
                               null,
@@ -11876,7 +13795,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 5,
                               "fret": 3,
                               "pitch": 48,
@@ -11884,23 +13803,31 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 2,
                               "fret": 1,
                               "pitch": 60,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 3,
+                              "beatOffset": 0.5,
+                              "string": 2,
                               "fret": 0,
-                              "pitch": 55,
+                              "pitch": 59,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
                               "duration": 1.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
                               "string": 5,
                               "fret": 3,
                               "pitch": 48,
@@ -11908,15 +13835,23 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
-                              "string": 4,
-                              "fret": 2,
-                              "pitch": 52,
-                              "duration": 1.0,
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 3,
+                              "beatOffset": 2.5,
+                              "string": 4,
+                              "fret": 2,
+                              "pitch": 52,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.0,
                               "string": 3,
                               "fret": 0,
                               "pitch": 55,
@@ -11924,7 +13859,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 2",
+                  "section": "Bourrée Strain 2",
                   "notes": [
                         {
                               "pitch": 48,
@@ -11935,14 +13870,20 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                         {
                               "pitch": 60,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 55,
+                              "pitch": 59,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 1.0,
                               "duration": 1.0,
-                              "voice": "harmony"
+                              "voice": "melody"
                         },
                         {
                               "pitch": 48,
@@ -11951,16 +13892,22 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "voice": "bass"
                         },
                         {
-                              "pitch": 52,
+                              "pitch": 55,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 52,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
                               "pitch": 55,
                               "beatOffset": 3.0,
                               "duration": 1.0,
-                              "voice": "harmony"
+                              "voice": "melody"
                         }
                   ]
             },
@@ -11969,9 +13916,13 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "beat": 49.0,
                   "duration_beats": 4.0,
                   "expected_pitches": [
+                        42,
                         43,
-                        55,
                         59,
+                        60,
+                        62,
+                        64,
+                        66,
                         67
                   ],
                   "guitar_tabs": {
@@ -11997,7 +13948,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 3,
                               "pitch": 43,
@@ -12005,39 +13956,55 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 3,
                               "pitch": 67,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 2,
+                              "beatOffset": 0.5,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 1,
                               "fret": 0,
-                              "pitch": 59,
+                              "pitch": 64,
                               "duration": 1.0,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
                               "string": 6,
+                              "fret": 2,
+                              "pitch": 42,
+                              "duration": 1.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 2,
                               "fret": 3,
-                              "pitch": 43,
-                              "duration": 1.0,
+                              "pitch": 62,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
-                              "string": 3,
-                              "fret": 0,
-                              "pitch": 55,
-                              "duration": 1.0,
+                              "beatOffset": 2.5,
+                              "string": 2,
+                              "fret": 1,
+                              "pitch": 60,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 3,
+                              "beatOffset": 3.0,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
@@ -12045,7 +14012,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 2",
+                  "section": "Bourrée Strain 2",
                   "notes": [
                         {
                               "pitch": 43,
@@ -12056,26 +14023,38 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                         {
                               "pitch": 67,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 59,
+                              "pitch": 66,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
                               "beatOffset": 1.0,
                               "duration": 1.0,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 43,
+                              "pitch": 42,
                               "beatOffset": 2.0,
                               "duration": 1.0,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 55,
+                              "pitch": 62,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 60,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
                               "pitch": 59,
@@ -12092,7 +14071,10 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "expected_pitches": [
                         50,
                         57,
+                        59,
+                        60,
                         62,
+                        64,
                         66
                   ],
                   "guitar_tabs": {
@@ -12104,7 +14086,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               3,
                               2
                         ],
-                        "strings": "x-x-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-x-0-1-3-2",
                         "fingers": [
                               null,
@@ -12118,7 +14100,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 4,
                               "fret": 0,
                               "pitch": 50,
@@ -12126,15 +14108,23 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 2,
                               "pitch": 66,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
                               "string": 2,
                               "fret": 3,
                               "pitch": 62,
@@ -12142,7 +14132,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
                               "string": 4,
                               "fret": 0,
                               "pitch": 50,
@@ -12150,34 +14140,48 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
+                              "string": 2,
+                              "fret": 1,
+                              "pitch": 60,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.0,
                               "string": 3,
                               "fret": 2,
                               "pitch": 57,
                               "duration": 1.0,
                               "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 3,
-                              "string": 2,
-                              "fret": 3,
-                              "pitch": 62,
-                              "duration": 1.0,
-                              "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 2",
+                  "section": "Bourrée Strain 2",
                   "notes": [
                         {
                               "pitch": 50,
                               "beatOffset": 0.0,
                               "duration": 1.0,
-                              "voice": "harmony"
+                              "voice": "bass"
                         },
                         {
                               "pitch": 66,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
@@ -12190,16 +14194,22 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "pitch": 50,
                               "beatOffset": 2.0,
                               "duration": 1.0,
-                              "voice": "harmony"
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 60,
+                              "beatOffset": 2.0,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
                               "pitch": 57,
-                              "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
-                        },
-                        {
-                              "pitch": 62,
                               "beatOffset": 3.0,
                               "duration": 1.0,
                               "voice": "melody"
@@ -12226,7 +14236,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               0,
                               2
                         ],
-                        "strings": "x-A-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-2-1-3-0-4",
                         "fingers": [
                               null,
@@ -12240,7 +14250,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 5,
                               "fret": 2,
                               "pitch": 47,
@@ -12248,47 +14258,63 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
-                              "string": 1,
-                              "fret": 2,
-                              "pitch": 66,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 1,
+                              "beatOffset": 0.0,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
-                              "string": 5,
-                              "fret": 2,
-                              "pitch": 47,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
+                              "beatOffset": 0.5,
                               "string": 3,
                               "fret": 2,
                               "pitch": 57,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 3,
+                              "beatOffset": 1.0,
                               "string": 4,
                               "fret": 1,
                               "pitch": 51,
                               "duration": 1.0,
                               "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 5,
+                              "fret": 2,
+                              "pitch": 47,
+                              "duration": 1.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.0,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 1.0,
+                              "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 2",
+                  "section": "Bourrée Strain 2",
                   "notes": [
                         {
                               "pitch": 47,
@@ -12297,13 +14323,19 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "voice": "bass"
                         },
                         {
-                              "pitch": 66,
+                              "pitch": 59,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 59,
+                              "pitch": 57,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 51,
                               "beatOffset": 1.0,
                               "duration": 1.0,
                               "voice": "melody"
@@ -12317,14 +14349,20 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                         {
                               "pitch": 57,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
-                              "pitch": 51,
+                              "pitch": 59,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 66,
                               "beatOffset": 3.0,
                               "duration": 1.0,
-                              "voice": "harmony"
+                              "voice": "melody"
                         }
                   ]
             },
@@ -12334,10 +14372,10 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 4.0,
                   "expected_pitches": [
                         40,
-                        52,
                         55,
                         59,
-                        64
+                        64,
+                        66
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -12362,7 +14400,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 0,
                               "pitch": 40,
@@ -12370,7 +14408,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 1,
                               "fret": 0,
                               "pitch": 64,
@@ -12378,7 +14416,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 1.0,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
@@ -12386,7 +14424,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 2.0,
                               "string": 3,
                               "fret": 0,
                               "pitch": 55,
@@ -12394,15 +14432,31 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 3,
-                              "string": 4,
-                              "fret": 2,
-                              "pitch": 52,
+                              "beatOffset": 3.0,
+                              "string": 6,
+                              "fret": 0,
+                              "pitch": 40,
                               "duration": 1.0,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.0,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 3.5,
+                              "string": 1,
+                              "fret": 2,
+                              "pitch": 66,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Bourr\u00e9e Part 2",
+                  "section": "Bourrée Strain 2",
                   "notes": [
                         {
                               "pitch": 40,
@@ -12420,7 +14474,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "pitch": 59,
                               "beatOffset": 1.0,
                               "duration": 1.0,
-                              "voice": "melody"
+                              "voice": "harmony"
                         },
                         {
                               "pitch": 55,
@@ -12429,16 +14483,28 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               "voice": "harmony"
                         },
                         {
-                              "pitch": 52,
+                              "pitch": 40,
                               "beatOffset": 3.0,
                               "duration": 1.0,
-                              "voice": "harmony"
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 3.0,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 66,
+                              "beatOffset": 3.5,
+                              "duration": 0.5,
+                              "voice": "melody"
                         }
                   ]
             }
       ]
 },
-    progression_json: JSON.stringify({"key": "E Minor", "time_signature": "4/4", "default_tempo_bpm": 126, "tempo_range": {"min_bpm": 90, "default_bpm": 126, "max_bpm": 150, "gradual_step_bpm": 6}, "strumming_pattern": "Two-Part Baroque Polyphony (Bass + Treble Counterpoint)", "educational_focus": "Contrapuntal hand independence: thumb plays driving bassline while fingers articulate upbeat melody.", "artist": "J.S. Bach", "composer": "Johann Sebastian Bach", "chords": [{"name": "Em", "beat": 1.0, "duration_beats": 4.0, "expected_pitches": [40, 55, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-0", "fingers": [null, 2, 3, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 1", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 40, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 59, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "Bm", "beat": 5.0, "duration_beats": 4.0, "expected_pitches": [47, 59, 62, 66], "guitar_tabs": {"frets": [null, 2, 4, 4, 3, 2], "strings": "x-A-D-G-B-e", "fingering": "x-1-3-4-2-1", "fingers": [null, 1, 3, 4, 2, 1], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 3, "pitch": 62, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 4, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 2, "fret": 3, "pitch": 62, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 1", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 66, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 62, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 47, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 59, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 62, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "Em", "beat": 9.0, "duration_beats": 4.0, "expected_pitches": [40, 55, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-0", "fingers": [null, 2, 3, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 1", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 40, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 59, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "C", "beat": 13.0, "duration_beats": 4.0, "expected_pitches": [48, 52, 55, 60], "guitar_tabs": {"frets": [null, 3, 2, 0, 1, 0], "strings": "x-A-D-G-B-e", "fingering": "x-3-2-0-1-0", "fingers": [null, 3, 2, null, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 5, "fret": 3, "pitch": 48, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 5, "fret": 3, "pitch": 48, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 4, "fret": 2, "pitch": 52, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 1", "notes": [{"pitch": 48, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 55, "beatOffset": 1.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 48, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 52, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 55, "beatOffset": 3.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "G", "beat": 17.0, "duration_beats": 4.0, "expected_pitches": [43, 55, 59, 67], "guitar_tabs": {"frets": [3, 2, 0, 0, 0, 3], "strings": "E-A-D-G-B-e", "fingering": "2-1-0-0-0-3", "fingers": [2, 1, null, null, null, 3], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 3, "pitch": 67, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 1", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 67, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 43, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 59, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "D", "beat": 21.0, "duration_beats": 4.0, "expected_pitches": [50, 57, 62, 66], "guitar_tabs": {"frets": [null, null, 0, 2, 3, 2], "strings": "x-x-D-G-B-e", "fingering": "x-x-0-1-3-2", "fingers": [null, null, null, 1, 3, 2], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 4, "fret": 0, "pitch": 50, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 3, "pitch": 62, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 4, "fret": 0, "pitch": 50, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 2, "fret": 3, "pitch": 62, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 1", "notes": [{"pitch": 50, "beatOffset": 0.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 66, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 62, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 50, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 57, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 62, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "B7", "beat": 25.0, "duration_beats": 4.0, "expected_pitches": [47, 51, 57, 59, 66], "guitar_tabs": {"frets": [null, 2, 1, 2, 0, 2], "strings": "x-A-D-G-B-e", "fingering": "x-2-1-3-0-4", "fingers": [null, 2, 1, 3, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 4, "fret": 1, "pitch": 51, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 1", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 66, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 47, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 57, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 51, "beatOffset": 3.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Em", "beat": 29.0, "duration_beats": 4.0, "expected_pitches": [40, 52, 55, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-0", "fingers": [null, 2, 3, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 4, "fret": 2, "pitch": 52, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 1", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 52, "beatOffset": 3.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Em", "beat": 33.0, "duration_beats": 4.0, "expected_pitches": [40, 55, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-0", "fingers": [null, 2, 3, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 2", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 40, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 59, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "Bm", "beat": 37.0, "duration_beats": 4.0, "expected_pitches": [47, 59, 62, 66], "guitar_tabs": {"frets": [null, 2, 4, 4, 3, 2], "strings": "x-A-D-G-B-e", "fingering": "x-1-3-4-2-1", "fingers": [null, 1, 3, 4, 2, 1], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 3, "pitch": 62, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 4, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 2, "fret": 3, "pitch": 62, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 2", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 66, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 62, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 47, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 59, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 62, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "Em", "beat": 41.0, "duration_beats": 4.0, "expected_pitches": [40, 55, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-0", "fingers": [null, 2, 3, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 2", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 40, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 59, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "C", "beat": 45.0, "duration_beats": 4.0, "expected_pitches": [48, 52, 55, 60], "guitar_tabs": {"frets": [null, 3, 2, 0, 1, 0], "strings": "x-A-D-G-B-e", "fingering": "x-3-2-0-1-0", "fingers": [null, 3, 2, null, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 5, "fret": 3, "pitch": 48, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 5, "fret": 3, "pitch": 48, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 4, "fret": 2, "pitch": 52, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 2", "notes": [{"pitch": 48, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 55, "beatOffset": 1.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 48, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 52, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 55, "beatOffset": 3.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "G", "beat": 49.0, "duration_beats": 4.0, "expected_pitches": [43, 55, 59, 67], "guitar_tabs": {"frets": [3, 2, 0, 0, 0, 3], "strings": "E-A-D-G-B-e", "fingering": "2-1-0-0-0-3", "fingers": [2, 1, null, null, null, 3], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 3, "pitch": 67, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 2", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 67, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 43, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 59, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "D", "beat": 53.0, "duration_beats": 4.0, "expected_pitches": [50, 57, 62, 66], "guitar_tabs": {"frets": [null, null, 0, 2, 3, 2], "strings": "x-x-D-G-B-e", "fingering": "x-x-0-1-3-2", "fingers": [null, null, null, 1, 3, 2], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 4, "fret": 0, "pitch": 50, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 3, "pitch": 62, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 4, "fret": 0, "pitch": 50, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 2, "fret": 3, "pitch": 62, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 2", "notes": [{"pitch": 50, "beatOffset": 0.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 66, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 62, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 50, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 57, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 62, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "B7", "beat": 57.0, "duration_beats": 4.0, "expected_pitches": [47, 51, 57, 59, 66], "guitar_tabs": {"frets": [null, 2, 1, 2, 0, 2], "strings": "x-A-D-G-B-e", "fingering": "x-2-1-3-0-4", "fingers": [null, 2, 1, 3, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 4, "fret": 1, "pitch": 51, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 2", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 66, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 47, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 57, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 51, "beatOffset": 3.0, "duration": 1.0, "voice": "harmony"}]}, {"name": "Em", "beat": 61.0, "duration_beats": 4.0, "expected_pitches": [40, 52, 55, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-0", "fingers": [null, 2, 3, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3, "string": 4, "fret": 2, "pitch": 52, "duration": 1.0, "technique": "pick"}], "section": "Bourr\u00e9e Part 2", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 52, "beatOffset": 3.0, "duration": 1.0, "voice": "harmony"}]}]}),
+    progression_json: JSON.stringify({"key": "E Minor", "time_signature": "4/4", "default_tempo_bpm": 120, "tempo_range": {"min_bpm": 84, "default_bpm": 120, "max_bpm": 152, "gradual_step_bpm": 6}, "strumming_pattern": "Baroque Two-Voice 8th-Note Counterpoint", "educational_focus": "Independent thumb bass line against continuous eighth-note upper-voice counterpoint.", "artist": "J.S. Bach", "composer": "Johann Sebastian Bach", "chords": [{"name": "Em", "beat": 1.0, "duration_beats": 4.0, "expected_pitches": [40, 43, 63, 64, 66, 67], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 3], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-4", "fingers": [null, 1, 2, null, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 3, "pitch": 67, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 2, "pitch": 66, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 2, "fret": 4, "pitch": 63, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 1", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 67, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 66, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 43, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 63, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 66, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "Bm", "beat": 5.0, "duration_beats": 4.0, "expected_pitches": [45, 47, 57, 59, 60, 62, 64, 66, 67], "guitar_tabs": {"frets": [null, 2, 4, 4, 3, 2], "strings": "E-A-D-G-B-e", "fingering": "x-1-3-4-2-1", "fingers": [null, 1, 3, 4, 2, 1], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 3, "pitch": 67, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 2, "pitch": 66, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 2, "fret": 3, "pitch": 62, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 5, "fret": 0, "pitch": 45, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 1", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 67, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 66, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 1.0, "duration": 0.5, "voice": "melody"}, {"pitch": 62, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 45, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "Em", "beat": 9.0, "duration_beats": 4.0, "expected_pitches": [43, 47, 57, 59, 60, 62, 64], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-0", "fingers": [null, 2, 3, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 2, "fret": 3, "pitch": 62, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 1", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 59, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 60, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 62, "beatOffset": 1.0, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 47, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "C", "beat": 13.0, "duration_beats": 4.0, "expected_pitches": [48, 52, 55, 57, 59, 60], "guitar_tabs": {"frets": [null, 3, 2, 0, 1, 0], "strings": "E-A-D-G-B-e", "fingering": "x-3-2-0-1-0", "fingers": [null, 3, 2, null, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 3, "pitch": 48, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 5, "fret": 3, "pitch": 48, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 0, "pitch": 55, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 4, "fret": 2, "pitch": 52, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 1", "notes": [{"pitch": 48, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 48, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 55, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 52, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 55, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "G", "beat": 17.0, "duration_beats": 4.0, "expected_pitches": [42, 43, 59, 60, 62, 64, 66, 67], "guitar_tabs": {"frets": [3, 2, 0, 0, 0, 3], "strings": "E-A-D-G-B-e", "fingering": "2-1-0-0-0-3", "fingers": [2, 1, null, null, null, 3], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 3, "pitch": 67, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 2, "pitch": 66, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 6, "fret": 2, "pitch": 42, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 2, "fret": 3, "pitch": 62, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 1", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 67, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 66, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 42, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 62, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 60, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "D", "beat": 21.0, "duration_beats": 4.0, "expected_pitches": [50, 57, 59, 60, 62, 64, 66], "guitar_tabs": {"frets": [null, null, 0, 2, 3, 2], "strings": "E-A-D-G-B-e", "fingering": "x-x-0-1-3-2", "fingers": [null, null, null, 1, 3, 2], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 4, "fret": 0, "pitch": 50, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 2, "pitch": 66, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 2, "fret": 3, "pitch": 62, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 4, "fret": 0, "pitch": 50, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 1", "notes": [{"pitch": 50, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 66, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 62, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 50, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "B7", "beat": 25.0, "duration_beats": 4.0, "expected_pitches": [47, 51, 57, 59, 66], "guitar_tabs": {"frets": [null, 2, 1, 2, 0, 2], "strings": "E-A-D-G-B-e", "fingering": "x-2-1-3-0-4", "fingers": [null, 2, 1, 3, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 3, "fret": 2, "pitch": 57, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 1, "pitch": 51, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 2, "pitch": 57, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 1", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 59, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 51, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 47, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 57, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 66, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "Em", "beat": 29.0, "duration_beats": 4.0, "expected_pitches": [40, 55, 59, 64, 66], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-0", "fingers": [null, 2, 3, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1.0, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3.0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3.0, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.5, "string": 1, "fret": 2, "pitch": 66, "duration": 0.5, "technique": "pick"}], "section": "Bourrée Strain 1", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 40, "beatOffset": 3.0, "duration": 1.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 3.0, "duration": 0.5, "voice": "melody"}, {"pitch": 66, "beatOffset": 3.5, "duration": 0.5, "voice": "melody"}]}, {"name": "Em", "beat": 33.0, "duration_beats": 4.0, "expected_pitches": [40, 43, 63, 64, 66, 67], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 3], "strings": "E-A-D-G-B-e", "fingering": "0-1-2-0-0-4", "fingers": [null, 1, 2, null, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 3, "pitch": 67, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 2, "pitch": 66, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 2, "fret": 4, "pitch": 63, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 2", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 67, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 66, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 43, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 63, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 66, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "Bm", "beat": 37.0, "duration_beats": 4.0, "expected_pitches": [45, 47, 57, 59, 60, 62, 64, 66, 67], "guitar_tabs": {"frets": [null, 2, 4, 4, 3, 2], "strings": "E-A-D-G-B-e", "fingering": "x-1-3-4-2-1", "fingers": [null, 1, 3, 4, 2, 1], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 3, "pitch": 67, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 2, "pitch": 66, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 2, "fret": 3, "pitch": 62, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 5, "fret": 0, "pitch": 45, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 2", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 67, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 66, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 1.0, "duration": 0.5, "voice": "melody"}, {"pitch": 62, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 45, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "Em", "beat": 41.0, "duration_beats": 4.0, "expected_pitches": [43, 47, 57, 59, 60, 62, 64], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-0", "fingers": [null, 2, 3, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 2, "fret": 3, "pitch": 62, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 2", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 59, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 60, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 62, "beatOffset": 1.0, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 47, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "C", "beat": 45.0, "duration_beats": 4.0, "expected_pitches": [48, 52, 55, 57, 59, 60], "guitar_tabs": {"frets": [null, 3, 2, 0, 1, 0], "strings": "E-A-D-G-B-e", "fingering": "x-3-2-0-1-0", "fingers": [null, 3, 2, null, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 3, "pitch": 48, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 5, "fret": 3, "pitch": 48, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 0, "pitch": 55, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 4, "fret": 2, "pitch": 52, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 2", "notes": [{"pitch": 48, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 48, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 55, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 52, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 55, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "G", "beat": 49.0, "duration_beats": 4.0, "expected_pitches": [42, 43, 59, 60, 62, 64, 66, 67], "guitar_tabs": {"frets": [3, 2, 0, 0, 0, 3], "strings": "E-A-D-G-B-e", "fingering": "2-1-0-0-0-3", "fingers": [2, 1, null, null, null, 3], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 3, "pitch": 67, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 2, "pitch": 66, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 6, "fret": 2, "pitch": 42, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 2, "fret": 3, "pitch": 62, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 2", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 67, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 66, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 42, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 62, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 60, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "D", "beat": 53.0, "duration_beats": 4.0, "expected_pitches": [50, 57, 59, 60, 62, 64, 66], "guitar_tabs": {"frets": [null, null, 0, 2, 3, 2], "strings": "E-A-D-G-B-e", "fingering": "x-x-0-1-3-2", "fingers": [null, null, null, 1, 3, 2], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 4, "fret": 0, "pitch": 50, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 2, "pitch": 66, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 2, "fret": 3, "pitch": 62, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 4, "fret": 0, "pitch": 50, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 3, "fret": 2, "pitch": 57, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 2", "notes": [{"pitch": 50, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 66, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 62, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 50, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "B7", "beat": 57.0, "duration_beats": 4.0, "expected_pitches": [47, 51, 57, 59, 66], "guitar_tabs": {"frets": [null, 2, 1, 2, 0, 2], "strings": "E-A-D-G-B-e", "fingering": "x-2-1-3-0-4", "fingers": [null, 2, 1, 3, null, 4], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 3, "fret": 2, "pitch": 57, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 1, "pitch": 51, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 5, "fret": 2, "pitch": 47, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 2, "pitch": 57, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.0, "string": 1, "fret": 2, "pitch": 66, "duration": 1.0, "technique": "pick"}], "section": "Bourrée Strain 2", "notes": [{"pitch": 47, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 59, "beatOffset": 0.0, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 51, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 47, "beatOffset": 2.0, "duration": 1.0, "voice": "bass"}, {"pitch": 57, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}, {"pitch": 66, "beatOffset": 3.0, "duration": 1.0, "voice": "melody"}]}, {"name": "Em", "beat": 61.0, "duration_beats": 4.0, "expected_pitches": [40, 55, 59, 64, 66], "guitar_tabs": {"frets": [0, 2, 2, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-0-0-0", "fingers": [null, 2, 3, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 0.0, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1.0, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 0, "pitch": 55, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3.0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 3.0, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 3.5, "string": 1, "fret": 2, "pitch": 66, "duration": 0.5, "technique": "pick"}], "section": "Bourrée Strain 2", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.0, "duration": 1.0, "voice": "melody"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 55, "beatOffset": 2.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 40, "beatOffset": 3.0, "duration": 1.0, "voice": "bass"}, {"pitch": 64, "beatOffset": 3.0, "duration": 0.5, "voice": "melody"}, {"pitch": 66, "beatOffset": 3.5, "duration": 0.5, "voice": "melody"}]}]}),
   },
   {
     id: "ex_guitar_whiskey_in_the_jar",
@@ -14190,27 +16256,27 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
   },
   {
     id: "ex_guitar_malaguena",
-    title: "Malague\u00f1a (Flamenco Andalusian Cadence)",
-    artist: "Traditional Flamenco",
-    composer: "Traditional Spanish",
-    description: "Dramatic flamenco study in 3/4 time. The descending Andalusian cadence (Am \u2013 G \u2013 F \u2013 E) with passionate rasgueado and thumb rest-strokes.",
+    title: "Malagueña (Flamenco Andalusian Cadence)",
+    artist: "Traditional Spanish Flamenco",
+    composer: "Traditional Flamenco",
+    description: "Fiery Andalusian flamenco study in A Phrygian with thumb bass melodies alternating against an open high-e pedal.",
     instrument: "guitar",
-    tempo_bpm: 124,
-    difficulty: 2,
+    tempo_bpm: 116,
+    difficulty: 3,
     progression: {
       "key": "A Phrygian",
       "time_signature": "3/4",
-      "default_tempo_bpm": 124,
+      "default_tempo_bpm": 116,
       "tempo_range": {
-            "min_bpm": 88,
-            "default_bpm": 124,
-            "max_bpm": 150,
+            "min_bpm": 80,
+            "default_bpm": 116,
+            "max_bpm": 148,
             "gradual_step_bpm": 6
       },
-      "strumming_pattern": "Flamenco Rasgueado & Thumb Pulgar",
-      "educational_focus": "Phrygian half-step resolution (F -> E); crisp finger velocity on flamenco flourishes.",
-      "artist": "Traditional Flamenco",
-      "composer": "Traditional Spanish",
+      "strumming_pattern": "Flamenco Thumb Melody + Open High-e Pedal (8th Notes)",
+      "educational_focus": "Andalusian Phrygian bass thumb melody alternating with open high-e string pedal.",
+      "artist": "Traditional Spanish Flamenco",
+      "composer": "Traditional Flamenco",
       "chords": [
             {
                   "name": "Am",
@@ -14218,7 +16284,8 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         45,
-                        60,
+                        52,
+                        57,
                         64
                   ],
                   "guitar_tabs": {
@@ -14230,7 +16297,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               1,
                               0
                         ],
-                        "strings": "x-A-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-0-2-3-1-0",
                         "fingers": [
                               null,
@@ -14244,48 +16311,90 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 5,
                               "fret": 0,
                               "pitch": 45,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 2,
-                              "fret": 1,
-                              "pitch": 60,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
+                              "beatOffset": 0.5,
                               "string": 1,
                               "fret": 0,
                               "pitch": 64,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 4,
+                              "fret": 2,
+                              "pitch": 52,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 1",
+                  "section": "Andalusian Cadence 1",
                   "notes": [
                         {
                               "pitch": 45,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 60,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "pitch": 64,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
+                              "pitch": 52,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
                               "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -14296,8 +16405,9 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         43,
-                        59,
-                        67
+                        50,
+                        55,
+                        64
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -14306,64 +16416,106 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               0,
                               0,
                               0,
-                              3
+                              0
                         ],
                         "strings": "E-A-D-G-B-e",
-                        "fingering": "2-1-0-0-0-3",
+                        "fingering": "3-2-0-0-0-0",
                         "fingers": [
+                              3,
                               2,
-                              1,
                               null,
                               null,
                               null,
-                              3
+                              null
                         ],
                         "baseFret": 1
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 3,
                               "pitch": 43,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 2,
-                              "fret": 0,
-                              "pitch": 59,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
+                              "beatOffset": 0.5,
                               "string": 1,
-                              "fret": 3,
-                              "pitch": 67,
-                              "duration": 1.0,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 4,
+                              "fret": 0,
+                              "pitch": 50,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 1",
+                  "section": "Andalusian Cadence 1",
                   "notes": [
                         {
                               "pitch": 43,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "pitch": 64,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 67,
+                              "pitch": 50,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 55,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -14374,8 +16526,9 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         41,
-                        60,
-                        65
+                        53,
+                        57,
+                        64
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -14384,64 +16537,106 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               3,
                               2,
                               1,
-                              1
+                              0
                         ],
                         "strings": "E-A-D-G-B-e",
-                        "fingering": "1-3-4-2-1-1",
+                        "fingering": "1-3-4-2-1-0",
                         "fingers": [
                               1,
                               3,
                               4,
                               2,
                               1,
-                              1
+                              null
                         ],
                         "baseFret": 1
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 1,
                               "pitch": 41,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 2,
-                              "fret": 1,
-                              "pitch": 60,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
+                              "beatOffset": 0.5,
                               "string": 1,
-                              "fret": 1,
-                              "pitch": 65,
-                              "duration": 1.0,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 4,
+                              "fret": 3,
+                              "pitch": 53,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 1",
+                  "section": "Andalusian Cadence 1",
                   "notes": [
                         {
                               "pitch": 41,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 60,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "pitch": 64,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 65,
+                              "pitch": 53,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -14452,8 +16647,10 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         40,
+                        52,
                         56,
-                        59
+                        59,
+                        64
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -14478,48 +16675,90 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 0,
                               "pitch": 40,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
                               "string": 3,
                               "fret": 1,
                               "pitch": 56,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 1.5,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 4,
+                              "fret": 2,
+                              "pitch": 52,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 1",
+                  "section": "Andalusian Cadence 1",
                   "notes": [
                         {
                               "pitch": 40,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
                               "pitch": 56,
                               "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "bass"
                         },
                         {
                               "pitch": 59,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 52,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -14530,6 +16769,8 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         45,
+                        52,
+                        57,
                         60,
                         64
                   ],
@@ -14542,7 +16783,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               1,
                               0
                         ],
-                        "strings": "x-A-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-0-2-3-1-0",
                         "fingers": [
                               null,
@@ -14556,48 +16797,90 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 5,
                               "fret": 0,
                               "pitch": 45,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.5,
                               "string": 2,
                               "fret": 1,
                               "pitch": 60,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 1.0,
+                              "string": 4,
+                              "fret": 2,
+                              "pitch": 52,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
                               "string": 1,
                               "fret": 0,
                               "pitch": 64,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 2",
+                  "section": "Picado Variation 2",
                   "notes": [
                         {
                               "pitch": 45,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
                               "pitch": 60,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
+                              "pitch": 52,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
                               "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -14608,8 +16891,10 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         43,
-                        59,
-                        67
+                        50,
+                        55,
+                        62,
+                        64
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -14617,65 +16902,107 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               2,
                               0,
                               0,
-                              0,
-                              3
+                              3,
+                              0
                         ],
                         "strings": "E-A-D-G-B-e",
-                        "fingering": "2-1-0-0-0-3",
+                        "fingering": "2-1-0-0-3-0",
                         "fingers": [
                               2,
                               1,
                               null,
                               null,
-                              null,
-                              3
+                              3,
+                              null
                         ],
                         "baseFret": 1
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 3,
                               "pitch": 43,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.5,
                               "string": 2,
-                              "fret": 0,
-                              "pitch": 59,
-                              "duration": 1.0,
+                              "fret": 3,
+                              "pitch": 62,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 1.0,
+                              "string": 4,
+                              "fret": 0,
+                              "pitch": 50,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
                               "string": 1,
-                              "fret": 3,
-                              "pitch": 67,
-                              "duration": 1.0,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 2",
+                  "section": "Picado Variation 2",
                   "notes": [
                         {
                               "pitch": 43,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "pitch": 62,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 67,
+                              "pitch": 50,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 55,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -14686,8 +17013,10 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         41,
+                        53,
+                        57,
                         60,
-                        65
+                        64
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -14696,64 +17025,106 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               3,
                               2,
                               1,
-                              1
+                              0
                         ],
                         "strings": "E-A-D-G-B-e",
-                        "fingering": "1-3-4-2-1-1",
+                        "fingering": "1-3-4-2-1-0",
                         "fingers": [
                               1,
                               3,
                               4,
                               2,
                               1,
-                              1
+                              null
                         ],
                         "baseFret": 1
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 1,
                               "pitch": 41,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.5,
                               "string": 2,
                               "fret": 1,
                               "pitch": 60,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 1.0,
+                              "string": 4,
+                              "fret": 3,
+                              "pitch": 53,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
                               "string": 1,
-                              "fret": 1,
-                              "pitch": 65,
-                              "duration": 1.0,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 2",
+                  "section": "Picado Variation 2",
                   "notes": [
                         {
                               "pitch": 41,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
                               "pitch": 60,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 65,
+                              "pitch": 53,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -14765,7 +17136,8 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "expected_pitches": [
                         40,
                         56,
-                        59
+                        59,
+                        64
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -14790,49 +17162,91 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 0,
                               "pitch": 40,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.5,
                               "string": 3,
                               "fret": 1,
                               "pitch": 56,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 1.0,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 3,
+                              "fret": 1,
+                              "pitch": 56,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 2",
+                  "section": "Picado Variation 2",
                   "notes": [
                         {
                               "pitch": 40,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
                               "pitch": 56,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "harmony"
                         },
                         {
                               "pitch": 59,
-                              "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
                               "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.0,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 56,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "harmony"
                         }
                   ]
             },
@@ -14842,7 +17256,8 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         45,
-                        60,
+                        52,
+                        57,
                         64
                   ],
                   "guitar_tabs": {
@@ -14854,7 +17269,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               1,
                               0
                         ],
-                        "strings": "x-A-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-0-2-3-1-0",
                         "fingers": [
                               null,
@@ -14868,48 +17283,90 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 5,
                               "fret": 0,
                               "pitch": 45,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 2,
-                              "fret": 1,
-                              "pitch": 60,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
+                              "beatOffset": 0.5,
                               "string": 1,
                               "fret": 0,
                               "pitch": 64,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 4,
+                              "fret": 2,
+                              "pitch": 52,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 3",
+                  "section": "Andalusian Cadence 1 (Finale)",
                   "notes": [
                         {
                               "pitch": 45,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 60,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "pitch": 64,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
+                              "pitch": 52,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
                               "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -14920,8 +17377,9 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         43,
-                        59,
-                        67
+                        50,
+                        55,
+                        64
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -14930,64 +17388,106 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               0,
                               0,
                               0,
-                              3
+                              0
                         ],
                         "strings": "E-A-D-G-B-e",
-                        "fingering": "2-1-0-0-0-3",
+                        "fingering": "3-2-0-0-0-0",
                         "fingers": [
+                              3,
                               2,
-                              1,
                               null,
                               null,
                               null,
-                              3
+                              null
                         ],
                         "baseFret": 1
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 3,
                               "pitch": 43,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 2,
-                              "fret": 0,
-                              "pitch": 59,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
+                              "beatOffset": 0.5,
                               "string": 1,
-                              "fret": 3,
-                              "pitch": 67,
-                              "duration": 1.0,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 4,
+                              "fret": 0,
+                              "pitch": 50,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 3",
+                  "section": "Andalusian Cadence 1 (Finale)",
                   "notes": [
                         {
                               "pitch": 43,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "pitch": 64,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 67,
+                              "pitch": 50,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 55,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -14998,8 +17498,9 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         41,
-                        60,
-                        65
+                        53,
+                        57,
+                        64
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -15008,64 +17509,106 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               3,
                               2,
                               1,
-                              1
+                              0
                         ],
                         "strings": "E-A-D-G-B-e",
-                        "fingering": "1-3-4-2-1-1",
+                        "fingering": "1-3-4-2-1-0",
                         "fingers": [
                               1,
                               3,
                               4,
                               2,
                               1,
-                              1
+                              null
                         ],
                         "baseFret": 1
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 1,
                               "pitch": 41,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
-                              "string": 2,
-                              "fret": 1,
-                              "pitch": 60,
-                              "duration": 1.0,
-                              "technique": "pick"
-                        },
-                        {
-                              "beatOffset": 2,
+                              "beatOffset": 0.5,
                               "string": 1,
-                              "fret": 1,
-                              "pitch": 65,
-                              "duration": 1.0,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
+                              "string": 4,
+                              "fret": 3,
+                              "pitch": 53,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 3",
+                  "section": "Andalusian Cadence 1 (Finale)",
                   "notes": [
                         {
                               "pitch": 41,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 60,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "pitch": 64,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 65,
+                              "pitch": 53,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -15076,8 +17619,10 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         40,
+                        52,
                         56,
-                        59
+                        59,
+                        64
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -15102,48 +17647,90 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 0,
                               "pitch": 40,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.0,
                               "string": 3,
                               "fret": 1,
                               "pitch": 56,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 1.5,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 4,
+                              "fret": 2,
+                              "pitch": 52,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 3",
+                  "section": "Andalusian Cadence 1 (Finale)",
                   "notes": [
                         {
                               "pitch": 40,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
+                              "voice": "melody"
                         },
                         {
                               "pitch": 56,
                               "beatOffset": 1.0,
-                              "duration": 1.0,
-                              "voice": "harmony"
+                              "duration": 0.5,
+                              "voice": "bass"
                         },
                         {
                               "pitch": 59,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 52,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -15154,6 +17741,8 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         45,
+                        52,
+                        57,
                         60,
                         64
                   ],
@@ -15166,7 +17755,7 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               1,
                               0
                         ],
-                        "strings": "x-A-D-G-B-e",
+                        "strings": "E-A-D-G-B-e",
                         "fingering": "x-0-2-3-1-0",
                         "fingers": [
                               null,
@@ -15180,48 +17769,90 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 5,
                               "fret": 0,
                               "pitch": 45,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.5,
                               "string": 2,
                               "fret": 1,
                               "pitch": 60,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 1.0,
+                              "string": 4,
+                              "fret": 2,
+                              "pitch": 52,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
                               "string": 1,
                               "fret": 0,
                               "pitch": 64,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 4",
+                  "section": "Picado Variation 2 (Finale)",
                   "notes": [
                         {
                               "pitch": 45,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
                               "pitch": 60,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
+                              "pitch": 52,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
                               "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -15232,8 +17863,10 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         43,
-                        59,
-                        67
+                        50,
+                        55,
+                        62,
+                        64
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -15241,65 +17874,107 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               2,
                               0,
                               0,
-                              0,
-                              3
+                              3,
+                              0
                         ],
                         "strings": "E-A-D-G-B-e",
-                        "fingering": "2-1-0-0-0-3",
+                        "fingering": "2-1-0-0-3-0",
                         "fingers": [
                               2,
                               1,
                               null,
                               null,
-                              null,
-                              3
+                              3,
+                              null
                         ],
                         "baseFret": 1
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 3,
                               "pitch": 43,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.5,
                               "string": 2,
-                              "fret": 0,
-                              "pitch": 59,
-                              "duration": 1.0,
+                              "fret": 3,
+                              "pitch": 62,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 1.0,
+                              "string": 4,
+                              "fret": 0,
+                              "pitch": 50,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
                               "string": 1,
-                              "fret": 3,
-                              "pitch": 67,
-                              "duration": 1.0,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 0,
+                              "pitch": 55,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 4",
+                  "section": "Picado Variation 2 (Finale)",
                   "notes": [
                         {
                               "pitch": 43,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
-                              "pitch": 59,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "pitch": 62,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 67,
+                              "pitch": 50,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 55,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -15310,8 +17985,10 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "duration_beats": 3.0,
                   "expected_pitches": [
                         41,
+                        53,
+                        57,
                         60,
-                        65
+                        64
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -15320,64 +17997,106 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                               3,
                               2,
                               1,
-                              1
+                              0
                         ],
                         "strings": "E-A-D-G-B-e",
-                        "fingering": "1-3-4-2-1-1",
+                        "fingering": "1-3-4-2-1-0",
                         "fingers": [
                               1,
                               3,
                               4,
                               2,
                               1,
-                              1
+                              null
                         ],
                         "baseFret": 1
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 1,
                               "pitch": 41,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.5,
                               "string": 2,
                               "fret": 1,
                               "pitch": 60,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 1.0,
+                              "string": 4,
+                              "fret": 3,
+                              "pitch": 53,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
                               "string": 1,
-                              "fret": 1,
-                              "pitch": 65,
-                              "duration": 1.0,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 3,
+                              "fret": 2,
+                              "pitch": 57,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 4",
+                  "section": "Picado Variation 2 (Finale)",
                   "notes": [
                         {
                               "pitch": 41,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
                               "pitch": 60,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         },
                         {
-                              "pitch": 65,
+                              "pitch": 53,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 57,
                               "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "voice": "bass"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
                               "voice": "melody"
                         }
                   ]
@@ -15389,7 +18108,8 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   "expected_pitches": [
                         40,
                         56,
-                        59
+                        59,
+                        64
                   ],
                   "guitar_tabs": {
                         "frets": [
@@ -15414,55 +18134,97 @@ export const BUILTIN_FULL_SONGS: ExerciseDto[] = [
                   },
                   "plucked_notes": [
                         {
-                              "beatOffset": 0,
+                              "beatOffset": 0.0,
                               "string": 6,
                               "fret": 0,
                               "pitch": 40,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 1,
+                              "beatOffset": 0.5,
                               "string": 3,
                               "fret": 1,
                               "pitch": 56,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "technique": "pick"
                         },
                         {
-                              "beatOffset": 2,
+                              "beatOffset": 1.0,
                               "string": 2,
                               "fret": 0,
                               "pitch": 59,
-                              "duration": 1.0,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 1.5,
+                              "string": 1,
+                              "fret": 0,
+                              "pitch": 64,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.0,
+                              "string": 2,
+                              "fret": 0,
+                              "pitch": 59,
+                              "duration": 0.5,
+                              "technique": "pick"
+                        },
+                        {
+                              "beatOffset": 2.5,
+                              "string": 3,
+                              "fret": 1,
+                              "pitch": 56,
+                              "duration": 0.5,
                               "technique": "pick"
                         }
                   ],
-                  "section": "Flamenco Falseta 4",
+                  "section": "Picado Variation 2 (Finale)",
                   "notes": [
                         {
                               "pitch": 40,
                               "beatOffset": 0.0,
-                              "duration": 1.0,
+                              "duration": 0.5,
                               "voice": "bass"
                         },
                         {
                               "pitch": 56,
-                              "beatOffset": 1.0,
-                              "duration": 1.0,
+                              "beatOffset": 0.5,
+                              "duration": 0.5,
                               "voice": "harmony"
                         },
                         {
                               "pitch": 59,
-                              "beatOffset": 2.0,
-                              "duration": 1.0,
+                              "beatOffset": 1.0,
+                              "duration": 0.5,
                               "voice": "melody"
+                        },
+                        {
+                              "pitch": 64,
+                              "beatOffset": 1.5,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 59,
+                              "beatOffset": 2.0,
+                              "duration": 0.5,
+                              "voice": "melody"
+                        },
+                        {
+                              "pitch": 56,
+                              "beatOffset": 2.5,
+                              "duration": 0.5,
+                              "voice": "harmony"
                         }
                   ]
             }
       ]
 },
-    progression_json: JSON.stringify({"key": "A Phrygian", "time_signature": "3/4", "default_tempo_bpm": 124, "tempo_range": {"min_bpm": 88, "default_bpm": 124, "max_bpm": 150, "gradual_step_bpm": 6}, "strumming_pattern": "Flamenco Rasgueado & Thumb Pulgar", "educational_focus": "Phrygian half-step resolution (F -> E); crisp finger velocity on flamenco flourishes.", "artist": "Traditional Flamenco", "composer": "Traditional Spanish", "chords": [{"name": "Am", "beat": 1.0, "duration_beats": 3.0, "expected_pitches": [45, 60, 64], "guitar_tabs": {"frets": [null, 0, 2, 2, 1, 0], "strings": "x-A-D-G-B-e", "fingering": "x-0-2-3-1-0", "fingers": [null, null, 2, 3, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 5, "fret": 0, "pitch": 45, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 1", "notes": [{"pitch": 45, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 64, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "G", "beat": 4.0, "duration_beats": 3.0, "expected_pitches": [43, 59, 67], "guitar_tabs": {"frets": [3, 2, 0, 0, 0, 3], "strings": "E-A-D-G-B-e", "fingering": "2-1-0-0-0-3", "fingers": [2, 1, null, null, null, 3], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 1, "fret": 3, "pitch": 67, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 1", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 67, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "F", "beat": 7.0, "duration_beats": 3.0, "expected_pitches": [41, 60, 65], "guitar_tabs": {"frets": [1, 3, 3, 2, 1, 1], "strings": "E-A-D-G-B-e", "fingering": "1-3-4-2-1-1", "fingers": [1, 3, 4, 2, 1, 1], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 1, "pitch": 41, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 1, "fret": 1, "pitch": 65, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 1", "notes": [{"pitch": 41, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 65, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "E", "beat": 10.0, "duration_beats": 3.0, "expected_pitches": [40, 56, 59], "guitar_tabs": {"frets": [0, 2, 2, 1, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-1-0-0", "fingers": [null, 2, 3, 1, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 3, "fret": 1, "pitch": 56, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 1", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 56, "beatOffset": 1.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 59, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "Am", "beat": 13.0, "duration_beats": 3.0, "expected_pitches": [45, 60, 64], "guitar_tabs": {"frets": [null, 0, 2, 2, 1, 0], "strings": "x-A-D-G-B-e", "fingering": "x-0-2-3-1-0", "fingers": [null, null, 2, 3, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 5, "fret": 0, "pitch": 45, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 2", "notes": [{"pitch": 45, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 64, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "G", "beat": 16.0, "duration_beats": 3.0, "expected_pitches": [43, 59, 67], "guitar_tabs": {"frets": [3, 2, 0, 0, 0, 3], "strings": "E-A-D-G-B-e", "fingering": "2-1-0-0-0-3", "fingers": [2, 1, null, null, null, 3], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 1, "fret": 3, "pitch": 67, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 2", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 67, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "F", "beat": 19.0, "duration_beats": 3.0, "expected_pitches": [41, 60, 65], "guitar_tabs": {"frets": [1, 3, 3, 2, 1, 1], "strings": "E-A-D-G-B-e", "fingering": "1-3-4-2-1-1", "fingers": [1, 3, 4, 2, 1, 1], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 1, "pitch": 41, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 1, "fret": 1, "pitch": 65, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 2", "notes": [{"pitch": 41, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 65, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "E", "beat": 22.0, "duration_beats": 3.0, "expected_pitches": [40, 56, 59], "guitar_tabs": {"frets": [0, 2, 2, 1, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-1-0-0", "fingers": [null, 2, 3, 1, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 3, "fret": 1, "pitch": 56, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 2", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 56, "beatOffset": 1.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 59, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "Am", "beat": 25.0, "duration_beats": 3.0, "expected_pitches": [45, 60, 64], "guitar_tabs": {"frets": [null, 0, 2, 2, 1, 0], "strings": "x-A-D-G-B-e", "fingering": "x-0-2-3-1-0", "fingers": [null, null, 2, 3, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 5, "fret": 0, "pitch": 45, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 3", "notes": [{"pitch": 45, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 64, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "G", "beat": 28.0, "duration_beats": 3.0, "expected_pitches": [43, 59, 67], "guitar_tabs": {"frets": [3, 2, 0, 0, 0, 3], "strings": "E-A-D-G-B-e", "fingering": "2-1-0-0-0-3", "fingers": [2, 1, null, null, null, 3], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 1, "fret": 3, "pitch": 67, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 3", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 67, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "F", "beat": 31.0, "duration_beats": 3.0, "expected_pitches": [41, 60, 65], "guitar_tabs": {"frets": [1, 3, 3, 2, 1, 1], "strings": "E-A-D-G-B-e", "fingering": "1-3-4-2-1-1", "fingers": [1, 3, 4, 2, 1, 1], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 1, "pitch": 41, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 1, "fret": 1, "pitch": 65, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 3", "notes": [{"pitch": 41, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 65, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "E", "beat": 34.0, "duration_beats": 3.0, "expected_pitches": [40, 56, 59], "guitar_tabs": {"frets": [0, 2, 2, 1, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-1-0-0", "fingers": [null, 2, 3, 1, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 3, "fret": 1, "pitch": 56, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 3", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 56, "beatOffset": 1.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 59, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "Am", "beat": 37.0, "duration_beats": 3.0, "expected_pitches": [45, 60, 64], "guitar_tabs": {"frets": [null, 0, 2, 2, 1, 0], "strings": "x-A-D-G-B-e", "fingering": "x-0-2-3-1-0", "fingers": [null, null, 2, 3, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 5, "fret": 0, "pitch": 45, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 1, "fret": 0, "pitch": 64, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 4", "notes": [{"pitch": 45, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 64, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "G", "beat": 40.0, "duration_beats": 3.0, "expected_pitches": [43, 59, 67], "guitar_tabs": {"frets": [3, 2, 0, 0, 0, 3], "strings": "E-A-D-G-B-e", "fingering": "2-1-0-0-0-3", "fingers": [2, 1, null, null, null, 3], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 3, "pitch": 43, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 1, "fret": 3, "pitch": 67, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 4", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 59, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 67, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "F", "beat": 43.0, "duration_beats": 3.0, "expected_pitches": [41, 60, 65], "guitar_tabs": {"frets": [1, 3, 3, 2, 1, 1], "strings": "E-A-D-G-B-e", "fingering": "1-3-4-2-1-1", "fingers": [1, 3, 4, 2, 1, 1], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 1, "pitch": 41, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 2, "fret": 1, "pitch": 60, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 1, "fret": 1, "pitch": 65, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 4", "notes": [{"pitch": 41, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 60, "beatOffset": 1.0, "duration": 1.0, "voice": "melody"}, {"pitch": 65, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}, {"name": "E", "beat": 46.0, "duration_beats": 3.0, "expected_pitches": [40, 56, 59], "guitar_tabs": {"frets": [0, 2, 2, 1, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-1-0-0", "fingers": [null, 2, 3, 1, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0, "string": 6, "fret": 0, "pitch": 40, "duration": 1.0, "technique": "pick"}, {"beatOffset": 1, "string": 3, "fret": 1, "pitch": 56, "duration": 1.0, "technique": "pick"}, {"beatOffset": 2, "string": 2, "fret": 0, "pitch": 59, "duration": 1.0, "technique": "pick"}], "section": "Flamenco Falseta 4", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 1.0, "voice": "bass"}, {"pitch": 56, "beatOffset": 1.0, "duration": 1.0, "voice": "harmony"}, {"pitch": 59, "beatOffset": 2.0, "duration": 1.0, "voice": "melody"}]}]}),
+    progression_json: JSON.stringify({"key": "A Phrygian", "time_signature": "3/4", "default_tempo_bpm": 116, "tempo_range": {"min_bpm": 80, "default_bpm": 116, "max_bpm": 148, "gradual_step_bpm": 6}, "strumming_pattern": "Flamenco Thumb Melody + Open High-e Pedal (8th Notes)", "educational_focus": "Andalusian Phrygian bass thumb melody alternating with open high-e string pedal.", "artist": "Traditional Spanish Flamenco", "composer": "Traditional Flamenco", "chords": [{"name": "Am", "beat": 1.0, "duration_beats": 3.0, "expected_pitches": [45, 52, 57, 64], "guitar_tabs": {"frets": [null, 0, 2, 2, 1, 0], "strings": "E-A-D-G-B-e", "fingering": "x-0-2-3-1-0", "fingers": [null, null, 2, 3, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 0, "pitch": 45, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 2, "pitch": 52, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 2, "pitch": 57, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Andalusian Cadence 1", "notes": [{"pitch": 45, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 52, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "G", "beat": 4.0, "duration_beats": 3.0, "expected_pitches": [43, 50, 55, 64], "guitar_tabs": {"frets": [3, 2, 0, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "3-2-0-0-0-0", "fingers": [3, 2, null, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 3, "pitch": 43, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 0, "pitch": 50, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 0, "pitch": 55, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Andalusian Cadence 1", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 50, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "F", "beat": 7.0, "duration_beats": 3.0, "expected_pitches": [41, 53, 57, 64], "guitar_tabs": {"frets": [1, 3, 3, 2, 1, 0], "strings": "E-A-D-G-B-e", "fingering": "1-3-4-2-1-0", "fingers": [1, 3, 4, 2, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 1, "pitch": 41, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 3, "pitch": 53, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 2, "pitch": 57, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Andalusian Cadence 1", "notes": [{"pitch": 41, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 53, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "E", "beat": 10.0, "duration_beats": 3.0, "expected_pitches": [40, 52, 56, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 1, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-1-0-0", "fingers": [null, 2, 3, 1, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 3, "fret": 1, "pitch": 56, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 4, "fret": 2, "pitch": 52, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Andalusian Cadence 1", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 56, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 59, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 52, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "Am", "beat": 13.0, "duration_beats": 3.0, "expected_pitches": [45, 52, 57, 60, 64], "guitar_tabs": {"frets": [null, 0, 2, 2, 1, 0], "strings": "E-A-D-G-B-e", "fingering": "x-0-2-3-1-0", "fingers": [null, null, 2, 3, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 0, "pitch": 45, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 2, "pitch": 52, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 2, "pitch": 57, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Picado Variation 2", "notes": [{"pitch": 45, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 60, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 52, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "G", "beat": 16.0, "duration_beats": 3.0, "expected_pitches": [43, 50, 55, 62, 64], "guitar_tabs": {"frets": [3, 2, 0, 0, 3, 0], "strings": "E-A-D-G-B-e", "fingering": "2-1-0-0-3-0", "fingers": [2, 1, null, null, 3, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 3, "pitch": 43, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 2, "fret": 3, "pitch": 62, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 0, "pitch": 50, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 0, "pitch": 55, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Picado Variation 2", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 62, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 50, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "F", "beat": 19.0, "duration_beats": 3.0, "expected_pitches": [41, 53, 57, 60, 64], "guitar_tabs": {"frets": [1, 3, 3, 2, 1, 0], "strings": "E-A-D-G-B-e", "fingering": "1-3-4-2-1-0", "fingers": [1, 3, 4, 2, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 1, "pitch": 41, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 3, "pitch": 53, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 2, "pitch": 57, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Picado Variation 2", "notes": [{"pitch": 41, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 60, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 53, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "E", "beat": 22.0, "duration_beats": 3.0, "expected_pitches": [40, 56, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 1, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-1-0-0", "fingers": [null, 2, 3, 1, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 3, "fret": 1, "pitch": 56, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 3, "fret": 1, "pitch": 56, "duration": 0.5, "technique": "pick"}], "section": "Picado Variation 2", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 56, "beatOffset": 0.5, "duration": 0.5, "voice": "harmony"}, {"pitch": 59, "beatOffset": 1.0, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 56, "beatOffset": 2.5, "duration": 0.5, "voice": "harmony"}]}, {"name": "Am", "beat": 25.0, "duration_beats": 3.0, "expected_pitches": [45, 52, 57, 64], "guitar_tabs": {"frets": [null, 0, 2, 2, 1, 0], "strings": "E-A-D-G-B-e", "fingering": "x-0-2-3-1-0", "fingers": [null, null, 2, 3, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 0, "pitch": 45, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 2, "pitch": 52, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 2, "pitch": 57, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Andalusian Cadence 1 (Finale)", "notes": [{"pitch": 45, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 52, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "G", "beat": 28.0, "duration_beats": 3.0, "expected_pitches": [43, 50, 55, 64], "guitar_tabs": {"frets": [3, 2, 0, 0, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "3-2-0-0-0-0", "fingers": [3, 2, null, null, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 3, "pitch": 43, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 0, "pitch": 50, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 0, "pitch": 55, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Andalusian Cadence 1 (Finale)", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 50, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "F", "beat": 31.0, "duration_beats": 3.0, "expected_pitches": [41, 53, 57, 64], "guitar_tabs": {"frets": [1, 3, 3, 2, 1, 0], "strings": "E-A-D-G-B-e", "fingering": "1-3-4-2-1-0", "fingers": [1, 3, 4, 2, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 1, "pitch": 41, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 3, "pitch": 53, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 2, "pitch": 57, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Andalusian Cadence 1 (Finale)", "notes": [{"pitch": 41, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 53, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "E", "beat": 34.0, "duration_beats": 3.0, "expected_pitches": [40, 52, 56, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 1, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-1-0-0", "fingers": [null, 2, 3, 1, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 3, "fret": 1, "pitch": 56, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 4, "fret": 2, "pitch": 52, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Andalusian Cadence 1 (Finale)", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 56, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 59, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 52, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "Am", "beat": 37.0, "duration_beats": 3.0, "expected_pitches": [45, 52, 57, 60, 64], "guitar_tabs": {"frets": [null, 0, 2, 2, 1, 0], "strings": "E-A-D-G-B-e", "fingering": "x-0-2-3-1-0", "fingers": [null, null, 2, 3, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 5, "fret": 0, "pitch": 45, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 2, "pitch": 52, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 2, "pitch": 57, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Picado Variation 2 (Finale)", "notes": [{"pitch": 45, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 60, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 52, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "G", "beat": 40.0, "duration_beats": 3.0, "expected_pitches": [43, 50, 55, 62, 64], "guitar_tabs": {"frets": [3, 2, 0, 0, 3, 0], "strings": "E-A-D-G-B-e", "fingering": "2-1-0-0-3-0", "fingers": [2, 1, null, null, 3, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 3, "pitch": 43, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 2, "fret": 3, "pitch": 62, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 0, "pitch": 50, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 0, "pitch": 55, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Picado Variation 2 (Finale)", "notes": [{"pitch": 43, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 62, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 50, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 55, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "F", "beat": 43.0, "duration_beats": 3.0, "expected_pitches": [41, 53, 57, 60, 64], "guitar_tabs": {"frets": [1, 3, 3, 2, 1, 0], "strings": "E-A-D-G-B-e", "fingering": "1-3-4-2-1-0", "fingers": [1, 3, 4, 2, 1, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 1, "pitch": 41, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 2, "fret": 1, "pitch": 60, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 4, "fret": 3, "pitch": 53, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 3, "fret": 2, "pitch": 57, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}], "section": "Picado Variation 2 (Finale)", "notes": [{"pitch": 41, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 60, "beatOffset": 0.5, "duration": 0.5, "voice": "melody"}, {"pitch": 53, "beatOffset": 1.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 57, "beatOffset": 2.0, "duration": 0.5, "voice": "bass"}, {"pitch": 64, "beatOffset": 2.5, "duration": 0.5, "voice": "melody"}]}, {"name": "E", "beat": 46.0, "duration_beats": 3.0, "expected_pitches": [40, 56, 59, 64], "guitar_tabs": {"frets": [0, 2, 2, 1, 0, 0], "strings": "E-A-D-G-B-e", "fingering": "0-2-3-1-0-0", "fingers": [null, 2, 3, 1, null, null], "baseFret": 1}, "plucked_notes": [{"beatOffset": 0.0, "string": 6, "fret": 0, "pitch": 40, "duration": 0.5, "technique": "pick"}, {"beatOffset": 0.5, "string": 3, "fret": 1, "pitch": 56, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.0, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 1.5, "string": 1, "fret": 0, "pitch": 64, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.0, "string": 2, "fret": 0, "pitch": 59, "duration": 0.5, "technique": "pick"}, {"beatOffset": 2.5, "string": 3, "fret": 1, "pitch": 56, "duration": 0.5, "technique": "pick"}], "section": "Picado Variation 2 (Finale)", "notes": [{"pitch": 40, "beatOffset": 0.0, "duration": 0.5, "voice": "bass"}, {"pitch": 56, "beatOffset": 0.5, "duration": 0.5, "voice": "harmony"}, {"pitch": 59, "beatOffset": 1.0, "duration": 0.5, "voice": "melody"}, {"pitch": 64, "beatOffset": 1.5, "duration": 0.5, "voice": "melody"}, {"pitch": 59, "beatOffset": 2.0, "duration": 0.5, "voice": "melody"}, {"pitch": 56, "beatOffset": 2.5, "duration": 0.5, "voice": "harmony"}]}]}),
   },
   {
     id: "ex_guitar_knockin",
